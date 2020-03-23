@@ -8,8 +8,8 @@ The application Android4Bikes is a project of the students at the [Technische Ho
 
 ### Contact participants:
 - [Stefanie Lutz](mailto:stlutz@mail.hs-ulm.de)
-- [Julian Kolb](mailto:nakos@mail.hs-ulm.de)
-- [Nektarios Nakos](mailto:stlutz@mail.hs-ulm.de)
+- [Julian Kolb](mailto:jukolb@mail.hs-ulm.de)
+- [Nektarios Nakos](mailto:nakos@mail.hs-ulm.de)
 - [Abdulhay Boydedaev](mailto:boydedaev@mail.hs-ulm.de)
 - [Fabian Dittrich](mailto:fdittrich@mail.hs-ulm.de)
 - [Elias Xirophotos](mailto:xirophotos@mail.hs-ulm.de)
