@@ -9,7 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.MainActivity">
+        <activity android:name=".activities.driving.ActivitySettings"></activity>
+        <activity android:name=".activities.driving.ActivityDrivingMode" />
+        <activity android:name=".activities.info.ActivityInfoMode" />
+        <activity android:name=".activities.menu.ActivityCreateTrack" />
+        <activity android:name=".activities.menu.ActivityRoadsideAssistance" />
+        <activity android:name=".activities.menu.ActivityTracks" />
+        <activity android:name=".activities.menu.ActivityShowProfile" />
+        <activity android:name=".activities.ActivityLogin">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
