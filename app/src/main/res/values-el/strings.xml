@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Android4Bikes</string>
+    <string name="HazardAlert_HazardType_DamagedRoad"></string>
+    <string name="HazardAlert_HazardType_IcyRoad"></string>
+    <string name="HazardAlert_HazardType_SlipperyRoad"></string>
+    <string name="HazardAlert_HazardType_Roadkill"></string>
+    <string name="HazardAlert_HazardType_Rockfall"></string>
 </resources>

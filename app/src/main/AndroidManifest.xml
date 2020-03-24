@@ -12,15 +12,14 @@
         <activity android:name=".activities.test.ActivityButtonTest"></activity>
         <activity android:name=".activities.driving.ActivitySettings" />
         <activity android:name=".activities.driving.ActivityDrivingMode" />
-        <activity android:name=".activities.info.ActivityInfoMode" />
         <activity android:name=".activities.menu.ActivityCreateTrack" />
         <activity android:name=".activities.menu.ActivityRoadsideAssistance" />
         <activity android:name=".activities.menu.ActivityTracks" />
         <activity android:name=".activities.menu.ActivityShowProfile" />
-        <activity android:name=".activities.login.ActivityLogin">
+        <activity android:name=".activities.login.ActivityLogin"/>
+        <activity android:name=".activities.info.ActivityInfoMode" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

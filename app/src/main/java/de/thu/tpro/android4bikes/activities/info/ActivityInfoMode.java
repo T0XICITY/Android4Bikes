@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class ActivityInfoMode extends AppCompatActivity {
 
@@ -12,5 +13,6 @@ public class ActivityInfoMode extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info_mode);
+        GlobalContext.setContext(getApplicationContext());
     }
 }
