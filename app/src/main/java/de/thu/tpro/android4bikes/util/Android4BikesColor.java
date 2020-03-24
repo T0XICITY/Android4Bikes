@@ -2,32 +2,32 @@ package de.thu.tpro.android4bikes.util;
 
 import org.json.JSONObject;
 
-public class Color {
+public class Android4BikesColor {
     private int r;
     private int g;
     private int b;
     private int a;
 
-    public Color() {
+    public Android4BikesColor() {
         //todo
     }
 
-    public Color(int argb) {
+    public Android4BikesColor(int argb) {
         //todo
     }
 
-    public Color(JSONObject color) {
+    public Android4BikesColor(JSONObject color) {
         //todo
     }
 
-    public Color(int r, int g, int b, int a) {
+    public Android4BikesColor(int r, int g, int b, int a) {
         this.r = r;
         this.g = g;
         this.b = b;
         this.a = a;
     }
 
-    public Color(int r, int g, int b) {
+    public Android4BikesColor(int r, int g, int b) {
         this.r = r;
         this.g = g;
         this.b = b;
