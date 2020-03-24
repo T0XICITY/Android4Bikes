@@ -12,19 +12,29 @@ public class Profile {
     private Android4BikesColor color;
     private int overallDistance;
     private Achievement.Level level;
+    private long trackID;
     private List<Achievement> achievements;
 
     public Profile() {
     }
 
-    public Profile(String firstName, String familyName, long firebaseID, Android4BikesColor color, int overallDistance, Achievement.Level level, List<Achievement> achievements) {
+    public Profile(String firstName, String familyName, long firebaseID, Android4BikesColor color, int overallDistance, Achievement.Level level, long trackID, List<Achievement> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
         this.firebaseID = firebaseID;
         this.color = color;
         this.overallDistance = overallDistance;
         this.level = level;
+        this.trackID = trackID;
         this.achievements = achievements;
+    }
+
+    public long getTrackID() {
+        return trackID;
+    }
+
+    public void setTrackID(long trackID) {
+        this.trackID = trackID;
     }
 
     public int getOverallDistance() {
