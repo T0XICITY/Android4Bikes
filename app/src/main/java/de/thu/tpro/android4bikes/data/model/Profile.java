@@ -1,14 +1,14 @@
 package de.thu.tpro.android4bikes.data.model;
 
-public class Profil {
+public class Profile {
     private String firstName;
     private String familyName;
     private long firebaseID;
 
-    public Profil() {
+    public Profile() {
     }
 
-    public Profil(String firstName, String familyName, long firebaseID) {
+    public Profile(String firstName, String familyName, long firebaseID) {
         this.firstName = firstName;
         this.familyName = familyName;
         this.firebaseID = firebaseID;
