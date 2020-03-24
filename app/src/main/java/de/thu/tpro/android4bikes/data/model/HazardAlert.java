@@ -2,15 +2,41 @@ package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 
+import java.util.Date;
+
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.database.Content;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class HazardAlert implements Content {
     private HazardType type;
+    private Position position;
+    private Date expiryDate;
 
-    public HazardAlert(HazardType type) {
+    public HazardAlert(HazardType type, Position position, Date expiryDate) {
         this.type = type;
+        this.position = position;
+        this.expiryDate = expiryDate;
+    }
+
+    public void setType(HazardType type) {
+        this.type = type;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
     public String getType() {
