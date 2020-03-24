@@ -1,6 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="TextWhite">#ffffff</color>
+    <color name="TextBlack">#000000</color>
+
+    <color name="Red800Primary">#c62828</color>
+    <color name="Red800Light">#ff5f52</color>
+    <color name="Red800Dark">#8e0000</color>
+
+    <color name="Pink800Primary">#ad1457</color>
+    <color name="Pink800Light">#e35183</color>
+    <color name="Pink800Dark">#78002e</color>
+
+    <color name="Purple800Primary">#6a1b9a</color>
+    <color name="Purple800Light">#9c4dcc</color>
+    <color name="Purple800Dark">#38006b</color>
+
+    <color name="DeepPurple800Primary">#4527a0</color>
+    <color name="DeepPurple800Light">#7953d2</color>
+    <color name="DeepPurple800Dark">#000070</color>
+
+    <color name="Indigo800Primary">#283593</color>
+    <color name="Indigo800Light">#5f5fc4</color>
+    <color name="Indigo800Dark">#001064</color>
+
+    <color name="Blue800Primary">#1565c0</color>
+    <color name="Blue800Light">#5e92f3</color>
+    <color name="Blue800Dark">#003c8f</color>
+
+    <color name="LightBlue800Primary">#0277bd</color>
+    <color name="LightBlue800Light">#58a5f0</color>
+    <color name="LightBlue800Dark">#004c8c</color>
+
+    <color name="Cyan800Primary">#00838f</color>
+    <color name="Cyan800Light">#4fb3bf</color>
+    <color name="Cyan800Dark">#005662</color>
+
+    <color name="Teal800Primary">#00695c</color>
+    <color name="Teal800Light">#439889</color>
+    <color name="Teal800Dark">#003d33</color>
+
+    <color name="Green800Primary">#2e7d32</color>
+    <color name="Green800Light">#60ad5e</color>
+    <color name="Green800Dark">#005005</color>
+
+    <color name="LightGreen800Primary">#558b2f</color>
+    <color name="LightGreen800Light">#85bb5c</color>
+    <color name="LightGreen800Dark">#255d00</color>
+
+    <color name="Lime800Primary">#9e9d24</color>
+    <color name="Lime800Light">#d2ce56</color>
+    <color name="Lime800Dark">#6c6f00</color>
+
+    <color name="Yellow800Primary">#f9a825</color>
+    <color name="Yellow800Light">#ffd95a</color>
+    <color name="Yellow800Dark">#c17900</color>
+
+    <color name="Amber800Primary">#ff8f00</color>
+    <color name="Amber800Light">#ffc046</color>
+    <color name="Amber800Dark">#c56000</color>
+
+    <color name="Orange800Primary">#ef6c00</color>
+    <color name="Orange800Light">#ff9d3f</color>
+    <color name="Orange800Dark">#b53d00</color>
+
+    <color name="DeepOrange800Primary">#d84315</color>
+    <color name="DeepOrange800Light">#ff7543</color>
+    <color name="DeepOrange800Dark">#9f0000</color>
+
+    <color name="Brown800Primary">#4e342e</color>
+    <color name="Brown800Light">#7b5e57</color>
+    <color name="Brown800Dark">#260e04</color>
+
+    <color name="Grey800Primary">#424242</color>
+    <color name="Grey800Light">#6d6d6d</color>
+    <color name="Grey800Dark">#1b1b1b</color>
+
+    <color name="BlueGrey800Primary">#37474f</color>
+    <color name="BlueGrey800Light">#62727b</color>
+    <color name="BlueGrey800Dark">#102027</color>
+
+
+    <color name="Red400Primary">#ef5350</color>
+    <color name="Red400Light">#ff867c</color>
+    <color name="Red400Dark">#b61827</color>
+
+    <color name="Pink400Primary">#ec407a</color>
+    <color name="Pink400Light">#ff77a9</color>
+    <color name="Pink400Dark">#b4004e</color>
+
+    <color name="Purple400Primary">#ab47bc</color>
+    <color name="Purple400Light">#df78ef</color>
+    <color name="Purple400Dark">#790e8b</color>
+
+    <color name="DeepPurple400Primary">#7e57c2</color>
+    <color name="DeepPurple400Light">#b085f5</color>
+    <color name="DeepPurple400Dark">#4d2c91</color>
+
+    <color name="Indigo400Primary">#5c6bc0</color>
+    <color name="Indigo400Light">#8e99f3</color>
+    <color name="Indigo400Dark">#26418f</color>
+
+    <color name="Blue400Primary">#42a5f5</color>
+    <color name="Blue400Light">#80d6ff</color>
+    <color name="Blue400Dark">#0077c2</color>
+
+    <color name="LightBlue400Primary">#29b6f6</color>
+    <color name="LightBlue400Light">#73e8ff</color>
+    <color name="LightBlue400Dark">#0086c3</color>
+
+    <color name="Cyan400Primary">#26c6da</color>
+    <color name="Cyan400Light">#6ff9ff</color>
+    <color name="Cyan400Dark">#0095a8</color>
+
+    <color name="Teal400Primary">#26a69a</color>
+    <color name="Teal400Light">#64d8cb</color>
+    <color name="Teal400Dark">#00766c</color>
+
+    <color name="Green400Primary">#66bb6a</color>
+    <color name="Green400Light">#98ee99</color>
+    <color name="Green400Dark">#338a3e</color>
+
+    <color name="LightGreen400Primary">#9ccc65</color>
+    <color name="LightGreen400Light">#cfff95</color>
+    <color name="LightGreen400Dark">#6b9b37</color>
+
+    <color name="Lime400Primary">#d4e157</color>
+    <color name="Lime400Light">#ffff89</color>
+    <color name="Lime400Dark">#a0af22</color>
+
+    <color name="Yellow400Primary">#a0af22</color>
+    <color name="Yellow400Light">#ffff8b</color>
+    <color name="Yellow400Dark">#c9bc1f</color>
+
+    <color name="Amber400Primary">#ffca28</color>
+    <color name="Amber400Light">#fffd61</color>
+    <color name="Amber400Dark">#c79a00</color>
+
+    <color name="Orange400Primary">#ffa726</color>
+    <color name="Orange400Light">#ffd95b</color>
+    <color name="Orange400Dark">#c77800</color>
+
+    <color name="DeepOrange400Primary">#ff7043</color>
+    <color name="DeepOrange400Light">#ffa270</color>
+    <color name="DeepOrange400Dark">#c63f17</color>
+
+    <color name="Brown400Primary">#8d6e63</color>
+    <color name="Brown400Light">#be9c91</color>
+    <color name="Brown400Dark">#5f4339</color>
+
+    <color name="Grey400Primary">#9e9e9e</color>
+    <color name="Grey400Light">#cfcfcf</color>
+    <color name="Grey400Dark">#707070</color>
+
+    <color name="BlueGrey400Primary">#607d8b</color>
+    <color name="BlueGrey400Light">#8eacbb</color>
+    <color name="BlueGrey400Dark">#34515e</color>
 </resources>
