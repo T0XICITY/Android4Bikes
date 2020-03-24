@@ -2,7 +2,7 @@ package de.thu.tpro.android4bikes.data.model;
 
 import java.util.List;
 
-import de.thu.tpro.android4bikes.data.Achievement;
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.util.Android4BikesColor;
 
 public class Profile {

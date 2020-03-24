@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.data;
+package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 

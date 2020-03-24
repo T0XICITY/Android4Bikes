@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import de.thu.tpro.android4bikes.data.Position;
-
 public class BikeRack {
     private Position position;
     private String name;

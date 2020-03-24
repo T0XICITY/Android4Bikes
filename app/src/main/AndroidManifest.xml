@@ -17,7 +17,7 @@
         <activity android:name=".activities.menu.ActivityRoadsideAssistance" />
         <activity android:name=".activities.menu.ActivityTracks" />
         <activity android:name=".activities.menu.ActivityShowProfile" />
-        <activity android:name=".activities.ActivityLogin">
+        <activity android:name=".activities.login.ActivityLogin">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

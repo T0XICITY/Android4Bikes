@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.view.KeyEvent;
 import java.util.Observable;
 
-import de.thu.tpro.android4bikes.data.Achievement;
-
 /**
  * {@link BluetoothButtonHandler} provides the necessary functionality for integration of an BluetoothButton.
  * Objects which want to get knowledge about a buttonEvent have to implement the interface {@link java.util.Observer}

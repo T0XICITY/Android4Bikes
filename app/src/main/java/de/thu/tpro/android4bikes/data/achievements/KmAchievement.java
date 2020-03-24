@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.data.achievements;
 
-import de.thu.tpro.android4bikes.data.Achievement;
-
 public class KmAchievement extends Achievement {
     private Level level;
     private int kmGoal;

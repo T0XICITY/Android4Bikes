@@ -2,8 +2,6 @@ package de.thu.tpro.android4bikes.data.model;
 
 import java.util.List;
 
-import de.thu.tpro.android4bikes.data.Position;
-
 public class Track {
     private long author;
     private List<Rating> ratings;
