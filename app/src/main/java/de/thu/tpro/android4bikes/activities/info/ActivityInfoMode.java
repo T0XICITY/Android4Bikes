@@ -18,8 +18,8 @@ public class ActivityInfoMode extends AppCompatActivity {
         setContentView(R.layout.activity_info_mode);
         GlobalContext.setContext(getApplicationContext());
         determineAllViews();
-        HazardAlert hazardAlert = new HazardAlert(HazardAlert.HazardType.ICY_ROAD);
-        tv_Test.setText(hazardAlert.getType());
+        //HazardAlert hazardAlert = new HazardAlert(HazardAlert.HazardType.ICY_ROAD);
+        //tv_Test.setText(hazardAlert.getType());
         a();
         b();
     }
