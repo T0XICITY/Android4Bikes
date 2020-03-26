@@ -28,11 +28,11 @@ public class ActivityInfoMode extends AppCompatActivity {
         tv_Test = findViewById(R.id.tv_Test);
     }
 
-    private void a(){
+    private void a() {
 
     }
 
-    private void b(){
+    private void b() {
 
     }
 }

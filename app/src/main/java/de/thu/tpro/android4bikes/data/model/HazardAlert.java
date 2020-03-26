@@ -48,7 +48,7 @@ public class HazardAlert implements Content {
         return null;
     }
 
-    public enum HazardType{
+    public enum HazardType {
         DAMAGED_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_DamagedRoad)),
         ICY_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_IcyRoad)),
         SLIPPERY_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_SlipperyRoad)),
@@ -57,6 +57,7 @@ public class HazardAlert implements Content {
         GENERAL(""); //todo
 
         private String type;
+
         HazardType(String type) {
             this.type = type;
         }
