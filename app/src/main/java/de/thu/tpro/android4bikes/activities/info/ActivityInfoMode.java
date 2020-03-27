@@ -1,12 +1,11 @@
 package de.thu.tpro.android4bikes.activities.info;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class ActivityInfoMode extends AppCompatActivity {

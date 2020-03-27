@@ -1,12 +1,11 @@
 package de.thu.tpro.android4bikes.activities.test;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import java.util.Date;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.Observable;
 import java.util.Observer;
 

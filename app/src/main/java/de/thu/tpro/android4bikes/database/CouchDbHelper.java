@@ -8,7 +8,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.util.Android4BikesColor;
 
 
-public class CouchDbHelper implements Android4BikesDatabaseHelper{
+public class CouchDbHelper implements Android4BikesDatabaseHelper {
     private CouchDB couchDB;
 
     public CouchDbHelper() {

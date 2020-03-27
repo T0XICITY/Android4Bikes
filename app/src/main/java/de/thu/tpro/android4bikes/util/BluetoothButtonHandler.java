@@ -12,17 +12,10 @@ import java.util.Observable;
  * and register themselves
  */
 public class BluetoothButtonHandler extends Observable {
-    private static class Contract {
-        public final static String SP_BUTTON = "SP_Button";
-        public final static String DEVICEID = "deviceID";
-        public final static int keyCode = 24;
-    }
-
     private static BluetoothButtonHandler instance;
     private SharedPreferences sharedPreferences;
     private boolean bDetect;
     private int deviceID;
-
     /**
      * Private constructor which allows the singleton pattern
      *
@@ -72,5 +65,11 @@ public class BluetoothButtonHandler extends Observable {
             }
         }
         return false;
+    }
+
+    private static class Contract {
+        public final static String SP_BUTTON = "SP_Button";
+        public final static String DEVICEID = "deviceID";
+        public final static int keyCode = 24;
     }
 }
