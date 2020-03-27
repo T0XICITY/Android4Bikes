@@ -1,6 +1,10 @@
 package de.thu.tpro.android4bikes.data.model;
 
-public class BikeRack {
+import org.json.JSONObject;
+
+import de.thu.tpro.android4bikes.database.Content;
+
+public class BikeRack implements Content {
     private Position position;
     private String name;
     private int capacity;
@@ -66,5 +70,10 @@ public class BikeRack {
 
     public void setCovered(boolean covered) {
         isCovered = covered;
+    }
+
+    @Override
+    public JSONObject getJsonRepresentation() {
+        return null;
     }
 }
