@@ -28,6 +28,12 @@ public class Position implements JsonRepresentation {
         this.setDefaultLocation();
     }
 
+    public Position(String firebaseID, double longitude, double latitude) {
+        this.firebaseID = firebaseID;
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
+
     public Position(double longitude, double latitude){
         this.longitude = longitude;
         this.latitude = latitude;
