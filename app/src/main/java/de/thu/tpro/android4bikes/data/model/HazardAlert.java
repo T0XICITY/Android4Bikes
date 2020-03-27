@@ -13,12 +13,22 @@ public class HazardAlert implements Content {
     private Position position;
     private Date expiryDate;
     private int distanceOfInterest;
+    private String firebaseID;
 
-    public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest) {
+    public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest, String firebaseID) {
         this.type = type;
         this.position = position;
         this.expiryDate = expiryDate;
         this.distanceOfInterest = distanceOfInterest;
+        this.firebaseID = firebaseID;
+    }
+
+    public String getFirebaseID() {
+        return firebaseID;
+    }
+
+    public void setFirebaseID(String firebaseID) {
+        this.firebaseID = firebaseID;
     }
 
     public int getDistanceOfInterest() {

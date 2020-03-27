@@ -8,16 +8,26 @@ public class Track {
     private String name;
     private String description;
     private List<Position> track;
+    private String firebaseID;
 
     public Track() {
     }
 
-    public Track(long author, List<Rating> ratings, String name, String description, List<Position> track) {
+    public Track(long author, List<Rating> ratings, String name, String description, List<Position> track, String firebaseID) {
         this.author = author;
         this.ratings = ratings;
         this.name = name;
         this.description = description;
         this.track = track;
+        this.firebaseID = firebaseID;
+    }
+
+    public String getFirebaseID() {
+        return firebaseID;
+    }
+
+    public void setFirebaseID(String firebaseID) {
+        this.firebaseID = firebaseID;
     }
 
     public long getAuthor() {

@@ -6,16 +6,26 @@ public class BikeRack {
     private int capacity;
     private boolean hasBikeCharging;
     private boolean isCovered;
+    private String firebaseID;
 
     public BikeRack() {
     }
 
-    public BikeRack(Position position, String name, int capacity, boolean hasBikeCharging, boolean isCovered) {
+    public BikeRack(Position position, String name, int capacity, boolean hasBikeCharging, boolean isCovered, String firebaseID) {
         this.position = position;
         this.name = name;
         this.capacity = capacity;
         this.hasBikeCharging = hasBikeCharging;
         this.isCovered = isCovered;
+        this.firebaseID = firebaseID;
+    }
+
+    public String getFirebaseID() {
+        return firebaseID;
+    }
+
+    public void setFirebaseID(String firebaseID) {
+        this.firebaseID = firebaseID;
     }
 
     public Position getPosition() {

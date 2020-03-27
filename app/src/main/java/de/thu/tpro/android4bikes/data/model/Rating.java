@@ -6,16 +6,26 @@ public class Rating {
     private String comment;
     private int fun;
     private int roadquality;
+    private String firebaseID;
 
     public Rating() {
     }
 
-    public Rating(long author, int difficulty, String comment, int fun, int roadquality) {
+    public Rating(long author, int difficulty, String comment, int fun, int roadquality, String firebaseID) {
         this.author = author;
         this.difficulty = difficulty;
         this.comment = comment;
         this.fun = fun;
         this.roadquality = roadquality;
+        this.firebaseID = firebaseID;
+    }
+
+    public String getFirebaseID() {
+        return firebaseID;
+    }
+
+    public void setFirebaseID(String firebaseID) {
+        this.firebaseID = firebaseID;
     }
 
     public long getAuthor() {
