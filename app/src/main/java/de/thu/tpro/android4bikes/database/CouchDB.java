@@ -33,41 +33,6 @@ public class CouchDB implements Andoid4BikeDatabse {
     private Database database_rating;
     private Database database_track;
 
-    public enum DatabaseNames {
-        //Databases:
-        DATABASE_ACHIEVEMENT("achievementdb"),
-        DATABASE_BIKERACK("bikerackdb"),
-        DATABASE_HAZARD_ALERT("hazardalertsdb"),
-        DATABASE_POSITION("positiondb"),
-        DATABASE_PROFILE("profiledb"),
-        DATABASE_RATING("ratingdb"),
-        DATABASE_TRACK("trackdb");
-
-        private String name;
-
-        DatabaseNames(String type) {
-            this.name = type;
-        }
-
-        public String toText() {
-            return name;
-        }
-    }
-
-    public enum AttributeNames {
-        //Databases:
-        DATABASE_ID("id");
-        private String name;
-
-        AttributeNames(String type) {
-            this.name = type;
-        }
-
-        public String toText() {
-            return name;
-        }
-    }
-
     /**
      * constructor
      *
@@ -121,23 +86,37 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * get a specified database object
+     *
      * @param databaseName name of the database
      * @return database object
      */
-    public Database getDatabaseFromName(DatabaseNames databaseName){
-        Database db=null;
-        switch(databaseName){
-            case DATABASE_ACHIEVEMENT: db = database_achievement; break;
-            case DATABASE_BIKERACK: db = database_bikerack; break;
-            case DATABASE_HAZARD_ALERT: db = database_hazardalert; break;
-            case DATABASE_POSITION: db = database_position; break;
-            case DATABASE_PROFILE: db = database_profile; break;
-            case DATABASE_RATING: db = database_rating; break;
-            case DATABASE_TRACK: db = database_track; break;
+    public Database getDatabaseFromName(DatabaseNames databaseName) {
+        Database db = null;
+        switch (databaseName) {
+            case DATABASE_ACHIEVEMENT:
+                db = database_achievement;
+                break;
+            case DATABASE_BIKERACK:
+                db = database_bikerack;
+                break;
+            case DATABASE_HAZARD_ALERT:
+                db = database_hazardalert;
+                break;
+            case DATABASE_POSITION:
+                db = database_position;
+                break;
+            case DATABASE_PROFILE:
+                db = database_profile;
+                break;
+            case DATABASE_RATING:
+                db = database_rating;
+                break;
+            case DATABASE_TRACK:
+                db = database_track;
+                break;
         }
         return db;
     }
-
 
     /**
      * dave a given mutable document to the database
@@ -246,7 +225,6 @@ public class CouchDB implements Andoid4BikeDatabse {
         MutableDocument document = database.getDocument(documentID).toMutable();
         return document;
     }
-
 
     /**
      * returns the number of stored elements
@@ -408,6 +386,41 @@ public class CouchDB implements Andoid4BikeDatabse {
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
             Log.d("HalloWelt", "Database couln't be closed!");
+        }
+    }
+
+    public enum DatabaseNames {
+        //Databases:
+        DATABASE_ACHIEVEMENT("achievementdb"),
+        DATABASE_BIKERACK("bikerackdb"),
+        DATABASE_HAZARD_ALERT("hazardalertsdb"),
+        DATABASE_POSITION("positiondb"),
+        DATABASE_PROFILE("profiledb"),
+        DATABASE_RATING("ratingdb"),
+        DATABASE_TRACK("trackdb");
+
+        private String name;
+
+        DatabaseNames(String type) {
+            this.name = type;
+        }
+
+        public String toText() {
+            return name;
+        }
+    }
+
+    public enum AttributeNames {
+        //Databases:
+        DATABASE_ID("id");
+        private String name;
+
+        AttributeNames(String type) {
+            this.name = type;
+        }
+
+        public String toText() {
+            return name;
         }
     }
 }
