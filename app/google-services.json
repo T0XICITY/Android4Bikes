@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "87638328925",
+    "firebase_url": "https://android4bikes.firebaseio.com",
+    "project_id": "android4bikes",
+    "storage_bucket": "android4bikes.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:87638328925:android:00e17bac0e255e428cefb4",
+        "android_client_info": {
+          "package_name": "de.thu.tpro.android4bikes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "87638328925-elh9oe4epnvihooi74siag0ttu3ae49v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhXyv3fhGx3AKMyrA-BF9uw209Re9Mek8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "87638328925-elh9oe4epnvihooi74siag0ttu3ae49v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

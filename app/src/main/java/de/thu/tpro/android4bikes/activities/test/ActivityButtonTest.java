@@ -34,8 +34,8 @@ public class ActivityButtonTest extends AppCompatActivity implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        if (o instanceof BluetoothButtonHandler){
-            Toast.makeText(getApplicationContext(),"Gefahr!",Toast.LENGTH_SHORT).show();
+        if (o instanceof BluetoothButtonHandler) {
+            Toast.makeText(getApplicationContext(), "Gefahr!", Toast.LENGTH_SHORT).show();
         }
     }
 }

@@ -1,5 +1,7 @@
 package de.thu.tpro.android4bikes.data.achievements;
 
+import org.json.JSONObject;
+
 public class KmAchievement extends Achievement {
     private Level level;
     private int kmGoal;
@@ -26,5 +28,10 @@ public class KmAchievement extends Achievement {
 
     public void setKmGoal(int kmGoal) {
         this.kmGoal = kmGoal;
+    }
+
+    @Override
+    public JSONObject getJsonRepresentation() {
+        return null;
     }
 }

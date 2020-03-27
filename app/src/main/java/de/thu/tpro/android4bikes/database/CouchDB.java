@@ -1,5 +1,6 @@
 package de.thu.tpro.android4bikes.database;
 
+
 import android.content.Context;
 
 import com.couchbase.lite.CouchbaseLite;
@@ -12,10 +13,11 @@ public class CouchDB implements Andoid4BikeDatabse{
 
     public static CouchDB getInstance(){
         if (instance == null){
-            //instance = new CouchDB(GlobalContext.getContext());
+            instance = new CouchDB(GlobalContext.getContext());
         }
         return instance;
     }
+
     @Override
     public void prepareDatabase() {
 
