@@ -1,41 +1,30 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import android.graphics.Color;
+
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.util.Android4BikesColor;
 
 public class Profile {
     private String firstName;
     private String familyName;
     private String firebaseAccountID;
-    private Android4BikesColor color;
+    private int color;
     private int overallDistance;
-    private Achievement.Level level;
-    private long trackID;
-    private List<Achievement> achievements;
+    private List<Integer> achievements; //TODO better representation
 
     public Profile() {
     }
 
 
-    public Profile(String firstName, String familyName, String firebaseAccountID, Android4BikesColor color, int overallDistance, Achievement.Level level, long trackID, List<Achievement> achievements) {
+    public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Integer> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
         this.firebaseAccountID = firebaseAccountID;
         this.color = color;
         this.overallDistance = overallDistance;
-        this.level = level;
-        this.trackID = trackID;
         this.achievements = achievements;
-    }
-
-    public long getTrackID() {
-        return trackID;
-    }
-
-    public void setTrackID(long trackID) {
-        this.trackID = trackID;
     }
 
     public int getOverallDistance() {
@@ -46,27 +35,19 @@ public class Profile {
         this.overallDistance = overallDistance;
     }
 
-    public Achievement.Level getLevel() {
-        return level;
-    }
-
-    public void setLevel(Achievement.Level level) {
-        this.level = level;
-    }
-
-    public List<Achievement> getAchievements() {
+    public List<Integer> getAchievements() {
         return achievements;
     }
 
-    public void setAchievements(List<Achievement> achievements) {
+    public void setAchievements(List<Integer> achievements) {
         this.achievements = achievements;
     }
 
-    public Android4BikesColor getColor() {
+    public int getColor() {
         return color;
     }
 
-    public void setColor(Android4BikesColor color) {
+    public void setColor(int color) {
         this.color = color;
     }
 

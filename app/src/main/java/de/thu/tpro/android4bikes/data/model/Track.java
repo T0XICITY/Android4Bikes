@@ -1,5 +1,7 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.List;
 
 public class Track {
@@ -7,13 +9,13 @@ public class Track {
     private List<Rating> ratings;
     private String name;
     private String description;
-    private List<Position> track;
+    private List<GeoPoint> track;
     private String firebaseID;
 
     public Track() {
     }
 
-    public Track(long author, List<Rating> ratings, String name, String description, List<Position> track, String firebaseID) {
+    public Track(long author, List<Rating> ratings, String name, String description, List<GeoPoint> track, String firebaseID) {
         this.author = author;
         this.ratings = ratings;
         this.name = name;
@@ -62,11 +64,11 @@ public class Track {
         this.description = description;
     }
 
-    public List<Position> getTrack() {
+    public List<GeoPoint> getTrack() {
         return track;
     }
 
-    public void setTrack(List<Position> track) {
+    public void setTrack(List<GeoPoint> track) {
         this.track = track;
     }
 }

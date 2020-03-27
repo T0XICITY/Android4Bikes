@@ -9,25 +9,12 @@ public class KmAchievement extends Achievement {
     public KmAchievement() {
     }
 
-    public KmAchievement(Level level, int kmGoal) {
-        this.level = level;
+    public KmAchievement(int kmGoal) {
         this.kmGoal = kmGoal;
     }
 
     public Level getLevel() {
         return level;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
-    }
-
-    public int getKmGoal() {
-        return kmGoal;
-    }
-
-    public void setKmGoal(int kmGoal) {
-        this.kmGoal = kmGoal;
     }
 
     @Override

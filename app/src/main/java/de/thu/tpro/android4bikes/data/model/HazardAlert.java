@@ -1,5 +1,7 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -10,14 +12,14 @@ import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class HazardAlert implements JsonRepresentation {
     private HazardType type;
-    private Position position;
+    private GeoPoint geoPoint;
     private Date expiryDate;
     private int distanceOfInterest;
     private String firebaseID;
 
-    public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest, String firebaseID) {
+    public HazardAlert(HazardType type, GeoPoint geoPoint, Date expiryDate, int distanceOfInterest, String firebaseID) {
         this.type = type;
-        this.position = position;
+        this.geoPoint = geoPoint;
         this.expiryDate = expiryDate;
         this.distanceOfInterest = distanceOfInterest;
         this.firebaseID = firebaseID;
@@ -39,12 +41,12 @@ public class HazardAlert implements JsonRepresentation {
         this.distanceOfInterest = distanceOfInterest;
     }
 
-    public Position getPosition() {
-        return position;
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
     }
 
-    public void setPosition(Position position) {
-        this.position = position;
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
     }
 
     public Date getExpiryDate() {
