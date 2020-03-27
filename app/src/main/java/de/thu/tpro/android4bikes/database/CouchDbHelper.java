@@ -18,7 +18,6 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.util.Android4BikesColor;
 
-
 public class CouchDbHelper implements Android4BikesDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;

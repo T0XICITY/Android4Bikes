@@ -5,18 +5,38 @@ import org.json.JSONObject;
 import java.util.Date;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.database.Content;
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-public class HazardAlert implements Content {
+public class HazardAlert implements JsonRepresentation {
     private HazardType type;
     private Position position;
     private Date expiryDate;
+    private int distanceOfInterest;
+    private String firebaseID;
 
-    public HazardAlert(HazardType type, Position position, Date expiryDate) {
+    public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest, String firebaseID) {
         this.type = type;
         this.position = position;
         this.expiryDate = expiryDate;
+        this.distanceOfInterest = distanceOfInterest;
+        this.firebaseID = firebaseID;
+    }
+
+    public String getFirebaseID() {
+        return firebaseID;
+    }
+
+    public void setFirebaseID(String firebaseID) {
+        this.firebaseID = firebaseID;
+    }
+
+    public int getDistanceOfInterest() {
+        return distanceOfInterest;
+    }
+
+    public void setDistanceOfInterest(int distanceOfInterest) {
+        this.distanceOfInterest = distanceOfInterest;
     }
 
     public Position getPosition() {

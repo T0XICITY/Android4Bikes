@@ -1,21 +1,35 @@
 package de.thu.tpro.android4bikes.data.model;
 
-public class BikeRack {
+import org.json.JSONObject;
+
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
+
+public class BikeRack implements JsonRepresentation {
     private Position position;
     private String name;
     private int capacity;
     private boolean hasBikeCharging;
     private boolean isCovered;
+    private String firebaseID;
 
     public BikeRack() {
     }
 
-    public BikeRack(Position position, String name, int capacity, boolean hasBikeCharging, boolean isCovered) {
+    public BikeRack(Position position, String name, int capacity, boolean hasBikeCharging, boolean isCovered, String firebaseID) {
         this.position = position;
         this.name = name;
         this.capacity = capacity;
         this.hasBikeCharging = hasBikeCharging;
         this.isCovered = isCovered;
+        this.firebaseID = firebaseID;
+    }
+
+    public String getFirebaseID() {
+        return firebaseID;
+    }
+
+    public void setFirebaseID(String firebaseID) {
+        this.firebaseID = firebaseID;
     }
 
     public Position getPosition() {
@@ -56,5 +70,10 @@ public class BikeRack {
 
     public void setCovered(boolean covered) {
         isCovered = covered;
+    }
+
+    @Override
+    public JSONObject getJsonRepresentation() {
+        return null;
     }
 }

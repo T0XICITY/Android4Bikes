@@ -8,7 +8,7 @@ import de.thu.tpro.android4bikes.util.Android4BikesColor;
 public class Profile {
     private String firstName;
     private String familyName;
-    private long firebaseID;
+    private String firebaseAccountID;
     private Android4BikesColor color;
     private int overallDistance;
     private Achievement.Level level;
@@ -18,10 +18,11 @@ public class Profile {
     public Profile() {
     }
 
-    public Profile(String firstName, String familyName, long firebaseID, Android4BikesColor color, int overallDistance, Achievement.Level level, long trackID, List<Achievement> achievements) {
+
+    public Profile(String firstName, String familyName, String firebaseAccountID, Android4BikesColor color, int overallDistance, Achievement.Level level, long trackID, List<Achievement> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
-        this.firebaseID = firebaseID;
+        this.firebaseAccountID = firebaseAccountID;
         this.color = color;
         this.overallDistance = overallDistance;
         this.level = level;
@@ -85,11 +86,11 @@ public class Profile {
         this.familyName = familyName;
     }
 
-    public long getFirebaseID() {
-        return firebaseID;
+    public String getFirebaseAccountID() {
+        return firebaseAccountID;
     }
 
-    public void setFirebaseID(long firebaseID) {
-        this.firebaseID = firebaseID;
+    public void setFirebaseAccountID(String firebaseAccountID) {
+        this.firebaseAccountID = firebaseAccountID;
     }
 }
