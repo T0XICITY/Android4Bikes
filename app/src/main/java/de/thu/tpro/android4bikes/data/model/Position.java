@@ -2,9 +2,9 @@ package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 
-import de.thu.tpro.android4bikes.database.Content;
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
-public class Position implements Content {
+public class Position implements JsonRepresentation {
     private String firebaseID;
 
     public Position(String firebaseID) {

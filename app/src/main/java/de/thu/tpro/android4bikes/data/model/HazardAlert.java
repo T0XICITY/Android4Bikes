@@ -5,10 +5,10 @@ import org.json.JSONObject;
 import java.util.Date;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.database.Content;
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-public class HazardAlert implements Content {
+public class HazardAlert implements JsonRepresentation {
     private HazardType type;
     private Position position;
     private Date expiryDate;

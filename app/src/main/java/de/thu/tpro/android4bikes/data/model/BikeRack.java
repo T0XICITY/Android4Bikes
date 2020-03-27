@@ -2,9 +2,9 @@ package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 
-import de.thu.tpro.android4bikes.database.Content;
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
-public class BikeRack implements Content {
+public class BikeRack implements JsonRepresentation {
     private Position position;
     private String name;
     private int capacity;
