@@ -20,6 +20,8 @@ import com.couchbase.lite.Result;
 import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 
+import java.util.HashMap;
+
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class CouchDB implements Andoid4BikeDatabse {
@@ -80,7 +82,7 @@ public class CouchDB implements Andoid4BikeDatabse {
             this.database_track = new Database(DatabaseNames.DATABASE_TRACK.toText(), config);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
-            Log.d("HalloWelt", "Failure during creation of the database!");
+            Log.e("HalloWelt", "Failure during creation of the database!");
         }
     }
 
@@ -119,7 +121,7 @@ public class CouchDB implements Andoid4BikeDatabse {
     }
 
     /**
-     * dave a given mutable document to the database
+     * save a given mutable document to the database
      * a mutable document is a document that allows modifications/updates
      *
      * @param mutableDoc document to save
@@ -130,7 +132,7 @@ public class CouchDB implements Andoid4BikeDatabse {
             database.save(mutableDoc, ConcurrencyControl.LAST_WRITE_WINS);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
-            Log.d("HalloWelt", "Failure during saving a document.");
+            Log.e("HalloWelt", "Failure during saving a document.");
         }
     }
 
@@ -144,13 +146,19 @@ public class CouchDB implements Andoid4BikeDatabse {
      */
     public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, String value) {
         MutableDocument document = null;
-        // Update a document.
-        if (mutableDoc != null) {
-            mutableDoc = database.getDocument(mutableDoc.getId()).toMutable();
-            mutableDoc.setString(key, value);
-            saveMutableDocumentToDatabase(database, mutableDoc);
+        try{
+            // Update a document.
+            if (mutableDoc != null) {
+                mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
+                deleteDocumentByID(database, mutableDoc.getId()); //delete document from db
+                mutableDoc.setString(key, value); //update value
+                saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
+            }
+            document = database.getDocument(mutableDoc.getId()).toMutable();
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e("HalloWelt", "Failure during updating a document (string value).");
         }
-        document = database.getDocument(mutableDoc.getId()).toMutable();
         return document;
     }
 
@@ -162,16 +170,21 @@ public class CouchDB implements Andoid4BikeDatabse {
      * @param value      new value
      * @return updated document
      */
-    public MutableDocument updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, int value) {
+    public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, int value) {
         MutableDocument document = null;
-
-        // Update a document.
-        if (mutableDoc != null) {
-            mutableDoc = database.getDocument(mutableDoc.getId()).toMutable();
-            mutableDoc.setInt(key, value);
-            saveMutableDocumentToDatabase(database, mutableDoc);
+        try{
+            // Update a document.
+            if (mutableDoc != null) {
+                mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
+                deleteDocumentByID(database, mutableDoc.getId()); //delete document from db
+                mutableDoc.setInt(key, value); //update value
+                saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
+            }
+            document = database.getDocument(mutableDoc.getId()).toMutable();
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e("HalloWelt", "Failure during updating a document (int value).");
         }
-        document = database.getDocument(mutableDoc.getId()).toMutable();
         return document;
     }
 
@@ -183,15 +196,21 @@ public class CouchDB implements Andoid4BikeDatabse {
      * @param value      new value
      * @return updated document
      */
-    public MutableDocument updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, long value) {
+    public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, long value) {
         MutableDocument document = null;
-        // Update a document.
-        if (mutableDoc != null) {
-            mutableDoc = database.getDocument(mutableDoc.getId()).toMutable();
-            mutableDoc.setLong(key, value);
-            saveMutableDocumentToDatabase(database, mutableDoc);
+        try{
+            // Update a document.
+            if (mutableDoc != null) {
+                mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
+                deleteDocumentByID(database, mutableDoc.getId()); //delete document from db
+                mutableDoc.setLong(key, value); //update value
+                saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
+            }
+            document = database.getDocument(mutableDoc.getId()).toMutable();
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e("HalloWelt", "Failure during updating a document (long value).");
         }
-        document = database.getDocument(mutableDoc.getId()).toMutable();
         return document;
     }
 
@@ -203,17 +222,76 @@ public class CouchDB implements Andoid4BikeDatabse {
      * @param value      new value
      * @return updated document
      */
-    public MutableDocument updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, double value) {
+    public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, double value) {
         MutableDocument document = null;
-        // Update a document.
-        if (mutableDoc != null) {
-            mutableDoc = database.getDocument(mutableDoc.getId()).toMutable();
-            mutableDoc.setDouble(key, value);
-            saveMutableDocumentToDatabase(database, mutableDoc);
+        try{
+            // Update a document.
+            if (mutableDoc != null) {
+                mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
+                deleteDocumentByID(database, mutableDoc.getId()); //delete document from db
+                mutableDoc.setDouble(key, value); //update value
+                saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
+            }
+            document = database.getDocument(mutableDoc.getId()).toMutable();
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e("HalloWelt", "Failure during updating a document (double value).");
         }
-        document = database.getDocument(mutableDoc.getId()).toMutable();
         return document;
     }
+
+    /**
+     * updates a single value regarding a certain document
+     *
+     * @param mutableDoc document to update
+     * @param key        key to update
+     * @param value      new value
+     * @return updated document
+     */
+    public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, MutableDocument value) {
+        MutableDocument document = null;
+        try{
+            // Update a document.
+            if (mutableDoc != null) {
+                mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
+                deleteDocumentByID(database, mutableDoc.getId()); //delete document from db
+                mutableDoc.setValue(key, mutableDoc); //update value
+                saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
+            }
+            document = database.getDocument(mutableDoc.getId()).toMutable();
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e("HalloWelt", "Failure during updating a document (subdocument).");
+        }
+        return document;
+    }
+
+    /**
+     * updates all values based
+     *
+     * @param mutableDoc document to update
+     * @param key        key to update
+     * @param newValues      Mutable document containing all new key value pairs
+     * @return updated document
+     */
+    public Document updateAllValuesOfADocument(Database database, MutableDocument mutableDoc, String key, HashMap<String, Object> newValues) {
+        MutableDocument document = null;
+        try{
+            // Update a document.
+            if (mutableDoc != null) {
+                mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
+                deleteDocumentByID(database, mutableDoc.getId()); //delete document from db
+                mutableDoc.setData(newValues); //update value
+                saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
+            }
+            document = database.getDocument(mutableDoc.getId()).toMutable();
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e("HalloWelt", "Failure during updating a complete document.");
+        }
+        return document;
+    }
+
 
     /**
      * read a single document contained by the database
