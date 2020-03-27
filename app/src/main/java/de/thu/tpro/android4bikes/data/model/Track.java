@@ -29,7 +29,7 @@ public class Track implements JsonRepresentation {
             this.type = type;
         }
 
-        public String getType() {
+        public String toString() {
             return type;
         }
     }
@@ -116,8 +116,8 @@ public class Track implements JsonRepresentation {
             trackpositions.add(pos.getMapRepresentation());
         }
 
-        map.put(ConstantsTrack.AUTHOR.getType(),author);
-        map.put(ConstantsTrack.TRACK.getType(), trackpositions);
+        map.put(ConstantsTrack.AUTHOR.toString(),author);
+        map.put(ConstantsTrack.TRACK.toString(), trackpositions);
 
         return null;
     }

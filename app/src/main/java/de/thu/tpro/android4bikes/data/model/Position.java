@@ -30,7 +30,7 @@ public class Position implements JsonRepresentation {
             this.type = type;
         }
 
-        public String toText() {
+        public String toString() {
             return type;
         }
     }
@@ -52,8 +52,8 @@ public class Position implements JsonRepresentation {
 
     public Position(JSONObject position) throws InvalidJsonException {
         try{
-            this.latitude = (double)position.get(LATITUDE.toText());
-            this.longitude = (double)position.get(LONGITUDE.toText());
+            this.latitude = (double)position.get(LATITUDE.toString());
+            this.longitude = (double)position.get(LONGITUDE.toString());
         }catch (Exception e){
             throw new InvalidJsonException();
         }
@@ -112,8 +112,8 @@ public class Position implements JsonRepresentation {
         JSONObject position = null;
         try {
             position = new JSONObject();
-            position.put(LATITUDE.toText(), this.latitude);
-            position.put(LONGITUDE.toText(), this.longitude);
+            position.put(LATITUDE.toString(), this.latitude);
+            position.put(LONGITUDE.toString(), this.longitude);
         } catch (JSONException e) {
             e.printStackTrace();
             throw new InvalidJsonException();
@@ -151,8 +151,8 @@ public class Position implements JsonRepresentation {
     @Override
     public Map<String, Object> getMapRepresentation() {
         Map<String, Object> map = new HashMap<>();
-        map.put(LONGITUDE.toText(),longitude);
-        map.put(LATITUDE.toText(),latitude);
+        map.put(LONGITUDE.toString(),longitude);
+        map.put(LATITUDE.toString(),latitude);
         return map;
     }
 }

@@ -8,6 +8,27 @@ import java.util.Map;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
 public class Profile implements JsonRepresentation {
+
+    public enum ConstantsProfile{
+        FIRSTNAME("firstname"),
+        FAMILYNAME("familyname"),
+        FIREBASEACCOUNTID("firebaseaccountid"),
+        COLOR("color"),
+        OVERALLDISTANCE("overalldistance"),
+        ACHIEVEMENTS("achievements");
+
+
+        private String type;
+
+        ConstantsProfile(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
+    }
+
     private String firstName;
     private String familyName;
     private String firebaseAccountID;
