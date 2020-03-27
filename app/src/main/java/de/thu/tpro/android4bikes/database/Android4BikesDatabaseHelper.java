@@ -14,7 +14,7 @@ public interface Android4BikesDatabaseHelper {
 
     Track getTrack(long trackID);
 
-    Position getPosition();
+    Position getAllPositions();
 
     Android4BikesColor getAndroid4BikeColor();
 
