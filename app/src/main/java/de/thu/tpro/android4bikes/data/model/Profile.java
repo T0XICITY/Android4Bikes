@@ -34,7 +34,7 @@ public class Profile implements JsonRepresentation {
     private String firebaseAccountID;
     private int color;
     private int overallDistance;
-    private List<Integer> achievements; //TODO better representation
+    private List<> achievements; //TODO better representation
 
     public Profile() {
     }

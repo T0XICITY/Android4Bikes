@@ -119,6 +119,6 @@ public class Track implements JsonRepresentation {
         map.put(ConstantsTrack.AUTHOR.toString(),author);
         map.put(ConstantsTrack.TRACK.toString(), trackpositions);
 
-        return null;
+        return map;
     }
 }
