@@ -1,12 +1,13 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import android.graphics.Color;
+import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
-public class Profile {
+public class Profile implements JsonRepresentation {
     private String firstName;
     private String familyName;
     private String firebaseAccountID;
@@ -73,5 +74,15 @@ public class Profile {
 
     public void setFirebaseAccountID(String firebaseAccountID) {
         this.firebaseAccountID = firebaseAccountID;
+    }
+
+    @Override
+    public JSONObject getJsonRepresentation() {
+        return new JSONObject(this.getMapRepresentation());
+    }
+
+    @Override
+    public Map<String, Object> getMapRepresentation() {
+        return null;
     }
 }

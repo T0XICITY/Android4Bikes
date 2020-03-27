@@ -2,9 +2,14 @@ package de.thu.tpro.android4bikes.data.model;
 
 import com.google.firebase.firestore.GeoPoint;
 
-import java.util.List;
+import org.json.JSONObject;
 
-public class Track {
+import java.util.List;
+import java.util.Map;
+
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
+
+public class Track implements JsonRepresentation {
     private long author;
     private List<Rating> ratings;
     private String name;
@@ -70,5 +75,15 @@ public class Track {
 
     public void setTrack(List<GeoPoint> track) {
         this.track = track;
+    }
+
+    @Override
+    public JSONObject getJsonRepresentation() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getMapRepresentation() {
+        return null;
     }
 }

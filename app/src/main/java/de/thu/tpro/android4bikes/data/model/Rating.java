@@ -1,6 +1,12 @@
 package de.thu.tpro.android4bikes.data.model;
 
-public class Rating {
+import org.json.JSONObject;
+
+import java.util.Map;
+
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
+
+public class Rating implements JsonRepresentation {
     private long author;
     private int difficulty;
     private String comment;
@@ -66,5 +72,15 @@ public class Rating {
 
     public void setRoadquality(int roadquality) {
         this.roadquality = roadquality;
+    }
+
+    @Override
+    public JSONObject getJsonRepresentation() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getMapRepresentation() {
+        return null;
     }
 }

@@ -4,6 +4,8 @@ import com.google.firebase.firestore.GeoPoint;
 
 import org.json.JSONObject;
 
+import java.util.Map;
+
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
 public class BikeRack implements JsonRepresentation {
@@ -76,6 +78,11 @@ public class BikeRack implements JsonRepresentation {
 
     @Override
     public JSONObject getJsonRepresentation() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getMapRepresentation() {
         return null;
     }
 }
