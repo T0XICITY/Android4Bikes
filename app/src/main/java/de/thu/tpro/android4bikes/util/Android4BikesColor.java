@@ -38,28 +38,28 @@ public class Android4BikesColor {
         return r;
     }
 
-    public int getG() {
-        return g;
-    }
-
-    public int getB() {
-        return b;
-    }
-
-    public int getA() {
-        return a;
-    }
-
     public void setR(int r) {
         this.r = r;
+    }
+
+    public int getG() {
+        return g;
     }
 
     public void setG(int g) {
         this.g = g;
     }
 
+    public int getB() {
+        return b;
+    }
+
     public void setB(int b) {
         this.b = b;
+    }
+
+    public int getA() {
+        return a;
     }
 
     public void setA(int a) {

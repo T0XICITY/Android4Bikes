@@ -6,7 +6,7 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 
-public class CouchDbHelper implements Android4BikesDatabaseHelper{
+public class CouchDbHelper implements Android4BikesDatabaseHelper {
     private CouchDB couchDB;
 
     public CouchDbHelper() {

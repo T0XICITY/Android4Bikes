@@ -19,10 +19,6 @@ public class HazardAlert implements Content {
         this.expiryDate = expiryDate;
     }
 
-    public void setType(HazardType type) {
-        this.type = type;
-    }
-
     public Position getPosition() {
         return position;
     }
@@ -41,6 +37,10 @@ public class HazardAlert implements Content {
 
     public String getType() {
         return type.getType();
+    }
+
+    public void setType(HazardType type) {
+        this.type = type;
     }
 
     @Override

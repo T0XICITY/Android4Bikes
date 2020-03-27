@@ -6,33 +6,8 @@ import java.util.Date;
 
 //TODO: JUnit-Testing
 public class TimeBase {
-    //constants-----------------------------------------------------------------------------
-    public enum DateRepresentation {
-        DAY_MONTH_YEAR("dd/MM/yyyy"),
-        HOUR_MINUTE_SECOND_MONTH_DAY_YEAR("HH:mm:ss dd/MM/yyyy"),
-        HOUR_MINUTE("HH:mm"),
-        HOUR_MINUTE_SECOND("HH:mm:ss"),
-        MONTH_YEAR("MM/yyyy"),
-        YEAR("yyyy"),
-        MONTH("MM"),
-        DAY("dd"),
-        SECOND("ss"),
-        MINUTE("mm"),
-        HOUR("HH");
-
-        private String type;
-
-        DateRepresentation(String type) {
-            this.type = type;
-        }
-
-        public String getType() {
-            return type;
-        }
-    }
-    //constants-------------------------------------------------------------------------------
-
     private static SimpleDateFormat simpleDateFormat;
+    //constants-------------------------------------------------------------------------------
 
     /**
      * set the date representation using the string constants of this class
@@ -115,5 +90,30 @@ public class TimeBase {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, day, hour, minute, second);
         return calendar.getTimeInMillis();
+    }
+
+    //constants-----------------------------------------------------------------------------
+    public enum DateRepresentation {
+        DAY_MONTH_YEAR("dd/MM/yyyy"),
+        HOUR_MINUTE_SECOND_MONTH_DAY_YEAR("HH:mm:ss dd/MM/yyyy"),
+        HOUR_MINUTE("HH:mm"),
+        HOUR_MINUTE_SECOND("HH:mm:ss"),
+        MONTH_YEAR("MM/yyyy"),
+        YEAR("yyyy"),
+        MONTH("MM"),
+        DAY("dd"),
+        SECOND("ss"),
+        MINUTE("mm"),
+        HOUR("HH");
+
+        private String type;
+
+        DateRepresentation(String type) {
+            this.type = type;
+        }
+
+        public String getType() {
+            return type;
+        }
     }
 }
