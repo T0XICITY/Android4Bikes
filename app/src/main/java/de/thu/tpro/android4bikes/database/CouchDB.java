@@ -20,43 +20,39 @@ import com.couchbase.lite.Result;
 import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class CouchDB implements Andoid4BikeDatabse {
-    private Database database;
+    public static final String DATABASENAME = "MYDB";
+    public static final String COUCHBASELITEID = "id";
     private static CouchDB instance;
-    public static final String DATABASENAME="MYDB";
-    public static final String COUCHBASELITEID="id";
+    private Database database;
+
+    /**
+     * constructor
+     *
+     * @param context necessary for preparing the database
+     */
+    private CouchDB(Context context) {
+        prepareCouchDB(context);
+    }
 
     /**
      * realisation of the singleton pattern
+     *
      * @return instance of the class 'CouchBaseLiteDBHelper'
      */
-    public static CouchDB getInstance(){
-        if(instance==null){
+    public static CouchDB getInstance() {
+        if (instance == null) {
             instance = new CouchDB(GlobalContext.getContext());
         }
         return instance;
     }
 
     /**
-     * constructor
-     * @param context necessary for preparing the database
-     */
-    private CouchDB(Context context){
-        prepareCouchDB(context);
-    }
-
-    /**
      * prepare db for access
      */
-    private void prepareCouchDB(Context context){
+    private void prepareCouchDB(Context context) {
         // Get the database (and create it if it doesn’t exist).
         CouchbaseLite.init(context);
         DatabaseConfiguration config = new DatabaseConfiguration();
@@ -65,83 +61,38 @@ public class CouchDB implements Andoid4BikeDatabse {
             this.database = new Database(CouchDB.DATABASENAME, config);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
-            Log.d("HalloWelt","Failure during creation of the database!");
+            Log.d("HalloWelt", "Failure during creation of the database!");
         }
     }
 
     /**
      * dave a given mutable document to the database
      * a mutable document is a document that allows modifications/updates
+     *
      * @param mutableDoc document to save
      */
-    public void saveMutableDocumentToDatabase(MutableDocument mutableDoc){
+    public void saveMutableDocumentToDatabase(MutableDocument mutableDoc) {
         // Save it to the database.
         try {
             database.save(mutableDoc, ConcurrencyControl.LAST_WRITE_WINS);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
-            Log.d("HalloWelt","Failure during saving a document.");
+            Log.d("HalloWelt", "Failure during saving a document.");
         }
-    }
-
-    /**
-     * Generates the JSON representation out of a mutable document
-     * @param mutableDocument specified mutable document
-     * @return json representation of a given mutable document
-     */
-    public JSONObject convertMutableDocumentToJSON(MutableDocument mutableDocument){
-        JSONObject jsonRepresentation = null;
-        if(mutableDocument!=null){
-            jsonRepresentation = new JSONObject(mutableDocument.toMap());
-        }
-        return jsonRepresentation;
-    }
-
-    /**
-     * converts a given json object to a mutable document
-     * @param jsonObject json object to convert
-     * @return mutable document
-     */
-    public MutableDocument convertJSONToMutableDocument(JSONObject jsonObject){
-        MutableDocument mutableDocument=null;
-
-        try{
-            //generate new mutable document
-            mutableDocument = new MutableDocument();
-
-            //map representing all key value pairs of the json object
-            Map<String, Object> map_jsonData = new HashMap<>();
-
-            //get iterator regarding all keys of the json object
-            Iterator<String> keyIterator = jsonObject.keys();
-            String key=null; //store every key
-            Object value=null; //store every value
-
-            //get all key value pairs of the json object and store them to the map
-            while(keyIterator.hasNext()){
-                key = keyIterator.next();
-                value = jsonObject.get(key);
-                map_jsonData.put(key, value);
-            }
-            mutableDocument.setData(map_jsonData);
-        }catch (Exception e){
-            e.printStackTrace();
-            Log.i("HalloWelt","No mutable document could be generated.");
-        }
-        return mutableDocument;
     }
 
     /**
      * updates a single value regarding a certain document
+     *
      * @param mutableDoc document to update
-     * @param key key to update
-     * @param value new value
+     * @param key        key to update
+     * @param value      new value
      * @return updated document
      */
-    public Document updateSingleValueOfADocument(MutableDocument mutableDoc, String key, String value){
+    public Document updateSingleValueOfADocument(MutableDocument mutableDoc, String key, String value) {
         MutableDocument document = null;
         // Update a document.
-        if(mutableDoc!=null){
+        if (mutableDoc != null) {
             mutableDoc = database.getDocument(mutableDoc.getId()).toMutable();
             mutableDoc.setString(key, value);
             saveMutableDocumentToDatabase(mutableDoc);
@@ -152,16 +103,17 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * updates a single value regarding a certain document
+     *
      * @param mutableDoc document to update
-     * @param key key to update
-     * @param value new value
+     * @param key        key to update
+     * @param value      new value
      * @return updated document
      */
-    public MutableDocument updateSingleValueOfADocument(MutableDocument mutableDoc, String key, int value){
+    public MutableDocument updateSingleValueOfADocument(MutableDocument mutableDoc, String key, int value) {
         MutableDocument document = null;
 
         // Update a document.
-        if(mutableDoc!=null){
+        if (mutableDoc != null) {
             mutableDoc = database.getDocument(mutableDoc.getId()).toMutable();
             mutableDoc.setInt(key, value);
             saveMutableDocumentToDatabase(mutableDoc);
@@ -172,15 +124,16 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * updates a single value regarding a certain document
+     *
      * @param mutableDoc document to update
-     * @param key key to update
-     * @param value new value
+     * @param key        key to update
+     * @param value      new value
      * @return updated document
      */
-    public MutableDocument updateSingleValueOfADocument(MutableDocument mutableDoc, String key, long value){
+    public MutableDocument updateSingleValueOfADocument(MutableDocument mutableDoc, String key, long value) {
         MutableDocument document = null;
         // Update a document.
-        if(mutableDoc!=null){
+        if (mutableDoc != null) {
             mutableDoc = database.getDocument(mutableDoc.getId()).toMutable();
             mutableDoc.setLong(key, value);
             saveMutableDocumentToDatabase(mutableDoc);
@@ -191,15 +144,16 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * updates a single value regarding a certain document
+     *
      * @param mutableDoc document to update
-     * @param key key to update
-     * @param value new value
+     * @param key        key to update
+     * @param value      new value
      * @return updated document
      */
-    public MutableDocument updateSingleValueOfADocument(MutableDocument mutableDoc, String key, double value){
+    public MutableDocument updateSingleValueOfADocument(MutableDocument mutableDoc, String key, double value) {
         MutableDocument document = null;
         // Update a document.
-        if(mutableDoc!=null){
+        if (mutableDoc != null) {
             mutableDoc = database.getDocument(mutableDoc.getId()).toMutable();
             mutableDoc.setDouble(key, value);
             saveMutableDocumentToDatabase(mutableDoc);
@@ -210,10 +164,11 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * read a single document contained by the database
+     *
      * @param documentID unique id of the contained document
      * @return read document or null
      */
-    public MutableDocument readDocumentByID(String documentID){
+    public MutableDocument readDocumentByID(String documentID) {
         MutableDocument document = database.getDocument(documentID).toMutable();
         return document;
     }
@@ -221,25 +176,27 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * returns the number of stored elements
+     *
      * @return number of stored elements as a long value
      */
-    public long getNumberOfStoredDocuments(){
+    public long getNumberOfStoredDocuments() {
         long numberOfStoredElements = database.getCount();
         return numberOfStoredElements;
     }
 
     /**
      * get resultset representing all documents stored in the database
+     *
      * @return ResultSet
      */
-    public ResultSet getAllStoredIds(){
-        ResultSet results=null;
+    public ResultSet getAllStoredIds() {
+        ResultSet results = null;
 
         Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                 .from(DataSource.database(database));
         try {
             results = query.execute();
-            Log.d("HalloWelt",query.explain());
+            Log.d("HalloWelt", query.explain());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -248,10 +205,11 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * query database using a given attribute
-     * @param key attribute used for the query
+     *
+     * @param key   attribute used for the query
      * @param value associated value
      */
-    public ResultSet queryDatabaseForSingleAttributeValue(String key, String value){
+    public ResultSet queryDatabaseForSingleAttributeValue(String key, String value) {
         ResultSet result = null;
         Query query = QueryBuilder.select(SelectResult.all())
                 .from(DataSource.database(database))
@@ -266,10 +224,11 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * query database using a given attribute
-     * @param key attribute used for the query
+     *
+     * @param key   attribute used for the query
      * @param value associated value
      */
-    public ResultSet queryDatabaseForSingleAttributeValue(String key, int value){
+    public ResultSet queryDatabaseForSingleAttributeValue(String key, int value) {
         ResultSet result = null;
         Query query = QueryBuilder.select(SelectResult.all())
                 .from(DataSource.database(database))
@@ -284,10 +243,11 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * query database using a given attribute
-     * @param key attribute used for the query
+     *
+     * @param key   attribute used for the query
      * @param value associated value
      */
-    public ResultSet queryDatabaseForSingleAttributeValue(String key, long value){
+    public ResultSet queryDatabaseForSingleAttributeValue(String key, long value) {
         ResultSet result = null;
         Query query = QueryBuilder.select(SelectResult.all())
                 .from(DataSource.database(database))
@@ -302,10 +262,11 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * query database using a given attribute
-     * @param key attribute used for the query
+     *
+     * @param key   attribute used for the query
      * @param value associated value
      */
-    public ResultSet queryDatabaseForSingleAttributeValue(String key, double value){
+    public ResultSet queryDatabaseForSingleAttributeValue(String key, double value) {
         ResultSet results = null;
         Query query = QueryBuilder.select(SelectResult.all())
                 .from(DataSource.database(database))
@@ -320,10 +281,11 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * query database using a given attribute
+     *
      * @param query database
      * @return ResultSet
      */
-    public ResultSet queryDatabase(Query query){
+    public ResultSet queryDatabase(Query query) {
         ResultSet results = null;
         try {
             results = query.execute();
@@ -335,42 +297,43 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * deletes a specified document
+     *
      * @param id unique of the document to delete
      */
-    public void deleteDocumentByID(String id){
+    public void deleteDocumentByID(String id) {
         Document document = readDocumentByID(id);
         try {
             database.delete(document, ConcurrencyControl.LAST_WRITE_WINS);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
-            Log.d("HalloWelt","couldn't delete docment");
+            Log.d("HalloWelt", "couldn't delete docment");
         }
     }
 
     /**
      * deletes all documents contained by the db
      */
-    public void clearDB(){
+    public void clearDB() {
         try {
             ResultSet results = getAllStoredIds();
-            for(Result res : results){
+            for (Result res : results) {
                 deleteDocumentByID(res.getString(CouchDB.COUCHBASELITEID));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.d("HalloWelt","couldn't delete docment");
+            Log.d("HalloWelt", "couldn't delete docment");
         }
     }
 
     /**
      * close db connection
      */
-    public void closeDBConnection(){
+    public void closeDBConnection() {
         try {
             database.close();
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
-            Log.d("HalloWelt","Database couln't be closed!");
+            Log.d("HalloWelt", "Database couln't be closed!");
         }
     }
 }

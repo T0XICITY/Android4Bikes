@@ -16,6 +16,7 @@ public class BluetoothButtonHandler extends Observable {
     private SharedPreferences sharedPreferences;
     private boolean bDetect;
     private int deviceID;
+
     /**
      * Private constructor which allows the singleton pattern
      *
