@@ -11,14 +11,14 @@ import de.thu.tpro.android4bikes.util.GlobalContext;
 public class HazardAlert implements JsonRepresentation {
     private HazardType type;
     private Position position;
-    private Date expiryDate;
+    private long expiration_unixtimestamp;
     private int distanceOfInterest;
     private String firebaseID;
 
-    public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest, String firebaseID) {
+    public HazardAlert(HazardType type, Position position, long expiration_unixtimestamp, int distanceOfInterest, String firebaseID) {
         this.type = type;
         this.position = position;
-        this.expiryDate = expiryDate;
+        this.expiration_unixtimestamp = expiration_unixtimestamp;
         this.distanceOfInterest = distanceOfInterest;
         this.firebaseID = firebaseID;
     }
@@ -47,12 +47,12 @@ public class HazardAlert implements JsonRepresentation {
         this.position = position;
     }
 
-    public Date getExpiryDate() {
-        return expiryDate;
+    public long getExpiration_unixtimestamp() {
+        return expiration_unixtimestamp;
     }
 
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
+    public void setExpiration_unixtimestamp(long expiration_unixtimestamp) {
+        this.expiration_unixtimestamp = expiration_unixtimestamp;
     }
 
     public String getType() {
