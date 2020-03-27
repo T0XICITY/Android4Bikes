@@ -1,11 +1,13 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import org.json.JSONObject;
 
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
 public class BikeRack implements JsonRepresentation {
-    private Position position;
+    private GeoPoint geoPoint;
     private String name;
     private int capacity;
     private boolean hasBikeCharging;
@@ -15,8 +17,8 @@ public class BikeRack implements JsonRepresentation {
     public BikeRack() {
     }
 
-    public BikeRack(Position position, String name, int capacity, boolean hasBikeCharging, boolean isCovered, String firebaseID) {
-        this.position = position;
+    public BikeRack(GeoPoint geoPoint, String name, int capacity, boolean hasBikeCharging, boolean isCovered, String firebaseID) {
+        this.geoPoint = geoPoint;
         this.name = name;
         this.capacity = capacity;
         this.hasBikeCharging = hasBikeCharging;
@@ -32,12 +34,12 @@ public class BikeRack implements JsonRepresentation {
         this.firebaseID = firebaseID;
     }
 
-    public Position getPosition() {
-        return position;
+    public GeoPoint getGeoPoint() {
+        return geoPoint;
     }
 
-    public void setPosition(Position position) {
-        this.position = position;
+    public void setGeoPoint(GeoPoint geoPoint) {
+        this.geoPoint = geoPoint;
     }
 
     public String getName() {

@@ -12,9 +12,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 import de.thu.tpro.android4bikes.R;
+
 import de.thu.tpro.android4bikes.activities.login.ActivityLogin;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
+
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
+import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
+import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class ActivityInfoMode extends AppCompatActivity {
@@ -30,6 +41,14 @@ public class ActivityInfoMode extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        List<Integer> achievements= new ArrayList<>();
+        achievements.add(0);
+        achievements.add(1);
+
+        Profile profile = new Profile("Olaf","Olafsen","00x13dxxx",10,1,achievements);
+
+        FirebaseConnection.addProfileToFirestore(profile);
+
         setContentView(R.layout.activity_info_mode);
         GlobalContext.setContext(getApplicationContext());
         determineAllViews();

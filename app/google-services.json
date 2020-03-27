@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "87638328925-uovc7jdrm9339bra998ebap99i5i7tm6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.thu.tpro.android4bikes",
+            "certificate_hash": "992fa93701ca459a323fa59babad47fcf328856a"
+          }
+        },
+        {
+          "client_id": "87638328925-1fkn1qccha7bo77kqebhmuu88ko6tko9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "de.thu.tpro.android4bikes",
+            "certificate_hash": "353d2ef495d88d6575e1bbca27bcc8106553c540"
+          }
+        },
+        {
           "client_id": "87638328925-elh9oe4epnvihooi74siag0ttu3ae49v.apps.googleusercontent.com",
           "client_type": 3
         }
