@@ -19,4 +19,6 @@ public interface Android4BikesDatabaseHelper {
     Android4BikesColor getAndroid4BikeColor();
 
     HazardAlert getHazardAlert();
+
+    void savePosition(Position position);
 }

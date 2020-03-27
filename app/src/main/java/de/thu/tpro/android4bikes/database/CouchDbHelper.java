@@ -2,9 +2,17 @@ package de.thu.tpro.android4bikes.database;
 
 import android.util.Log;
 
+import com.couchbase.lite.DataSource;
+import com.couchbase.lite.Expression;
 import com.couchbase.lite.MutableDocument;
+import com.couchbase.lite.Query;
+import com.couchbase.lite.QueryBuilder;
+import com.couchbase.lite.Result;
+import com.couchbase.lite.ResultSet;
+import com.couchbase.lite.SelectResult;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -16,6 +24,7 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.util.Android4BikesColor;
 
 public class CouchDbHelper implements Android4BikesDatabaseHelper {
@@ -30,7 +39,24 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
     @Override
     public BikeRack getBikeRack(Position position) {
         BikeRack bikeRack = null;
+        try {
+            String jsonString = gson.toJson(position);
+            JSONObject json_position = new JSONObject(jsonString);
+            MutableDocument mutableDocument_position = convertJSONToMutableDocument(json_position);
 
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK)))
+                    .where(Expression.property("Position").equalTo(Expression.map(mutableDocument_position.toMap())));
+
+            ResultSet results = couchDB.queryDatabase(query);
+
+            for (Result r: results){
+                JSONObject res = new JSONObject(r.toMap());
+                Log.d("HalloWelt",""+res.toString());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         return bikeRack;
     }
 
@@ -55,6 +81,19 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
         HazardAlert hazardAlert = null;
 
         return hazardAlert;
+    }
+
+    @Override
+    public void savePosition(Position position) {
+        try {
+            JSONObject json_position = new JSONObject(gson.toJson(position));
+            MutableDocument mutableDocument_position = convertJSONToMutableDocument(json_position);
+            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION),mutableDocument_position);
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e("HalloWelt","Exception at savePosition");
+        }
+
     }
 
     @Override
