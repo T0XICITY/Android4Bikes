@@ -1,16 +1,149 @@
 package de.thu.tpro.android4bikes.activities.login;
 
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+
 import android.os.Bundle;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Toast;
+
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.activities.info.ActivityInfoMode;
 
+/**
+ * Firebase Authentication:
+ * https://firebase.google.com/docs/auth/android/google-signin
+ */
 public class ActivityLogin extends AppCompatActivity {
+
+    private GoogleSignInClient mGoogleSignInClient;
+    private final static int RC_SIGN_IN = 9999;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        initialize();
+        createRequest();
+        findViewById(R.id.btn_sign_in).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signIn();
+            }
+        });
+    }
+
+    /**
+     * Checks if user is logged in.
+     * If user is logged in -> the user is forwarded to ActivityInfoMode
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            Intent intent = new Intent(getApplicationContext(), ActivityInfoMode.class);
+            startActivity(intent);
+        }
+    }
+
+    /**
+     * initializes views, variables
+     */
+    private void initialize() {
         setContentView(R.layout.activity_login);
+        mAuth = FirebaseAuth.getInstance();
+        findViewById(R.id.progBar_login).setVisibility(View.GONE);
+    }
+
+    /**
+     * Creates the request form for current user
+     */
+    private void createRequest() {
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+    }
+
+    /**
+     * Performs Google sign
+     */
+    private void signIn() {
+        findViewById(R.id.progBar_login).setVisibility(View.VISIBLE);
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    /**
+     * Read the users contact data
+     * Is called whenever user returns from Google Login UI
+     *
+     * @param requestCode Requested code
+     * @param resultCode  Result cod from Google Api
+     * @param data        User data
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                firebaseAuthWithGoogle(account);
+            } catch (ApiException e) {
+                // Google Sign In failed, update UI appropriately
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * After a user successfully signs in, get an ID token from the GoogleSignInAccount object,
+     * exchange it for a Firebase credential, and authenticate with Firebase using the Firebase credential
+     *
+     * @param acct users GoogleSignInAccount
+     */
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Intent intent = new Intent(getApplicationContext(), ActivityInfoMode.class);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(ActivityLogin.this, R.string.Activity_Login_Toast_Fail, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 }
