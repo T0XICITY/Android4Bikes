@@ -36,12 +36,11 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * realisation of the singleton pattern
-     * @param context context is necessary for preparing the database
      * @return instance of the class 'CouchBaseLiteDBHelper'
      */
-    public static CouchDB getInstance(Context context){
+    public static CouchDB getInstance(){
         if(instance==null){
-            instance = new CouchDB(context);
+            instance = new CouchDB(GlobalContext.getContext());
         }
         return instance;
     }
