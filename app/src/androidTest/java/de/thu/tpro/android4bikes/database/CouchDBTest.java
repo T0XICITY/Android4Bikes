@@ -11,8 +11,9 @@ import org.junit.Test;
 
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-import static de.thu.tpro.android4bikes.database.CouchDB.*;
-import static org.junit.Assert.*;
+import static de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class CouchDBTest {
     private static CouchDB couchdb;
@@ -93,5 +94,6 @@ public class CouchDBTest {
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE));
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_RATING));
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK));
+
     }
 }
