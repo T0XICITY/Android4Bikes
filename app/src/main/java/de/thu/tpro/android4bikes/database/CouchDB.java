@@ -37,7 +37,7 @@ public class CouchDB implements Andoid4BikeDatabse {
         //Databases:
         DATABASE_ACHIEVEMENT("achievementdb"),
         DATABASE_BIKERACK("bikerackdb"),
-        DATABASE_HAZARD_ALERTS("hazardalertsdb"),
+        DATABASE_HAZARD_ALERT("hazardalertsdb"),
         DATABASE_POSITION("positiondb"),
         DATABASE_PROFILE("profiledb"),
         DATABASE_RATING("ratingdb"),
@@ -108,7 +108,7 @@ public class CouchDB implements Andoid4BikeDatabse {
         try {
             this.database_achievement = new Database(DatabaseNames.DATABASE_ACHIEVEMENT.toText(), config);
             this.database_bikerack = new Database(DatabaseNames.DATABASE_BIKERACK.toText(), config);
-            this.database_hazardalert = new Database(DatabaseNames.DATABASE_HAZARD_ALERTS.toText(), config);
+            this.database_hazardalert = new Database(DatabaseNames.DATABASE_HAZARD_ALERT.toText(), config);
             this.database_position = new Database(DatabaseNames.DATABASE_POSITION.toText(), config);
             this.database_profile = new Database(DatabaseNames.DATABASE_PROFILE.toText(), config);
             this.database_rating = new Database(DatabaseNames.DATABASE_RATING.toText(), config);
@@ -129,7 +129,7 @@ public class CouchDB implements Andoid4BikeDatabse {
         switch(databaseName){
             case DATABASE_ACHIEVEMENT: db = database_achievement; break;
             case DATABASE_BIKERACK: db = database_bikerack; break;
-            case DATABASE_HAZARD_ALERTS: db = database_hazardalert; break;
+            case DATABASE_HAZARD_ALERT: db = database_hazardalert; break;
             case DATABASE_POSITION: db = database_position; break;
             case DATABASE_PROFILE: db = database_profile; break;
             case DATABASE_RATING: db = database_rating; break;
