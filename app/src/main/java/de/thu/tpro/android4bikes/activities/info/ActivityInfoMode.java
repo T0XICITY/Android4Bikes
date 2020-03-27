@@ -2,15 +2,30 @@ package de.thu.tpro.android4bikes.activities.info;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.auth.FirebaseAuth;
+
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.activities.login.ActivityLogin;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class ActivityInfoMode extends AppCompatActivity {
+
+    ///Temporary variables just for testing///
+    //Todo: Delete after testing
     private TextView tv_Test;
+    TextView name, mail;
+    Button logout;
+    /////////////////////////////////////////
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,19 +35,43 @@ public class ActivityInfoMode extends AppCompatActivity {
         determineAllViews();
         //HazardAlert hazardAlert = new HazardAlert(HazardAlert.HazardType.ICY_ROAD);
         //tv_Test.setText(hazardAlert.getType());
+        testLogOut();
         a();
         b();
     }
 
     private void determineAllViews() {
+    }
+
+    private void a() {
+
+    }
+
+    private void b() {
+
+    }
+
+    ///Temporary method for logout testing///
+    //Todo: Delete after testing
+    private void testLogOut() {
         tv_Test = findViewById(R.id.tv_Test);
-    }
+        logout = findViewById(R.id.logout);
+        name = findViewById(R.id.name);
+        mail = findViewById(R.id.mail);
+        GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(this);
+        if (signInAccount != null) {
+            name.setText(signInAccount.getDisplayName());
+            mail.setText(signInAccount.getEmail());
+        }
 
-    private void a(){
-
-    }
-
-    private void b(){
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(getApplicationContext(), ActivityLogin.class);
+                startActivity(intent);
+            }
+        });
 
     }
 }
