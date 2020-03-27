@@ -23,31 +23,50 @@ import com.couchbase.lite.SelectResult;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class CouchDB implements Andoid4BikeDatabse {
+    private static CouchDB instance;
 
-    public enum StringConstants {
-        DATABASE_PROFILE("profiledb"),
+    private Database database_achievement;
+    private Database database_bikerack; //for storing positions of a certain user when he is offline
+    private Database database_hazardalert;
+    private Database database_position;
+    private Database database_profile;
+    private Database database_rating;
+    private Database database_track;
+
+    public enum DatabaseNames {
+        //Databases:
+        DATABASE_ACHIEVEMENT("achievementdb"),
         DATABASE_BIKERACK("bikerackdb"),
+        DATABASE_HAZARD_ALERTS("hazardalertsdb"),
+        DATABASE_POSITION("positiondb"),
+        DATABASE_PROFILE("profiledb"),
         DATABASE_RATING("ratingdb"),
-        DATABASE_TRACK("ratingdb"),
-        DATABASE_POSITION("ratingdb"), //for storing positions of a certain user when he is offline
-        DATABASE_ACHIEVEMENT("ratingdb"),
-        DATABASE_HAZARD_ALERTS("ratingdb"),
-        DATABASE_ID("id");
+        DATABASE_TRACK("trackdb");
 
         private String name;
 
-        StringConstants(String type) {
+        DatabaseNames(String type) {
             this.name = type;
         }
 
-        public String getName() {
+        public String toText() {
             return name;
         }
     }
 
+    public enum AttributeNames {
+        //Databases:
+        DATABASE_ID("id");
+        private String name;
 
-    private static CouchDB instance;
-    private Database database;
+        AttributeNames(String type) {
+            this.name = type;
+        }
+
+        public String toText() {
+            return name;
+        }
+    }
 
     /**
      * constructor
@@ -71,20 +90,54 @@ public class CouchDB implements Andoid4BikeDatabse {
     }
 
     /**
-     * prepare db for access
+     * prepare db for access. Create all necessary databases.
      */
     private void prepareCouchDB(Context context) {
         // Get the database (and create it if it doesn’t exist).
         CouchbaseLite.init(context);
         DatabaseConfiguration config = new DatabaseConfiguration();
-        this.database = null;
+        this.database_achievement = null;
+        this.database_bikerack = null;
+        this.database_hazardalert = null;
+        this.database_position = null;
+        this.database_profile = null;
+        this.database_rating = null;
+        this.database_track = null;
+
+
         try {
-            this.database = new Database(StringConstants.DATABASE_PROFILE.getName(), config);
+            this.database_achievement = new Database(DatabaseNames.DATABASE_ACHIEVEMENT.toText(), config);
+            this.database_bikerack = new Database(DatabaseNames.DATABASE_BIKERACK.toText(), config);
+            this.database_hazardalert = new Database(DatabaseNames.DATABASE_HAZARD_ALERTS.toText(), config);
+            this.database_position = new Database(DatabaseNames.DATABASE_POSITION.toText(), config);
+            this.database_profile = new Database(DatabaseNames.DATABASE_PROFILE.toText(), config);
+            this.database_rating = new Database(DatabaseNames.DATABASE_RATING.toText(), config);
+            this.database_track = new Database(DatabaseNames.DATABASE_TRACK.toText(), config);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
             Log.d("HalloWelt", "Failure during creation of the database!");
         }
     }
+
+    /**
+     * get a specified database object
+     * @param databaseName name of the database
+     * @return database object
+     */
+    public Database getDatabaseFromName(DatabaseNames databaseName){
+        Database db=null;
+        switch(databaseName){
+            case DATABASE_ACHIEVEMENT: db = database_achievement; break;
+            case DATABASE_BIKERACK: db = database_bikerack; break;
+            case DATABASE_HAZARD_ALERTS: db = database_hazardalert; break;
+            case DATABASE_POSITION: db = database_position; break;
+            case DATABASE_PROFILE: db = database_profile; break;
+            case DATABASE_RATING: db = database_rating; break;
+            case DATABASE_TRACK: db = database_track; break;
+        }
+        return db;
+    }
+
 
     /**
      * dave a given mutable document to the database
@@ -200,7 +253,7 @@ public class CouchDB implements Andoid4BikeDatabse {
      *
      * @return number of stored elements as a long value
      */
-    public long getNumberOfStoredDocuments() {
+    public long getNumberOfStoredDocuments(Database database) {
         long numberOfStoredElements = database.getCount();
         return numberOfStoredElements;
     }
@@ -338,7 +391,7 @@ public class CouchDB implements Andoid4BikeDatabse {
         try {
             ResultSet results = getAllStoredIds(database);
             for (Result res : results) {
-                deleteDocumentByID(database, res.getString(StringConstants.DATABASE_ID.getName()));
+                deleteDocumentByID(database, res.getString(AttributeNames.DATABASE_ID.toText()));
             }
         } catch (Exception e) {
             e.printStackTrace();
