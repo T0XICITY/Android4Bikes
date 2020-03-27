@@ -58,7 +58,7 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
     }
 
     @Override
-    public Position getPosition() {
+    public Position getAllPositions() {
         Position position = null;
 
         return position;
