@@ -1,15 +1,11 @@
 package de.thu.tpro.android4bikes.database;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
-import de.thu.tpro.android4bikes.data.model.Position;
-import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.data.model.Report;
-import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.util.Android4BikesColor;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.util.Android4BikesColor;
 
 
 public class CouchDbHelper implements Android4BikesDatabaseHelper{
@@ -41,8 +37,8 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper{
     }
 
     @Override
-    public Report getHazardAlert() {
-        Report hazardAlert = null;
+    public HazardAlert getHazardAlert() {
+        HazardAlert hazardAlert = null;
 
         return hazardAlert;
     }
