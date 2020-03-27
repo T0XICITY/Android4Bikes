@@ -12,11 +12,21 @@ public class HazardAlert implements Content {
     private HazardType type;
     private Position position;
     private Date expiryDate;
+    private int distanceOfInterest;
 
-    public HazardAlert(HazardType type, Position position, Date expiryDate) {
+    public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest) {
         this.type = type;
         this.position = position;
         this.expiryDate = expiryDate;
+        this.distanceOfInterest = distanceOfInterest;
+    }
+
+    public int getDistanceOfInterest() {
+        return distanceOfInterest;
+    }
+
+    public void setDistanceOfInterest(int distanceOfInterest) {
+        this.distanceOfInterest = distanceOfInterest;
     }
 
     public Position getPosition() {
