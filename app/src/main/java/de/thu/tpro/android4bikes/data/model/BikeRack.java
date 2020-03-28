@@ -1,31 +1,51 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import com.google.firebase.firestore.GeoPoint;
-
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
 public class BikeRack implements JsonRepresentation {
-    private GeoPoint geoPoint;
+    public enum ConstantsBikeRack {
+        BIKE_RACK_NAME("name"),
+        CAPACITY("capacity"),
+        IS_EBIKE_STATION("isEBikeStation"),
+        IS_EXISTENT("isExistent"),
+        IS_COVERED("isCovered");
+
+
+        private String type;
+
+        ConstantsBikeRack(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
+    }
+
+    private String firebaseID;
+    private Position position;
     private String name;
     private int capacity;
     private boolean hasBikeCharging;
+    private boolean isExistent;
     private boolean isCovered;
-    private String firebaseID;
 
     public BikeRack() {
     }
 
-    public BikeRack(GeoPoint geoPoint, String name, int capacity, boolean hasBikeCharging, boolean isCovered, String firebaseID) {
-        this.geoPoint = geoPoint;
+    public BikeRack(String firebaseID, Position position, String name, int capacity, boolean hasBikeCharging, boolean isExistent, boolean isCovered) {
+        this.firebaseID = firebaseID;
+        this.position = position;
         this.name = name;
         this.capacity = capacity;
         this.hasBikeCharging = hasBikeCharging;
+        this.isExistent = isExistent;
         this.isCovered = isCovered;
-        this.firebaseID = firebaseID;
     }
 
     public String getFirebaseID() {
@@ -36,20 +56,28 @@ public class BikeRack implements JsonRepresentation {
         this.firebaseID = firebaseID;
     }
 
-    public GeoPoint getGeoPoint() {
-        return geoPoint;
-    }
-
-    public void setGeoPoint(GeoPoint geoPoint) {
-        this.geoPoint = geoPoint;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
+    public boolean hasBikeCharging() {
+        return hasBikeCharging;
+    }
+
+    public void setHasBikeCharging(boolean hasBikeCharging) {
+        this.hasBikeCharging = hasBikeCharging;
     }
 
     public int getCapacity() {
@@ -60,13 +88,6 @@ public class BikeRack implements JsonRepresentation {
         this.capacity = capacity;
     }
 
-    public boolean hasBikeCharging() {
-        return hasBikeCharging;
-    }
-
-    public void setHasBikeCharging(boolean haseBikeCharging) {
-        this.hasBikeCharging = haseBikeCharging;
-    }
 
     public boolean isCovered() {
         return isCovered;
@@ -76,6 +97,14 @@ public class BikeRack implements JsonRepresentation {
         isCovered = covered;
     }
 
+    public boolean isExistent() {
+        return isExistent;
+    }
+
+    public void setExistent(boolean existent) {
+        isExistent = existent;
+    }
+
     @Override
     public JSONObject getJsonRepresentation() {
         return null;
@@ -83,6 +112,13 @@ public class BikeRack implements JsonRepresentation {
 
     @Override
     public Map<String, Object> getMapRepresentation() {
-        return null;
+        Map<String,Object> map_bikeRack = new HashMap<>();
+        map_bikeRack.put(Position.ConstantsPosition.POSITION.toString(), this.position.getMapRepresentation());
+        map_bikeRack.put(ConstantsBikeRack.BIKE_RACK_NAME.toString(), this.name);
+        map_bikeRack.put(ConstantsBikeRack.CAPACITY.toString(), this.capacity);
+        map_bikeRack.put(ConstantsBikeRack.IS_EBIKE_STATION.toString(), this.hasBikeCharging);
+        map_bikeRack.put(ConstantsBikeRack.IS_EXISTENT.toString(), this.isExistent);
+        map_bikeRack.put(ConstantsBikeRack.IS_COVERED.toString(), this.isCovered);
+        return map_bikeRack;
     }
 }
