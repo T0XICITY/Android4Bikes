@@ -4,9 +4,15 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Profile;
@@ -39,8 +45,9 @@ public class FirebaseConnection {
     }
 
     public static void addProfileToFirestore(Profile profile) {
-        FirebaseFirestore.getInstance().collection("users").document(profile.getFirebaseAccountID())
-                .set(FirebaseHelper.convertProfileToMap(profile))
+        FirebaseFirestore.getInstance().collection(ConstantsFirebase.COLLECTION_USERS.toString())
+                .document(profile.getFirebaseAccountID()) //set the id of a given document
+                .set(FirebaseHelper.convertProfileToMap(profile)) //set-Method: Will create or overwrite document if it is existing
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -56,8 +63,38 @@ public class FirebaseConnection {
                 });
     }
 
-    public static void addBikeRackToFireStore(BikeRack bikerack){
+    /**
+     * stores a BikeRack first in the FireStore and after that in the local database
+     * @param bikerack bikeRack to store.
+     */
+    public static void storeBikeRackInFireStoreAndLocalDB(BikeRack bikerack){
+        //TODO: REVIEW
+        FirebaseFirestore.getInstance()
+                .collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
+                .add(bikerack.getMapRepresentation()) //generate id automatically
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        String bikeRackID = documentReference.getId();
+                        Log.d("Hallo Welt", "DocumentSnapshot added with ID: " + bikeRackID);
+                        //TODO save BikeRack in Local DB
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Hallo Welt", "Error adding document", e);
+                    }
+                });
+    }
 
+
+    public static BikeRack updateBikeRackInFireStoreAndLocalDB(){
+        return null;
+    }
+
+    public static void deleteBikeRackInFirestoreAndLocalDB(){
+        return;
     }
 
     public void updateToken() {
