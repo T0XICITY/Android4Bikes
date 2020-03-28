@@ -1,11 +1,12 @@
 package de.thu.tpro.android4bikes.database;
 
+import java.util.List;
+
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.util.Android4BikesColor;
 
 public interface Android4BikesDatabaseHelper {
     BikeRack getBikeRack(Position position);
@@ -14,9 +15,7 @@ public interface Android4BikesDatabaseHelper {
 
     Track getTrack(long trackID);
 
-    Position getAllPositions();
-
-    Android4BikesColor getAndroid4BikeColor();
+    List<Position> getAllPositions();
 
     HazardAlert getHazardAlert();
 

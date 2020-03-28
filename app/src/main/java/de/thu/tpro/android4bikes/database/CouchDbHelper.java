@@ -15,8 +15,10 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -30,6 +32,13 @@ import de.thu.tpro.android4bikes.util.Android4BikesColor;
 public class CouchDbHelper implements Android4BikesDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
+
+    private static class Queries{
+        final static Query getAllPosQuery = QueryBuilder
+                .select(SelectResult.all())
+                .from(DataSource.database(CouchDB.getInstance()
+                        .getDatabaseFromName(DatabaseNames.DATABASE_POSITION)));
+    }
 
     public CouchDbHelper() {
         couchDB = CouchDB.getInstance();
@@ -83,31 +92,37 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
         return hazardAlert;
     }
 
+    /**
+     * Should work
+     * */
     @Override
     public void savePosition(Position position) {
         try {
             JSONObject json_position = new JSONObject(gson.toJson(position));
-            MutableDocument mutableDocument_position = convertJSONToMutableDocument(json_position);
-            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION),mutableDocument_position);
+            MutableDocument md_position = convertJSONToMutableDocument(json_position);
+            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION),md_position);
         }catch (Exception e){
             e.printStackTrace();
-            Log.e("HalloWelt","Exception at savePosition");
         }
-
     }
 
+    /**
+     * Should work
+     * */
     @Override
-    public Position getAllPositions() {
-        Position position = null;
-
-        return position;
-    }
-
-    @Override
-    public Android4BikesColor getAndroid4BikeColor() {
-        Android4BikesColor android4BikesColor = null;
-
-        return android4BikesColor;
+    public List<Position> getAllPositions() {
+        List<Position> positions = new ArrayList<>();
+        ResultSet results = couchDB.queryDatabase(Queries.getAllPosQuery);
+        results.forEach(result -> {
+            try {
+                JSONObject json_result = new JSONObject(result.toMap());
+                json_result = json_result.getJSONObject(DatabaseNames.DATABASE_POSITION.toText());
+                positions.add(gson.fromJson(json_result.toString(),Position.class));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
+        return positions;
     }
 
     /**
