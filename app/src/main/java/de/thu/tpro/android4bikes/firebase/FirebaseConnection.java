@@ -91,6 +91,7 @@ public class FirebaseConnection {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                        //TODO: Call Method from local db
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -99,15 +100,12 @@ public class FirebaseConnection {
                         Log.w(TAG, "Error deleting document", e);
                     }
                 });
-
-
-
-
     }
 
     public void updateBikeRackInFireStoreAndLocalDB(BikeRack bikeRack){
 
     }
+
     public BikeRack readOfficialBikeRackFromFireStore(String postcode){
         return null;
     }
