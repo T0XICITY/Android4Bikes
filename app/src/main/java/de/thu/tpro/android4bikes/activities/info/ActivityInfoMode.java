@@ -35,6 +35,7 @@ public class ActivityInfoMode extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
         super.onCreate(savedInstanceState);
         List<Achievement> achievements = new ArrayList<>();
         achievements.add(new KmAchievement("A",1,1,1,1));
@@ -42,7 +43,7 @@ public class ActivityInfoMode extends AppCompatActivity {
 
         Profile profile = new Profile("Olaf", "Olafsen", "00x13dxxx", 10, 1, achievements);
 
-        FirebaseConnection.addProfileToFirestore(profile);
+        firebaseConnection.addProfileToFirestore(profile);
 
         setContentView(R.layout.activity_info_mode);
         GlobalContext.setContext(getApplicationContext());

@@ -20,8 +20,6 @@ import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
-import static android.content.ContentValues.TAG;
-
 public class FirebaseConnection {
     public enum ConstantsFirebase{
         COLLECTION_USERS("users"),
@@ -77,14 +75,14 @@ public class FirebaseConnection {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
+                        Log.d("Hallo Welt", "Profile " + profile.getFamilyName() + " added successfully");
                         //TODO Profil in Datenbank speichern.
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding Profile" + profile.getFamilyName(), e);
+                        Log.w("Hallo Welt", "Error adding Profile" + profile.getFamilyName(), e);
                     }
                 });
     }
@@ -126,14 +124,14 @@ public class FirebaseConnection {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                        Log.d("Hallo Welt", "DocumentSnapshot successfully deleted!");
                         //TODO: Call Method from local db
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting document", e);
+                        Log.w("Hallo Welt", "Error deleting document", e);
                     }
                 });
     }
@@ -151,14 +149,14 @@ public class FirebaseConnection {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                        Log.d("Hallo Welt", "DocumentSnapshot successfully written!");
                         //todo: update bikeRack in local db
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error writing document", e);
+                        Log.w("Hallo Welt", "Error writing document", e);
                     }
                 });
     }
@@ -176,11 +174,11 @@ public class FirebaseConnection {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                Log.d("Hallo Welt", document.getId() + " => " + document.getData());
                                 //todo: store document in local db and notify observers
                             }
                         } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
+                            Log.d("Hallo Welt", "Error getting documents: ", task.getException());
                         }
                     }
                 });

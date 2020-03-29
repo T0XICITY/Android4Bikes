@@ -1,13 +1,22 @@
 package de.thu.tpro.android4bikes.firebase;
 
+import androidx.test.core.app.ApplicationProvider;
+
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 
 import static org.junit.Assert.*;
 
 public class FirebaseConnectionTest {
+
+    @BeforeClass
+    public static void setUp(){
+        GlobalContext.setContext(ApplicationProvider.getApplicationContext());
+    }
 
     @Test
     public void addProfileToFirestore() {
