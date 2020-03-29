@@ -25,7 +25,7 @@ import de.thu.tpro.android4bikes.database.CouchDbHelper;
 import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
 public class FirebaseConnection {
-    public enum ConstantsFirebase{
+    public enum ConstantsFirebase {
         COLLECTION_USERS("users"),
         COLLECTION_UTILIZATION("utilization"),
         COLLECTION_RAWGEOPOS("rawgeopos"),
@@ -53,14 +53,14 @@ public class FirebaseConnection {
     private List<FireStoreObserver> fireStoreObservers;
     private Android4BikesDatabaseHelper android4BikesDatabaseHelper;
 
-    public static FirebaseConnection getInstance(){
-        if(firebaseConnection==null){
+    public static FirebaseConnection getInstance() {
+        if (firebaseConnection == null) {
             firebaseConnection = new FirebaseConnection();
         }
         return firebaseConnection;
     }
 
-    private FirebaseConnection(){
+    private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         fireStoreObservers = new ArrayList<>();
         android4BikesDatabaseHelper = new CouchDbHelper();
@@ -68,9 +68,10 @@ public class FirebaseConnection {
 
     /**
      * should be used to subscribe as an observer
+     *
      * @param fireStoreObserver observer regarding fireStore
      */
-    public void subscribeObserver(FireStoreObserver fireStoreObserver){
+    public void subscribeObserver(FireStoreObserver fireStoreObserver) {
         this.fireStoreObservers.add(fireStoreObserver);
     }
 
@@ -96,9 +97,10 @@ public class FirebaseConnection {
     /**
      * stores a BikeRack first in the FireStore and after that in the local database
      * the associated id will be generated automatically.
+     *
      * @param bikerack bikeRack to store.
      */
-    public void storeBikeRackInFireStoreAndLocalDB(BikeRack bikerack){
+    public void storeBikeRackInFireStoreAndLocalDB(BikeRack bikerack) {
         //TODO: REVIEW
         db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
                 .add(bikerack.toMap()) //generate id automatically
@@ -124,7 +126,7 @@ public class FirebaseConnection {
      *
      * @param bikeRack bikeRack to delete
      */
-    public void deleteBikeRackFromFireStoreAndLocalDB(BikeRack bikeRack){
+    public void deleteBikeRackFromFireStoreAndLocalDB(BikeRack bikeRack) {
         db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString()) //which collection?
                 .document(bikeRack.getFirebaseID()) //id of the document
                 .delete()//delte document
@@ -149,7 +151,7 @@ public class FirebaseConnection {
      *
      * @param bikeRack bikeRack to update
      */
-    public void updateBikeRackInFireStoreAndLocalDB(BikeRack bikeRack){
+    public void updateBikeRackInFireStoreAndLocalDB(BikeRack bikeRack) {
         db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
                 .document(bikeRack.getFirebaseID())
                 .set(bikeRack.toMap())
@@ -171,20 +173,21 @@ public class FirebaseConnection {
     /**
      * reads all official BikeRacks associated to a certain postcode
      * and stores them in the local database
+     *
      * @param postcode postcode as a string
      */
-    public void readOfficialBikeRackFromFireStoreAndStoreItToLocalDB(String postcode){
-                db.collection(ConstantsFirebase.COLLECTION_OFFICIAL_BIKERACKS.toString())
+    public void readOfficialBikeRackFromFireStoreAndStoreItToLocalDB(String postcode) {
+        db.collection(ConstantsFirebase.COLLECTION_OFFICIAL_BIKERACKS.toString())
                 .whereEqualTo(BikeRack.ConstantsBikeRack.POSTCODE.toString(), postcode).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             String fireBaseId = null;
-                            String name=null;
+                            String name = null;
                             Position position = null;
                             Map<String, Object> map_position = null;
-                            int capacity=-1;
+                            int capacity = -1;
                             boolean isEBikeStation = false;
                             boolean isExisting = false;
                             boolean isCovered = false;
@@ -194,25 +197,25 @@ public class FirebaseConnection {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d("Hallo Welt", document.getId() + " => " + document.getData());
 
-                                try{
+                                try {
                                     fireBaseId = document.getId();
-                                    capacity = (int)document.get(BikeRack.ConstantsBikeRack.CAPACITY.toString());
-                                    isEBikeStation = (boolean)document.get(BikeRack.ConstantsBikeRack.IS_EBIKE_STATION.toString());
-                                    isExisting = (boolean)document.get(BikeRack.ConstantsBikeRack.IS_EXISTENT.toString());
-                                    isCovered = (boolean)document.get(BikeRack.ConstantsBikeRack.IS_COVERED.toString());
+                                    capacity = (int) document.get(BikeRack.ConstantsBikeRack.CAPACITY.toString());
+                                    isEBikeStation = (boolean) document.get(BikeRack.ConstantsBikeRack.IS_EBIKE_STATION.toString());
+                                    isExisting = (boolean) document.get(BikeRack.ConstantsBikeRack.IS_EXISTENT.toString());
+                                    isCovered = (boolean) document.get(BikeRack.ConstantsBikeRack.IS_COVERED.toString());
                                     name = String.valueOf(document.get(BikeRack.ConstantsBikeRack.BIKE_RACK_NAME.toString()));
 
-                                    map_position = (Map<String,Object>)document.get(Position.ConstantsPosition.POSITION.toString());
-                                    double longitude = (double)map_position.get(Position.ConstantsPosition.LONGITUDE.toString());
-                                    double latitude = (double)map_position.get(Position.ConstantsPosition.LATITUDE.toString());
-                                    position = new Position(longitude,latitude);
+                                    map_position = (Map<String, Object>) document.get(Position.ConstantsPosition.POSITION.toString());
+                                    double longitude = (double) map_position.get(Position.ConstantsPosition.LONGITUDE.toString());
+                                    double latitude = (double) map_position.get(Position.ConstantsPosition.LATITUDE.toString());
+                                    position = new Position(longitude, latitude);
 
                                     bikeRack = new BikeRack(
-                                            fireBaseId,position,name,capacity,isEBikeStation,isExisting,isCovered
+                                            fireBaseId, position, name, capacity, isEBikeStation, isExisting, isCovered
                                     );
                                     android4BikesDatabaseHelper.saveBikeRack(bikeRack);
 
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -224,7 +227,7 @@ public class FirebaseConnection {
 
     }
 
-    public void notifyAllObservers(){
+    public void notifyAllObservers() {
 
     }
 

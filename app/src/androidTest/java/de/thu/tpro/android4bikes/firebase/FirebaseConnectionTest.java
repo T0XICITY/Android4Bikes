@@ -27,7 +27,7 @@ public class FirebaseConnectionTest {
     public void storeBikeRackInFireStoreAndLocalDB() {
 
         BikeRack bikeRack_THU = new BikeRack(
-          "abc", new Position(9.997507,48.408880),"THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                  "pfo4eIrvzrI0m363KF0K", new Position(9.997507,48.408880),"THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true,false
         );
         firebaseConnection.storeBikeRackInFireStoreAndLocalDB(bikeRack_THU);
@@ -36,16 +36,25 @@ public class FirebaseConnectionTest {
     @Test
     public void readOfficialBikeRackFromFireStore() {
         firebaseConnection.readOfficialBikeRackFromFireStoreAndStoreItToLocalDB("89075");
-        
     }
 
 
     @Test
     public void deleteBikeRackFromFireStoreAndLocalDB() {
+        BikeRack bikeRack_THU = new BikeRack(
+                "pfo4eIrvzrI0m363KF0K", new Position(9.997507,48.408880),"THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                false, true,false
+        );
+        firebaseConnection.deleteBikeRackFromFireStoreAndLocalDB(bikeRack_THU);
     }
 
     @Test
     public void updateBikeRackInFireStoreAndLocalDB() {
+        BikeRack bikeRack_THU = new BikeRack(
+                "pfo4eIrvzrI0m363KF0K", new Position(9.997507,48.408880),"THUBikeRack", BikeRack.ConstantsCapacity.MEDIUM,
+                true, true,false
+        );
+        firebaseConnection.updateBikeRackInFireStoreAndLocalDB(bikeRack_THU);
     }
 
     @Test
