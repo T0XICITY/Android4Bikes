@@ -82,12 +82,19 @@ public class FirebaseConnection {
                 });
     }
 
+    public static void storeRatingInFireStoreAndLocalDB(){
+
+    }
+
+
+
 
     public static BikeRack updateBikeRackInFireStoreAndLocalDB(){
         return null;
     }
 
     public static void deleteBikeRackInFirestoreAndLocalDB(){
+        //TODO: CALL CLOUD-FUNCTION
         return;
     }
 

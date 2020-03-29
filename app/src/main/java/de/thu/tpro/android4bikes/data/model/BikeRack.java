@@ -9,6 +9,7 @@ import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
 public class BikeRack implements JsonRepresentation {
     public enum ConstantsBikeRack {
+        POSTCODE("postcode"),
         BIKE_RACK_NAME("name"),
         CAPACITY("capacity"),
         IS_EBIKE_STATION("isEBikeStation"),
@@ -29,6 +30,7 @@ public class BikeRack implements JsonRepresentation {
 
     private String firebaseID;
     private Position position;
+    private String postcode;
     private String name;
     private int capacity;
     private boolean hasBikeCharging;
@@ -62,6 +64,14 @@ public class BikeRack implements JsonRepresentation {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPostcode() {
+        return postcode;
+    }
+
+    public void setPostcode(String postcode) {
+        this.postcode = postcode;
     }
 
     public Position getPosition() {
@@ -106,14 +116,15 @@ public class BikeRack implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject toJSON() {
+    public JSONObject getJsonRepresentation() {
         return null;
     }
 
     @Override
-    public Map<String, Object> toMap() {
+    public Map<String, Object> getMapRepresentation() {
         Map<String,Object> map_bikeRack = new HashMap<>();
-        map_bikeRack.put(Position.ConstantsPosition.POSITION.toString(), this.position.toMap());
+        map_bikeRack.put(Position.ConstantsPosition.POSITION.toString(), this.position.getMapRepresentation());
+        map_bikeRack.put(ConstantsBikeRack.POSTCODE.toString(), this.postcode);
         map_bikeRack.put(ConstantsBikeRack.BIKE_RACK_NAME.toString(), this.name);
         map_bikeRack.put(ConstantsBikeRack.CAPACITY.toString(), this.capacity);
         map_bikeRack.put(ConstantsBikeRack.IS_EBIKE_STATION.toString(), this.hasBikeCharging);
