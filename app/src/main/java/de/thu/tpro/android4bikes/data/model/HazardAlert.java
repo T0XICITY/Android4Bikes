@@ -67,12 +67,12 @@ public class HazardAlert implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject getJsonRepresentation() {
+    public JSONObject toJSON() {
         return null;
     }
 
     @Override
-    public Map<String, Object> getMapRepresentation() {
+    public Map<String, Object> toMap() {
         return null;
     }
 

@@ -116,14 +116,14 @@ public class BikeRack implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject getJsonRepresentation() {
+    public JSONObject toJSON() {
         return null;
     }
 
     @Override
-    public Map<String, Object> getMapRepresentation() {
+    public Map<String, Object> toMap() {
         Map<String,Object> map_bikeRack = new HashMap<>();
-        map_bikeRack.put(Position.ConstantsPosition.POSITION.toString(), this.position.getMapRepresentation());
+        map_bikeRack.put(Position.ConstantsPosition.POSITION.toString(), this.position.toMap());
         map_bikeRack.put(ConstantsBikeRack.POSTCODE.toString(), this.postcode);
         map_bikeRack.put(ConstantsBikeRack.BIKE_RACK_NAME.toString(), this.name);
         map_bikeRack.put(ConstantsBikeRack.CAPACITY.toString(), this.capacity);

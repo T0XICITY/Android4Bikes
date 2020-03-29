@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import com.google.firebase.firestore.GeoPoint;
-
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -9,9 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
-import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class Track implements JsonRepresentation {
     public enum ConstantsTrack{
@@ -103,17 +99,17 @@ public class Track implements JsonRepresentation {
 
 
     @Override
-    public JSONObject getJsonRepresentation() {
+    public JSONObject toJSON() {
         return null;
     }
 
     @Override
-    public Map<String, Object> getMapRepresentation() {
+    public Map<String, Object> toMap() {
         HashMap<String, Object> map = new HashMap<>();
 
         List<Map<String,Object>> trackpositions = new ArrayList<>();
         for(Position pos : track){
-            trackpositions.add(pos.getMapRepresentation());
+            trackpositions.add(pos.toMap());
         }
 
         map.put(ConstantsTrack.AUTHOR.toString(),author);

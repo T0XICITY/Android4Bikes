@@ -87,7 +87,7 @@ public class Position implements JsonRepresentation {
      * @return json representation of a Position object as JSONObject
      */
     @Override
-    public JSONObject getJsonRepresentation() throws InvalidJsonException {
+    public JSONObject toJSON() throws InvalidJsonException {
         JSONObject position = null;
         try {
             position = new JSONObject();
@@ -108,7 +108,7 @@ public class Position implements JsonRepresentation {
      * with FireStore.
      */
     @Override
-    public Map<String, Object> getMapRepresentation() {
+    public Map<String, Object> toMap() {
         Map<String, Object> map_position = new HashMap<>();
         map_position.put(LONGITUDE.toString(), longitude);
         map_position.put(LATITUDE.toString(), latitude);

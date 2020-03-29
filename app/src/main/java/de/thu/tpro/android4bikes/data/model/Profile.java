@@ -2,6 +2,8 @@ package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -99,12 +101,23 @@ public class Profile implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject getJsonRepresentation() {
-        return new JSONObject(this.getMapRepresentation());
+    public JSONObject toJSON() {
+        return new JSONObject(this.toMap());
     }
 
     @Override
-    public Map<String, Object> getMapRepresentation() {
-        return null;
+    public Map<String, Object> toMap() {
+        Map<String,Object> map=new HashMap<String,Object>();
+        map.put("firstname",firstName);
+        map.put("familyname",familyName);
+        map.put("firebaseaccountid",firebaseAccountID);
+        map.put("color",color);
+        map.put("overalldistance",overallDistance);
+        List<Map<String,Object>> list_achievements = new ArrayList<>();
+        for (Achievement a: achievements) {
+            list_achievements.add(a.toMap());
+        }
+        map.put("achievements",list_achievements);
+        return map;
     }
 }
