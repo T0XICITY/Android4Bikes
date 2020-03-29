@@ -2,9 +2,12 @@ package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
 public class Profile implements JsonRepresentation {
@@ -34,13 +37,13 @@ public class Profile implements JsonRepresentation {
     private String firebaseAccountID;
     private int color;
     private int overallDistance;
-    private List<> achievements; //TODO better representation
+    private List<Achievement> achievements; //TODO better representation
 
     public Profile() {
     }
 
 
-    public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Integer> achievements) {
+    public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Achievement> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
         this.firebaseAccountID = firebaseAccountID;
@@ -57,11 +60,11 @@ public class Profile implements JsonRepresentation {
         this.overallDistance = overallDistance;
     }
 
-    public List<Integer> getAchievements() {
+    public List<Achievement> getAchievements() {
         return achievements;
     }
 
-    public void setAchievements(List<Integer> achievements) {
+    public void setAchievements(List<Achievement> achievements) {
         this.achievements = achievements;
     }
 
@@ -98,12 +101,23 @@ public class Profile implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject getJsonRepresentation() {
-        return new JSONObject(this.getMapRepresentation());
+    public JSONObject toJSON() {
+        return new JSONObject(this.toMap());
     }
 
     @Override
-    public Map<String, Object> getMapRepresentation() {
-        return null;
+    public Map<String, Object> toMap() {
+        Map<String,Object> map=new HashMap<String,Object>();
+        map.put("firstname",firstName);
+        map.put("familyname",familyName);
+        map.put("firebaseaccountid",firebaseAccountID);
+        map.put("color",color);
+        map.put("overalldistance",overallDistance);
+        List<Map<String,Object>> list_achievements = new ArrayList<>();
+        for (Achievement a: achievements) {
+            list_achievements.add(a.toMap());
+        }
+        map.put("achievements",list_achievements);
+        return map;
     }
 }

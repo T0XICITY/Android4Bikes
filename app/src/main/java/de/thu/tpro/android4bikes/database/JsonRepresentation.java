@@ -7,6 +7,6 @@ import java.util.Map;
 import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 
 public interface JsonRepresentation {
-    JSONObject getJsonRepresentation() throws InvalidJsonException;
-    Map<String,Object> getMapRepresentation();
+    JSONObject toJSON() throws InvalidJsonException;
+    Map<String,Object> toMap();
 }
