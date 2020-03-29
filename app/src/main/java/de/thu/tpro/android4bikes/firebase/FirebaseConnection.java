@@ -15,9 +15,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.database.Android4BikesDatabaseHelper;
+import de.thu.tpro.android4bikes.database.CouchDbHelper;
 import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
 public class FirebaseConnection {
@@ -47,6 +51,7 @@ public class FirebaseConnection {
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
     private List<FireStoreObserver> fireStoreObservers;
+    private Android4BikesDatabaseHelper android4BikesDatabaseHelper;
 
     public static FirebaseConnection getInstance(){
         if(firebaseConnection==null){
@@ -58,6 +63,7 @@ public class FirebaseConnection {
     private FirebaseConnection(){
         this.db = FirebaseFirestore.getInstance();
         fireStoreObservers = new ArrayList<>();
+        android4BikesDatabaseHelper = new CouchDbHelper();
     }
 
     /**
@@ -101,7 +107,7 @@ public class FirebaseConnection {
                     public void onSuccess(DocumentReference documentReference) {
                         String bikeRackID = documentReference.getId();
                         Log.d("Hallo Welt", "DocumentSnapshot added with ID: " + bikeRackID);
-                        //TODO save BikeRack in Local DB
+                        android4BikesDatabaseHelper.saveBikeRack(bikerack);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -126,7 +132,7 @@ public class FirebaseConnection {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("Hallo Welt", "DocumentSnapshot successfully deleted!");
-                        //TODO: Call Method from local db
+                        android4BikesDatabaseHelper.deleteBikeRack(bikeRack);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -151,7 +157,7 @@ public class FirebaseConnection {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d("Hallo Welt", "DocumentSnapshot successfully written!");
-                        //todo: update bikeRack in local db
+                        android4BikesDatabaseHelper.updateBikeRack(bikeRack);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -174,9 +180,41 @@ public class FirebaseConnection {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            String fireBaseId = null;
+                            String name=null;
+                            Position position = null;
+                            Map<String, Object> map_position = null;
+                            int capacity=-1;
+                            boolean isEBikeStation = false;
+                            boolean isExisting = false;
+                            boolean isCovered = false;
+                            BikeRack bikeRack = null;
+
+
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d("Hallo Welt", document.getId() + " => " + document.getData());
-                                //todo: store document in local db and notify observers
+
+                                try{
+                                    fireBaseId = document.getId();
+                                    capacity = (int)document.get(BikeRack.ConstantsBikeRack.CAPACITY.toString());
+                                    isEBikeStation = (boolean)document.get(BikeRack.ConstantsBikeRack.IS_EBIKE_STATION.toString());
+                                    isExisting = (boolean)document.get(BikeRack.ConstantsBikeRack.IS_EXISTENT.toString());
+                                    isCovered = (boolean)document.get(BikeRack.ConstantsBikeRack.IS_COVERED.toString());
+                                    name = String.valueOf(document.get(BikeRack.ConstantsBikeRack.BIKE_RACK_NAME.toString()));
+
+                                    map_position = (Map<String,Object>)document.get(Position.ConstantsPosition.POSITION.toString());
+                                    double longitude = (double)map_position.get(Position.ConstantsPosition.LONGITUDE.toString());
+                                    double latitude = (double)map_position.get(Position.ConstantsPosition.LATITUDE.toString());
+                                    position = new Position(longitude,latitude);
+
+                                    bikeRack = new BikeRack(
+                                            fireBaseId,position,name,capacity,isEBikeStation,isExisting,isCovered
+                                    );
+                                    android4BikesDatabaseHelper.saveBikeRack(bikeRack);
+
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
                             }
                         } else {
                             Log.d("Hallo Welt", "Error getting documents: ", task.getException());
