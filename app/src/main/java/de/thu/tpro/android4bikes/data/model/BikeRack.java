@@ -73,6 +73,33 @@ public class BikeRack implements JsonRepresentation {
         this.isCovered = isCovered;
     }
 
+    /**
+     * constructor regarding a bikeRack using all parameters.
+     * It automatically converts an integer number into an associated constant.
+     * @param firebaseID firebaseID
+     * @param position position
+     * @param name name of the bikeRack
+     * @param capacity Int: 0=Small, 1=Medium, 2=Large, else -> Gigantic
+     * @param hasBikeCharging Is there any option to charge an e-bike?
+     * @param isExistent is the bikeRack still existing?
+     * @param isCovered is there any kind of roof regarding the bikerack?
+     */
+    public BikeRack(String firebaseID, Position position, String name, int capacity, boolean hasBikeCharging, boolean isExistent, boolean isCovered) {
+        this.firebaseID = firebaseID;
+        this.position = position;
+        this.name = name;
+        this.hasBikeCharging = hasBikeCharging;
+        this.isExistent = isExistent;
+        this.isCovered = isCovered;
+
+        switch (capacity){
+            case 0:this.capacity = ConstantsCapacity.SMALL; break;
+            case 1:this.capacity = ConstantsCapacity.MEDIUM;break;
+            case 2:this.capacity = ConstantsCapacity.LARGE;break;
+            default: this.capacity = ConstantsCapacity.GIGANTIC; break;
+        }
+    }
+
 
     public String getFirebaseID() {
         return firebaseID;
