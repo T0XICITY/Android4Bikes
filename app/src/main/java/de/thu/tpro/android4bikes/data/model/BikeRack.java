@@ -1,11 +1,14 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import android.location.Geocoder;
+
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
 public class BikeRack implements JsonRepresentation {
     public enum ConstantsBikeRack {
@@ -71,6 +74,7 @@ public class BikeRack implements JsonRepresentation {
         this.hasBikeCharging = hasBikeCharging;
         this.isExistent = isExistent;
         this.isCovered = isCovered;
+        this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
     }
 
     /**
@@ -131,6 +135,7 @@ public class BikeRack implements JsonRepresentation {
 
     public void setPosition(Position position) {
         this.position = position;
+        this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
     }
 
     public boolean hasBikeCharging() {

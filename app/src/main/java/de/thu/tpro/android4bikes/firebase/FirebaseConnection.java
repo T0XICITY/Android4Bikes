@@ -4,10 +4,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Profile;
@@ -134,8 +138,33 @@ public class FirebaseConnection {
                 });
     }
 
-    public BikeRack readOfficialBikeRackFromFireStore(String postcode){
-        return null;
+    /**
+     * reads all official BikeRacks associated to a certain postcode
+     * and stores them in the local database
+     * @param postcode postcode as a string
+     */
+    public void readOfficialBikeRackFromFireStoreAndStoreItToLocalDB(String postcode){
+        FirebaseFirestore.getInstance()
+                .collection(ConstantsFirebase.COLLECTION_OFFICIAL_BIKERACKS.toString())
+                .whereEqualTo(BikeRack.ConstantsBikeRack.POSTCODE.toString(), postcode).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                //todo: store document in local db and notify observers
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+    }
+
+    public void notifyObservers(){
+
     }
 
     public void updateToken() {
