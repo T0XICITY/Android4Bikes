@@ -82,6 +82,12 @@ public class FirebaseConnection {
                 });
     }
 
+    /**
+     * deletes a bikeRack from the local db and the fireStore using
+     * its unique fireBaseID
+     *
+     * @param bikeRack bikeRack to delete
+     */
     public void deleteBikeRackFromFireStoreAndLocalDB(BikeRack bikeRack){
         FirebaseFirestore.getInstance()
                 .collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString()) //which collection?
@@ -102,8 +108,30 @@ public class FirebaseConnection {
                 });
     }
 
+    /**
+     * updates a bikeRack in the the local db and the fireStore using
+     * its unique fireBaseID
+     *
+     * @param bikeRack bikeRack to update
+     */
     public void updateBikeRackInFireStoreAndLocalDB(BikeRack bikeRack){
-
+        FirebaseFirestore.getInstance()
+                .collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
+                .document(bikeRack.getFirebaseID())
+                .set(bikeRack.toMap())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                        //todo: update bikeRack in local db
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
+                    }
+                });
     }
 
     public BikeRack readOfficialBikeRackFromFireStore(String postcode){

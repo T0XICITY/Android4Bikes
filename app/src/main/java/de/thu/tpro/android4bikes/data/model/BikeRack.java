@@ -18,13 +18,26 @@ public class BikeRack implements JsonRepresentation {
 
 
         private String type;
-
         ConstantsBikeRack(String type) {
             this.type = type;
         }
-
         public String toString() {
             return type;
+        }
+    }
+
+    public enum ConstantsCapacity{
+        SMALL(0),
+        MEDIUM(1),
+        LARGE(2),
+        GIGANTIC(3);
+
+        private int capacity;
+        ConstantsCapacity(int type) {
+            this.capacity = type;
+        }
+        public int toInt() {
+            return capacity;
         }
     }
 
@@ -32,7 +45,7 @@ public class BikeRack implements JsonRepresentation {
     private Position position;
     private String postcode;
     private String name;
-    private int capacity;
+    private ConstantsCapacity capacity;
     private boolean hasBikeCharging;
     private boolean isExistent;
     private boolean isCovered;
@@ -40,7 +53,17 @@ public class BikeRack implements JsonRepresentation {
     public BikeRack() {
     }
 
-    public BikeRack(String firebaseID, Position position, String name, int capacity, boolean hasBikeCharging, boolean isExistent, boolean isCovered) {
+    /**
+     * constructor regarding a bikeRack using all parameters
+     * @param firebaseID firebaseID
+     * @param position position
+     * @param name name of the bikeRack
+     * @param capacity Constant: Small, Medium, Large, Gigantic
+     * @param hasBikeCharging Is there any option to charge an e-bike?
+     * @param isExistent is the bikeRack still existing?
+     * @param isCovered is there any kind of roof regarding the bikerack?
+     */
+    public BikeRack(String firebaseID, Position position, String name, ConstantsCapacity capacity, boolean hasBikeCharging, boolean isExistent, boolean isCovered) {
         this.firebaseID = firebaseID;
         this.position = position;
         this.name = name;
@@ -49,6 +72,7 @@ public class BikeRack implements JsonRepresentation {
         this.isExistent = isExistent;
         this.isCovered = isCovered;
     }
+
 
     public String getFirebaseID() {
         return firebaseID;
@@ -90,11 +114,11 @@ public class BikeRack implements JsonRepresentation {
         this.hasBikeCharging = hasBikeCharging;
     }
 
-    public int getCapacity() {
+    public ConstantsCapacity getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(ConstantsCapacity capacity) {
         this.capacity = capacity;
     }
 
@@ -126,7 +150,7 @@ public class BikeRack implements JsonRepresentation {
         map_bikeRack.put(Position.ConstantsPosition.POSITION.toString(), this.position.toMap());
         map_bikeRack.put(ConstantsBikeRack.POSTCODE.toString(), this.postcode);
         map_bikeRack.put(ConstantsBikeRack.BIKE_RACK_NAME.toString(), this.name);
-        map_bikeRack.put(ConstantsBikeRack.CAPACITY.toString(), this.capacity);
+        map_bikeRack.put(ConstantsBikeRack.CAPACITY.toString(), this.capacity.toInt()); //enum to int
         map_bikeRack.put(ConstantsBikeRack.IS_EBIKE_STATION.toString(), this.hasBikeCharging);
         map_bikeRack.put(ConstantsBikeRack.IS_EXISTENT.toString(), this.isExistent);
         map_bikeRack.put(ConstantsBikeRack.IS_COVERED.toString(), this.isCovered);
