@@ -66,11 +66,11 @@ public class BikeRack implements JsonRepresentation {
         this.name = name;
     }
 
-    public int getPostcode() {
+    public String getPostcode() {
         return postcode;
     }
 
-    public void setPostcode(int postcode) {
+    public void setPostcode(String postcode) {
         this.postcode = postcode;
     }
 
