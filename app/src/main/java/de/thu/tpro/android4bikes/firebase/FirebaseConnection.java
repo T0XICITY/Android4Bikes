@@ -89,6 +89,7 @@ public class FirebaseConnection {
 
     /**
      * stores a BikeRack first in the FireStore and after that in the local database
+     * the associated id will be generated automatically.
      * @param bikerack bikeRack to store.
      */
     public void storeBikeRackInFireStoreAndLocalDB(BikeRack bikerack){
