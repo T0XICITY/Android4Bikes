@@ -13,8 +13,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
 import static android.content.ContentValues.TAG;
 
@@ -42,8 +46,32 @@ public class FirebaseConnection {
         }
     }
 
-    public static void addProfileToFirestore(Profile profile) {
-        FirebaseFirestore.getInstance().collection(ConstantsFirebase.COLLECTION_USERS.toString())
+    private FirebaseConnection firebaseConnection;
+    private FirebaseFirestore db;
+    private List<FireStoreObserver> fireStoreObservers;
+
+    public FirebaseConnection getInstance(){
+        if(this.firebaseConnection==null){
+            this.firebaseConnection = new FirebaseConnection();
+        }
+        return this.firebaseConnection;
+    }
+
+    private FirebaseConnection(){
+        this.db = FirebaseFirestore.getInstance();
+        fireStoreObservers = new ArrayList<>();
+    }
+
+    /**
+     * should be used to subscribe as an observer
+     * @param fireStoreObserver observer regarding fireStore
+     */
+    public void subscribeObserver(FireStoreObserver fireStoreObserver){
+        this.fireStoreObservers.add(fireStoreObserver);
+    }
+
+    public void addProfileToFirestore(Profile profile) {
+        db.collection(ConstantsFirebase.COLLECTION_USERS.toString())
                 .document(profile.getFirebaseAccountID()) //set the id of a given document
                 .set(profile.toMap()) //set-Method: Will create or overwrite document if it is existing
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -65,10 +93,9 @@ public class FirebaseConnection {
      * stores a BikeRack first in the FireStore and after that in the local database
      * @param bikerack bikeRack to store.
      */
-    public static void storeBikeRackInFireStoreAndLocalDB(BikeRack bikerack){
+    public void storeBikeRackInFireStoreAndLocalDB(BikeRack bikerack){
         //TODO: REVIEW
-        FirebaseFirestore.getInstance()
-                .collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
+        db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
                 .add(bikerack.toMap()) //generate id automatically
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
                     @Override
@@ -93,8 +120,7 @@ public class FirebaseConnection {
      * @param bikeRack bikeRack to delete
      */
     public void deleteBikeRackFromFireStoreAndLocalDB(BikeRack bikeRack){
-        FirebaseFirestore.getInstance()
-                .collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString()) //which collection?
+        db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString()) //which collection?
                 .document(bikeRack.getFirebaseID()) //id of the document
                 .delete()//delte document
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -119,8 +145,7 @@ public class FirebaseConnection {
      * @param bikeRack bikeRack to update
      */
     public void updateBikeRackInFireStoreAndLocalDB(BikeRack bikeRack){
-        FirebaseFirestore.getInstance()
-                .collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
+        db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
                 .document(bikeRack.getFirebaseID())
                 .set(bikeRack.toMap())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -144,8 +169,7 @@ public class FirebaseConnection {
      * @param postcode postcode as a string
      */
     public void readOfficialBikeRackFromFireStoreAndStoreItToLocalDB(String postcode){
-        FirebaseFirestore.getInstance()
-                .collection(ConstantsFirebase.COLLECTION_OFFICIAL_BIKERACKS.toString())
+                db.collection(ConstantsFirebase.COLLECTION_OFFICIAL_BIKERACKS.toString())
                 .whereEqualTo(BikeRack.ConstantsBikeRack.POSTCODE.toString(), postcode).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -163,8 +187,8 @@ public class FirebaseConnection {
 
     }
 
-    public void notifyObservers(){
-
+    public void notifyAllObservers(){
+        
     }
 
     public void updateToken() {
