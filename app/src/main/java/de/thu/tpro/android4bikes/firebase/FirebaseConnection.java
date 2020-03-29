@@ -46,15 +46,15 @@ public class FirebaseConnection {
         }
     }
 
-    private FirebaseConnection firebaseConnection;
+    private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
     private List<FireStoreObserver> fireStoreObservers;
 
-    public FirebaseConnection getInstance(){
-        if(this.firebaseConnection==null){
-            this.firebaseConnection = new FirebaseConnection();
+    public static FirebaseConnection getInstance(){
+        if(firebaseConnection==null){
+            firebaseConnection = new FirebaseConnection();
         }
-        return this.firebaseConnection;
+        return firebaseConnection;
     }
 
     private FirebaseConnection(){
@@ -188,7 +188,7 @@ public class FirebaseConnection {
     }
 
     public void notifyAllObservers(){
-        
+
     }
 
     public void updateToken() {

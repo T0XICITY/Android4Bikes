@@ -15,11 +15,12 @@ public class FirebaseConnectionTest {
 
     @Test
     public void storeBikeRackInFireStoreAndLocalDB() {
+        FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
         BikeRack bikeRack_THU = new BikeRack(
           "", new Position(9.997507,48.408880),"THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true,false
         );
-        FirebaseConnection.storeBikeRackInFireStoreAndLocalDB(bikeRack_THU);
+        firebaseConnection.storeBikeRackInFireStoreAndLocalDB(bikeRack_THU);
     }
 
     @Test
