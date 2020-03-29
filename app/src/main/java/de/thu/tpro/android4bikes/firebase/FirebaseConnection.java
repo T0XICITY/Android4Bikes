@@ -82,20 +82,34 @@ public class FirebaseConnection {
                 });
     }
 
-    public static void storeRatingInFireStoreAndLocalDB(){
+    public void deleteBikeRackFromFireStoreAndLocalDB(BikeRack bikeRack){
+        FirebaseFirestore.getInstance()
+                .collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString()) //which collection?
+                .document(bikeRack.getFirebaseID()) //id of the document
+                .delete()//delte document
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
+
+
+
 
     }
 
+    public void updateBikeRackInFireStoreAndLocalDB(BikeRack bikeRack){
 
-
-
-    public static BikeRack updateBikeRackInFireStoreAndLocalDB(){
+    }
+    public BikeRack readOfficialBikeRackFromFireStore(String postcode){
         return null;
-    }
-
-    public static void deleteBikeRackInFirestoreAndLocalDB(){
-        //TODO: CALL CLOUD-FUNCTION
-        return;
     }
 
     public void updateToken() {
