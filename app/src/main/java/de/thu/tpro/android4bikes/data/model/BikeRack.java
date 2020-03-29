@@ -30,7 +30,7 @@ public class BikeRack implements JsonRepresentation {
 
     private String firebaseID;
     private Position position;
-    private int postcode;
+    private String postcode;
     private String name;
     private int capacity;
     private boolean hasBikeCharging;
