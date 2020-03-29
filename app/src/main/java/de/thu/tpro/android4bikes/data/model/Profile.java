@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.Map;
 
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
 public class Profile implements JsonRepresentation {
@@ -34,13 +35,13 @@ public class Profile implements JsonRepresentation {
     private String firebaseAccountID;
     private int color;
     private int overallDistance;
-    private List<> achievements; //TODO better representation
+    private List<Achievement> achievements; //TODO better representation
 
     public Profile() {
     }
 
 
-    public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Integer> achievements) {
+    public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Achievement> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
         this.firebaseAccountID = firebaseAccountID;
@@ -57,11 +58,11 @@ public class Profile implements JsonRepresentation {
         this.overallDistance = overallDistance;
     }
 
-    public List<Integer> getAchievements() {
+    public List<Achievement> getAchievements() {
         return achievements;
     }
 
-    public void setAchievements(List<Integer> achievements) {
+    public void setAchievements(List<Achievement> achievements) {
         this.achievements = achievements;
     }
 
