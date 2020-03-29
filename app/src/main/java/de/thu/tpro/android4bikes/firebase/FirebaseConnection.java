@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.database.Android4BikesDatabaseHelper;
@@ -226,6 +227,22 @@ public class FirebaseConnection {
                 });
 
     }
+
+    public void storeHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert){
+
+    }
+    public void deleteHazardAlertFromFireStoreAndLocalDB(HazardAlert hazardAlert){
+
+    }
+
+    public void updateHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert){
+
+    }
+
+    public void readHazardAlertFromFireStoreAndStoreInLocalDB(String postcode){
+
+    }
+
 
     public void notifyAllObservers() {
 
