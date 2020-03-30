@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import com.google.firebase.firestore.GeoPoint;
-
 import org.json.JSONObject;
 
 import java.util.Map;

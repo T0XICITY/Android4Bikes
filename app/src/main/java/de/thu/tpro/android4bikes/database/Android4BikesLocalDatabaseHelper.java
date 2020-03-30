@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.database;
 
-import com.google.firebase.firestore.GeoPoint;
-
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -13,34 +11,50 @@ import de.thu.tpro.android4bikes.data.model.Track;
 
 public interface Android4BikesLocalDatabaseHelper {
     //Profile
-    public void storeProfile(Profile Profile);
-    public Profile readProfile(String googleID);
-    public void updateProfile(Profile profile);
-    public void deleteProfile(String googleID);
-    public void deleteProfile(Profile profile); //Internally see readFineGrainedPositions
+    void storeProfile(Profile Profile);
+
+    Profile readProfile(String googleID);
+
+    void updateProfile(Profile profile);
+
+    void deleteProfile(String googleID);
+
+    void deleteProfile(Profile profile); //Internally see readFineGrainedPositions
 
     //BikeRacks
-    public void storeBikeRack(BikeRack bikeRack);
-    public List<BikeRack> readBikeRacks(String postcode);
-    public void deleteBikeRack(String fireBaseID);
-    public void deleteBikeRack(BikeRack bikeRack); //Internally see readFineGrainedPositions
+    void storeBikeRack(BikeRack bikeRack);
+
+    List<BikeRack> readBikeRacks(String postcode);
+
+    void deleteBikeRack(String fireBaseID);
+
+    void deleteBikeRack(BikeRack bikeRack); //Internally see readFineGrainedPositions
 
     //Tracks
-    public void storeTrack(Track track);
-    public void storeFineGrainedPositions(FineGrainedPositions fineGrainedPositions);//id in local db equals to track id (firebase id)
-    public List<Track> readTracks(String postcode);
+    void storeTrack(Track track);
+
+    void storeFineGrainedPositions(FineGrainedPositions fineGrainedPositions);//id in local db equals to track id (firebase id)
+
+    List<Track> readTracks(String postcode);
+
     //query first "fineGrainedPositionsDB" with postcodes to get TrackID. Then query "trackDB" with this TrackID to get the tracks.
-    public void deleteTrack(String fireBaseID);
-    public FineGrainedPositions readFineGrainedPositions(String firebaseID);
-    public FineGrainedPositions readFineGrainedPositions(Track track); //internally: readFineGrainedPositions(track.getID());
+    void deleteTrack(String fireBaseID);
+
+    FineGrainedPositions readFineGrainedPositions(String firebaseID);
+
+    FineGrainedPositions readFineGrainedPositions(Track track); //internally: readFineGrainedPositions(track.getID());
 
     //HazardAlerts
-    public void storeHazardAlerts(HazardAlert hazardAlert);
-    public List<HazardAlert> readHazardAlerts(String postcode);
-    public void deleteHazardAlert(String fireBaseID);
-    public void deleteHazardAlert(HazardAlert hazardAlert); //Internally see readFineGrainedPositions
+    void storeHazardAlerts(HazardAlert hazardAlert);
+
+    List<HazardAlert> readHazardAlerts(String postcode);
+
+    void deleteHazardAlert(String fireBaseID);
+
+    void deleteHazardAlert(HazardAlert hazardAlert); //Internally see readFineGrainedPositions
 
     //Heatmap:
-    public void addToUtilization(Position position); //>50: stores to firebase
-    public void resetUtilization(); //resets local utilization db
+    void addToUtilization(Position position); //>50: stores to firebase
+
+    void resetUtilization(); //resets local utilization db
 }

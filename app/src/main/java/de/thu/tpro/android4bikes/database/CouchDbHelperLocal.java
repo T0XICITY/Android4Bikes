@@ -124,5 +124,4 @@ public class CouchDbHelperLocal implements Android4BikesLocalDatabaseHelper {
     }
 
 
-    
 }

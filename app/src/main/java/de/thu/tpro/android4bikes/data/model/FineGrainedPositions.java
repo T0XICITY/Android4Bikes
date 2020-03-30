@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import com.google.rpc.Help;
-
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -13,26 +11,14 @@ import de.thu.tpro.android4bikes.database.JsonRepresentation;
 import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 
 public class FineGrainedPositions implements JsonRepresentation {
-    public enum ConstantsFineGrainedPosition{
-        POSITIONS("positions");
-        private String type;
-        ConstantsFineGrainedPosition(String type) {
-            this.type = type;
-        }
-        public String toString() {
-            return type;
-        }
-    }
-
     private String firebaseID;
     private List<Position> positions;
-
-    public FineGrainedPositions(){
+    public FineGrainedPositions() {
         positions = new LinkedList<>();
     }
 
-    public void addPosition(Position position){
-        if(position!=null){
+    public void addPosition(Position position) {
+        if (position != null) {
             positions.add(position);
         }
     }
@@ -46,10 +32,23 @@ public class FineGrainedPositions implements JsonRepresentation {
     public Map<String, Object> toMap() {
         Map<String, Object> map_positions = new HashMap<>();
         List<Map<String, Object>> list_position = new LinkedList<>();
-        for(Position pos : positions){
+        for (Position pos : positions) {
             list_position.add(pos.toMap());
         }
         map_positions.put(ConstantsFineGrainedPosition.POSITIONS.toString(), list_position);
         return map_positions;
+    }
+
+    public enum ConstantsFineGrainedPosition {
+        POSITIONS("positions");
+        private String type;
+
+        ConstantsFineGrainedPosition(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 }
