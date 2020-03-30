@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_community"
+        android:icon="@drawable/ic_community_test"
+        android:title="@string/title_community"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_hazard"
+        android:icon="@drawable/ic_hazard_test"
+        android:title="@string/title_hazard"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_assistance"
+        android:icon="@drawable/ic_help_test"
+        android:title="@string/title_assistance"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_emergencyCall"
+        android:icon="@drawable/ic_emergency_test"
+        android:title="@string/title_emergency"
+        app:showAsAction="always" />
+
+
+</menu>

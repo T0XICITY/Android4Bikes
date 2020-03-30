@@ -4,6 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.test.ActivityButtonTest">
+    tools:context=".view.test.ActivityButtonTest">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

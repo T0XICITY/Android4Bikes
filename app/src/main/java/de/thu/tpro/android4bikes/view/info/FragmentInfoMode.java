@@ -1,10 +1,14 @@
-package de.thu.tpro.android4bikes.activities.info;
+package de.thu.tpro.android4bikes.view.info;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -13,22 +17,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 
-import de.thu.tpro.android4bikes.activities.login.ActivityLogin;
-import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-public class ActivityInfoMode extends AppCompatActivity {
+public class FragmentInfoMode extends Fragment {
 
     ///Temporary variables just for testing///
     //Todo: Delete after testing
@@ -39,7 +39,7 @@ public class ActivityInfoMode extends AppCompatActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         List<Integer> achievements= new ArrayList<>();
         achievements.add(0);
@@ -49,14 +49,14 @@ public class ActivityInfoMode extends AppCompatActivity {
 
         FirebaseConnection.addProfileToFirestore(profile);
 
-        setContentView(R.layout.activity_info_mode);
-        GlobalContext.setContext(getApplicationContext());
+        GlobalContext.setContext(getActivity().getApplicationContext());
         determineAllViews();
         //HazardAlert hazardAlert = new HazardAlert(HazardAlert.HazardType.ICY_ROAD);
         //tv_Test.setText(hazardAlert.getType());
         testLogOut();
         a();
         b();
+        return inflater.inflate(R.layout.fragment_info_mode,container,false);
     }
 
     private void determineAllViews() {
@@ -73,11 +73,11 @@ public class ActivityInfoMode extends AppCompatActivity {
     ///Temporary method for logout testing///
     //Todo: Delete after testing
     private void testLogOut() {
-        tv_Test = findViewById(R.id.tv_Test);
-        logout = findViewById(R.id.logout);
-        name = findViewById(R.id.name);
-        mail = findViewById(R.id.mail);
-        GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(this);
+        tv_Test = getActivity().findViewById(R.id.tv_Test);
+        logout = getActivity().findViewById(R.id.logout);
+        name = getActivity().findViewById(R.id.name);
+        mail = getActivity().findViewById(R.id.mail);
+        GoogleSignInAccount signInAccount = GoogleSignIn.getLastSignedInAccount(getActivity());
         if (signInAccount != null) {
             name.setText(signInAccount.getDisplayName());
             mail.setText(signInAccount.getEmail());
@@ -87,8 +87,8 @@ public class ActivityInfoMode extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(getApplicationContext(), ActivityLogin.class);
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity().getApplicationContext(), ActivityLogin.class);
+//                startActivity(intent);
             }
         });
 
