@@ -7,6 +7,7 @@ import java.util.Map;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class HazardAlert implements JsonRepresentation {
@@ -63,10 +64,12 @@ public class HazardAlert implements JsonRepresentation {
         this.type = type;
     }
 
+
     @Override
-    public JSONObject toJSON() {
+    public JSONObject toJSON() throws InvalidJsonException {
         return null;
     }
+
 
     @Override
     public Map<String, Object> toMap() {

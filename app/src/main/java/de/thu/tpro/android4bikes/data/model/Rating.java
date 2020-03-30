@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 
 public class Rating implements JsonRepresentation {
     private long author;
@@ -75,7 +76,7 @@ public class Rating implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject toJSON() {
+    public JSONObject toJSON() throws InvalidJsonException {
         return null;
     }
 

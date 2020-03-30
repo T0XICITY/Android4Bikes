@@ -143,7 +143,7 @@ public class BikeRack implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject toJSON() {
+    public JSONObject toJSON() throws InvalidJsonException {
         return null;
     }
 

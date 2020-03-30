@@ -16,6 +16,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.List;
+
+import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.Android4BikeServerDatabase;
+import de.thu.tpro.android4bikes.util.FirebaseHelper;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -251,4 +261,8 @@ public class FirebaseConnection {
         }
     }
 
+    @Override
+    public void storeUtilizationToFireStore(List<Position> utilization) {
+
+    }
 }

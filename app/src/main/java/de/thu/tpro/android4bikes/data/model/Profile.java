@@ -9,12 +9,12 @@ import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 
 public class Profile implements JsonRepresentation {
-
     private String firstName;
     private String familyName;
-    private String firebaseAccountID;
+    private String googleID;
     private int color;
     private int overallDistance;
     private List<Achievement> achievements; //TODO better representation
@@ -24,7 +24,7 @@ public class Profile implements JsonRepresentation {
     public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Achievement> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
-        this.firebaseAccountID = firebaseAccountID;
+        this.googleID = firebaseAccountID;
         this.color = color;
         this.overallDistance = overallDistance;
         this.achievements = achievements;
@@ -70,12 +70,12 @@ public class Profile implements JsonRepresentation {
         this.familyName = familyName;
     }
 
-    public String getFirebaseAccountID() {
-        return firebaseAccountID;
+    public String getGoogleID() {
+        return googleID;
     }
 
-    public void setFirebaseAccountID(String firebaseAccountID) {
-        this.firebaseAccountID = firebaseAccountID;
+    public void setGoogleID(String googleID) {
+        this.googleID = googleID;
     }
 
     @Override

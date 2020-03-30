@@ -3,6 +3,7 @@ package de.thu.tpro.android4bikes.activities.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -32,6 +33,7 @@ import de.thu.tpro.android4bikes.activities.info.ActivityInfoMode;
  */
 public class ActivityLogin extends AppCompatActivity {
 
+    private static final String TAG = "ActivityLogin";
     private final static int RC_SIGN_IN = 9999;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
@@ -45,6 +47,7 @@ public class ActivityLogin extends AppCompatActivity {
         findViewById(R.id.btn_sign_in).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                findViewById(R.id.progBar_login).setVisibility(View.VISIBLE);
                 signIn();
             }
         });
@@ -90,7 +93,6 @@ public class ActivityLogin extends AppCompatActivity {
      * Performs Google sign
      */
     private void signIn() {
-        findViewById(R.id.progBar_login).setVisibility(View.VISIBLE);
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -115,7 +117,7 @@ public class ActivityLogin extends AppCompatActivity {
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.w(TAG, "Google sign in failed", e);
             }
         }
     }
