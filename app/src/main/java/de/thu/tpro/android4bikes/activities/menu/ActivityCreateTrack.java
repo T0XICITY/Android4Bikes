@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import de.thu.tpro.android4bikes.R;
 
 public class ActivityCreateTrack extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -1,23 +1,30 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import java.util.List;
+import org.json.JSONObject;
 
-public class Profile {
+import java.util.List;
+import java.util.Map;
+
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
+
+public class Profile implements JsonRepresentation {
     private String firstName;
     private String familyName;
-    private String firebaseAccountID;
+    private String googleID;
     private int color;
     private int overallDistance;
-    private List<Integer> achievements; //TODO better representation
+    private List<Achievement> achievements;
 
     public Profile() {
     }
 
 
-    public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Integer> achievements) {
+    public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Achievement> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
-        this.firebaseAccountID = firebaseAccountID;
+        this.googleID = firebaseAccountID;
         this.color = color;
         this.overallDistance = overallDistance;
         this.achievements = achievements;
@@ -31,11 +38,11 @@ public class Profile {
         this.overallDistance = overallDistance;
     }
 
-    public List<Integer> getAchievements() {
+    public List<Achievement> getAchievements() {
         return achievements;
     }
 
-    public void setAchievements(List<Integer> achievements) {
+    public void setAchievements(List<Achievement> achievements) {
         this.achievements = achievements;
     }
 
@@ -63,11 +70,21 @@ public class Profile {
         this.familyName = familyName;
     }
 
-    public String getFirebaseAccountID() {
-        return firebaseAccountID;
+    public String getGoogleID() {
+        return googleID;
     }
 
-    public void setFirebaseAccountID(String firebaseAccountID) {
-        this.firebaseAccountID = firebaseAccountID;
+    public void setGoogleID(String googleID) {
+        this.googleID = googleID;
+    }
+
+    @Override
+    public JSONObject toJSON() throws InvalidJsonException {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        return null;
     }
 }

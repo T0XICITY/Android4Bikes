@@ -10,7 +10,7 @@ public class FirebaseHelper {
         Map<String, Object> profile_map = new HashMap<>();
         profile_map.put("firstName", profile.getFirstName());
         profile_map.put("familyName", profile.getFamilyName());
-        profile_map.put("firebaseAccountID", profile.getFirebaseAccountID());
+        profile_map.put("firebaseAccountID", profile.getGoogleID());
         profile_map.put("color", profile.getColor());
         profile_map.put("overallDistance", profile.getOverallDistance());
         profile_map.put("achievements", profile.getAchievements());
