@@ -20,6 +20,7 @@ public class Position implements JsonRepresentation {
     private String firebaseID;
     private double longitude;
     private double latitude;
+
     /**
      * constructor
      * should be used when there is no position available

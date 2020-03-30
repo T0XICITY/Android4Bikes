@@ -13,6 +13,7 @@ import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 public class FineGrainedPositions implements JsonRepresentation {
     private String firebaseID;
     private List<Position> positions;
+
     public FineGrainedPositions() {
         positions = new LinkedList<>();
     }
