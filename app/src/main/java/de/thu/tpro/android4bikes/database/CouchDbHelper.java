@@ -3,11 +3,13 @@ package de.thu.tpro.android4bikes.database;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 
-public class CouchDbHelper implements Android4BikesDatabaseHelper {
+public class CouchDbHelper implements Android4BikesLocalDatabaseHelper {
     private CouchDB couchDB;
 
     public CouchDbHelper() {
@@ -16,57 +18,22 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
 
 
     @Override
-    public List<BikeRack> readBikeRack(String postcode) {
+    public void storeProfile(Profile Profile) {
+
+    }
+
+    @Override
+    public Profile readProfile(String googleID) {
         return null;
-    }
-
-    @Override
-    public void saveBikeRack(BikeRack bikeRack) {
-
-    }
-
-    @Override
-    public void updateBikeRack(BikeRack bikeRack) {
-
-    }
-
-    @Override
-    public void deleteBikeRack(BikeRack bikeRack) {
-
-    }
-
-    @Override
-    public List<HazardAlert> readHazardAlert(String postcode) {
-        return null;
-    }
-
-    @Override
-    public void saveHazardAlert(HazardAlert hazardAlert) {
-
-    }
-
-    @Override
-    public void updateHazardAlert(HazardAlert hazardAlert) {
-
-    }
-
-    @Override
-    public void deleteHazardAlert(HazardAlert hazardAlert) {
-
-    }
-
-    @Override
-    public Profile readProfile(String firebaseAccountID) {
-        return null;
-    }
-
-    @Override
-    public void saveProfile(Profile profile) {
-
     }
 
     @Override
     public void updateProfile(Profile profile) {
+
+    }
+
+    @Override
+    public void deleteProfile(String googleID) {
 
     }
 
@@ -76,9 +43,82 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
     }
 
     @Override
-    public Track getTrack(long trackID) {
+    public void storeBikeRack(BikeRack bikeRack) {
+
+    }
+
+    @Override
+    public List<BikeRack> readBikeRacks(String postcode) {
         return null;
     }
 
+    @Override
+    public void deleteBikeRack(String fireBaseID) {
 
+    }
+
+    @Override
+    public void deleteBikeRack(BikeRack bikeRack) {
+
+    }
+
+    @Override
+    public void storeTrack(Track track) {
+
+    }
+
+    @Override
+    public void storeFineGrainedPositions(FineGrainedPositions fineGrainedPositions) {
+
+    }
+
+    @Override
+    public List<Track> readTracks(String postcode) {
+        return null;
+    }
+
+    @Override
+    public void deleteTrack(String fireBaseID) {
+
+    }
+
+    @Override
+    public FineGrainedPositions readFineGrainedPositions(String firebaseID) {
+        return null;
+    }
+
+    @Override
+    public FineGrainedPositions readFineGrainedPositions(Track track) {
+        return null;
+    }
+
+    @Override
+    public void storeHazardAlerts(HazardAlert hazardAlert) {
+
+    }
+
+    @Override
+    public List<HazardAlert> readHazardAlerts(String postcode) {
+        return null;
+    }
+
+    @Override
+    public void deleteHazardAlert(String fireBaseID) {
+
+    }
+
+    @Override
+    public void deleteHazardAlert(HazardAlert hazardAlert) {
+
+    }
+
+    @Override
+    public void addToUtilization(Position position) {
+
+    }
+
+    @Override
+    public void resetUtilization() {
+
+    }
 }

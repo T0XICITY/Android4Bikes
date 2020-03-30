@@ -88,7 +88,7 @@ public class Profile implements JsonRepresentation {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("firstname", firstName);
         map.put("familyname", familyName);
-        map.put("firebaseaccountid", firebaseAccountID);
+        map.put("googleid", googleID);
         map.put("color", color);
         map.put("overalldistance", overallDistance);
         List<Map<String, Object>> list_achievements = new ArrayList<>();

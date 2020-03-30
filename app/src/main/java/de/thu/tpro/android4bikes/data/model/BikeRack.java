@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
 public class BikeRack implements JsonRepresentation {

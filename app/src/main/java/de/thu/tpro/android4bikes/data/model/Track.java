@@ -34,15 +34,15 @@ public class Track implements JsonRepresentation {
         this.name = name;
         this.description = description;
         this.firebaseID = firebaseID;
-        this.track = track;
+        this.coarseGrainedPositions = track;
     }
 
     public List<Position> getTrack() {
-        return track;
+        return coarseGrainedPositions;
     }
 
     public void setTrack(List<Position> track) {
-        this.track = track;
+        this.coarseGrainedPositions = track;
     }
 
     public String getFirebaseID() {
@@ -95,7 +95,7 @@ public class Track implements JsonRepresentation {
         HashMap<String, Object> map = new HashMap<>();
 
         List<Map<String, Object>> trackpositions = new ArrayList<>();
-        for (Position pos : track) {
+        for (Position pos : coarseGrainedPositions) {
             trackpositions.add(pos.toMap());
         }
 

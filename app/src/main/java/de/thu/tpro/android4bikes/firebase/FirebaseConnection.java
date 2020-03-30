@@ -16,22 +16,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.List;
-
-import de.thu.tpro.android4bikes.data.model.BikeRack;
-import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
-import de.thu.tpro.android4bikes.data.model.HazardAlert;
-import de.thu.tpro.android4bikes.data.model.Position;
-import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.database.Android4BikeServerDatabase;
-import de.thu.tpro.android4bikes.util.FirebaseHelper;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.database.Android4BikesDatabaseHelper;
+import de.thu.tpro.android4bikes.database.Android4BikesLocalDatabaseHelper;
+
 import de.thu.tpro.android4bikes.database.CouchDbHelper;
 import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
@@ -39,7 +30,7 @@ public class FirebaseConnection {
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
     private List<FireStoreObserver> fireStoreObservers;
-    private Android4BikesDatabaseHelper android4BikesDatabaseHelper;
+    private Android4BikesLocalDatabaseHelper android4BikesDatabaseHelper;
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         fireStoreObservers = new ArrayList<>();
@@ -64,7 +55,7 @@ public class FirebaseConnection {
 
     public void addProfileToFirestore(Profile profile) {
         db.collection(ConstantsFirebase.COLLECTION_USERS.toString())
-                .document(profile.getFirebaseAccountID()) //set the id of a given document
+                .document(profile.getGoogleID()) //set the id of a given document
                 .set(profile.toMap()) //set-Method: Will create or overwrite document if it is existing
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -96,7 +87,7 @@ public class FirebaseConnection {
                     public void onSuccess(DocumentReference documentReference) {
                         String bikeRackID = documentReference.getId();
                         Log.d("Hallo Welt", "DocumentSnapshot added with ID: " + bikeRackID);
-                        android4BikesDatabaseHelper.saveBikeRack(bikerack);
+                        android4BikesDatabaseHelper.storeBikeRack(bikerack);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -132,30 +123,6 @@ public class FirebaseConnection {
                 });
     }
 
-    /**
-     * updates a bikeRack in the the local db and the fireStore using
-     * its unique fireBaseID
-     *
-     * @param bikeRack bikeRack to update
-     */
-    public void updateBikeRackInFireStoreAndLocalDB(BikeRack bikeRack) {
-        db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
-                .document(bikeRack.getFirebaseID())
-                .set(bikeRack.toMap())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Hallo Welt", "DocumentSnapshot successfully written!");
-                        android4BikesDatabaseHelper.updateBikeRack(bikeRack);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Hallo Welt", "Error writing document", e);
-                    }
-                });
-    }
 
     /**
      * reads all official BikeRacks associated to a certain postcode
@@ -200,7 +167,7 @@ public class FirebaseConnection {
                                     bikeRack = new BikeRack(
                                             fireBaseId, position, name, capacity, isEBikeStation, isExisting, isCovered
                                     );
-                                    android4BikesDatabaseHelper.saveBikeRack(bikeRack);
+                                    android4BikesDatabaseHelper.storeBikeRack(bikeRack);
 
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -261,8 +228,4 @@ public class FirebaseConnection {
         }
     }
 
-    @Override
-    public void storeUtilizationToFireStore(List<Position> utilization) {
-
-    }
 }
