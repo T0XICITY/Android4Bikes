@@ -18,6 +18,7 @@ import de.thu.tpro.android4bikes.services.weatherData.warning.DWDwarning;
 public class WeatherManagerWarning {
     private final static String string_url = "https://www.dwd.de/DWD/warnungen/warnapp/json/warnings.json";
     private Gson gson;
+
     public WeatherManagerWarning() {
         gson = new Gson();
     }
