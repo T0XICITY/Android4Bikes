@@ -9,14 +9,6 @@ import java.util.Map;
 
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
-import org.json.JSONObject;
-
-import java.util.List;
-import java.util.Map;
-
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
-import de.thu.tpro.android4bikes.exception.InvalidJsonException;
-
 public class Track implements JsonRepresentation {
     private long author;
     private List<Rating> ratings;

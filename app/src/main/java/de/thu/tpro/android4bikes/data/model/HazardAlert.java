@@ -16,6 +16,7 @@ public class HazardAlert implements JsonRepresentation {
     private Date expiryDate;
     private int distanceOfInterest;
     private String firebaseID;
+
     public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest, String firebaseID) {
         this.type = type;
         this.position = position;

@@ -9,7 +9,6 @@ import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
-import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 
 public class Profile implements JsonRepresentation {
     private String firstName;
@@ -18,6 +17,7 @@ public class Profile implements JsonRepresentation {
     private int color;
     private int overallDistance;
     private List<Achievement> achievements; //TODO better representation
+
     public Profile() {
     }
 

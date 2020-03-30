@@ -18,8 +18,10 @@ public class BikeRack implements JsonRepresentation {
     private boolean hasBikeCharging;
     private boolean isExistent;
     private boolean isCovered;
+
     public BikeRack() {
     }
+
     /**
      * constructor regarding a bikeRack using all parameters
      *

@@ -22,7 +22,6 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.database.Android4BikesLocalDatabaseHelper;
-
 import de.thu.tpro.android4bikes.database.CouchDbHelper;
 import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
@@ -31,6 +30,7 @@ public class FirebaseConnection {
     private FirebaseFirestore db;
     private List<FireStoreObserver> fireStoreObservers;
     private Android4BikesLocalDatabaseHelper android4BikesDatabaseHelper;
+
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         fireStoreObservers = new ArrayList<>();
@@ -87,6 +87,7 @@ public class FirebaseConnection {
                     public void onSuccess(DocumentReference documentReference) {
                         String bikeRackID = documentReference.getId();
                         Log.d("Hallo Welt", "DocumentSnapshot added with ID: " + bikeRackID);
+                        bikerack.setFirebaseID(bikeRackID);
                         android4BikesDatabaseHelper.storeBikeRack(bikerack);
                     }
                 })
