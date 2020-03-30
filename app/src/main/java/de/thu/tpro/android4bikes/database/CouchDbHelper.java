@@ -3,6 +3,7 @@ package de.thu.tpro.android4bikes.database;
 import android.util.Log;
 
 import com.couchbase.lite.DataSource;
+import com.couchbase.lite.Document;
 import com.couchbase.lite.Expression;
 import com.couchbase.lite.MutableDocument;
 import com.couchbase.lite.Query;
@@ -27,7 +28,6 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
-import de.thu.tpro.android4bikes.util.Android4BikesColor;
 
 public class CouchDbHelper implements Android4BikesDatabaseHelper {
     private CouchDB couchDB;
@@ -123,6 +123,23 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
             }
         });
         return positions;
+    }
+
+    /**
+     * delete
+     * */
+    public Position deletePosition(Position position){
+        Position pos_deleted = null;
+        Query getAllPosQuery = QueryBuilder
+                .select(SelectResult.all())
+                .from(DataSource.database(CouchDB.getInstance()
+                        .getDatabaseFromName(DatabaseNames.DATABASE_POSITION)));
+        ResultSet results = couchDB.queryDatabase(getAllPosQuery);
+        results.forEach(result -> {
+            String id = result.getString(0);
+            couchDB.deleteDocumentByID(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION),id);
+        });
+        return pos_deleted;
     }
 
     /**

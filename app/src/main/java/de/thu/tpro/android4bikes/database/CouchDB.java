@@ -467,6 +467,15 @@ public class CouchDB implements Andoid4BikeDatabse {
         }
     }
 
+    /**
+     * Method which returns a Document
+     * @param id is the ID of the wanted document
+     * @param database is the Database where the wanted document is stored
+     * */
+    public Document getDocument(DatabaseNames database,String id) {
+        return getDatabaseFromName(database).getDocument(id);
+    }
+
     public enum DatabaseNames {
         //Databases:
         DATABASE_ACHIEVEMENT("achievementdb"),
