@@ -1,9 +1,7 @@
 package de.thu.tpro.android4bikes.services;
 
 import org.junit.Test;
-
 import de.thu.tpro.android4bikes.services.weatherData.openWeather.OpenWeatherObject;
-
 import static org.junit.Assert.*;
 
 public class WeatherManagerOpenWeatherTest {

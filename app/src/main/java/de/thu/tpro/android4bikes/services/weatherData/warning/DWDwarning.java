@@ -4,6 +4,8 @@ package de.thu.tpro.android4bikes.services.weatherData.warning;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 public class DWDwarning {
 
     @SerializedName("regionName")
@@ -150,4 +152,47 @@ public class DWDwarning {
         this.altitudeEnd = altitudeEnd;
     }
 
+    @Override
+    public String toString() {
+        return "DWDwarning{" +
+                "regionName='" + regionName + '\'' +
+                ", start=" + start +
+                ", end=" + end +
+                ", type=" + type +
+                ", state='" + state + '\'' +
+                ", level=" + level +
+                ", stateShort='" + stateShort + '\'' +
+                ", description='" + description + '\'' +
+                ", event='" + event + '\'' +
+                ", headline='" + headline + '\'' +
+                ", instruction='" + instruction + '\'' +
+                ", altitudeStart=" + altitudeStart +
+                ", altitudeEnd=" + altitudeEnd +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DWDwarning that = (DWDwarning) o;
+        return Objects.equals(regionName, that.regionName) &&
+                Objects.equals(start, that.start) &&
+                Objects.equals(end, that.end) &&
+                Objects.equals(type, that.type) &&
+                Objects.equals(state, that.state) &&
+                Objects.equals(level, that.level) &&
+                Objects.equals(stateShort, that.stateShort) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(event, that.event) &&
+                Objects.equals(headline, that.headline) &&
+                Objects.equals(instruction, that.instruction) &&
+                Objects.equals(altitudeStart, that.altitudeStart) &&
+                Objects.equals(altitudeEnd, that.altitudeEnd);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(regionName, start, end, type, state, level, stateShort, description, event, headline, instruction, altitudeStart, altitudeEnd);
+    }
 }
