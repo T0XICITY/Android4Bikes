@@ -4,10 +4,13 @@ import com.google.firebase.firestore.GeoPoint;
 
 import org.json.JSONObject;
 
+import java.util.Map;
+
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 
 public class BikeRack implements JsonRepresentation {
-    private GeoPoint geoPoint;
+    private Position position;
     private String name;
     private int capacity;
     private boolean hasBikeCharging;
@@ -17,8 +20,8 @@ public class BikeRack implements JsonRepresentation {
     public BikeRack() {
     }
 
-    public BikeRack(GeoPoint geoPoint, String name, int capacity, boolean hasBikeCharging, boolean isCovered, String firebaseID) {
-        this.geoPoint = geoPoint;
+    public BikeRack(Position position, String name, int capacity, boolean hasBikeCharging, boolean isCovered, String firebaseID) {
+        this.position = position;
         this.name = name;
         this.capacity = capacity;
         this.hasBikeCharging = hasBikeCharging;
@@ -34,12 +37,12 @@ public class BikeRack implements JsonRepresentation {
         this.firebaseID = firebaseID;
     }
 
-    public GeoPoint getGeoPoint() {
-        return geoPoint;
+    public Position getGeoPoint() {
+        return position;
     }
 
-    public void setGeoPoint(GeoPoint geoPoint) {
-        this.geoPoint = geoPoint;
+    public void setGeoPoint(Position position) {
+        this.position = position;
     }
 
     public String getName() {
@@ -75,7 +78,12 @@ public class BikeRack implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject getJsonRepresentation() {
+    public JSONObject toJSON() throws InvalidJsonException {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
         return null;
     }
 }

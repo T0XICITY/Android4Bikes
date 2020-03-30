@@ -41,9 +41,8 @@ public class ActivityInfoMode extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        List<Integer> achievements= new ArrayList<>();
-        achievements.add(0);
-        achievements.add(1);
+        List<Achievement> achievements= new ArrayList<>();
+        achievements.add(new KmAchievement("a",2,2,2,2));
 
         Profile profile = new Profile("Olaf","Olafsen","00x13dxxx",10,1,achievements);
 

@@ -5,21 +5,23 @@ import com.google.firebase.firestore.GeoPoint;
 import org.json.JSONObject;
 
 import java.util.Date;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class HazardAlert implements JsonRepresentation {
     private HazardType type;
-    private GeoPoint geoPoint;
+    private Position position;
     private Date expiryDate;
     private int distanceOfInterest;
     private String firebaseID;
 
-    public HazardAlert(HazardType type, GeoPoint geoPoint, Date expiryDate, int distanceOfInterest, String firebaseID) {
+    public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest, String firebaseID) {
         this.type = type;
-        this.geoPoint = geoPoint;
+        this.position = position;
         this.expiryDate = expiryDate;
         this.distanceOfInterest = distanceOfInterest;
         this.firebaseID = firebaseID;
@@ -41,12 +43,12 @@ public class HazardAlert implements JsonRepresentation {
         this.distanceOfInterest = distanceOfInterest;
     }
 
-    public GeoPoint getGeoPoint() {
-        return geoPoint;
+    public Position getGeoPoint() {
+        return position;
     }
 
-    public void setGeoPoint(GeoPoint geoPoint) {
-        this.geoPoint = geoPoint;
+    public void setGeoPoint(Position position) {
+        this.position = position;
     }
 
     public Date getExpiryDate() {
@@ -65,8 +67,14 @@ public class HazardAlert implements JsonRepresentation {
         this.type = type;
     }
 
+
     @Override
-    public JSONObject getJsonRepresentation() {
+    public JSONObject toJSON() throws InvalidJsonException {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
         return null;
     }
 
