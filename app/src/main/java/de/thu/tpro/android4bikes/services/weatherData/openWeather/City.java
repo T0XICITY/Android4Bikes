@@ -1,4 +1,3 @@
-
 package de.thu.tpro.android4bikes.services.weatherData.openWeather;
 
 import com.google.gson.annotations.Expose;
@@ -33,13 +32,11 @@ public class City {
 
     /**
      * No args constructor for use in serialization
-     * 
      */
     public City() {
     }
 
     /**
-     * 
      * @param country
      * @param coord
      * @param sunrise

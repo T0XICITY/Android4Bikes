@@ -1,17 +1,15 @@
 package de.thu.tpro.android4bikes.activities.login;
 
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -26,8 +24,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.activities.info.ActivityInfoMode;
 
@@ -38,8 +34,8 @@ import de.thu.tpro.android4bikes.activities.info.ActivityInfoMode;
 public class ActivityLogin extends AppCompatActivity {
 
     private static final String TAG = "ActivityLogin";
-    private GoogleSignInClient mGoogleSignInClient;
     private final static int RC_SIGN_IN = 9999;
+    private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
 
     @Override

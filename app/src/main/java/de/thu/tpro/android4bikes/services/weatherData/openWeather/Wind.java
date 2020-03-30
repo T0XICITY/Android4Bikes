@@ -1,4 +1,3 @@
-
 package de.thu.tpro.android4bikes.services.weatherData.openWeather;
 
 import com.google.gson.annotations.Expose;
@@ -15,13 +14,11 @@ public class Wind {
 
     /**
      * No args constructor for use in serialization
-     * 
      */
     public Wind() {
     }
 
     /**
-     * 
      * @param deg
      * @param speed
      */

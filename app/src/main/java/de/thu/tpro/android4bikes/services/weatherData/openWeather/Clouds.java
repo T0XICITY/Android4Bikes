@@ -1,4 +1,3 @@
-
 package de.thu.tpro.android4bikes.services.weatherData.openWeather;
 
 import com.google.gson.annotations.Expose;
@@ -12,13 +11,11 @@ public class Clouds {
 
     /**
      * No args constructor for use in serialization
-     * 
      */
     public Clouds() {
     }
 
     /**
-     * 
      * @param all
      */
     public Clouds(Integer all) {

@@ -6,6 +6,6 @@ public abstract class Achievement implements JsonRepresentation {
 
 
     public enum Level {
-        EASY,PRO
+        EASY, PRO
     }
 }

@@ -1,4 +1,3 @@
-
 package de.thu.tpro.android4bikes.services.weatherData.openWeather;
 
 import com.google.gson.annotations.Expose;
@@ -36,13 +35,11 @@ public class Main {
 
     /**
      * No args constructor for use in serialization
-     * 
      */
     public Main() {
     }
 
     /**
-     * 
      * @param feelsLike
      * @param tempMax
      * @param temp

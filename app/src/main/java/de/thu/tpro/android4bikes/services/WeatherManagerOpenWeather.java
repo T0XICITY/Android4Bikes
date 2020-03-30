@@ -4,13 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import de.thu.tpro.android4bikes.services.weatherData.openWeather.OpenWeatherObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import de.thu.tpro.android4bikes.services.weatherData.openWeather.OpenWeatherObject;
 
 public class WeatherManagerOpenWeather {
     private static final String appID = "27d59ee2b5c90cf9beed248c6b4ef026";
@@ -18,26 +18,25 @@ public class WeatherManagerOpenWeather {
     public WeatherManagerOpenWeather() {
     }
 
-    private URL getPreparedUrl(double latitude, double longitude){
+    private URL getPreparedUrl(double latitude, double longitude) {
         URL url = null;
         try {
             String sb = "http://api.openweathermap.org/data/2.5/forecast" +
                     "?lat=" + latitude +
                     "&lon=" + longitude +
-                    "&units=metric"+
+                    "&units=metric" +
                     "&appid=" + appID;
-                    ;
-            url= new URL(sb);
-        }catch (MalformedURLException e){
+            url = new URL(sb);
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         return url;
     }
 
-    public OpenWeatherObject createOpenWeatherObject(double latitude, double longitude){
+    public OpenWeatherObject createOpenWeatherObject(double latitude, double longitude) {
         OpenWeatherObject weatherObject = null;
         try {
-            URL url = getPreparedUrl(latitude,longitude);
+            URL url = getPreparedUrl(latitude, longitude);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");

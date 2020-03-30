@@ -1,10 +1,6 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import android.graphics.Color;
-
 import java.util.List;
-
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
 
 public class Profile {
     private String firstName;

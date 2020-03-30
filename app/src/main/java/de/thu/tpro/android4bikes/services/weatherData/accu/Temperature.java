@@ -1,4 +1,3 @@
-
 package de.thu.tpro.android4bikes.services.weatherData.accu;
 
 import com.google.gson.annotations.Expose;
@@ -18,13 +17,11 @@ public class Temperature {
 
     /**
      * No args constructor for use in serialization
-     * 
      */
     public Temperature() {
     }
 
     /**
-     * 
      * @param unitType
      * @param unit
      * @param value

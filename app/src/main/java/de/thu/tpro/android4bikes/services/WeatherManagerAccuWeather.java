@@ -4,48 +4,49 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import de.thu.tpro.android4bikes.services.weatherData.accu.AccuWeatherObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import de.thu.tpro.android4bikes.services.weatherData.accu.AccuWeatherObject;
+
 public class WeatherManagerAccuWeather {
     private final static String apiKey = "5A1Jts43flTKLIHNYHTvypubtJScdGYR";
-    private final static String language= "de-de";
+    private final static String language = "de-de";
+
     public WeatherManagerAccuWeather() {
 
     }
 
-    public AccuWeatherObject createAccuWeatherObject(double latitude, double longitude){
-        URL url = getPreparedKeyUrl(latitude,longitude);
+    public AccuWeatherObject createAccuWeatherObject(double latitude, double longitude) {
+        URL url = getPreparedKeyUrl(latitude, longitude);
         int key = -1;
-        if (url != null){
+        if (url != null) {
             key = getKeyFromAPI(url);
-            if (key != -1){
+            if (key != -1) {
                 return getWeatherData(key);
             }
         }
         return null;
     }
 
-    private URL getPreparedKeyUrl(double latitude, double longitude){
+    private URL getPreparedKeyUrl(double latitude, double longitude) {
         URL url = null;
         try {
             String sb = "http://dataservice.accuweather.com/locations/v1/cities/geoposition/search" +
                     "?apikey=" + apiKey +
                     "&q=" + latitude + "%2C" + longitude +
                     "&language=" + language;
-            url= new URL(sb);
-        }catch (MalformedURLException e){
+            url = new URL(sb);
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         return url;
     }
 
-    private int getKeyFromAPI(URL url){
+    private int getKeyFromAPI(URL url) {
         int key = -1;
         HttpURLConnection conn;
         try {
@@ -72,14 +73,14 @@ public class WeatherManagerAccuWeather {
         return key;
     }
 
-    private AccuWeatherObject getWeatherData(int key){
+    private AccuWeatherObject getWeatherData(int key) {
         AccuWeatherObject weatherObject = null;
         try {
             String string_url = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/" + key +
                     "?apikey=" + apiKey +
                     "&metric=" + "true" +
                     "&language=" + language;
-            URL url= new URL(string_url);
+            URL url = new URL(string_url);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
@@ -98,8 +99,8 @@ public class WeatherManagerAccuWeather {
             sb.append("}");
             String jsonString = sb.toString();
             JsonObject jsonObject_weatherData = new JsonParser().parse(jsonString).getAsJsonObject(); //todo
-            weatherObject = new Gson().fromJson(jsonObject_weatherData,AccuWeatherObject.class);
-        }catch (Exception e){
+            weatherObject = new Gson().fromJson(jsonObject_weatherData, AccuWeatherObject.class);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return weatherObject;

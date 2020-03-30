@@ -1,4 +1,3 @@
-
 package de.thu.tpro.android4bikes.services.weatherData.accu;
 
 import com.google.gson.annotations.Expose;
@@ -39,13 +38,11 @@ public class WeatherData {
 
     /**
      * No args constructor for use in serialization
-     * 
      */
     public WeatherData() {
     }
 
     /**
-     * 
      * @param dateTime
      * @param hasPrecipitation
      * @param precipitationProbability

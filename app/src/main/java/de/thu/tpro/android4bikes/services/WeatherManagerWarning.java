@@ -23,7 +23,7 @@ public class WeatherManagerWarning {
         gson = new Gson();
     }
 
-    public List<DWDwarning> loadWeatherWarnings(){
+    public List<DWDwarning> loadWeatherWarnings() {
         List<DWDwarning> warningList = new ArrayList<>();
         try {
             URL url = new URL(string_url);
@@ -42,12 +42,12 @@ public class WeatherManagerWarning {
             }
             conn.disconnect();
             String result = sb.toString();
-            result = result.replace("warnWetter.loadWarnings(","");
-            result = result.substring(0,result.length()-2);
+            result = result.replace("warnWetter.loadWarnings(", "");
+            result = result.substring(0, result.length() - 2);
             JsonObject json_warning = new JsonParser().parse(result).getAsJsonObject();
             json_warning = json_warning.get("warnings").getAsJsonObject();
-            for (Map.Entry<String, JsonElement> entry : json_warning.entrySet()){
-                warningList.add(gson.fromJson(json_warning.get(entry.getKey()).getAsJsonArray().get(0).getAsJsonObject(),DWDwarning.class));
+            for (Map.Entry<String, JsonElement> entry : json_warning.entrySet()) {
+                warningList.add(gson.fromJson(json_warning.get(entry.getKey()).getAsJsonArray().get(0).getAsJsonObject(), DWDwarning.class));
             }
         } catch (Exception e) {
             e.printStackTrace();

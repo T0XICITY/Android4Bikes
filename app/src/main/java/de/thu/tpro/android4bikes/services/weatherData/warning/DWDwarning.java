@@ -1,4 +1,3 @@
-
 package de.thu.tpro.android4bikes.services.weatherData.warning;
 
 import com.google.gson.annotations.Expose;
