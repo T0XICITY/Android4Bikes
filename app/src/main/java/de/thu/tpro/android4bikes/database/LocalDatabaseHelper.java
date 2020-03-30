@@ -9,7 +9,7 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 
-public interface Android4BikesLocalDatabaseHelper {
+public interface LocalDatabaseHelper {
     //Profile
     void storeProfile(Profile Profile);
 

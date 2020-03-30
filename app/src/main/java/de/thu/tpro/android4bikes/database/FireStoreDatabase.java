@@ -9,7 +9,7 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 
-public interface Android4BikeServerDatabase {
+public interface FireStoreDatabase {
     //Profile
     void storeProfileToFireStoreAndLocalDB(Profile Profile);
 

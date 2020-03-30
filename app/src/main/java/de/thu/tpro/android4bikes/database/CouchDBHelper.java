@@ -9,10 +9,10 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 
-public class CouchDbHelperLocal implements Android4BikesLocalDatabaseHelper {
+public class CouchDBHelper implements LocalDatabaseHelper {
     private CouchDB couchDB;
 
-    public CouchDbHelperLocal() {
+    public CouchDBHelper() {
         couchDB = new CouchDB();
     }
 
