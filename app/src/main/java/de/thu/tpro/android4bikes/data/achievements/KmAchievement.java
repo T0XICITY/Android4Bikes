@@ -14,10 +14,7 @@ public class KmAchievement extends Achievement {
     }
 
     public boolean isAchieved(int overallkm) {
-        if (overallkm>kmGoal){
-               return true;
-        }
-        return false;
+        return overallkm > kmGoal;
     }
 
     @Override
@@ -27,12 +24,12 @@ public class KmAchievement extends Achievement {
 
     @Override
     public Map<String, Object> toMap() {
-        Map<String,Object> map = new HashMap<>();
-        map.put("name",name);
-        map.put("exp",exp);
-        map.put("significance",significance);
-        map.put("icon",icon);
-        map.put("kmgoal",kmGoal);
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("exp", exp);
+        map.put("significance", significance);
+        map.put("icon", icon);
+        map.put("kmgoal", kmGoal);
         return map;
     }
 }

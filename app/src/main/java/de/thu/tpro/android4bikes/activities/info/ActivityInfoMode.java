@@ -25,21 +25,20 @@ import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class ActivityInfoMode extends AppCompatActivity {
 
+    TextView name, mail;
+    Button logout;
     ///Temporary variables just for testing///
     //Todo: Delete after testing
     private TextView tv_Test;
-    TextView name, mail;
-    Button logout;
     /////////////////////////////////////////
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
         super.onCreate(savedInstanceState);
         List<Achievement> achievements = new ArrayList<>();
-        achievements.add(new KmAchievement("A",1,1,1,1));
-        achievements.add(new KmAchievement("B",2,2,2,2));
+        achievements.add(new KmAchievement("A", 1, 1, 1, 1));
+        achievements.add(new KmAchievement("B", 2, 2, 2, 2));
 
         Profile profile = new Profile("Olaf", "Olafsen", "00x13dxxx", 10, 1, achievements);
 

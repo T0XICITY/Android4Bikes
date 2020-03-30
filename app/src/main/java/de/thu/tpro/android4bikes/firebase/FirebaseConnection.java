@@ -26,45 +26,21 @@ import de.thu.tpro.android4bikes.database.CouchDbHelper;
 import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
 public class FirebaseConnection {
-    public enum ConstantsFirebase {
-        COLLECTION_USERS("users"),
-        COLLECTION_UTILIZATION("utilization"),
-        COLLECTION_RAWGEOPOS("rawgeopos"),
-        COLLECTION_COARSED_GEOPOS("coarsedgeopos"),
-        COLLECTION_TRACKS("tracks"),
-        COLLECTION_RATINGS("ratings"),
-        COLLECTION_BIKERACKS("bikeracks"),
-        COLLECTION_OFFICIAL_BIKERACKS("officialbikeracks"),
-        COLLECTION_HAZARDS("hazards"),
-        COLLECTION_OFFICIAL_HAZARDS("officialhazards");
-
-        private String type;
-
-        ConstantsFirebase(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
-    }
-
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
     private List<FireStoreObserver> fireStoreObservers;
     private Android4BikesDatabaseHelper android4BikesDatabaseHelper;
+    private FirebaseConnection() {
+        this.db = FirebaseFirestore.getInstance();
+        fireStoreObservers = new ArrayList<>();
+        android4BikesDatabaseHelper = new CouchDbHelper();
+    }
 
     public static FirebaseConnection getInstance() {
         if (firebaseConnection == null) {
             firebaseConnection = new FirebaseConnection();
         }
         return firebaseConnection;
-    }
-
-    private FirebaseConnection() {
-        this.db = FirebaseFirestore.getInstance();
-        fireStoreObservers = new ArrayList<>();
-        android4BikesDatabaseHelper = new CouchDbHelper();
     }
 
     /**
@@ -228,22 +204,21 @@ public class FirebaseConnection {
 
     }
 
-    public void storeHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert){
+    public void storeHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert) {
 
     }
 
-    public void deleteHazardAlertFromFireStoreAndLocalDB(HazardAlert hazardAlert){
+    public void deleteHazardAlertFromFireStoreAndLocalDB(HazardAlert hazardAlert) {
 
     }
 
-    public void updateHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert){
+    public void updateHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert) {
 
     }
 
-    public void readHazardAlertFromFireStoreAndStoreItToLocalDB(String postcode){
+    public void readHazardAlertFromFireStoreAndStoreItToLocalDB(String postcode) {
 
     }
-
 
     public void notifyAllObservers() {
 
@@ -251,6 +226,29 @@ public class FirebaseConnection {
 
     public void updateToken() {
 
+    }
+
+    public enum ConstantsFirebase {
+        COLLECTION_USERS("users"),
+        COLLECTION_UTILIZATION("utilization"),
+        COLLECTION_RAWGEOPOS("rawgeopos"),
+        COLLECTION_COARSED_GEOPOS("coarsedgeopos"),
+        COLLECTION_TRACKS("tracks"),
+        COLLECTION_RATINGS("ratings"),
+        COLLECTION_BIKERACKS("bikeracks"),
+        COLLECTION_OFFICIAL_BIKERACKS("officialbikeracks"),
+        COLLECTION_HAZARDS("hazards"),
+        COLLECTION_OFFICIAL_HAZARDS("officialhazards");
+
+        private String type;
+
+        ConstantsFirebase(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 
 }

@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.database;
 
-import com.google.firebase.firestore.GeoPoint;
-
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;

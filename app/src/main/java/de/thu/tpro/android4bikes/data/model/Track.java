@@ -10,33 +10,12 @@ import java.util.Map;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
 public class Track implements JsonRepresentation {
-    public enum ConstantsTrack{
-        AUTHOR("author"),
-        RATINGS("ratings"),
-        NAME("name"),
-        DESCRIPTION("description"),
-        TRACK("track"),
-        FIREBASEID("firebaseid");
-
-
-        private String type;
-
-        ConstantsTrack(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
-    }
-
     private long author;
     private List<Rating> ratings;
     private String name;
     private String description;
     private String firebaseID;
     private List<Position> track;
-
     public Track() {
     }
 
@@ -97,7 +76,6 @@ public class Track implements JsonRepresentation {
         this.description = description;
     }
 
-
     @Override
     public JSONObject toJSON() {
         return null;
@@ -107,14 +85,34 @@ public class Track implements JsonRepresentation {
     public Map<String, Object> toMap() {
         HashMap<String, Object> map = new HashMap<>();
 
-        List<Map<String,Object>> trackpositions = new ArrayList<>();
-        for(Position pos : track){
+        List<Map<String, Object>> trackpositions = new ArrayList<>();
+        for (Position pos : track) {
             trackpositions.add(pos.toMap());
         }
 
-        map.put(ConstantsTrack.AUTHOR.toString(),author);
+        map.put(ConstantsTrack.AUTHOR.toString(), author);
         map.put(ConstantsTrack.TRACK.toString(), trackpositions);
 
         return map;
+    }
+
+    public enum ConstantsTrack {
+        AUTHOR("author"),
+        RATINGS("ratings"),
+        NAME("name"),
+        DESCRIPTION("description"),
+        TRACK("track"),
+        FIREBASEID("firebaseid");
+
+
+        private String type;
+
+        ConstantsTrack(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 }

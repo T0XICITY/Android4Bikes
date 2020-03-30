@@ -32,8 +32,8 @@ import de.thu.tpro.android4bikes.activities.info.ActivityInfoMode;
  */
 public class ActivityLogin extends AppCompatActivity {
 
-    private GoogleSignInClient mGoogleSignInClient;
     private final static int RC_SIGN_IN = 9999;
+    private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
 
     @Override

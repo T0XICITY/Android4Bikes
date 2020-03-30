@@ -1,13 +1,19 @@
 package de.thu.tpro.android4bikes.util.ObserverMechanism;
 
 public interface FireStoreObserver {
-    public void updateSuccessfullyStoredDocumentInFireStoreAndDB();
-    public void updateSuccessfullyDeletedDocumentFromFireStoreAndDB();
-    public void updateSuccessfullyReadDocumentFromFireStoreAndStoredInDB();
-    public void updateSuccessfullyUpdatedDocumentFromFireStoreAndDB();
+    void updateSuccessfullyStoredDocumentInFireStoreAndDB();
 
-    public void failedToStore();
-    public void failedToDelete();
-    public void failedToRead();
-    public void failedToUpdate();
+    void updateSuccessfullyDeletedDocumentFromFireStoreAndDB();
+
+    void updateSuccessfullyReadDocumentFromFireStoreAndStoredInDB();
+
+    void updateSuccessfullyUpdatedDocumentFromFireStoreAndDB();
+
+    void failedToStore();
+
+    void failedToDelete();
+
+    void failedToRead();
+
+    void failedToUpdate();
 }

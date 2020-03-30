@@ -7,7 +7,7 @@ public abstract class Achievement implements JsonRepresentation {
     String name;
     long exp; //Experience Points
     double significance; //Multiplicator
-    int icon= R.color.Amber400Dark;
+    int icon = R.color.Amber400Dark;
 
     public Achievement(String name, long exp, double significance, int icon) {
         this.name = name;
@@ -16,8 +16,8 @@ public abstract class Achievement implements JsonRepresentation {
         this.icon = icon;
     }
 
-    public long getEP(){
-        return (long)(exp*significance);
+    public long getEP() {
+        return (long) (exp * significance);
     }
 
 }

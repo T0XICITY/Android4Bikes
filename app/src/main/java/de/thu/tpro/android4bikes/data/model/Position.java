@@ -17,27 +17,9 @@ import static de.thu.tpro.android4bikes.data.model.Position.ConstantsPosition.LO
 
 public class Position implements JsonRepresentation {
 
-    public enum ConstantsPosition {
-        LATITUDE("latitude"),
-        LONGITUDE("longitude"),
-        POSITION("position");
-
-
-        private String type;
-
-        ConstantsPosition(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
-    }
-
     private String firebaseID;
     private double longitude;
     private double latitude;
-
     /**
      * constructor
      * should be used when there is no position available
@@ -75,10 +57,7 @@ public class Position implements JsonRepresentation {
      */
     public boolean isPositioningDataAvailable() {
         //Double-Werte nie auf Gleichheit pruefen:
-        if (Double.compare(this.longitude, -103.907409) == 0 && Double.compare(this.latitude, -82.463046) == 0) {
-            return false;
-        }
-        return true;
+        return Double.compare(this.longitude, -103.907409) != 0 || Double.compare(this.latitude, -82.463046) != 0;
     }
 
     /**
@@ -100,9 +79,7 @@ public class Position implements JsonRepresentation {
         return position;
     }
 
-
     /**
-     *
      * @return map representation of the position object
      * represented by a map. This should be used in combination
      * with FireStore.
@@ -113,27 +90,6 @@ public class Position implements JsonRepresentation {
         map_position.put(LONGITUDE.toString(), longitude);
         map_position.put(LATITUDE.toString(), latitude);
         return map_position;
-    }
-
-
-    public void setFirebaseID(String firebaseID) {
-        this.firebaseID = firebaseID;
-    }
-
-    public void setLongitude(double longitude) throws InvalidPositionException {
-        if (longitude >= -180 && longitude <= 180) {
-            this.longitude = longitude;
-        } else {
-            throw new InvalidPositionException();
-        }
-    }
-
-    public void setLatitude(double latitude) throws InvalidPositionException {
-        if (longitude >= 90 && longitude <= 90) {
-            this.latitude = latitude;
-        } else {
-            throw new InvalidPositionException();
-        }
     }
 
     /**
@@ -149,14 +105,33 @@ public class Position implements JsonRepresentation {
         return firebaseID;
     }
 
+    public void setFirebaseID(String firebaseID) {
+        this.firebaseID = firebaseID;
+    }
+
     public double getLongitude() {
         return longitude;
+    }
+
+    public void setLongitude(double longitude) throws InvalidPositionException {
+        if (longitude >= -180 && longitude <= 180) {
+            this.longitude = longitude;
+        } else {
+            throw new InvalidPositionException();
+        }
     }
 
     public double getLatitude() {
         return latitude;
     }
 
+    public void setLatitude(double latitude) throws InvalidPositionException {
+        if (longitude >= 90 && longitude <= 90) {
+            this.latitude = latitude;
+        } else {
+            throw new InvalidPositionException();
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -178,6 +153,23 @@ public class Position implements JsonRepresentation {
                 "longitude=" + longitude +
                 ", latitude=" + latitude +
                 '}';
+    }
+
+    public enum ConstantsPosition {
+        LATITUDE("latitude"),
+        LONGITUDE("longitude"),
+        POSITION("position");
+
+
+        private String type;
+
+        ConstantsPosition(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 
 }

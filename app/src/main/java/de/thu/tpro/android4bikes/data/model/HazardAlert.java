@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import com.google.firebase.firestore.GeoPoint;
-
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -12,31 +10,11 @@ import de.thu.tpro.android4bikes.database.JsonRepresentation;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class HazardAlert implements JsonRepresentation {
-    public enum HazardType {
-        DAMAGED_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_DamagedRoad)),
-        ICY_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_IcyRoad)),
-        SLIPPERY_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_SlipperyRoad)),
-        ROADKILL(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_Roadkill)),
-        ROCKFALL(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_Rockfall)),
-        GENERAL(""); //todo
-
-        private String type;
-
-        HazardType(String type) {
-            this.type = type;
-        }
-
-        public String getType() {
-            return type;
-        }
-    }
-
     private HazardType type;
     private Position position;
     private Date expiryDate;
     private int distanceOfInterest;
     private String firebaseID;
-
     public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest, String firebaseID) {
         this.type = type;
         this.position = position;
@@ -85,8 +63,6 @@ public class HazardAlert implements JsonRepresentation {
         this.type = type;
     }
 
-
-
     @Override
     public JSONObject toJSON() {
         return null;
@@ -95,5 +71,24 @@ public class HazardAlert implements JsonRepresentation {
     @Override
     public Map<String, Object> toMap() {
         return null;
+    }
+
+    public enum HazardType {
+        DAMAGED_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_DamagedRoad)),
+        ICY_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_IcyRoad)),
+        SLIPPERY_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_SlipperyRoad)),
+        ROADKILL(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_Roadkill)),
+        ROCKFALL(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_Rockfall)),
+        GENERAL(""); //todo
+
+        private String type;
+
+        HazardType(String type) {
+            this.type = type;
+        }
+
+        public String getType() {
+            return type;
+        }
     }
 }
