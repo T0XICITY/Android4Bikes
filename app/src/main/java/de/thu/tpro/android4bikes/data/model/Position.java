@@ -22,7 +22,7 @@ public class Position implements JsonRepresentation {
     private double latitude;
 
     /**
-     * constructor
+     * no-arg Constructor needed for Firebase auto-cast
      * should be used when there is no position available
      */
     public Position() {

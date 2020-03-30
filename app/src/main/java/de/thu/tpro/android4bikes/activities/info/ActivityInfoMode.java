@@ -42,7 +42,7 @@ public class ActivityInfoMode extends AppCompatActivity {
 
         Profile profile = new Profile("Olaf", "Olafsen", "00x13dxxx", 10, 1, achievements);
 
-        firebaseConnection.addProfileToFirestore(profile);
+        firebaseConnection.storeProfileToFireStoreAndLocalDB(profile);
 
         setContentView(R.layout.activity_info_mode);
         GlobalContext.setContext(getApplicationContext());

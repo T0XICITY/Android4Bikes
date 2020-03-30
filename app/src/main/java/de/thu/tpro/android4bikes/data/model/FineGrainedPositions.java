@@ -14,8 +14,27 @@ public class FineGrainedPositions implements JsonRepresentation {
     private String firebaseID;
     private List<Position> positions;
 
+    /**
+     * no-arg Constructor needed for Firebase auto-cast
+     */
     public FineGrainedPositions() {
         positions = new LinkedList<>();
+    }
+
+    public String getFirebaseID() {
+        return firebaseID;
+    }
+
+    public void setFirebaseID(String firebaseID) {
+        this.firebaseID = firebaseID;
+    }
+
+    public List<Position> getPositions() {
+        return positions;
+    }
+
+    public void setPositions(List<Position> positions) {
+        this.positions = positions;
     }
 
     public void addPosition(Position position) {

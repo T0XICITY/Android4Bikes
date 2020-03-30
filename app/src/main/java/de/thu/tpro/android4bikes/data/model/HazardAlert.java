@@ -17,12 +17,23 @@ public class HazardAlert implements JsonRepresentation {
     private int distanceOfInterest;
     private String firebaseID;
 
+    /**
+     * no-arg Constructor needed for Firebase auto-cast
+     */
+    public HazardAlert() {
+
+    }
+
     public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest, String firebaseID) {
         this.type = type;
         this.position = position;
         this.expiryDate = expiryDate;
         this.distanceOfInterest = distanceOfInterest;
         this.firebaseID = firebaseID;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     public String getFirebaseID() {
@@ -75,6 +86,21 @@ public class HazardAlert implements JsonRepresentation {
     @Override
     public Map<String, Object> toMap() {
         return null;
+    }
+
+    public enum ConstantsHazardAlert {
+        POSTCODE("postcode");
+
+
+        private String type;
+
+        ConstantsHazardAlert(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 
     public enum HazardType {

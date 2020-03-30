@@ -18,6 +18,9 @@ public class Profile implements JsonRepresentation {
     private int overallDistance;
     private List<Achievement> achievements; //TODO better representation
 
+    /**
+     * no-arg Constructor needed for Firebase auto-cast
+     */
     public Profile() {
     }
 

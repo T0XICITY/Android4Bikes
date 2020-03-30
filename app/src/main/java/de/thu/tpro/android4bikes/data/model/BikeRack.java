@@ -19,6 +19,9 @@ public class BikeRack implements JsonRepresentation {
     private boolean isExistent;
     private boolean isCovered;
 
+    /**
+     * no-arg Constructor needed for Firebase auto-cast
+     */
     public BikeRack() {
     }
 
@@ -139,6 +142,10 @@ public class BikeRack implements JsonRepresentation {
 
     public boolean isExistent() {
         return isExistent;
+    }
+
+    public boolean isHasBikeCharging() {
+        return hasBikeCharging;
     }
 
     public void setExistent(boolean existent) {

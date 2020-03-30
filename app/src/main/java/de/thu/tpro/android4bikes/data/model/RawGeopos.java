@@ -13,9 +13,19 @@ import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 public class RawGeopos implements JsonRepresentation {
     private List<Position> positions;
 
-
+    /**
+     * no-arg Constructor needed for Firebase auto-cast
+     */
     public RawGeopos() {
         positions = new LinkedList<>();
+    }
+
+    public List<Position> getPositions() {
+        return positions;
+    }
+
+    public void setPositions(List<Position> positions) {
+        this.positions = positions;
     }
 
     public void addPosition(Position position) {

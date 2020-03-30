@@ -9,13 +9,14 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
@@ -27,6 +28,8 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
+
+import static android.content.ContentValues.TAG;
 
 public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
@@ -56,95 +59,140 @@ public class FirebaseConnection implements FireStoreDatabase {
         this.fireStoreObservers.add(fireStoreObserver);
     }
 
-    public void addProfileToFirestore(Profile profile) {
-        db.collection(ConstantsFirebase.COLLECTION_USERS.toString())
-                .document(profile.getGoogleID()) //set the id of a given document
-                .set(profile.toMap()) //set-Method: Will create or overwrite document if it is existing
+    /**
+     * stores a Profile first in the FireStore and after that in the local database
+     *
+     * @param Profile profile to store
+     */
+    @Override
+    public void storeProfileToFireStoreAndLocalDB(Profile Profile) {
+        //TODO Review and Testing
+        db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
+                .document(Profile.getGoogleID()) //set the id of a given document
+                .set(Profile) //set-Method: Will create or overwrite document if it is existing
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("Hallo Welt", "Profile " + profile.getFamilyName() + " added successfully");
-                        //TODO Profil in Datenbank speichern.
+                        Log.d("FIREBASE", "Profile " + Profile.getFamilyName() + " added successfully");
+                        try {
+                            storeProfileToFireStoreAndLocalDB(Profile);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("Hallo Welt", "Error adding Profile" + profile.getFamilyName(), e);
+                        Log.w("FIREBASE", "Error adding Profile " + Profile.getFamilyName(), e);
                     }
                 });
     }
 
-
-
-
-    public void storeHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert) {
-
-    }
-
-    public void deleteHazardAlertFromFireStoreAndLocalDB(HazardAlert hazardAlert) {
-
-    }
-
-    public void updateHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert) {
-
-    }
-
-    public void readHazardAlertFromFireStoreAndStoreItToLocalDB(String postcode) {
-
-    }
-
-    public void notifyAllObservers() {
-
-    }
-
-    public void updateToken() {
-
-    }
-
-    @Override
-    public void storeProfileToFireStoreAndLocalDB(Profile Profile) {
-
-    }
-
+    /**
+     * reads a Profile from the FireStore and saves it in the local database
+     *
+     * @param googleID google AccountId as a String
+     */
     @Override
     public void readProfileFromFireStoreAndStoreItToLocalDB(String googleID) {
+        //TODO Review and Testing
+        DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(googleID);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("FIREBASE", "Profile " + document.toObject(Profile.class).getFamilyName() + " got successfully");
+                        try {
+                            localDatabaseHelper.storeProfile(document.toObject(Profile.class));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
-    }
+                    } else {
+                        Log.d("FIREBASE", "No such Profile");
+                        //TODO Exception Document not found
 
-    @Override
-    public void updateProfileInFireStoreAndLocalDB(Profile profile) {
-
-    }
-
-    @Override
-    public void deleteProfileFromFireStoreAndLocalDB(String googleID) {
-
+                    }
+                } else {
+                    Log.d("FIREBASE", "get failed with ", task.getException());
+                    //TODO Exception no Connection
+                }
+            }
+        });
     }
 
     /**
-     * stores a BikeRack first in the FireStore and after that in the local database
-     * the associated id will be generated automatically.
-     *
-     * @param bikeRack bikeRack to store.
+     * updates a Profile in the FireStore and saves it in the local database
+     * @param profile profile to update
      */
     @Override
-    public void storeBikeRackToFireStoreAndLocalDB(BikeRack bikeRack) {
-        db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
-                .add(bikeRack.toMap()) //generate id automatically
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+    public void updateProfileInFireStoreAndLocalDB(Profile profile) {
+        //TODO Review and Testing
+        storeProfileToFireStoreAndLocalDB(profile); //TODO update with store in locale DB?
+    }
+
+    /**
+     * deletes a Profile from the FireStore and after that in the local database
+     * @param googleID profile to delete
+     */
+    @Override
+    public void deleteProfileFromFireStoreAndLocalDB(String googleID) {
+        //TODO Review and Testing
+        db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(googleID)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        String bikeRackID = documentReference.getId();
-                        Log.d("Hallo Welt", "DocumentSnapshot added with ID: " + bikeRackID);
-                        bikeRack.setFirebaseID(bikeRackID);
-                        localDatabaseHelper.storeBikeRack(bikeRack);
+                    public void onSuccess(Void aVoid) {
+                        Log.d("FIREBASE", "Profile successfully deleted!");
+                        localDatabaseHelper.deleteProfile(googleID);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("Hallo Welt", "Error adding document", e);
+                        Log.w("FIREBASE", "Error deleting Profile", e);
+                    }
+                });
+
+    }
+
+    /**
+     *submits a Hazard to the FireStore
+     * which gets validated by the Cloudfunction
+     * to generate a Official Bikerack
+     * the associated id will be generated automatically.
+     * @param bikeRack bikeRack to store.
+     */
+    @Override
+    public void submitBikeRackToFireStoreAndLocalDB(BikeRack bikeRack) {
+        db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
+                .add(bikeRack) //generate id automatically
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        String firebaseID = documentReference.getId();
+                        Log.d("FIREBASE", "Bikerack with Location "
+                                + bikeRack.getPosition().getLatitude()
+                                + ","
+                                + bikeRack.getPosition().getLongitude()
+                                + " submitted successfully");
+                        try {
+                            bikeRack.setFirebaseID(firebaseID);
+                            localDatabaseHelper.storeBikeRack(bikeRack);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("FIREBASE", "Error submitting BikeRack", e);
                     }
                 });
     }
@@ -164,93 +212,270 @@ public class FirebaseConnection implements FireStoreDatabase {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            String fireBaseId = null;
-                            String name = null;
-                            Position position = null;
-                            Map<String, Object> map_position = null;
-                            int capacity = -1;
-                            boolean isEBikeStation = false;
-                            boolean isExisting = false;
-                            boolean isCovered = false;
-                            BikeRack bikeRack = null;
-                            double longitude = -1;
-                            double latitude = -1;
-
-
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d("Hallo Welt", document.getId() + " => " + document.getData());
+                                Log.d("FIREBASE", "Bikerack with Location "
+                                        + document.toObject(BikeRack.class).getPosition().getLatitude()
+                                        + ","
+                                        + document.toObject(BikeRack.class).getPosition().getLongitude()
+                                        + " got successfully");
 
                                 try {
-                                    fireBaseId = document.getId();
-                                    capacity = (int) document.get(BikeRack.ConstantsBikeRack.CAPACITY.toString());
-                                    isEBikeStation = document.getBoolean(BikeRack.ConstantsBikeRack.IS_EBIKE_STATION.toString());
-                                    isExisting = document.getBoolean(BikeRack.ConstantsBikeRack.IS_EXISTENT.toString());
-                                    isCovered = document.getBoolean(BikeRack.ConstantsBikeRack.IS_COVERED.toString());
-                                    name = document.getString(BikeRack.ConstantsBikeRack.BIKE_RACK_NAME.toString());
-
-                                    map_position = (Map<String, Object>) document.get(Position.ConstantsPosition.POSITION.toString());
-                                    longitude = (double) map_position.get(Position.ConstantsPosition.LONGITUDE.toString());
-                                    latitude = (double) map_position.get(Position.ConstantsPosition.LATITUDE.toString());
-                                    position = new Position(longitude, latitude);
-
-                                    bikeRack = new BikeRack(
-                                            fireBaseId, position, name, capacity, isEBikeStation, isExisting, isCovered
-                                    );
-                                    localDatabaseHelper.storeBikeRack(bikeRack);
-
+                                    localDatabaseHelper.storeBikeRack(document.toObject(BikeRack.class));
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
                         } else {
-                            Log.d("Hallo Welt", "Error getting documents: ", task.getException());
+                            Log.d("FIREBASE", "Error getting Bikerack(s): ", task.getException());
                         }
                     }
                 });
     }
 
+    /**
+     * stores a Track and FineGrainedPosition first in the FireStore and after that in the local database
+     *
+     * @param track track to store
+     * @param fineGrainedPositions fine grained position data for corresponding track
+     */
     @Override
     public void storeTrackToFireStoreAndLocalDB(Track track, FineGrainedPositions fineGrainedPositions) {
+        //TODO Review and Testing
+        db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
+                .document(track.getFirebaseID()) //set the id of a given document
+                .set(track) //set-Method: Will create or overwrite document if it is existing
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("FIREBASE", "Track " + track.getName() + " added successfully");
+                        try {
+                            //storeTrackToFireStoreAndLocalDB(track,XXXfinegeoposXXX);//TODO no fine-geopos save here..!!!
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("FIREBASE", "Error adding Track " + track.getName(), e);
+                    }
+                });
+        db.collection(ConstantsFirebase.COLLECTION_FINE_GEOPOSITIONS.toString())
+                .document(fineGrainedPositions.getFirebaseID()) //set the id of a given document
+                .set(fineGrainedPositions) //set-Method: Will create or overwrite document if it is existing
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("FIREBASE", "Fine-GeoPositions added successfully");
+                        try {
+                            fineGrainedPositions.setFirebaseID(fineGrainedPositions.getFirebaseID());
+                            localDatabaseHelper.storeFineGrainedPositions(fineGrainedPositions);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("FIREBASE", "Error adding Fine-GeoPositions", e);
+                    }
+                });
     }
 
+    /**
+     * reads a Track with CoarseGrainedInformation from the FireStore and saves it in the local database
+     * @param fireBaseID trackID as a String
+     */
     @Override
     public void readCoarseGrainedTracksFromFireStoreAndStoreThemToLocalDB(String fireBaseID) {
+        //TODO Review and Testing
+        DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString()).document(fireBaseID);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d("FIREBASE", "Track " + document.toObject(Track.class).getName() + " got successfully");
+                        try {
+                            localDatabaseHelper.storeTrack(document.toObject(Track.class));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
+                    } else {
+                        Log.d("FIREBASE", "No such Track");
+                        //TODO Exception Document not found
+
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                    //TODO Exception no Connection
+                }
+            }
+        });
     }
 
+    /**
+     * reads FineGrainedInformation from the FireStore and saves it in the local database
+     * @param fireBaseID trackID as a String
+     */
     @Override
     public void readFineGrainedTracksFromFireStoreAndStoreThemToLocalDB(String fireBaseID) {
+        //TODO Review and Testing
+        DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_FINE_GEOPOSITIONS.toString()).document(fireBaseID);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "Fine-GeoPosition got successfully");
+                        try {
+                            localDatabaseHelper.storeFineGrainedPositions(document.toObject(FineGrainedPositions.class));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    } else {
+                        Log.d("FIREBASE", "No such Fine-GeoPosition");
+                        //TODO Exception Document not found
+
+                    }
+                } else {
+                    Log.d("FIREBASE", "get failed with ", task.getException());
+                    //TODO Exception no Connection
+                }
+            }
+        });
 
     }
 
+    /**
+     * deletes a Track from the FireStore and after that in the local database
+     * @param fireBaseID trackID as a String
+     */
     @Override
     public void deleteTrackFromFireStoreAndLocalDB(String fireBaseID) {
-
+        //TODO Review and Testing
+        db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString()).document(fireBaseID)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("FIREBASE", "Track successfully deleted!");
+                        localDatabaseHelper.deleteTrack(fireBaseID);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("FIREBASE", "Error deleting Track", e);
+                    }
+                });
     }
 
+    /**
+     * submits a Hazard to the FireStore
+     * which gets validated by the Cloudfunction
+     * to generate a Official Bikerack
+     * the associated id will be generated automatically.
+     * @param hazardAlert hazard alert which gets submitted
+     */
     @Override
-    public void storeHazardAlertToFireStoreAndLocalDB(HazardAlert hazardAlert) {
-
+    public void submitHazardAlertToFireStoreAndLocalDB(HazardAlert hazardAlert) {
+        //TODO Review and Testing
+        db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
+                .add(hazardAlert) //generate id automatically
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        String firebaseID = documentReference.getId();
+                        Log.d("FIREBASE", "HazardAlert with Location "
+                                + hazardAlert.getPosition().getLatitude()
+                                + ","
+                                + hazardAlert.getPosition().getLongitude()
+                                + " submitted successfully");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("FIREBASE", "Error submitting HazardAlert", e);
+                    }
+                });
     }
 
+    /**
+     * reads all official Hazards associated to a certain postcode
+     * and stores them in the local database
+     * @param postcode as a String
+     */
     @Override
     public void readHazardAlertsFromFireStoreAndStoreItToLocalDB(String postcode) {
+        //TODO Review and Testing
+        db.collection(ConstantsFirebase.COLLECTION_OFFICIAL_HAZARDS.toString())
+                .whereEqualTo(HazardAlert.ConstantsHazardAlert.POSTCODE.toString(), postcode)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d("FIREBASE", "Hazard with Location "
+                                        + document.toObject(HazardAlert.class).getPosition().getLatitude()
+                                        + ","
+                                        + document.toObject(HazardAlert.class).getPosition().getLongitude()
+                                        + " got successfully");
 
+                                try {
+                                    localDatabaseHelper.storeHazardAlerts(document.toObject(HazardAlert.class));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            Log.d("FIREBASE", "Error getting Hazard(s): ", task.getException());
+                        }
+                    }
+                });
     }
 
+    /**
+     * saves position data to Firebase in order to contribute to Utilization Heat mapping
+     * @param utilization List with position data
+     */
     @Override
     public void storeUtilizationToFireStore(List<Position> utilization) {
+        //TODO Review and Testing
+        String firebaseID = "123456789"; //TODO CONST ID
+        db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
+                .document(firebaseID) //set the id of a given document
+                .set(utilization, SetOptions.merge()) //set-Method with merge: Will append document if it is existing
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("FIREBASE", "Utilization updated");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("FIREBASE", "Error adding Utilization", e);
+                    }
+                });
 
     }
 
     public enum ConstantsFirebase {
-        COLLECTION_USERS("users"),
+        COLLECTION_PROFILES("profiles"),
         COLLECTION_UTILIZATION("utilization"),
-        COLLECTION_RAWGEOPOS("rawgeopos"),
-        COLLECTION_COARSED_GEOPOS("coarsedgeopos"),
+        COLLECTION_FINE_GEOPOSITIONS("finegeopositions"),
         COLLECTION_TRACKS("tracks"),
-        COLLECTION_RATINGS("ratings"),
         COLLECTION_BIKERACKS("bikeracks"),
         COLLECTION_OFFICIAL_BIKERACKS("officialbikeracks"),
         COLLECTION_HAZARDS("hazards"),

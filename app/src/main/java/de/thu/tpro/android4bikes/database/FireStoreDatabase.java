@@ -20,7 +20,7 @@ public interface FireStoreDatabase {
     void deleteProfileFromFireStoreAndLocalDB(String googleID);
 
     //BikeRacks
-    void storeBikeRackToFireStoreAndLocalDB(BikeRack bikeRack);
+    void submitBikeRackToFireStoreAndLocalDB(BikeRack bikeRack);
 
     void readBikeRacksFromFireStoreAndStoreItToLocalDB(String postcode);
 
@@ -34,7 +34,7 @@ public interface FireStoreDatabase {
     void deleteTrackFromFireStoreAndLocalDB(String fireBaseID);
 
     //HazardAlerts
-    void storeHazardAlertToFireStoreAndLocalDB(HazardAlert hazardAlert);
+    void submitHazardAlertToFireStoreAndLocalDB(HazardAlert hazardAlert);
 
     void readHazardAlertsFromFireStoreAndStoreItToLocalDB(String postcode);
 

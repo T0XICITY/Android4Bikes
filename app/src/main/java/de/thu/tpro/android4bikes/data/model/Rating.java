@@ -15,6 +15,9 @@ public class Rating implements JsonRepresentation {
     private int roadquality;
     private String firebaseID;
 
+    /**
+     * no-arg Constructor needed for Firebase auto-cast
+     */
     public Rating() {
     }
 

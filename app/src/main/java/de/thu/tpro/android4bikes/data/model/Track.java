@@ -17,6 +17,9 @@ public class Track implements JsonRepresentation {
     private String firebaseID;
     private List<Position> coarseGrainedPositions;
 
+    /**
+     * no-arg Constructor needed for Firebase auto-cast
+     */
     public Track() {
     }
 
@@ -27,6 +30,14 @@ public class Track implements JsonRepresentation {
         this.description = description;
         this.firebaseID = firebaseID;
         this.coarseGrainedPositions = track;
+    }
+
+    public List<Position> getCoarseGrainedPositions() {
+        return coarseGrainedPositions;
+    }
+
+    public void setCoarseGrainedPositions(List<Position> coarseGrainedPositions) {
+        this.coarseGrainedPositions = coarseGrainedPositions;
     }
 
     public List<Position> getTrack() {
