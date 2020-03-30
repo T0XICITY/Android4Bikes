@@ -231,6 +231,7 @@ public class FirebaseConnection {
     public void storeHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert){
 
     }
+
     public void deleteHazardAlertFromFireStoreAndLocalDB(HazardAlert hazardAlert){
 
     }
@@ -239,7 +240,7 @@ public class FirebaseConnection {
 
     }
 
-    public void readHazardAlertFromFireStoreAndStoreInLocalDB(String postcode){
+    public void readHazardAlertFromFireStoreAndStoreItToLocalDB(String postcode){
 
     }
 

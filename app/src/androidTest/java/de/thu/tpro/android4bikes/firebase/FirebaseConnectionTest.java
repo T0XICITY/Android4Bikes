@@ -31,11 +31,23 @@ public class FirebaseConnectionTest {
                 false, true,false
         );
         firebaseConnection.storeBikeRackInFireStoreAndLocalDB(bikeRack_THU);
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void readOfficialBikeRackFromFireStore() {
         firebaseConnection.readOfficialBikeRackFromFireStoreAndStoreItToLocalDB("89075");
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -55,6 +67,12 @@ public class FirebaseConnectionTest {
                 true, true,false
         );
         firebaseConnection.updateBikeRackInFireStoreAndLocalDB(bikeRack_THU);
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
