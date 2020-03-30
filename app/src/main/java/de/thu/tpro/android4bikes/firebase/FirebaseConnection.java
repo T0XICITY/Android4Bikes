@@ -18,14 +18,17 @@ import java.util.List;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
-public class FirebaseConnection {
+public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
     private List<FireStoreObserver> fireStoreObservers;
@@ -72,23 +75,70 @@ public class FirebaseConnection {
                 });
     }
 
+
+
+
+    public void storeHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert) {
+
+    }
+
+    public void deleteHazardAlertFromFireStoreAndLocalDB(HazardAlert hazardAlert) {
+
+    }
+
+    public void updateHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert) {
+
+    }
+
+    public void readHazardAlertFromFireStoreAndStoreItToLocalDB(String postcode) {
+
+    }
+
+    public void notifyAllObservers() {
+
+    }
+
+    public void updateToken() {
+
+    }
+
+    @Override
+    public void storeProfileToFireStoreAndLocalDB(Profile Profile) {
+
+    }
+
+    @Override
+    public void readProfileFromFireStoreAndStoreItToLocalDB(String googleID) {
+
+    }
+
+    @Override
+    public void updateProfileInFireStoreAndLocalDB(Profile profile) {
+
+    }
+
+    @Override
+    public void deleteProfileFromFireStoreAndLocalDB(String googleID) {
+
+    }
+
     /**
      * stores a BikeRack first in the FireStore and after that in the local database
      * the associated id will be generated automatically.
      *
-     * @param bikerack bikeRack to store.
+     * @param bikeRack bikeRack to store.
      */
-    public void storeBikeRackInFireStoreAndLocalDB(BikeRack bikerack) {
-        //TODO: REVIEW
+    @Override
+    public void storeBikeRackToFireStoreAndLocalDB(BikeRack bikeRack) {
         db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
-                .add(bikerack.toMap()) //generate id automatically
+                .add(bikeRack.toMap()) //generate id automatically
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         String bikeRackID = documentReference.getId();
                         Log.d("Hallo Welt", "DocumentSnapshot added with ID: " + bikeRackID);
-                        bikerack.setFirebaseID(bikeRackID);
-                        localDatabaseHelper.storeBikeRack(bikerack);
+                        bikeRack.setFirebaseID(bikeRackID);
+                        localDatabaseHelper.storeBikeRack(bikeRack);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -100,38 +150,13 @@ public class FirebaseConnection {
     }
 
     /**
-     * deletes a bikeRack from the local db and the fireStore using
-     * its unique fireBaseID
-     *
-     * @param bikeRack bikeRack to delete
-     */
-    public void deleteBikeRackFromFireStoreAndLocalDB(BikeRack bikeRack) {
-        db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString()) //which collection?
-                .document(bikeRack.getFirebaseID()) //id of the document
-                .delete()//delte document
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Hallo Welt", "DocumentSnapshot successfully deleted!");
-                        localDatabaseHelper.deleteBikeRack(bikeRack);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Hallo Welt", "Error deleting document", e);
-                    }
-                });
-    }
-
-
-    /**
      * reads all official BikeRacks associated to a certain postcode
      * and stores them in the local database
      *
      * @param postcode postcode as a string
      */
-    public void readOfficialBikeRackFromFireStoreAndStoreItToLocalDB(String postcode) {
+    @Override
+    public void readBikeRacksFromFireStoreAndStoreItToLocalDB(String postcode) {
         db.collection(ConstantsFirebase.COLLECTION_OFFICIAL_BIKERACKS.toString())
                 .whereEqualTo(BikeRack.ConstantsBikeRack.POSTCODE.toString(), postcode)
                 .get()
@@ -182,30 +207,40 @@ public class FirebaseConnection {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void storeTrackToFireStoreAndLocalDB(Track track, FineGrainedPositions fineGrainedPositions) {
 
     }
 
-    public void storeHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert) {
+    @Override
+    public void readCoarseGrainedTracksFromFireStoreAndStoreThemToLocalDB(String fireBaseID) {
 
     }
 
-    public void deleteHazardAlertFromFireStoreAndLocalDB(HazardAlert hazardAlert) {
+    @Override
+    public void readFineGrainedTracksFromFireStoreAndStoreThemToLocalDB(String fireBaseID) {
 
     }
 
-    public void updateHazardAlertInFireStoreAndLocalDB(HazardAlert hazardAlert) {
+    @Override
+    public void deleteTrackFromFireStoreAndLocalDB(String fireBaseID) {
 
     }
 
-    public void readHazardAlertFromFireStoreAndStoreItToLocalDB(String postcode) {
+    @Override
+    public void storeHazardAlertToFireStoreAndLocalDB(HazardAlert hazardAlert) {
 
     }
 
-    public void notifyAllObservers() {
+    @Override
+    public void readHazardAlertsFromFireStoreAndStoreItToLocalDB(String postcode) {
 
     }
 
-    public void updateToken() {
+    @Override
+    public void storeUtilizationToFireStore(List<Position> utilization) {
 
     }
 
