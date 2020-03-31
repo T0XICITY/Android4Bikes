@@ -261,7 +261,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             for (Result result : results) {
                 //convert result to jsonObject-string
                 jsonObject_result = new JSONObject(result.toMap());
-                bikeRack = gson.fromJson(jsonObject_result.toString(), BikeRack.class);
+                bikeRack = gson.fromJson(jsonObject_result.get(DatabaseNames.DATABASE_BIKERACK.toText()).toString(), BikeRack.class);
                 bikeRacks.add(bikeRack);
             }
         } catch (Exception e) {
