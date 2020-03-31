@@ -8,14 +8,20 @@ import java.util.List;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
 public class Track implements JsonRepresentation {
-    private long author;
-    private List<Rating> ratings;
+    private String author_googleID;
+    private Rating rating;
     private String name;
     private String description;
     private String firebaseID;
+    private long creationDate_unixtimestamp;
+    private int distance_km;
     private List<Position> coarseGrainedPositions;
+    private List<HazardAlert> hazardAlerts;
+    private String postcode;
+    private boolean isComplete; //TODO: im UI Abfrage, ob Strecke in Bearbeitung auf dem Server ist.
 
     /**
      * no-arg Constructor needed for Firebase auto-cast
@@ -23,17 +29,33 @@ public class Track implements JsonRepresentation {
     public Track() {
     }
 
-    public Track(long author, List<Rating> ratings, String name, String description, String firebaseID, List<Position> track) {
-        this.author = author;
-        this.ratings = ratings;
+    public Track(String author_googleID, Rating rating, String name, String description, String firebaseID, long creationDate_unixtimestamp, int distance_km, List<Position> coarseGrainedPositions, List<HazardAlert> hazardAlerts, boolean isComplete) {
+        this.author_googleID = author_googleID;
+        this.rating = rating;
         this.name = name;
         this.description = description;
         this.firebaseID = firebaseID;
-        this.coarseGrainedPositions = track;
+        this.creationDate_unixtimestamp = creationDate_unixtimestamp;
+        this.distance_km = distance_km;
+        this.coarseGrainedPositions = coarseGrainedPositions;
+        this.hazardAlerts = hazardAlerts;
+        this.isComplete = isComplete;
+
+        if (isComplete) {
+            this.postcode = GeoLocationHelper.convertPositionToPostcode(coarseGrainedPositions.get(0));
+        }
     }
 
     public List<Position> getCoarseGrainedPositions() {
         return coarseGrainedPositions;
+    }
+
+    public long getCreationDate_unixtimestamp() {
+        return creationDate_unixtimestamp;
+    }
+
+    public void setCreationDate_unixtimestamp(long creationDate_unixtimestamp) {
+        this.creationDate_unixtimestamp = creationDate_unixtimestamp;
     }
 
     public void setCoarseGrainedPositions(List<Position> coarseGrainedPositions) {
@@ -56,20 +78,20 @@ public class Track implements JsonRepresentation {
         this.firebaseID = firebaseID;
     }
 
-    public long getAuthor() {
-        return author;
+    public String getAuthor_googleID() {
+        return author_googleID;
     }
 
-    public void setAuthor(long author) {
-        this.author = author;
+    public void setAuthor_googleID(String author_googleID) {
+        this.author_googleID = author_googleID;
     }
 
-    public List<Rating> getRatings() {
-        return ratings;
+    public Rating getRating() {
+        return rating;
     }
 
-    public void setRatings(List<Rating> ratings) {
-        this.ratings = ratings;
+    public void setRating(Rating rating) {
+        this.rating = rating;
     }
 
     public String getName() {
@@ -88,6 +110,38 @@ public class Track implements JsonRepresentation {
         this.description = description;
     }
 
+    public int getDistance_km() {
+        return distance_km;
+    }
+
+    public void setDistance_km(int distance_km) {
+        this.distance_km = distance_km;
+    }
+
+    public List<HazardAlert> getHazardAlerts() {
+        return hazardAlerts;
+    }
+
+    public void setHazardAlerts(List<HazardAlert> hazardAlerts) {
+        this.hazardAlerts = hazardAlerts;
+    }
+
+    public String getPostcode() {
+        return postcode;
+    }
+
+    public void setPostcode(String postcode) {
+        this.postcode = postcode;
+    }
+
+    public boolean isComplete() {
+        return isComplete;
+    }
+
+    public void setComplete(boolean complete) {
+        isComplete = complete;
+    }
+
     @Override
     public JSONObject toJSON() {
         return null;
@@ -95,26 +149,45 @@ public class Track implements JsonRepresentation {
 
     @Override
     public Map<String, Object> toMap() {
-        HashMap<String, Object> map = new HashMap<>();
+        HashMap<String, Object> map_track = new HashMap<>();
 
-        List<Map<String, Object>> trackpositions = new ArrayList<>();
-        for (Position pos : coarseGrainedPositions) {
-            trackpositions.add(pos.toMap());
+        List<Map<String, Object>> list_positionscoarsegrained = new ArrayList<>();
+        for (Position pos : this.coarseGrainedPositions) {
+            list_positionscoarsegrained.add(pos.toMap());
         }
 
-        map.put(ConstantsTrack.AUTHOR.toString(), author);
-        map.put(ConstantsTrack.TRACK.toString(), trackpositions);
+        List<Map<String, Object>> list_hazardalerts = new ArrayList<>();
+        for (HazardAlert hazardAlert : this.hazardAlerts) {
+            list_hazardalerts.add(hazardAlert.toMap());
+        }
 
-        return map;
+        map_track.put(ConstantsTrack.AUTHOR_GOOGLEID.toString(), this.author_googleID);
+        map_track.put(ConstantsTrack.RATING.toString(), this.rating.toMap());
+        map_track.put(ConstantsTrack.NAME.toString(), this.name);
+        map_track.put(ConstantsTrack.DESCRIPTION.toString(), this.description);
+        map_track.put(ConstantsTrack.COARSEGRAINEDPOSITIONS.toString(), list_positionscoarsegrained);
+        map_track.put(ConstantsTrack.FIREBASEID.toString(), this.firebaseID);
+        map_track.put(ConstantsTrack.TIMESTAMP.toString(), this.creationDate_unixtimestamp);
+        map_track.put(ConstantsTrack.DISTANCE_KM.toString(), this.distance_km);
+        map_track.put(ConstantsTrack.HAZARD_ALERTS.toString(), list_hazardalerts);
+        map_track.put(ConstantsTrack.POSTCODE.toString(), this.postcode);
+        map_track.put(ConstantsTrack.IS_COMPLETE.toString(), this.isComplete);
+        return map_track;
     }
 
+
     public enum ConstantsTrack {
-        AUTHOR("author"),
-        RATINGS("ratings"),
+        AUTHOR_GOOGLEID("author_googleID"),
+        RATING("rating"),
         NAME("name"),
         DESCRIPTION("description"),
-        TRACK("track"),
-        FIREBASEID("firebaseid");
+        COARSEGRAINEDPOSITIONS("coarseGrainedPositions"),
+        FIREBASEID("firebaseID"),
+        TIMESTAMP("creationDate_unixtimestamp"),
+        DISTANCE_KM("distance_km"),
+        HAZARD_ALERTS("hazardAlerts"),
+        POSTCODE("postcode"),
+        IS_COMPLETE("isComplete");
 
 
         private String type;

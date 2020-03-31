@@ -8,12 +8,9 @@ import de.thu.tpro.android4bikes.database.JsonRepresentation;
 import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 
 public class Rating implements JsonRepresentation {
-    private long author;
     private int difficulty;
-    private String comment;
     private int fun;
     private int roadquality;
-    private String firebaseID;
 
     /**
      * no-arg Constructor needed for Firebase auto-cast
@@ -21,29 +18,11 @@ public class Rating implements JsonRepresentation {
     public Rating() {
     }
 
-    public Rating(long author, int difficulty, String comment, int fun, int roadquality, String firebaseID) {
-        this.author = author;
+    public Rating(int difficulty, int fun, int roadquality, String firebaseID) {
         this.difficulty = difficulty;
-        this.comment = comment;
         this.fun = fun;
         this.roadquality = roadquality;
-        this.firebaseID = firebaseID;
-    }
 
-    public String getFirebaseID() {
-        return firebaseID;
-    }
-
-    public void setFirebaseID(String firebaseID) {
-        this.firebaseID = firebaseID;
-    }
-
-    public long getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(long author) {
-        this.author = author;
     }
 
     public int getDifficulty() {
@@ -52,14 +31,6 @@ public class Rating implements JsonRepresentation {
 
     public void setDifficulty(int difficulty) {
         this.difficulty = difficulty;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public int getFun() {
