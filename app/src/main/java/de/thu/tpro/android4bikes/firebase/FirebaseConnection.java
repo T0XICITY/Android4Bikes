@@ -161,9 +161,9 @@ public class FirebaseConnection implements FireStoreDatabase {
     }
 
     /**
-     *submits a Hazard to the FireStore
+     *submits a BikeRack to the FireStore
      * which gets validated by the Cloudfunction
-     * to generate a Official Bikerack
+     * to generate an Official Bikerack
      * the associated id will be generated automatically.
      * @param bikeRack bikeRack to store.
      */
@@ -242,14 +242,42 @@ public class FirebaseConnection implements FireStoreDatabase {
     public void storeTrackToFireStoreAndLocalDB(Track track, FineGrainedPositions fineGrainedPositions) {
         //TODO Review and Testing
         db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
-                .document(track.getFirebaseID()) //set the id of a given document
-                .set(track) //set-Method: Will create or overwrite document if it is existing
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                .add(track) //generate id automatically
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
                     @Override
-                    public void onSuccess(Void aVoid) {
+                    public void onSuccess(DocumentReference documentReference) {
+                        String firebaseID = documentReference.getId();
                         Log.d("FIREBASE", "Track " + track.getName() + " added successfully");
+
                         try {
-                            //storeTrackToFireStoreAndLocalDB(track,XXXfinegeoposXXX);//TODO no fine-geopos save here..!!!
+                            track.setFirebaseID(firebaseID);
+                            fineGrainedPositions.setFirebaseID(track.getFirebaseID()); //fineGrainedPositions has the track id
+
+                            db.collection(ConstantsFirebase.COLLECTION_FINE_GEOPOSITIONS.toString())
+                                    .document(fineGrainedPositions.getFirebaseID()) //set the id of a given document
+                                    .set(fineGrainedPositions) //set-Method: Will create or overwrite document if it is existing
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d("FIREBASE", "Fine-GeoPositions added successfully");
+                                            try {
+                                                localDatabaseHelper.storeTrack(track);
+                                                localDatabaseHelper.storeFineGrainedPositions(fineGrainedPositions);
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w("FIREBASE", "Error adding Fine-GeoPositions", e);
+                                        }
+                                    });
+
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -259,29 +287,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("FIREBASE", "Error adding Track " + track.getName(), e);
-                    }
-                });
-        db.collection(ConstantsFirebase.COLLECTION_FINE_GEOPOSITIONS.toString())
-                .document(fineGrainedPositions.getFirebaseID()) //set the id of a given document
-                .set(fineGrainedPositions) //set-Method: Will create or overwrite document if it is existing
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("FIREBASE", "Fine-GeoPositions added successfully");
-                        try {
-                            fineGrainedPositions.setFirebaseID(fineGrainedPositions.getFirebaseID());
-                            localDatabaseHelper.storeFineGrainedPositions(fineGrainedPositions);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("FIREBASE", "Error adding Fine-GeoPositions", e);
+                        Log.w("FIREBASE", "Error submitting BikeRack", e);
                     }
                 });
     }
