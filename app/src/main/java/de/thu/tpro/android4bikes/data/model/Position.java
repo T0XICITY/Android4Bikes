@@ -1,7 +1,6 @@
 package de.thu.tpro.android4bikes.data.model;
 
 
-import java.util.Map;
 import java.util.Objects;
 
 import de.thu.tpro.android4bikes.exception.InvalidPositionException;
@@ -31,16 +30,6 @@ public class Position {
     public Position(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
-    }
-
-    /**
-     * constructor accepting Map<String, Object>
-     *
-     * @param coarsedGrainedPosition
-     */
-    public Position(Map<String, Object> coarsedGrainedPosition) {
-        this.latitude = (long) coarsedGrainedPosition.get(coarsedGrainedPosition.get(LATITUDE));
-        this.longitude = (long) coarsedGrainedPosition.get(coarsedGrainedPosition.get(LONGITUDE));
     }
 
     /**
