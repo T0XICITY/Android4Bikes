@@ -31,7 +31,7 @@ public class GeoLocationHelper {
             //get the postcode of the single element in the list of addresses
             postalcode = list_addresses.get(0).getPostalCode();
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         return postalcode;
     }
