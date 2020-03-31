@@ -3,9 +3,12 @@ package de.thu.tpro.android4bikes.database;
 import android.util.Log;
 
 import com.couchbase.lite.DataSource;
+import com.couchbase.lite.Database;
+import com.couchbase.lite.Expression;
 import com.couchbase.lite.MutableDocument;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryBuilder;
+import com.couchbase.lite.Result;
 import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 import com.google.gson.Gson;
@@ -147,15 +150,39 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void storeBikeRack(BikeRack bikeRack) {
+        try {
+            Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
 
+            //convert bikeRack to mutable document
+            JSONObject json_bikeRack = new JSONObject(gson.toJson(bikeRack));
+            MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_bikeRack);
+
+            //save mutable document representing the bikeRack to the local db
+            couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_bikeRack);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public List<BikeRack> readBikeRacks(String postcode) {
-        List<BikeRack> bikeRacks = null;
+        List<BikeRack> bikeRacks = new ArrayList<>();
         try {
-            throw new JSONException("TEST");
-        } catch (JSONException e) {
+            JSONObject jsonObject_result = null;
+            Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
+            BikeRack bikeRack = null;
+
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(db_bikerack))
+                    .where(Expression.property(BikeRack.ConstantsBikeRack.POSTCODE.toString()).equalTo(Expression.string(postcode)));
+            ResultSet results = couchDB.queryDatabase(query);
+            for (Result result : results) {
+                //convert result to jsonObject-string
+                jsonObject_result = new JSONObject(result.toMap());
+                bikeRack = gson.fromJson(jsonObject_result.toString(), BikeRack.class);
+                bikeRacks.add(bikeRack);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return bikeRacks;
@@ -163,7 +190,20 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteBikeRack(String fireBaseID) {
-
+        try {
+            Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
+            BikeRack bikeRack = null;
+            JSONObject jsonObject_result = null;
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK)))
+                    .where(Expression.property(BikeRack.ConstantsBikeRack.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
+            ResultSet results = couchDB.queryDatabase(query);
+            for (Result result : results) {
+                couchDB.deleteDocumentByID(db_bikerack, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -207,6 +247,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
      * @return mutable document
      */
     public MutableDocument convertJSONToMutableDocument(JSONObject jsonObject) {
+
         MutableDocument mutableDocument = null;
         try {
             //generate new mutable document

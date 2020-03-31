@@ -1,9 +1,8 @@
 package de.thu.tpro.android4bikes.data.achievements;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
-public abstract class Achievement implements JsonRepresentation {
+public abstract class Achievement {
     String name;
     long exp; //Experience Points
     double significance = 1.0d; //Multiplicator

@@ -1,16 +1,10 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
-public class Track implements JsonRepresentation {
+public class Track {
     private String author_googleID;
     private Rating rating;
     private String name;
@@ -58,29 +52,6 @@ public class Track implements JsonRepresentation {
         if (isComplete) {
             this.postcode = GeoLocationHelper.convertPositionToPostcode(coarseGrainedPositions.get(0));
         }
-    }
-
-
-    public Track(Map<String, Object> map_track) {
-        this.hazardAlerts = new ArrayList<>();
-        this.coarseGrainedPositions = new ArrayList<>();
-        this.author_googleID = String.valueOf(map_track.get(ConstantsTrack.AUTHOR_GOOGLEID.toString()));
-        this.rating = new Rating((Map<String, Object>) map_track.get(ConstantsTrack.RATING.toString()));
-        this.name = String.valueOf(map_track.get(ConstantsTrack.NAME.toString()));
-        this.description = String.valueOf(map_track.get(ConstantsTrack.DESCRIPTION.toString()));
-        List<Object> list_coarsedGrainedPositions = (List<Object>) map_track.get(ConstantsTrack.HAZARD_ALERTS.toString());
-        for (Object coarsedGrainedPosition : list_coarsedGrainedPositions) {
-            this.coarseGrainedPositions.add(new Position((Map<String, Object>) coarsedGrainedPosition));
-        }
-        this.firebaseID = String.valueOf(map_track.get(ConstantsTrack.FIREBASEID.toString()));
-        this.creationDate_unixtimestamp = (long) map_track.get(ConstantsTrack.TIMESTAMP.toString());
-        this.distance_km = (int) map_track.get(ConstantsTrack.DISTANCE_KM.toString());
-        List<Object> list_hazardalertobjects = (List<Object>) map_track.get(ConstantsTrack.HAZARD_ALERTS.toString());
-        for (Object hazardalertobject : list_hazardalertobjects) {
-            this.hazardAlerts.add(new HazardAlert((Map<String, Object>) hazardalertobject));
-        }
-        this.postcode = String.valueOf(map_track.get(ConstantsTrack.POSTCODE.toString()));
-        this.isComplete = (boolean) map_track.get(ConstantsTrack.IS_COMPLETE.toString());
     }
 
     public List<Position> getCoarseGrainedPositions() {
@@ -177,39 +148,6 @@ public class Track implements JsonRepresentation {
 
     public void setComplete(boolean complete) {
         isComplete = complete;
-    }
-
-    @Override
-    public JSONObject toJSON() {
-        return new JSONObject(this.toMap());
-    }
-
-    @Override
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> map_track = new HashMap<>();
-
-        List<Map<String, Object>> list_positionscoarsegrained = new ArrayList<>();
-        for (Position pos : this.coarseGrainedPositions) {
-            list_positionscoarsegrained.add(pos.toMap());
-        }
-
-        List<Map<String, Object>> list_hazardalerts = new ArrayList<>();
-        for (HazardAlert hazardAlert : this.hazardAlerts) {
-            list_hazardalerts.add(hazardAlert.toMap());
-        }
-
-        map_track.put(ConstantsTrack.AUTHOR_GOOGLEID.toString(), this.author_googleID);
-        map_track.put(ConstantsTrack.RATING.toString(), this.rating.toMap());
-        map_track.put(ConstantsTrack.NAME.toString(), this.name);
-        map_track.put(ConstantsTrack.DESCRIPTION.toString(), this.description);
-        map_track.put(ConstantsTrack.COARSEGRAINEDPOSITIONS.toString(), list_positionscoarsegrained);
-        map_track.put(ConstantsTrack.FIREBASEID.toString(), this.firebaseID);
-        map_track.put(ConstantsTrack.TIMESTAMP.toString(), this.creationDate_unixtimestamp);
-        map_track.put(ConstantsTrack.DISTANCE_KM.toString(), this.distance_km);
-        map_track.put(ConstantsTrack.HAZARD_ALERTS.toString(), list_hazardalerts);
-        map_track.put(ConstantsTrack.POSTCODE.toString(), this.postcode);
-        map_track.put(ConstantsTrack.IS_COMPLETE.toString(), this.isComplete);
-        return map_track;
     }
 
 
