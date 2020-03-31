@@ -1,5 +1,6 @@
 package de.thu.tpro.android4bikes.view.info;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -11,6 +12,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -36,7 +39,7 @@ import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class FragmentInfoMode extends Fragment {
-    private DrawerLayout dLayout;
+
     ///Temporary variables just for testing///
     //Todo: Delete after testing
     private TextView tv_Test;
@@ -67,11 +70,7 @@ public class FragmentInfoMode extends Fragment {
         //testLogOut();
         a();
         b();
-
-
-        View v = inflater.inflate(R.layout.fragment_info_mode,container,false);
-        initNavigationDrawer(v);
-        return v;
+        return inflater.inflate(R.layout.fragment_info_mode,container,false);
     }
 
 
@@ -110,18 +109,6 @@ public class FragmentInfoMode extends Fragment {
 
     }*/
 
-    private void initNavigationDrawer(View view){
-        dLayout= (DrawerLayout)view.findViewById(R.id.drawerLayout);
-        Log.d("FragmentInfoMode",dLayout.toString());
-        dLayout.closeDrawer(GravityCompat.END);
-    }
 
-    public void toggleNavigationDrawer(){
-        if (dLayout.isDrawerOpen(GravityCompat.END)){
-            dLayout.closeDrawer(GravityCompat.END);
-        }else{
-            dLayout.openDrawer(GravityCompat.END);
-        }
 
-    }
 }
