@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-public class CouchDB implements Andoid4BikeDatabse {
+public class CouchDB {
     private static CouchDB instance;
 
     private Database database_achievement;

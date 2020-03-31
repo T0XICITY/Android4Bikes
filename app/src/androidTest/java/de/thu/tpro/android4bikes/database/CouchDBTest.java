@@ -19,10 +19,22 @@ public class CouchDBTest {
     private static CouchDB couchdb;
 
     @BeforeClass
-    public static void setUp(){
+    public static void setUp() {
         //Context simulieren
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         couchdb = CouchDB.getInstance();
+    }
+
+    @AfterClass
+    public static void after() {
+        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_ACHIEVEMENT));
+        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK));
+        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT));
+        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_POSITION));
+        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE));
+        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_RATING));
+        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK));
+
     }
 
     @Test
@@ -37,7 +49,7 @@ public class CouchDBTest {
     }
 
     @Test
-    public void saveAndReadMutableDocumentFromDatabaseByID(){
+    public void saveAndReadMutableDocumentFromDatabaseByID() {
         Database database_achievements = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_ACHIEVEMENT);
 
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(database_achievements);
@@ -46,28 +58,28 @@ public class CouchDBTest {
         MutableDocument savedDocument = new MutableDocument()
                 .setFloat("version", 2.7F)
                 .setString("type", "SDK");
-        couchdb.saveMutableDocumentToDatabase(database_achievements,savedDocument);
+        couchdb.saveMutableDocumentToDatabase(database_achievements, savedDocument);
         MutableDocument readMutableDoc = couchdb.readDocumentByID(database_achievements, savedDocument.getId());
 
         //is the read document the same as the saved document?
         assertEquals(savedDocument, readMutableDoc);
 
         //is there one more document in the database
-        assertEquals(initialNumberOfDocuments+1, couchdb.getNumberOfStoredDocuments(database_achievements)); //there
+        assertEquals(initialNumberOfDocuments + 1, couchdb.getNumberOfStoredDocuments(database_achievements)); //there
 
         couchdb.deleteDocumentByID(database_achievements, savedDocument.getId()); //Remove added document from db
     }
 
     @Test
-    public void deleteDocumentByID(){
+    public void deleteDocumentByID() {
         Database database_achievements = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_ACHIEVEMENT);
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(database_achievements);
 
         MutableDocument mutableDoc = new MutableDocument()
                 .setFloat("version", 2.0F)
                 .setString("type", "SDK");
-        couchdb.saveMutableDocumentToDatabase(database_achievements,mutableDoc);
-        couchdb.deleteDocumentByID(database_achievements,mutableDoc.getId());
+        couchdb.saveMutableDocumentToDatabase(database_achievements, mutableDoc);
+        couchdb.deleteDocumentByID(database_achievements, mutableDoc.getId());
 
         assertEquals(initialNumberOfDocuments, couchdb.getNumberOfStoredDocuments(database_achievements));
     }
@@ -75,25 +87,13 @@ public class CouchDBTest {
     @Test
     public void clearDB() {
         Database database_achievements = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_ACHIEVEMENT);
-        for(int i=0; i<10; ++i){
+        for (int i = 0; i < 10; ++i) {
             MutableDocument mutableDoc = new MutableDocument()
                     .setFloat("version", 2.0F)
                     .setString("type", "SDK");
-            couchdb.saveMutableDocumentToDatabase(database_achievements,mutableDoc);
+            couchdb.saveMutableDocumentToDatabase(database_achievements, mutableDoc);
         }
         couchdb.clearDB(database_achievements);
         assertEquals(0, couchdb.getNumberOfStoredDocuments(database_achievements));
-    }
-
-    @AfterClass
-    public static void after(){
-        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_ACHIEVEMENT));
-        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK));
-        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT));
-        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_POSITION));
-        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE));
-        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_RATING));
-        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK));
-
     }
 }
