@@ -256,6 +256,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public Profile readProfile(String firebaseAccountID) {
+        //todo: review und test
         Profile profile = null;
         try {
             Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
@@ -281,12 +282,25 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteProfile(String googleID) {
-
+        //todo: review und test
+        try {
+            Database db_Profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(db_Profile))
+                    .where(Expression.property(Profile.ConstantsProfile.GOOGLEID.toString()).equalTo(Expression.string(googleID)));
+            ResultSet results = couchDB.queryDatabase(query);
+            for (Result result : results) {
+                couchDB.deleteDocumentByID(db_Profile, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteProfile(Profile profile) {
-
+        //todo: review und test
+        this.deleteProfile(profile.getGoogleID());
     }
 
     @Override
