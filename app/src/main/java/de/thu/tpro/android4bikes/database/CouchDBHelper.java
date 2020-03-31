@@ -30,10 +30,12 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 
 public class CouchDBHelper implements LocalDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
+    private static int posCounter = 0;
 
     public CouchDBHelper() {
         couchDB = CouchDB.getInstance();
@@ -218,11 +220,17 @@ public class CouchDBHelper implements LocalDatabaseHelper {
      */
     @Override
     public void addToUtilization(Position position) {
-        //todo: Nach 50 einträgen alles an firebase und db leeren
+        //todo: review und test
         try {
             JSONObject json_position = new JSONObject(gson.toJson(position));
             MutableDocument md_position = convertJSONToMutableDocument(json_position);
             couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION), md_position);
+            posCounter++;
+            if (posCounter >= 50) {
+                List<Position> positions = this.getAllPositions();
+                FirebaseConnection.getInstance().storeUtilizationToFireStore(positions); //todo: Is it right this way?
+                this.resetUtilization();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
