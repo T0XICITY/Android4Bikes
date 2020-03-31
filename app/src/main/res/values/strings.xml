@@ -15,4 +15,14 @@
     <!---Login Strings-->
     <string name="activity_login_image">Login Image</string>
     <string name="Activity_Login_Toast_Fail">Sorry auth failed.</string>
+
+    <!-- Roadside Assistance Strings -->
+    <string-array name="roadside_assistance_list">
+        <item>Ambulance Service</item>
+        <item>Fire Department</item>
+        <item>Police</item>
+        <item>Roadside Assistance</item>
+        <item>Youth Helpline</item>
+        <item>Manual Input</item>
+    </string-array>
 </resources>

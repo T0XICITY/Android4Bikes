@@ -24,7 +24,7 @@ public class FragmentRoadsideAssistance extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        vm_RoadsideAssistance = new ViewModelRoadsideAssistance();
+        vm_RoadsideAssistance = new ViewModelRoadsideAssistance(getResources());
 
         View view =  inflater.inflate(R.layout.fragment_road_assistance, container, false);
         lv_road_assistance = view.findViewById(R.id.lv_road_assistance);

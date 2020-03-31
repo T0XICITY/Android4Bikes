@@ -1,5 +1,9 @@
 package de.thu.tpro.android4bikes.view.menu.roadsideAssistance;
 
+/**
+ * @author Stefanie
+ * POJO ("Plain Old Java Object") to contain data used in RoadsideAssistance ListView
+ */
 public class RoadsideAssistanceEntry {
     String text_institution;
     Integer resId_institution;

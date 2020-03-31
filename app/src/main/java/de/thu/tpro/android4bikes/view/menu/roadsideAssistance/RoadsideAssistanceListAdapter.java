@@ -21,12 +21,15 @@ import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 
+/**
+ * @author Elias, Stefanie
+ * Custom adapter to display list of {@link RoadsideAssistanceEntry} in ListView
+ */
 public class RoadsideAssistanceListAdapter extends BaseAdapter {
 
     private List<RoadsideAssistanceEntry> entries;
     private Activity context;
     private final LayoutInflater inflater;
-
 
     public RoadsideAssistanceListAdapter(Activity context, List<RoadsideAssistanceEntry> entries) {
         super();
@@ -34,7 +37,6 @@ public class RoadsideAssistanceListAdapter extends BaseAdapter {
         this.context = context;
         this.entries = entries;
         this.inflater = LayoutInflater.from(context);
-
     }
 
     @Override
@@ -52,30 +54,40 @@ public class RoadsideAssistanceListAdapter extends BaseAdapter {
         return i;
     }
 
+    /**
+     * Populates a row with view elements and data from the corresponding
+     * {@link RoadsideAssistanceEntry}.
+     * <p />
+     * This method is called per row of the ListView.
+     *
+     * @param position current row number
+     * @param convertView view element of current row
+     * @param parent parent element
+     * @return view element of current row with data
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        View row;
-
-        Log.d("Custom_ListView",String.format("%s: %s",
-                position, entries.get(position).text_institution));
-
-        if (convertView == null) {
+        // Inflate Layout of current Row
+        View row = convertView;
+        if (row == null) {
             row = inflater.inflate(R.layout.list_road_assistance,parent,false);
-        }else{
-            row = convertView;
         }
 
+        // Inflate UI elements of current Row
         ImageView iv = row.findViewById(R.id.iv_institution);
         TextView tv = row.findViewById(R.id.tv_institution);
         ImageButton ib = row.findViewById(R.id.ib_Call);
 
+        // Insert Data into elements
         iv.setImageResource(entries.get(position).resId_institution);
         tv.setText(entries.get(position).text_institution);
         ib.setImageResource(entries.get(position).resId_call);
+
         return row;
     }
 
+    // TODO: Implement Logic when ImageButton is clicked (with OnClickListener)
 
 }
