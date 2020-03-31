@@ -54,19 +54,48 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             JSONObject json_track = new JSONObject(gson.toJson(track));
             MutableDocument mutableDocument_track = this.convertJSONToMutableDocument(json_track);
             couchDB.saveMutableDocumentToDatabase(db_track, mutableDocument_track);
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public List<Track> readTracks(String postcode) {
-        return null;
+        List<Track> tracks = new ArrayList<>();
+        try {
+            Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(db_track))
+                    .where(Expression.property(Track.ConstantsTrack.POSTCODE.toString()).equalTo(Expression.string(postcode)));
+            ResultSet results = couchDB.queryDatabase(query);
+            JSONObject jsonObject_result = null;
+            Track track_result = null;
+            for (Result result : results) {
+                jsonObject_result = new JSONObject(result.toMap());
+                track_result = gson.fromJson(jsonObject_result.get(DatabaseNames.DATABASE_TRACK.toText()).toString(), Track.class);
+                tracks.add(track_result);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return tracks;
     }
 
     @Override
     public void deleteTrack(String fireBaseID) {
-
+        //todo: review und test
+        try {
+            Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(db_track))
+                    .where(Expression.property(Track.ConstantsTrack.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
+            ResultSet results = couchDB.queryDatabase(query);
+            for (Result result : results) {
+                couchDB.deleteDocumentByID(db_track, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
