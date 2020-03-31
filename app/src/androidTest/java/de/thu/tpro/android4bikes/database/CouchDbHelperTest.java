@@ -41,20 +41,4 @@ public class CouchDbHelperTest {
         List<BikeRack> bikeRacks = couchDbHelper.readBikeRacks(bikeRack_THU.getPostcode());
         couchDbHelper.deleteBikeRack(bikeRacks.get(0).getFirebaseID());
     }
-
-    @Test
-    public void saveAndReadPosition() {
-        double pLatPut = 48.304493;
-        double pLongPut = 9.836146;
-        Position positionPut = new Position(pLongPut, pLatPut);
-
-        couchdb.clearDB(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_POSITION));
-
-        couchDbHelper.addToUtilization(positionPut);
-
-        /*List<Position> positions = couchDbHelper.getAllPositions();
-        Position positionRead = positions.get(0);
-
-        assertEquals(positionPut,positionRead);*/
-    }
 }
