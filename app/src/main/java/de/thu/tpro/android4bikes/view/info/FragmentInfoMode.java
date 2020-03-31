@@ -22,6 +22,8 @@ import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
+import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 
 import de.thu.tpro.android4bikes.data.model.Profile;
@@ -40,9 +42,9 @@ public class FragmentInfoMode extends Fragment {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
+
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
         super.onCreate(savedInstanceState);
         List<Achievement> achievements = new ArrayList<>();
         achievements.add(new KmAchievement("A", 1, 1, 1, 1));
