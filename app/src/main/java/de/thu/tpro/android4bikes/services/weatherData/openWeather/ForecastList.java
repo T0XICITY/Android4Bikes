@@ -3,7 +3,7 @@ package de.thu.tpro.android4bikes.services.weatherData.openWeather;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class List {
+public class ForecastList {
 
     @SerializedName("dt")
     @Expose
@@ -33,7 +33,7 @@ public class List {
     /**
      * No args constructor for use in serialization
      */
-    public List() {
+    public ForecastList() {
     }
 
     /**
@@ -46,7 +46,7 @@ public class List {
      * @param sys
      * @param wind
      */
-    public List(Integer dt, Main main, java.util.List<Weather> weather, Clouds clouds, Wind wind, Sys sys, String dtTxt, Snow snow) {
+    public ForecastList(Integer dt, Main main, java.util.List<Weather> weather, Clouds clouds, Wind wind, Sys sys, String dtTxt, Snow snow) {
         super();
         this.dt = dt;
         this.main = main;
@@ -66,7 +66,7 @@ public class List {
         this.dt = dt;
     }
 
-    public List withDt(Integer dt) {
+    public ForecastList withDt(Integer dt) {
         this.dt = dt;
         return this;
     }
@@ -79,7 +79,7 @@ public class List {
         this.main = main;
     }
 
-    public List withMain(Main main) {
+    public ForecastList withMain(Main main) {
         this.main = main;
         return this;
     }
@@ -92,7 +92,7 @@ public class List {
         this.weather = weather;
     }
 
-    public List withWeather(java.util.List<Weather> weather) {
+    public ForecastList withWeather(java.util.List<Weather> weather) {
         this.weather = weather;
         return this;
     }
@@ -105,7 +105,7 @@ public class List {
         this.clouds = clouds;
     }
 
-    public List withClouds(Clouds clouds) {
+    public ForecastList withClouds(Clouds clouds) {
         this.clouds = clouds;
         return this;
     }
@@ -118,7 +118,7 @@ public class List {
         this.wind = wind;
     }
 
-    public List withWind(Wind wind) {
+    public ForecastList withWind(Wind wind) {
         this.wind = wind;
         return this;
     }
@@ -131,7 +131,7 @@ public class List {
         this.sys = sys;
     }
 
-    public List withSys(Sys sys) {
+    public ForecastList withSys(Sys sys) {
         this.sys = sys;
         return this;
     }
@@ -144,7 +144,7 @@ public class List {
         this.dtTxt = dtTxt;
     }
 
-    public List withDtTxt(String dtTxt) {
+    public ForecastList withDtTxt(String dtTxt) {
         this.dtTxt = dtTxt;
         return this;
     }
@@ -157,7 +157,7 @@ public class List {
         this.snow = snow;
     }
 
-    public List withSnow(Snow snow) {
+    public ForecastList withSnow(Snow snow) {
         this.snow = snow;
         return this;
     }

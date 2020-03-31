@@ -16,7 +16,7 @@ public class OpenWeatherObject {
     private Integer cnt;
     @SerializedName("list")
     @Expose
-    private java.util.List<de.thu.tpro.android4bikes.services.weatherData.openWeather.List> list;
+    private java.util.List<ForecastList> forecastList;
     @SerializedName("city")
     @Expose
     private City city;
@@ -25,7 +25,7 @@ public class OpenWeatherObject {
      * No args constructor for use in serialization
      */
     public OpenWeatherObject() {
-        list = null;
+        forecastList = null;
     }
 
     /**
@@ -33,15 +33,15 @@ public class OpenWeatherObject {
      * @param cnt
      * @param cod
      * @param message
-     * @param list
+     * @param forecastList
      */
-    public OpenWeatherObject(String cod, Integer message, Integer cnt, java.util.List<de.thu.tpro.android4bikes.services.weatherData.openWeather.List> list, City city) {
+    public OpenWeatherObject(String cod, Integer message, Integer cnt, java.util.List<ForecastList> forecastList, City city) {
         super();
         this.cod = cod;
         this.message = message;
         this.cnt = cnt;
-        this.list = null;
-        this.list = list;
+        this.forecastList = null;
+        this.forecastList = forecastList;
         this.city = city;
     }
 
@@ -84,16 +84,16 @@ public class OpenWeatherObject {
         return this;
     }
 
-    public java.util.List<de.thu.tpro.android4bikes.services.weatherData.openWeather.List> getList() {
-        return list;
+    public java.util.List<ForecastList> getForecastList() {
+        return forecastList;
     }
 
-    public void setList(java.util.List<de.thu.tpro.android4bikes.services.weatherData.openWeather.List> list) {
-        this.list = list;
+    public void setForecastList(java.util.List<ForecastList> forecastList) {
+        this.forecastList = forecastList;
     }
 
-    public OpenWeatherObject withList(java.util.List<de.thu.tpro.android4bikes.services.weatherData.openWeather.List> list) {
-        this.list = list;
+    public OpenWeatherObject withList(java.util.List<ForecastList> forecastList) {
+        this.forecastList = forecastList;
         return this;
     }
 
@@ -116,7 +116,7 @@ public class OpenWeatherObject {
                 "cod='" + cod + '\'' +
                 ", message=" + message +
                 ", cnt=" + cnt +
-                ", list=" + list.toString() +
+                ", list=" + forecastList.toString() +
                 ", city=" + city.toString() +
                 '}';
     }

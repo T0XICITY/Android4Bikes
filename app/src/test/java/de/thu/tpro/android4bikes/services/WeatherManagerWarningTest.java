@@ -14,8 +14,13 @@ public class WeatherManagerWarningTest {
     @Test
     public void testData(){
         WeatherManagerWarning manager = new WeatherManagerWarning();
-        List<DWDwarning> dwDwarningList = manager.loadWeatherWarnings();
-        assertNotNull(dwDwarningList);
-        assertEquals("FROST",dwDwarningList.get(0).getEvent());
+        manager.startWeatherTask();
+        try {
+            Thread.sleep(2000);
+            assertNotNull(manager.getDWDwarnings());
+            assertEquals("FROST",manager.getDWDwarnings().iterator().next().getEvent());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

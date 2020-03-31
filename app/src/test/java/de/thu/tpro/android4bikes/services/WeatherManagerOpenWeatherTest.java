@@ -12,12 +12,12 @@ public class WeatherManagerOpenWeatherTest {
         OpenWeatherObject weatherObject = manager.createOpenWeatherObject(48.3,9.8333);
 
         assertNotNull(weatherObject);
-        assertNotNull(weatherObject.getList());
+        assertNotNull(weatherObject.getForecastList());
 
-        //weatherObject.getList().forEach(entry -> System.out.println(entry.getDtTxt() + " : " + entry.getMain().getTemp()));
+        weatherObject.getForecastList().forEach(entry -> System.out.println(entry.getDtTxt() + " : " + entry.getMain().getTemp()));
 
-        assertEquals("2020-03-30 09:00:00", weatherObject.getList().get(0).getDtTxt());
-        assertEquals(1.65,(double)weatherObject.getList().get(0).getMain().getTemp(),0.0001);
+        assertEquals("2020-03-31 12:00:00", weatherObject.getForecastList().get(0).getDtTxt());
+        assertEquals(5.55,(double)weatherObject.getForecastList().get(0).getMain().getTemp(),0.0001);
     }
 
 }
