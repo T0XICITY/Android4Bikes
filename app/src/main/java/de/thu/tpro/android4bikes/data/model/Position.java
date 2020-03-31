@@ -1,21 +1,11 @@
 package de.thu.tpro.android4bikes.data.model;
 
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
-import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 import de.thu.tpro.android4bikes.exception.InvalidPositionException;
 
-import static de.thu.tpro.android4bikes.data.model.Position.ConstantsPosition.LATITUDE;
-import static de.thu.tpro.android4bikes.data.model.Position.ConstantsPosition.LONGITUDE;
-
-public class Position implements JsonRepresentation {
+public class Position {
 
     private double longitude;
     private double latitude;
@@ -40,16 +30,6 @@ public class Position implements JsonRepresentation {
     }
 
     /**
-     * constructor accepting Map<String, Object>
-     *
-     * @param coarsedGrainedPosition
-     */
-    public Position(Map<String, Object> coarsedGrainedPosition) {
-        this.latitude = (long) coarsedGrainedPosition.get(coarsedGrainedPosition.get(LATITUDE));
-        this.longitude = (long) coarsedGrainedPosition.get(coarsedGrainedPosition.get(LONGITUDE));
-    }
-
-    /**
      * returns whether the stored positioning data is valid
      *
      * @return is ther any valid positioning data available?
@@ -57,38 +37,6 @@ public class Position implements JsonRepresentation {
     public boolean isPositioningDataAvailable() {
         //Double-Werte nie auf Gleichheit pruefen:
         return Double.compare(this.longitude, -103.907409) != 0 || Double.compare(this.latitude, -82.463046) != 0;
-    }
-
-    /**
-     * get JSON representation of a position object
-     *
-     * @return json representation of a Position object as JSONObject
-     */
-    @Override
-    public JSONObject toJSON() throws InvalidJsonException {
-        JSONObject position = null;
-        try {
-            position = new JSONObject();
-            position.put(ConstantsPosition.LATITUDE.toString(), this.latitude);
-            position.put(ConstantsPosition.LATITUDE.toString(), this.longitude);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            throw new InvalidJsonException();
-        }
-        return position;
-    }
-
-    /**
-     * @return map representation of the position object
-     * represented by a map. This should be used in combination
-     * with FireStore.
-     */
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map_position = new HashMap<>();
-        map_position.put(LONGITUDE.toString(), longitude);
-        map_position.put(LATITUDE.toString(), latitude);
-        return map_position;
     }
 
     /**

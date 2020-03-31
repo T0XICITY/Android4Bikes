@@ -1,15 +1,8 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
-import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
-public class BikeRack implements JsonRepresentation {
+public class BikeRack {
     private String firebaseID;
     private Position position;
     private String postcode;
@@ -150,24 +143,6 @@ public class BikeRack implements JsonRepresentation {
 
     public void setHasBikeCharging(boolean hasBikeCharging) {
         this.hasBikeCharging = hasBikeCharging;
-    }
-
-    @Override
-    public JSONObject toJSON() throws InvalidJsonException {
-        return null;
-    }
-
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map_bikeRack = new HashMap<>();
-        map_bikeRack.put(Position.ConstantsPosition.POSITION.toString(), this.position.toMap());
-        map_bikeRack.put(ConstantsBikeRack.POSTCODE.toString(), this.postcode);
-        map_bikeRack.put(ConstantsBikeRack.BIKE_RACK_NAME.toString(), this.name);
-        map_bikeRack.put(ConstantsBikeRack.CAPACITY.toString(), this.capacity.toInt()); //enum to int
-        map_bikeRack.put(ConstantsBikeRack.IS_EBIKE_STATION.toString(), this.hasBikeCharging);
-        map_bikeRack.put(ConstantsBikeRack.IS_EXISTENT.toString(), this.isExistent);
-        map_bikeRack.put(ConstantsBikeRack.IS_COVERED.toString(), this.isCovered);
-        return map_bikeRack;
     }
 
     public enum ConstantsBikeRack {

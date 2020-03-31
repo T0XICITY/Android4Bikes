@@ -1,16 +1,10 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
-public class Profile implements JsonRepresentation {
+public class Profile {
     private String firstName;
     private String familyName;
     private String googleID;
@@ -79,27 +73,6 @@ public class Profile implements JsonRepresentation {
 
     public void setGoogleID(String googleID) {
         this.googleID = googleID;
-    }
-
-    @Override
-    public JSONObject toJSON() {
-        return new JSONObject(this.toMap());
-    }
-
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(ConstantsProfile.FIRSTNAME.toString(), firstName);
-        map.put(ConstantsProfile.FAMILYNAME.toString(), familyName);
-        map.put(ConstantsProfile.GOOGLEID.toString(), googleID);
-        map.put(ConstantsProfile.COLOR.toString(), color);
-        map.put(ConstantsProfile.OVERALLDISTANCE.toString(), overallDistance);
-        List<Map<String, Object>> list_achievements = new ArrayList<>();
-        for (Achievement a : achievements) {
-            list_achievements.add(a.toMap());
-        }
-        map.put(ConstantsProfile.ACHIEVEMENTS.toString(), list_achievements);
-        return map;
     }
 
     public enum ConstantsProfile {

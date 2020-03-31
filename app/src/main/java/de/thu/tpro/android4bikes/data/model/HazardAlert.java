@@ -1,17 +1,10 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
-import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-public class HazardAlert implements JsonRepresentation {
+public class HazardAlert {
     private HazardType type;
     private Position position;
     private String postcode;
@@ -24,16 +17,6 @@ public class HazardAlert implements JsonRepresentation {
      */
     public HazardAlert() {
 
-    }
-
-    public HazardAlert(Map<String, Object> map_hazardAlert) {
-        this.type = (HazardType) map_hazardAlert.get(ConstantsHazardAlert.TYPE.toString());
-        Object obj_position = map_hazardAlert.get(ConstantsHazardAlert.POSITION.toString());
-        this.position = new Position((Map<String, Object>) obj_position);
-        this.postcode = (String) map_hazardAlert.get(ConstantsHazardAlert.POSTCODE.toString());
-        this.expiryTimestamp = (long) map_hazardAlert.get(ConstantsHazardAlert.EXPIRYTIMESTAMP.toString());
-        this.distanceOfInterest = (int) map_hazardAlert.get(ConstantsHazardAlert.DISTANCEOFINTEREST.toString());
-        this.firebaseID = (String) map_hazardAlert.get(ConstantsHazardAlert.FIREBASEID.toString());
     }
 
     public HazardAlert(HazardType type, Position position, long expiryTimestamp, int distanceOfInterest, String firebaseID) {
@@ -95,24 +78,6 @@ public class HazardAlert implements JsonRepresentation {
 
     public void setExpiryTimestamp(long expiryTimestamp) {
         this.expiryTimestamp = expiryTimestamp;
-    }
-
-
-    @Override
-    public JSONObject toJSON() throws InvalidJsonException {
-        return new JSONObject(this.toMap());
-    }
-
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map_Hazards = new HashMap<>();
-        map_Hazards.put(ConstantsHazardAlert.TYPE.toString(), type);
-        map_Hazards.put(ConstantsHazardAlert.POSITION.toString(), position);
-        map_Hazards.put(ConstantsHazardAlert.POSTCODE.toString(), postcode);
-        map_Hazards.put(ConstantsHazardAlert.EXPIRYTIMESTAMP.toString(), expiryTimestamp);
-        map_Hazards.put(ConstantsHazardAlert.DISTANCEOFINTEREST.toString(), distanceOfInterest);
-        map_Hazards.put(ConstantsHazardAlert.FIREBASEID.toString(), firebaseID);
-        return map_Hazards;
     }
 
     public enum ConstantsHazardAlert {

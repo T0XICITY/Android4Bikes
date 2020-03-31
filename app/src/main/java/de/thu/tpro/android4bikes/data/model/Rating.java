@@ -1,14 +1,6 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
-import de.thu.tpro.android4bikes.exception.InvalidJsonException;
-
-public class Rating implements JsonRepresentation {
+public class Rating {
     private int difficulty;
     private int fun;
     private int roadquality;
@@ -23,13 +15,6 @@ public class Rating implements JsonRepresentation {
         this.difficulty = difficulty;
         this.fun = fun;
         this.roadquality = roadquality;
-
-    }
-
-    public Rating(Map<String, Object> map_rating) {
-        this.difficulty = (int) map_rating.get(ConstantsRating.DIFFICULTY.toString());
-        this.fun = (int) map_rating.get(ConstantsRating.FUN.toString());
-        this.roadquality = (int) map_rating.get(ConstantsRating.ROADQUALITY.toString());
     }
 
     public int getDifficulty() {
@@ -54,22 +39,6 @@ public class Rating implements JsonRepresentation {
 
     public void setRoadquality(int roadquality) {
         this.roadquality = roadquality;
-    }
-
-    @Override
-    public JSONObject toJSON() throws InvalidJsonException {
-        return new JSONObject(this.toMap());
-    }
-
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map_rating = new HashMap<>();
-
-        map_rating.put(ConstantsRating.DIFFICULTY.toString(), this.difficulty);
-        map_rating.put(ConstantsRating.FUN.toString(), this.fun);
-        map_rating.put(ConstantsRating.ROADQUALITY.toString(), this.roadquality);
-
-        return map_rating;
     }
 
     public enum ConstantsRating {
