@@ -48,7 +48,15 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void storeTrack(Track track) {
-
+        //todo: Review und Test
+        try {
+            Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+            JSONObject json_track = new JSONObject(gson.toJson(track));
+            MutableDocument mutableDocument_track = this.convertJSONToMutableDocument(json_track);
+            couchDB.saveMutableDocumentToDatabase(db_track, mutableDocument_track);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
