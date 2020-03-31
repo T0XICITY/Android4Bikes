@@ -2,8 +2,6 @@ package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 
-import java.util.Date;
-
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 import de.thu.tpro.android4bikes.util.GlobalContext;

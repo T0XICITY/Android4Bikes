@@ -146,7 +146,7 @@ public class CouchDB implements Andoid4BikeDatabse {
      */
     public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, String value) {
         MutableDocument document = null;
-        try{
+        try {
             // Update a document.
             if (mutableDoc != null) {
                 mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
@@ -155,7 +155,7 @@ public class CouchDB implements Andoid4BikeDatabse {
                 saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
             }
             document = database.getDocument(mutableDoc.getId()).toMutable();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Log.e("HalloWelt", "Failure during updating a document (string value).");
         }
@@ -172,7 +172,7 @@ public class CouchDB implements Andoid4BikeDatabse {
      */
     public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, int value) {
         MutableDocument document = null;
-        try{
+        try {
             // Update a document.
             if (mutableDoc != null) {
                 mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
@@ -181,7 +181,7 @@ public class CouchDB implements Andoid4BikeDatabse {
                 saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
             }
             document = database.getDocument(mutableDoc.getId()).toMutable();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Log.e("HalloWelt", "Failure during updating a document (int value).");
         }
@@ -198,7 +198,7 @@ public class CouchDB implements Andoid4BikeDatabse {
      */
     public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, long value) {
         MutableDocument document = null;
-        try{
+        try {
             // Update a document.
             if (mutableDoc != null) {
                 mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
@@ -207,7 +207,7 @@ public class CouchDB implements Andoid4BikeDatabse {
                 saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
             }
             document = database.getDocument(mutableDoc.getId()).toMutable();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Log.e("HalloWelt", "Failure during updating a document (long value).");
         }
@@ -224,7 +224,7 @@ public class CouchDB implements Andoid4BikeDatabse {
      */
     public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, double value) {
         MutableDocument document = null;
-        try{
+        try {
             // Update a document.
             if (mutableDoc != null) {
                 mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
@@ -233,7 +233,7 @@ public class CouchDB implements Andoid4BikeDatabse {
                 saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
             }
             document = database.getDocument(mutableDoc.getId()).toMutable();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Log.e("HalloWelt", "Failure during updating a document (double value).");
         }
@@ -250,7 +250,7 @@ public class CouchDB implements Andoid4BikeDatabse {
      */
     public Document updateSingleValueOfADocument(Database database, MutableDocument mutableDoc, String key, MutableDocument value) {
         MutableDocument document = null;
-        try{
+        try {
             // Update a document.
             if (mutableDoc != null) {
                 mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
@@ -259,7 +259,7 @@ public class CouchDB implements Andoid4BikeDatabse {
                 saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
             }
             document = database.getDocument(mutableDoc.getId()).toMutable();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Log.e("HalloWelt", "Failure during updating a document (subdocument).");
         }
@@ -271,12 +271,12 @@ public class CouchDB implements Andoid4BikeDatabse {
      *
      * @param mutableDoc document to update
      * @param key        key to update
-     * @param newValues      Mutable document containing all new key value pairs
+     * @param newValues  Mutable document containing all new key value pairs
      * @return updated document
      */
     public Document updateAllValuesOfADocument(Database database, MutableDocument mutableDoc, String key, HashMap<String, Object> newValues) {
         MutableDocument document = null;
-        try{
+        try {
             // Update a document.
             if (mutableDoc != null) {
                 mutableDoc = database.getDocument(mutableDoc.getId()).toMutable(); //read doc from db
@@ -285,7 +285,7 @@ public class CouchDB implements Andoid4BikeDatabse {
                 saveMutableDocumentToDatabase(database, mutableDoc); //save updated doc to db
             }
             document = database.getDocument(mutableDoc.getId()).toMutable();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Log.e("HalloWelt", "Failure during updating a complete document.");
         }
@@ -469,10 +469,11 @@ public class CouchDB implements Andoid4BikeDatabse {
 
     /**
      * Method which returns a Document
-     * @param id is the ID of the wanted document
+     *
+     * @param id       is the ID of the wanted document
      * @param database is the Database where the wanted document is stored
-     * */
-    public Document getDocument(DatabaseNames database,String id) {
+     */
+    public Document getDocument(DatabaseNames database, String id) {
         return getDatabaseFromName(database).getDocument(id);
     }
 

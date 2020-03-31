@@ -3,7 +3,6 @@ package de.thu.tpro.android4bikes.database;
 import android.util.Log;
 
 import com.couchbase.lite.DataSource;
-import com.couchbase.lite.Document;
 import com.couchbase.lite.Expression;
 import com.couchbase.lite.MutableDocument;
 import com.couchbase.lite.Query;
@@ -33,13 +32,6 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
 
-    private static class Queries{
-        final static Query getAllPosQuery = QueryBuilder
-                .select(SelectResult.all())
-                .from(DataSource.database(CouchDB.getInstance()
-                        .getDatabaseFromName(DatabaseNames.DATABASE_POSITION)));
-    }
-
     public CouchDbHelper() {
         couchDB = CouchDB.getInstance();
         gson = new Gson();
@@ -59,9 +51,9 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
 
             ResultSet results = couchDB.queryDatabase(query);
 
-            for (Result r: results){
+            for (Result r : results) {
                 JSONObject res = new JSONObject(r.toMap());
-                Log.d("HalloWelt",""+res.toString());
+                Log.d("HalloWelt", "" + res.toString());
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -94,23 +86,25 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
 
     /**
      * Saves a position in the local Database
+     *
      * @param position is the position which should be stored in the local database
-     * */
+     */
     @Override
     public void savePosition(Position position) {
         try {
             JSONObject json_position = new JSONObject(gson.toJson(position));
             MutableDocument md_position = convertJSONToMutableDocument(json_position);
-            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION),md_position);
-        }catch (Exception e){
+            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION), md_position);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /**
      * Get all positions which are stored in the local database
+     *
      * @return list of all positions
-     * */
+     */
     @Override
     public List<Position> getAllPositions() {
         List<Position> positions = new ArrayList<>();
@@ -119,7 +113,7 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
             try {
                 JSONObject json_result = new JSONObject(result.toMap());
                 json_result = json_result.getJSONObject(DatabaseNames.DATABASE_POSITION.toText());
-                positions.add(gson.fromJson(json_result.toString(),Position.class));
+                positions.add(gson.fromJson(json_result.toString(), Position.class));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -129,12 +123,12 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
 
     /**
      * Deletes all entries of position of the local database
-     * */
-    public void deleteAllPositions(){
+     */
+    public void deleteAllPositions() {
         ResultSet results = couchDB.queryDatabase(Queries.getAllPosQuery);
         results.forEach(result -> {
             String id = result.getString(0);
-            couchDB.deleteDocumentByID(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION),id);
+            couchDB.deleteDocumentByID(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION), id);
         });
     }
 
@@ -185,5 +179,12 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
             Log.i("HalloWelt", "No mutable document could be generated.");
         }
         return mutableDocument;
+    }
+
+    private static class Queries {
+        final static Query getAllPosQuery = QueryBuilder
+                .select(SelectResult.all())
+                .from(DataSource.database(CouchDB.getInstance()
+                        .getDatabaseFromName(DatabaseNames.DATABASE_POSITION)));
     }
 }
