@@ -55,6 +55,7 @@ public class FineGrainedPositions implements JsonRepresentation {
         for (Position pos : positions) {
             list_position.add(pos.toMap());
         }
+        map_positions.put(ConstantsFineGrainedPosition.POSITIONS.toString(), positions);
         map_positions.put(ConstantsFineGrainedPosition.POSITIONS.toString(), list_position);
         return map_positions;
     }

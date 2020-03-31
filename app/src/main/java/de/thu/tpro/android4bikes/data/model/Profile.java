@@ -89,23 +89,23 @@ public class Profile implements JsonRepresentation {
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("firstname", firstName);
-        map.put("familyname", familyName);
-        map.put("googleid", googleID);
-        map.put("color", color);
-        map.put("overalldistance", overallDistance);
+        map.put(ConstantsProfile.FIRSTNAME.toString(), firstName);
+        map.put(ConstantsProfile.FAMILYNAME.toString(), familyName);
+        map.put(ConstantsProfile.GOOGLEID.toString(), googleID);
+        map.put(ConstantsProfile.COLOR.toString(), color);
+        map.put(ConstantsProfile.OVERALLDISTANCE.toString(), overallDistance);
         List<Map<String, Object>> list_achievements = new ArrayList<>();
         for (Achievement a : achievements) {
             list_achievements.add(a.toMap());
         }
-        map.put("achievements", list_achievements);
+        map.put(ConstantsProfile.ACHIEVEMENTS.toString(), list_achievements);
         return map;
     }
 
     public enum ConstantsProfile {
         FIRSTNAME("firstname"),
         FAMILYNAME("familyname"),
-        FIREBASEACCOUNTID("firebaseaccountid"),
+        GOOGLEID("googleID"),
         COLOR("color"),
         OVERALLDISTANCE("overalldistance"),
         ACHIEVEMENTS("achievements");
