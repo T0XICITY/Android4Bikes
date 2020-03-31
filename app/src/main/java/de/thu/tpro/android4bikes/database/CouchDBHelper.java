@@ -12,6 +12,7 @@ import com.couchbase.lite.Result;
 import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,7 +37,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     public CouchDBHelper() {
         couchDB = CouchDB.getInstance();
-        gson = new Gson();
+        gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     }
 
     @Override
