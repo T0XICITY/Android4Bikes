@@ -277,7 +277,9 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void updateProfile(Profile profile) {
-
+        //todo: review und test
+        deleteProfile(profile.getGoogleID());
+        storeProfile(profile);
     }
 
     @Override
