@@ -55,6 +55,8 @@ public class FragmentInfoMode extends Fragment {
         testLogOut();
         a();
         b();
+
+
         return inflater.inflate(R.layout.fragment_info_mode, container, false);
     }
 

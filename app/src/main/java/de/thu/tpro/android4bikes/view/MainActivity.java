@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -15,6 +16,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.menu.createTrack.FragmentCreateTrack;
+import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.Custom_Listview;
+import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 
 /**
  * @author stlutz
@@ -36,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
         initNav();
         initFAB();
+
+
+
     }
 
     @Override
@@ -73,6 +79,19 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Initiates the BottomAppBar
      */
+
+
+    private void initAssistanceRoad(){
+        /**
+         * showing Listview on RoadsideAssistent  / author: Elias
+         */
+        lv_road_assistance = (ListView) findViewById(R.id.lv_layout);
+        Custom_Listview custom_listview = new Custom_Listview(this,tv_institutions,iv_institutions,ib_call);
+        lv_road_assistance.setAdapter(custom_listview);
+    }
+
+
+
     private void initNav() {
         bottomBar = findViewById(R.id.bottomAppBar);
         setSupportActionBar(bottomBar);
@@ -88,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                currentFragment = new FragmentRoadsideAssistance();
+                updateFragment();
                 Log.d("Mitte", "Clicked mitte");
                 //TODO Change Mode
                 createSnackbar();
@@ -108,4 +129,24 @@ public class MainActivity extends AppCompatActivity {
     private void updateFragment() {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, currentFragment).commit();
     }
+
+
+    /**
+     * @author Elias
+     * Implement Listview with all necessary information -> Imageview, Textview, Imagebutton
+     *
+      */
+    ListView lv_road_assistance;
+
+    // Texview
+    String[] tv_institutions = {"Ambulance service", "Fire department", "Police", "Roadride assistance"
+            , "Youth Helpline", "Manual input"};
+    //Imageview
+    Integer[] iv_institutions ={R.drawable.ic_emergency__hospital,R.drawable.emergency_fire_department,
+    R.drawable.emergency_police,R.drawable.emergency_roadside_assistance,R.drawable.ic_emergency_child,R.drawable.ic_emergency_phone};
+
+    //Imagebutton
+    Integer[] ib_call = {R.drawable.ic_emergency__call,R.drawable.ic_emergency__call,R.drawable.ic_emergency__call,
+            R.drawable.ic_emergency__call,R.drawable.ic_emergency__call,R.drawable.ic_emergency__call};
+
 }
