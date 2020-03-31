@@ -45,6 +45,9 @@ public class HazardAlert implements JsonRepresentation {
         this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
     }
 
+    public HazardAlert(Map<String, Object> hazardalertobject) {
+    }
+
     public void setPosition(Position position) {
         this.position = position;
     }

@@ -17,7 +17,6 @@ import static de.thu.tpro.android4bikes.data.model.Position.ConstantsPosition.LO
 
 public class Position implements JsonRepresentation {
 
-    private String firebaseID;
     private double longitude;
     private double latitude;
 
@@ -30,25 +29,24 @@ public class Position implements JsonRepresentation {
     }
 
     /**
-     * constructor
+     * constructor using all fields
      *
-     * @param firebaseID
      * @param longitude
      * @param latitude
      */
-    public Position(String firebaseID, double longitude, double latitude) {
-        this.firebaseID = firebaseID;
-        this.longitude = longitude;
-        this.latitude = latitude;
-    }
-
     public Position(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
-    public Position(String firebaseID) {
-        this.firebaseID = firebaseID;
+    /**
+     * constructor accepting Map<String, Object>
+     *
+     * @param coarsedGrainedPosition
+     */
+    public Position(Map<String, Object> coarsedGrainedPosition) {
+        this.latitude = (long) coarsedGrainedPosition.get(coarsedGrainedPosition.get(LATITUDE));
+        this.longitude = (long) coarsedGrainedPosition.get(coarsedGrainedPosition.get(LONGITUDE));
     }
 
     /**
@@ -100,14 +98,6 @@ public class Position implements JsonRepresentation {
     private void setDefaultLocation() {
         this.longitude = -103.907409; //Position in der Antarktis. Fuer unbekannte Standorte.
         this.latitude = -82.463046;
-    }
-
-    public String getFirebaseID() {
-        return firebaseID;
-    }
-
-    public void setFirebaseID(String firebaseID) {
-        this.firebaseID = firebaseID;
     }
 
     public double getLongitude() {
