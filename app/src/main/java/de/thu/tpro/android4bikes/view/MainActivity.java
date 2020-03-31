@@ -1,10 +1,12 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -14,6 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.createTrack.FragmentCreateTrack;
 
 /**
@@ -23,11 +26,14 @@ import de.thu.tpro.android4bikes.view.menu.createTrack.FragmentCreateTrack;
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "MainActivity";
+
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
     private Fragment currentFragment;
     private BottomAppBar bottomBar;
+    private ImageButton btn_tracks;
+    private ImageButton btn_community;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.bottomappbar_navigation, menu);
+        getMenuInflater().inflate(R.menu.menu_items, menu);
         return true;
     }
 
@@ -71,12 +77,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Initiates the BottomAppBar
+     * Initiates the BottomAppBar and set listeners to nav buttons
      */
     private void initNav() {
         bottomBar = findViewById(R.id.bottomAppBar);
-        //setSupportActionBar(bottomBar);
-        currentFragment = new FragmentCreateTrack();
+        btn_community = findViewById(R.id.imagebutton_community);
+        btn_tracks = findViewById(R.id.imagebutton_tracks);
+
+        btn_community.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(LOG_TAG,"clicked community");
+                if (currentFragment instanceof FragmentInfoMode){
+                    ((FragmentInfoMode)currentFragment).openDrawer();
+                }
+            }
+        });
+
+        currentFragment = new FragmentInfoMode();
         updateFragment();
     }
 
