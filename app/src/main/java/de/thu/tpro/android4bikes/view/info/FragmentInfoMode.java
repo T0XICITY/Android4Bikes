@@ -116,7 +116,12 @@ public class FragmentInfoMode extends Fragment {
         dLayout.closeDrawer(GravityCompat.END);
     }
 
-    public void openDrawer(){
-        dLayout.openDrawer(GravityCompat.END);
+    public void toggleNavigationDrawer(){
+        if (dLayout.isDrawerOpen(GravityCompat.END)){
+            dLayout.closeDrawer(GravityCompat.END);
+        }else{
+            dLayout.openDrawer(GravityCompat.END);
+        }
+
     }
 }

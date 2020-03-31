@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(LOG_TAG,"clicked community");
                 if (currentFragment instanceof FragmentInfoMode){
-                    ((FragmentInfoMode)currentFragment).openDrawer();
+                    ((FragmentInfoMode)currentFragment).toggleNavigationDrawer();
                 }
             }
         });
