@@ -233,6 +233,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
      */
     @Override
     public void resetUtilization() {
+        //todo: review und test
         ResultSet results = couchDB.queryDatabase(Queries.getAllPosQuery);
         results.forEach(result -> {
             String id = result.getString(0);
@@ -242,12 +243,35 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void storeProfile(Profile Profile) {
-
+        //todo: review und test
+        try {
+            Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+            JSONObject jsonObject_profile = new JSONObject(gson.toJson(db_profile));
+            MutableDocument mutableDocument_profile = this.convertJSONToMutableDocument(jsonObject_profile);
+            couchDB.saveMutableDocumentToDatabase(db_profile, mutableDocument_profile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public Profile readProfile(String firebaseAccountID) {
-        return null;
+        Profile profile = null;
+        try {
+            Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(db_profile))
+                    .where(Expression.property(Profile.ConstantsProfile.GOOGLEID.toString()).equalTo(Expression.string(firebaseAccountID)));
+            ResultSet results = couchDB.queryDatabase(query);
+            JSONObject jsonObject_profile = null;
+            for (Result result : results) {
+                jsonObject_profile = new JSONObject(result.toMap());
+                profile = gson.fromJson(jsonObject_profile.get(DatabaseNames.DATABASE_PROFILE.toText()).toString(), Profile.class);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return profile;
     }
 
     @Override
