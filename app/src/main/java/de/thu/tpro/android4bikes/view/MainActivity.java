@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Initiates Floating Action Button
      */
-    private void initFAB(){
+    private void initFAB() {
         FloatingActionButton fab = findViewById(R.id.fab_switchMode);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,9 +98,10 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Creates a Snackbar to test the floating action button
      */
-    private void createSnackbar(){
-        Snackbar.make(findViewById(R.id.fragment_container),R.string.title_switchMode,1000).setAnchorView(bottomBar).show();
+    private void createSnackbar() {
+        Snackbar.make(findViewById(R.id.fragment_container), R.string.title_switchMode, 1000).setAnchorView(bottomBar).show();
     }
+
     /**
      * Replaces the displayed fragment with the {@link #currentFragment}
      */

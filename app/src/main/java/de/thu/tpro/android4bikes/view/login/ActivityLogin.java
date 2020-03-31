@@ -26,7 +26,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.MainActivity;
-import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 
 /**
  * Firebase Authentication:

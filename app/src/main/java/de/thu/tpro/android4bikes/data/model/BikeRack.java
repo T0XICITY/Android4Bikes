@@ -120,10 +120,6 @@ public class BikeRack implements JsonRepresentation {
         return hasBikeCharging;
     }
 
-    public void setHasBikeCharging(boolean hasBikeCharging) {
-        this.hasBikeCharging = hasBikeCharging;
-    }
-
     public ConstantsCapacity getCapacity() {
         return capacity;
     }
@@ -144,12 +140,16 @@ public class BikeRack implements JsonRepresentation {
         return isExistent;
     }
 
+    public void setExistent(boolean existent) {
+        isExistent = existent;
+    }
+
     public boolean isHasBikeCharging() {
         return hasBikeCharging;
     }
 
-    public void setExistent(boolean existent) {
-        isExistent = existent;
+    public void setHasBikeCharging(boolean hasBikeCharging) {
+        this.hasBikeCharging = hasBikeCharging;
     }
 
     @Override

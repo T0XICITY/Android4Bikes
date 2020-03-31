@@ -26,10 +26,10 @@ public class HazardAlert implements JsonRepresentation {
 
     }
 
-    public HazardAlert(Map<String,Object> map_hazardAlert) {
+    public HazardAlert(Map<String, Object> map_hazardAlert) {
         this.type = (HazardType) map_hazardAlert.get(ConstantsHazardAlert.TYPE.toString());
         Object obj_position = map_hazardAlert.get(ConstantsHazardAlert.POSITION.toString());
-        this.position = new Position((Map<String,Object>)obj_position);
+        this.position = new Position((Map<String, Object>) obj_position);
         this.postcode = (String) map_hazardAlert.get(ConstantsHazardAlert.POSTCODE.toString());
         this.expiryTimestamp = (long) map_hazardAlert.get(ConstantsHazardAlert.EXPIRYTIMESTAMP.toString());
         this.distanceOfInterest = (int) map_hazardAlert.get(ConstantsHazardAlert.DISTANCEOFINTEREST.toString());
@@ -43,10 +43,6 @@ public class HazardAlert implements JsonRepresentation {
         this.distanceOfInterest = distanceOfInterest;
         this.firebaseID = firebaseID;
         this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
-    }
-
-    public void setPosition(Position position) {
-        this.position = position;
     }
 
     public String getFirebaseID() {
@@ -75,6 +71,10 @@ public class HazardAlert implements JsonRepresentation {
 
     public Position getPosition() {
         return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     public void setGeoPoint(Position position) {

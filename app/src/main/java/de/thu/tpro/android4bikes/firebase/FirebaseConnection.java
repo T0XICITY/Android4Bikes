@@ -29,8 +29,6 @@ import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
-import static android.content.ContentValues.TAG;
-
 public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
@@ -128,6 +126,7 @@ public class FirebaseConnection implements FireStoreDatabase {
 
     /**
      * updates a Profile in the FireStore and saves it in the local database
+     *
      * @param profile profile to update
      */
     @Override
@@ -138,6 +137,7 @@ public class FirebaseConnection implements FireStoreDatabase {
 
     /**
      * deletes a Profile from the FireStore and after that in the local database
+     *
      * @param googleID profile to delete
      */
     @Override
@@ -162,10 +162,11 @@ public class FirebaseConnection implements FireStoreDatabase {
     }
 
     /**
-     *submits a BikeRack to the FireStore
+     * submits a BikeRack to the FireStore
      * which gets validated by the Cloudfunction
      * to generate an Official Bikerack
      * the associated id will be generated automatically.
+     *
      * @param bikeRack bikeRack to store.
      */
     @Override
@@ -229,7 +230,7 @@ public class FirebaseConnection implements FireStoreDatabase {
     /**
      * stores a Track and FineGrainedPosition first in the FireStore and after that in the local database
      *
-     * @param track track to store
+     * @param track                track to store
      * @param fineGrainedPositions fine grained position data for corresponding track
      */
     @Override
@@ -288,6 +289,7 @@ public class FirebaseConnection implements FireStoreDatabase {
 
     /**
      * reads a Track with CoarseGrainedInformation from the FireStore and saves it in the local database
+     *
      * @param fireBaseID trackID as a String
      */
     @Override
@@ -322,6 +324,7 @@ public class FirebaseConnection implements FireStoreDatabase {
 
     /**
      * reads FineGrainedInformation from the FireStore and saves it in the local database
+     *
      * @param fireBaseID trackID as a String
      */
     @Override
@@ -357,6 +360,7 @@ public class FirebaseConnection implements FireStoreDatabase {
 
     /**
      * deletes a Track from the FireStore and after that in the local database
+     *
      * @param fireBaseID trackID as a String
      */
     @Override
@@ -385,6 +389,7 @@ public class FirebaseConnection implements FireStoreDatabase {
      * which gets validated by the Cloudfunction
      * to generate a Official Bikerack
      * the associated id will be generated automatically.
+     *
      * @param hazardAlert hazard alert which gets submitted
      */
     @Override
@@ -414,6 +419,7 @@ public class FirebaseConnection implements FireStoreDatabase {
     /**
      * reads all official Hazards associated to a certain postcode
      * and stores them in the local database
+     *
      * @param postcode as a String
      */
     @Override
@@ -448,6 +454,7 @@ public class FirebaseConnection implements FireStoreDatabase {
 
     /**
      * saves position data to Firebase in order to contribute to Utilization Heat mapping
+     *
      * @param utilization List with position data
      */
     @Override
