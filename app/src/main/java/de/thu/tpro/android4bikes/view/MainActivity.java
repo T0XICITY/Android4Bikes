@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initNav() {
         bottomBar = findViewById(R.id.bottomAppBar);
-        setSupportActionBar(bottomBar);
+        //setSupportActionBar(bottomBar);
         currentFragment = new FragmentCreateTrack();
         updateFragment();
     }
