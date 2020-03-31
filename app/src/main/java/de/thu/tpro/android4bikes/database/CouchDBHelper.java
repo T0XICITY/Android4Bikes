@@ -41,6 +41,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteBikeRack(BikeRack bikeRack) {
+        //TODO: Review and testing
         this.deleteBikeRack(bikeRack.getFirebaseID());
     }
 
@@ -48,8 +49,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     public void storeTrack(Track track) {
 
     }
-
-
 
     @Override
     public List<Track> readTracks(String postcode) {
@@ -63,6 +62,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void storeFineGrainedPositions(FineGrainedPositions fineGrainedPositions) {
+        //TODO: Review and testing
         try {
             Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db bikerack
 
@@ -79,6 +79,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public FineGrainedPositions readFineGrainedPositions(String firebaseID) {
+        //TODO: Review and testing
         FineGrainedPositions fineGrainedPositions = null;
         try {
             JSONObject jsonObject_result = null;
@@ -101,11 +102,13 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public FineGrainedPositions readFineGrainedPositions(Track track) {
+        //TODO: Review and testing
         return this.readFineGrainedPositions(track.getFirebaseID());
     }
 
     @Override
     public void storeHazardAlerts(HazardAlert hazardAlert) {
+        //TODO: Review and testing
         try {
             Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db bikerack
 
@@ -122,6 +125,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public List<HazardAlert> readHazardAlerts(String postcode) {
+        //TODO: Review and testing
         List<HazardAlert> hazardAlerts = new ArrayList<>();
         try {
             JSONObject jsonObject_result = null;
@@ -146,6 +150,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteHazardAlert(String fireBaseID) {
+        //TODO: Review and testing
         try {
             Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db bikerack
             HazardAlert hazardAlert = null;
@@ -164,6 +169,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteHazardAlert(HazardAlert hazardAlert) {
+        //TODO: Review and testing
         this.deleteHazardAlert(hazardAlert.getFirebaseID());
     }
 
@@ -223,6 +229,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void storeBikeRack(BikeRack bikeRack) {
+        //TODO: Review and testing
         try {
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
 
@@ -239,6 +246,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public List<BikeRack> readBikeRacks(String postcode) {
+        //TODO: Review and testing
         List<BikeRack> bikeRacks = new ArrayList<>();
         try {
             JSONObject jsonObject_result = null;
@@ -263,6 +271,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteBikeRack(String fireBaseID) {
+        //TODO: Review and testing
         try {
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
             BikeRack bikeRack = null;
