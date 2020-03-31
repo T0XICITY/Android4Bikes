@@ -144,7 +144,7 @@ public class Track implements JsonRepresentation {
 
     @Override
     public JSONObject toJSON() {
-        return null;
+        return new JSONObject(this.toMap());
     }
 
     @Override
