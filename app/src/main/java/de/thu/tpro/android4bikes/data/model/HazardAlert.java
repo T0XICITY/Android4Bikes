@@ -2,18 +2,20 @@ package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 import de.thu.tpro.android4bikes.exception.InvalidJsonException;
+import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class HazardAlert implements JsonRepresentation {
     private HazardType type;
     private Position position;
-    private Date expiryDate;
+    private String postcode;
+    private long expiryTimestamp;
     private int distanceOfInterest;
     private String firebaseID;
 
@@ -24,12 +26,13 @@ public class HazardAlert implements JsonRepresentation {
 
     }
 
-    public HazardAlert(HazardType type, Position position, Date expiryDate, int distanceOfInterest, String firebaseID) {
+    public HazardAlert(HazardType type, Position position, long expiryTimestamp, int distanceOfInterest, String firebaseID) {
         this.type = type;
         this.position = position;
-        this.expiryDate = expiryDate;
+        this.expiryTimestamp = expiryTimestamp;
         this.distanceOfInterest = distanceOfInterest;
         this.firebaseID = firebaseID;
+        this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
     }
 
     public void setPosition(Position position) {
@@ -52,6 +55,14 @@ public class HazardAlert implements JsonRepresentation {
         this.distanceOfInterest = distanceOfInterest;
     }
 
+    public String getPostcode() {
+        return postcode;
+    }
+
+    public void setPostcode(String postcode) {
+        this.postcode = postcode;
+    }
+
     public Position getPosition() {
         return position;
     }
@@ -60,20 +71,20 @@ public class HazardAlert implements JsonRepresentation {
         this.position = position;
     }
 
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
     public String getType() {
         return type.getType();
     }
 
     public void setType(HazardType type) {
         this.type = type;
+    }
+
+    public long getExpiryTimestamp() {
+        return expiryTimestamp;
+    }
+
+    public void setExpiryTimestamp(long expiryTimestamp) {
+        this.expiryTimestamp = expiryTimestamp;
     }
 
 
@@ -85,12 +96,23 @@ public class HazardAlert implements JsonRepresentation {
 
     @Override
     public Map<String, Object> toMap() {
-        return null;
+        Map<String, Object> map_Hazards = new HashMap<>();
+        map_Hazards.put(ConstantsHazardAlert.TYPE.toString(), type);
+        map_Hazards.put(ConstantsHazardAlert.POSITION.toString(), position);
+        map_Hazards.put(ConstantsHazardAlert.POSTCODE.toString(), postcode);
+        map_Hazards.put(ConstantsHazardAlert.EXPIRYTIMESTAMP.toString(), expiryTimestamp);
+        map_Hazards.put(ConstantsHazardAlert.DISTANCEOFINTEREST.toString(), distanceOfInterest);
+        map_Hazards.put(ConstantsHazardAlert.FIREBASEID.toString(), firebaseID);
+        return map_Hazards;
     }
 
     public enum ConstantsHazardAlert {
-        POSTCODE("postcode");
-
+        POSTCODE("postcode"),
+        TYPE("type"),
+        POSITION("position"),
+        EXPIRYTIMESTAMP("expiryTimestamp"),
+        DISTANCEOFINTEREST("distanceOfInterest"),
+        FIREBASEID("firebaseID");
 
         private String type;
 
