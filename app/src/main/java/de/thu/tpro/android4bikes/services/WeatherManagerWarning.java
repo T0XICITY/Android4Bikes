@@ -10,20 +10,42 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.thu.tpro.android4bikes.services.weatherData.warning.DWDwarning;
 
-public class WeatherManagerWarning {
+public class WeatherManagerWarning extends Observable {
     private final static String string_url = "https://www.dwd.de/DWD/warnungen/warnapp/json/warnings.json";
     private Gson gson;
+    private static Set<DWDwarning> dwDwarnings;
 
     public WeatherManagerWarning() {
+        dwDwarnings = new HashSet<>();
         gson = new Gson();
     }
 
-    public List<DWDwarning> loadWeatherWarnings() {
+    public void startWeatherTask(){
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                dwDwarnings.clear();
+                dwDwarnings.addAll(loadWeatherWarnings());
+            }
+        }, 10, 60000); //one minute
+    }
+
+    public Set<DWDwarning> getDWDwarnings(){
+        return dwDwarnings;
+    }
+
+    private List<DWDwarning> loadWeatherWarnings() {
         List<DWDwarning> warningList = new ArrayList<>();
         try {
             URL url = new URL(string_url);
