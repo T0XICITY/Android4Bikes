@@ -26,6 +26,16 @@ public class HazardAlert implements JsonRepresentation {
 
     }
 
+    public HazardAlert(Map<String,Object> map_hazardAlert) {
+        this.type = (HazardType) map_hazardAlert.get(ConstantsHazardAlert.TYPE.toString());
+        Object obj_position = map_hazardAlert.get(ConstantsHazardAlert.POSITION.toString());
+        this.position = new Position((Map<String,Object>)obj_position);
+        this.postcode = (String) map_hazardAlert.get(ConstantsHazardAlert.POSTCODE.toString());
+        this.expiryTimestamp = (long) map_hazardAlert.get(ConstantsHazardAlert.EXPIRYTIMESTAMP.toString());
+        this.distanceOfInterest = (int) map_hazardAlert.get(ConstantsHazardAlert.DISTANCEOFINTEREST.toString());
+        this.firebaseID = (String) map_hazardAlert.get(ConstantsHazardAlert.FIREBASEID.toString());
+    }
+
     public HazardAlert(HazardType type, Position position, long expiryTimestamp, int distanceOfInterest, String firebaseID) {
         this.type = type;
         this.position = position;
@@ -90,9 +100,8 @@ public class HazardAlert implements JsonRepresentation {
 
     @Override
     public JSONObject toJSON() throws InvalidJsonException {
-        return null;
+        return new JSONObject(this.toMap());
     }
-
 
     @Override
     public Map<String, Object> toMap() {
