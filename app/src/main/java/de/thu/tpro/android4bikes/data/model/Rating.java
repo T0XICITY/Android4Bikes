@@ -25,6 +25,9 @@ public class Rating implements JsonRepresentation {
 
     }
 
+    public Rating(Map<String, Object> stringObjectMap) {
+    }
+
     public int getDifficulty() {
         return difficulty;
     }

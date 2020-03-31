@@ -51,6 +51,9 @@ public class Position implements JsonRepresentation {
         this.firebaseID = firebaseID;
     }
 
+    public Position(Map<String, Object> coarsedGrainedPosition) {
+    }
+
     /**
      * returns whether the stored positioning data is valid
      *

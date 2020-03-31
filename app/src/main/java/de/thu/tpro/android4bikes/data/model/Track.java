@@ -29,6 +29,20 @@ public class Track implements JsonRepresentation {
     public Track() {
     }
 
+    /**
+     * constructor using all parameters
+     *
+     * @param author_googleID
+     * @param rating
+     * @param name
+     * @param description
+     * @param firebaseID
+     * @param creationDate_unixtimestamp
+     * @param distance_km
+     * @param coarseGrainedPositions
+     * @param hazardAlerts
+     * @param isComplete
+     */
     public Track(String author_googleID, Rating rating, String name, String description, String firebaseID, long creationDate_unixtimestamp, int distance_km, List<Position> coarseGrainedPositions, List<HazardAlert> hazardAlerts, boolean isComplete) {
         this.author_googleID = author_googleID;
         this.rating = rating;
@@ -45,6 +59,8 @@ public class Track implements JsonRepresentation {
             this.postcode = GeoLocationHelper.convertPositionToPostcode(coarseGrainedPositions.get(0));
         }
     }
+
+
 
     public List<Position> getCoarseGrainedPositions() {
         return coarseGrainedPositions;
@@ -145,6 +161,28 @@ public class Track implements JsonRepresentation {
     @Override
     public JSONObject toJSON() {
         return new JSONObject(this.toMap());
+    }
+
+    public Track(Map<String, Object> map_track) {
+        this.hazardAlerts = new ArrayList<>();
+        this.coarseGrainedPositions = new ArrayList<>();
+        this.author_googleID = String.valueOf(map_track.get(ConstantsTrack.AUTHOR_GOOGLEID.toString()));
+        this.rating = new Rating((Map<String, Object>) map_track.get(ConstantsTrack.RATING.toString()));
+        this.name = String.valueOf(map_track.get(ConstantsTrack.NAME.toString()));
+        this.description = String.valueOf(map_track.get(ConstantsTrack.DESCRIPTION.toString()));
+        List<Object> list_coarsedGrainedPositions = (List<Object>) map_track.get(ConstantsTrack.HAZARD_ALERTS.toString());
+        for (Object coarsedGrainedPosition : list_coarsedGrainedPositions) {
+            this.coarseGrainedPositions.add(new Position((Map<String, Object>) coarsedGrainedPosition));
+        }
+        this.firebaseID = String.valueOf(map_track.get(ConstantsTrack.FIREBASEID.toString()));
+        this.creationDate_unixtimestamp = (long) map_track.get(ConstantsTrack.TIMESTAMP.toString());
+        this.distance_km = (int) map_track.get(ConstantsTrack.DISTANCE_KM.toString());
+        List<Object> list_hazardalertobjects = (List<Object>) map_track.get(ConstantsTrack.HAZARD_ALERTS.toString());
+        for (Object hazardalertobject : list_hazardalertobjects) {
+            this.hazardAlerts.add(new HazardAlert((Map<String, Object>) hazardalertobject));
+        }
+        this.postcode = String.valueOf(map_track.get(ConstantsTrack.POSTCODE.toString()));
+        this.isComplete = (boolean) map_track.get(ConstantsTrack.IS_COMPLETE.toString());
     }
 
     @Override
