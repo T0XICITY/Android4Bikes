@@ -31,7 +31,6 @@ public class FirebaseConnectionTest {
                 false, true,false
         );
         firebaseConnection.submitBikeRackToFireStoreAndLocalDB(bikeRack_THU);
-
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {

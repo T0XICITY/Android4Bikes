@@ -36,6 +36,7 @@ public class FirebaseConnection implements FireStoreDatabase {
     private FirebaseFirestore db;
     private List<FireStoreObserver> fireStoreObservers;
     private LocalDatabaseHelper localDatabaseHelper;
+    private String TAG = "HalloWelt";
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
@@ -73,7 +74,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("FIREBASE", "Profile " + Profile.getFamilyName() + " added successfully");
+                        Log.d(TAG, "Profile " + Profile.getFamilyName() + " added successfully");
                         try {
                             storeProfileToFireStoreAndLocalDB(Profile);
                         } catch (Exception e) {
@@ -85,7 +86,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("FIREBASE", "Error adding Profile " + Profile.getFamilyName(), e);
+                        Log.w(TAG, "Error adding Profile " + Profile.getFamilyName(), e);
                     }
                 });
     }
@@ -105,7 +106,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("FIREBASE", "Profile " + document.toObject(Profile.class).getFamilyName() + " got successfully");
+                        Log.d(TAG, "Profile " + document.toObject(Profile.class).getFamilyName() + " got successfully");
                         try {
                             localDatabaseHelper.storeProfile(document.toObject(Profile.class));
                         } catch (Exception e) {
@@ -113,12 +114,12 @@ public class FirebaseConnection implements FireStoreDatabase {
                         }
 
                     } else {
-                        Log.d("FIREBASE", "No such Profile");
+                        Log.d(TAG, "No such Profile");
                         //TODO Exception Document not found
 
                     }
                 } else {
-                    Log.d("FIREBASE", "get failed with ", task.getException());
+                    Log.d(TAG, "get failed with ", task.getException());
                     //TODO Exception no Connection
                 }
             }
@@ -147,14 +148,14 @@ public class FirebaseConnection implements FireStoreDatabase {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("FIREBASE", "Profile successfully deleted!");
+                        Log.d(TAG, "Profile successfully deleted!");
                         localDatabaseHelper.deleteProfile(googleID);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("FIREBASE", "Error deleting Profile", e);
+                        Log.w(TAG, "Error deleting Profile", e);
                     }
                 });
 
@@ -175,24 +176,17 @@ public class FirebaseConnection implements FireStoreDatabase {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         String firebaseID = documentReference.getId();
-                        Log.d("FIREBASE", "Bikerack with Location "
+                        Log.d(TAG, "Bikerack with Location "
                                 + bikeRack.getPosition().getLatitude()
                                 + ","
                                 + bikeRack.getPosition().getLongitude()
                                 + " submitted successfully");
-                        try {
-                            bikeRack.setFirebaseID(firebaseID);
-                            localDatabaseHelper.storeBikeRack(bikeRack);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("FIREBASE", "Error submitting BikeRack", e);
+                        Log.w(TAG, "Error submitting BikeRack", e);
                     }
                 });
     }
@@ -213,7 +207,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d("FIREBASE", "Bikerack with Location "
+                                Log.d(TAG, "Bikerack with Location "
                                         + document.toObject(BikeRack.class).getPosition().getLatitude()
                                         + ","
                                         + document.toObject(BikeRack.class).getPosition().getLongitude()
@@ -226,7 +220,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                                 }
                             }
                         } else {
-                            Log.d("FIREBASE", "Error getting Bikerack(s): ", task.getException());
+                            Log.d(TAG, "Error getting Bikerack(s): ", task.getException());
                         }
                     }
                 });
@@ -247,7 +241,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         String firebaseID = documentReference.getId();
-                        Log.d("FIREBASE", "Track " + track.getName() + " added successfully");
+                        Log.d(TAG, "Track " + track.getName() + " added successfully");
 
                         try {
                             track.setFirebaseID(firebaseID);
@@ -259,7 +253,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            Log.d("FIREBASE", "Fine-GeoPositions added successfully");
+                                            Log.d(TAG, "Fine-GeoPositions added successfully");
                                             try {
                                                 localDatabaseHelper.storeTrack(track);
                                                 localDatabaseHelper.storeFineGrainedPositions(fineGrainedPositions);
@@ -273,7 +267,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
-                                            Log.w("FIREBASE", "Error adding Fine-GeoPositions", e);
+                                            Log.w(TAG, "Error adding Fine-GeoPositions", e);
                                         }
                                     });
 
@@ -287,7 +281,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("FIREBASE", "Error submitting BikeRack", e);
+                        Log.w(TAG, "Error submitting BikeRack", e);
                     }
                 });
     }
@@ -306,7 +300,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d("FIREBASE", "Track " + document.toObject(Track.class).getName() + " got successfully");
+                        Log.d(TAG, "Track " + document.toObject(Track.class).getName() + " got successfully");
                         try {
                             localDatabaseHelper.storeTrack(document.toObject(Track.class));
                         } catch (Exception e) {
@@ -314,7 +308,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                         }
 
                     } else {
-                        Log.d("FIREBASE", "No such Track");
+                        Log.d(TAG, "No such Track");
                         //TODO Exception Document not found
 
                     }
@@ -348,12 +342,12 @@ public class FirebaseConnection implements FireStoreDatabase {
                         }
 
                     } else {
-                        Log.d("FIREBASE", "No such Fine-GeoPosition");
+                        Log.d(TAG, "No such Fine-GeoPosition");
                         //TODO Exception Document not found
 
                     }
                 } else {
-                    Log.d("FIREBASE", "get failed with ", task.getException());
+                    Log.d(TAG, "get failed with ", task.getException());
                     //TODO Exception no Connection
                 }
             }
@@ -368,19 +362,20 @@ public class FirebaseConnection implements FireStoreDatabase {
     @Override
     public void deleteTrackFromFireStoreAndLocalDB(String fireBaseID) {
         //TODO Review and Testing
-        db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString()).document(fireBaseID)
+        db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
+                .document(fireBaseID)
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("FIREBASE", "Track successfully deleted!");
+                        Log.d(TAG, "Track successfully deleted!");
                         localDatabaseHelper.deleteTrack(fireBaseID);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("FIREBASE", "Error deleting Track", e);
+                        Log.w(TAG, "Error deleting Track", e);
                     }
                 });
     }
@@ -401,7 +396,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         String firebaseID = documentReference.getId();
-                        Log.d("FIREBASE", "HazardAlert with Location "
+                        Log.d(TAG, "HazardAlert with Location "
                                 + hazardAlert.getPosition().getLatitude()
                                 + ","
                                 + hazardAlert.getPosition().getLongitude()
@@ -411,7 +406,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("FIREBASE", "Error submitting HazardAlert", e);
+                        Log.w(TAG, "Error submitting HazardAlert", e);
                     }
                 });
     }
@@ -432,7 +427,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d("FIREBASE", "Hazard with Location "
+                                Log.d(TAG, "Hazard with Location "
                                         + document.toObject(HazardAlert.class).getPosition().getLatitude()
                                         + ","
                                         + document.toObject(HazardAlert.class).getPosition().getLongitude()
@@ -445,7 +440,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                                 }
                             }
                         } else {
-                            Log.d("FIREBASE", "Error getting Hazard(s): ", task.getException());
+                            Log.d(TAG, "Error getting Hazard(s): ", task.getException());
                         }
                     }
                 });
@@ -458,20 +453,19 @@ public class FirebaseConnection implements FireStoreDatabase {
     @Override
     public void storeUtilizationToFireStore(List<Position> utilization) {
         //TODO Review and Testing
-        String firebaseID = "123456789"; //TODO CONST ID
         db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
-                .document(firebaseID) //set the id of a given document
+                .document(ConstantsFirebase.DOCUMENT_UTILIZATION.toString()) //set the id of a given document
                 .set(utilization, SetOptions.merge()) //set-Method with merge: Will append document if it is existing
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("FIREBASE", "Utilization updated");
+                        Log.d(TAG, "Utilization updated");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("FIREBASE", "Error adding Utilization", e);
+                        Log.w(TAG, "Error adding Utilization", e);
                     }
                 });
 
@@ -485,7 +479,8 @@ public class FirebaseConnection implements FireStoreDatabase {
         COLLECTION_BIKERACKS("bikeracks"),
         COLLECTION_OFFICIAL_BIKERACKS("officialbikeracks"),
         COLLECTION_HAZARDS("hazards"),
-        COLLECTION_OFFICIAL_HAZARDS("officialhazards");
+        COLLECTION_OFFICIAL_HAZARDS("officialhazards"),
+        DOCUMENT_UTILIZATION("9xapHttnwM5eXheJStQf");
 
         private String type;
 

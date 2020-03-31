@@ -41,12 +41,14 @@ public class ActivityInfoMode extends AppCompatActivity {
         achievements.add(new KmAchievement("B", 2, 2, 2, 2));
 
         Profile profile = new Profile("Olaf", "Olafsen", "00x13dxxx", 10, 1, achievements);
-
         firebaseConnection.storeProfileToFireStoreAndLocalDB(profile);
 
         setContentView(R.layout.activity_info_mode);
         GlobalContext.setContext(getApplicationContext());
         determineAllViews();
+
+        firebaseConnection.readBikeRacksFromFireStoreAndStoreItToLocalDB("89075");
+
         //HazardAlert hazardAlert = new HazardAlert(HazardAlert.HazardType.ICY_ROAD);
         //tv_Test.setText(hazardAlert.getType());
         testLogOut();
