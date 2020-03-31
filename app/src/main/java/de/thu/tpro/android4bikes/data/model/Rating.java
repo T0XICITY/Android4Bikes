@@ -2,45 +2,34 @@ package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
 import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 
 public class Rating implements JsonRepresentation {
-    private long author;
     private int difficulty;
-    private String comment;
     private int fun;
     private int roadquality;
-    private String firebaseID;
 
+    /**
+     * no-arg Constructor needed for Firebase auto-cast
+     */
     public Rating() {
     }
 
-    public Rating(long author, int difficulty, String comment, int fun, int roadquality, String firebaseID) {
-        this.author = author;
+    public Rating(int difficulty, int fun, int roadquality, String firebaseID) {
         this.difficulty = difficulty;
-        this.comment = comment;
         this.fun = fun;
         this.roadquality = roadquality;
-        this.firebaseID = firebaseID;
+
     }
 
-    public String getFirebaseID() {
-        return firebaseID;
-    }
-
-    public void setFirebaseID(String firebaseID) {
-        this.firebaseID = firebaseID;
-    }
-
-    public long getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(long author) {
-        this.author = author;
+    public Rating(Map<String, Object> map_rating) {
+        this.difficulty = (int) map_rating.get(ConstantsRating.DIFFICULTY.toString());
+        this.fun = (int) map_rating.get(ConstantsRating.FUN.toString());
+        this.roadquality = (int) map_rating.get(ConstantsRating.ROADQUALITY.toString());
     }
 
     public int getDifficulty() {
@@ -49,14 +38,6 @@ public class Rating implements JsonRepresentation {
 
     public void setDifficulty(int difficulty) {
         this.difficulty = difficulty;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public int getFun() {
@@ -77,11 +58,33 @@ public class Rating implements JsonRepresentation {
 
     @Override
     public JSONObject toJSON() throws InvalidJsonException {
-        return null;
+        return new JSONObject(this.toMap());
     }
 
     @Override
     public Map<String, Object> toMap() {
-        return null;
+        Map<String, Object> map_rating = new HashMap<>();
+
+        map_rating.put(ConstantsRating.DIFFICULTY.toString(), this.difficulty);
+        map_rating.put(ConstantsRating.FUN.toString(), this.fun);
+        map_rating.put(ConstantsRating.ROADQUALITY.toString(), this.roadquality);
+
+        return map_rating;
+    }
+
+    public enum ConstantsRating {
+        DIFFICULTY("difficulty"),
+        FUN("fun"),
+        ROADQUALITY("roadquality");
+
+        private String type;
+
+        ConstantsRating(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 }

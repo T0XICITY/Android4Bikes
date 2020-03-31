@@ -1,10 +1,18 @@
 <resources>
     <string name="app_name">Android4Bikes</string>
+    <!--Navigation Strings-->
+    <string name="title_community">Community</string>
+    <string name="title_hazard">Hazard</string>
+    <string name="title_assistance">Assistance</string>
+    <string name="title_emergency">Emergency Numbers</string>
+    <string name="title_switchMode">Mode Switch</string>
+    <!--Hazard Strings-->
     <string name="HazardAlert_HazardType_DamagedRoad">Damaged road</string>
     <string name="HazardAlert_HazardType_IcyRoad">Icy road</string>
     <string name="HazardAlert_HazardType_SlipperyRoad">Slippery road</string>
     <string name="HazardAlert_HazardType_Roadkill">Roadkill</string>
     <string name="HazardAlert_HazardType_Rockfall">Rockfall</string>
+    <!---Login Strings-->
     <string name="activity_login_image">Login Image</string>
     <string name="Activity_Login_Toast_Fail">Sorry auth failed.</string>
 </resources>

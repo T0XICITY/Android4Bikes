@@ -2,12 +2,13 @@ package de.thu.tpro.android4bikes.data.model;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.database.JsonRepresentation;
-import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 
 public class Profile implements JsonRepresentation {
     private String firstName;
@@ -15,11 +16,13 @@ public class Profile implements JsonRepresentation {
     private String googleID;
     private int color;
     private int overallDistance;
-    private List<Achievement> achievements;
+    private List<Achievement> achievements; //TODO better representation
 
+    /**
+     * no-arg Constructor needed for Firebase auto-cast
+     */
     public Profile() {
     }
-
 
     public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Achievement> achievements) {
         this.firstName = firstName;
@@ -79,12 +82,43 @@ public class Profile implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject toJSON() throws InvalidJsonException {
-        return null;
+    public JSONObject toJSON() {
+        return new JSONObject(this.toMap());
     }
 
     @Override
     public Map<String, Object> toMap() {
-        return null;
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(ConstantsProfile.FIRSTNAME.toString(), firstName);
+        map.put(ConstantsProfile.FAMILYNAME.toString(), familyName);
+        map.put(ConstantsProfile.GOOGLEID.toString(), googleID);
+        map.put(ConstantsProfile.COLOR.toString(), color);
+        map.put(ConstantsProfile.OVERALLDISTANCE.toString(), overallDistance);
+        List<Map<String, Object>> list_achievements = new ArrayList<>();
+        for (Achievement a : achievements) {
+            list_achievements.add(a.toMap());
+        }
+        map.put(ConstantsProfile.ACHIEVEMENTS.toString(), list_achievements);
+        return map;
+    }
+
+    public enum ConstantsProfile {
+        FIRSTNAME("firstname"),
+        FAMILYNAME("familyname"),
+        GOOGLEID("googleID"),
+        COLOR("color"),
+        OVERALLDISTANCE("overalldistance"),
+        ACHIEVEMENTS("achievements");
+
+
+        private String type;
+
+        ConstantsProfile(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 }
