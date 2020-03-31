@@ -1,15 +1,34 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
 public class BikeRack {
+    @Expose
+    @SerializedName("firebaseID")
     private String firebaseID;
+    @Expose
+    @SerializedName("position")
     private Position position;
+    @Expose
+    @SerializedName("postcode")
     private String postcode;
+    @Expose
+    @SerializedName("name")
     private String name;
+    @Expose
+    @SerializedName("capacity")
     private ConstantsCapacity capacity;
+    @Expose
+    @SerializedName("hasBikeCharging")
     private boolean hasBikeCharging;
+    @Expose
+    @SerializedName("isExistent")
     private boolean isExistent;
+    @Expose
+    @SerializedName("isCovered")
     private boolean isCovered;
 
     /**

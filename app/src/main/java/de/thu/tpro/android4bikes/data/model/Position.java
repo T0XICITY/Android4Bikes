@@ -1,16 +1,20 @@
 package de.thu.tpro.android4bikes.data.model;
 
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Objects;
 
 import de.thu.tpro.android4bikes.exception.InvalidPositionException;
 
-import static de.thu.tpro.android4bikes.data.model.Position.ConstantsPosition.LATITUDE;
-import static de.thu.tpro.android4bikes.data.model.Position.ConstantsPosition.LONGITUDE;
-
 public class Position {
 
+    @Expose
+    @SerializedName("longitude")
     private double longitude;
+    @Expose
+    @SerializedName("latitude")
     private double latitude;
 
     /**

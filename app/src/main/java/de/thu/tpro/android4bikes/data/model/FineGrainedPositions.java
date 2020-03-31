@@ -1,10 +1,17 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.LinkedList;
 import java.util.List;
 
 public class FineGrainedPositions {
+    @Expose
+    @SerializedName("firebaseID")
     private String firebaseID;
+    @Expose
+    @SerializedName("positions")
     private List<Position> positions;
 
     /**

@@ -1,15 +1,30 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class HazardAlert {
+    @Expose
+    @SerializedName("type")
     private HazardType type;
+    @Expose
+    @SerializedName("position")
     private Position position;
+    @Expose
+    @SerializedName("postcode")
     private String postcode;
+    @Expose
+    @SerializedName("expiryTimestamp")
     private long expiryTimestamp;
+    @Expose
+    @SerializedName("distanceOfInterest")
     private int distanceOfInterest;
+    @Expose
+    @SerializedName("firebaseID")
     private String firebaseID;
 
     /**
