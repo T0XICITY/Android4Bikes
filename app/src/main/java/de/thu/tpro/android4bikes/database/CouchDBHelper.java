@@ -49,10 +49,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     }
 
-    @Override
-    public void storeFineGrainedPositions(FineGrainedPositions fineGrainedPositions) {
 
-    }
 
     @Override
     public List<Track> readTracks(String postcode) {
@@ -65,13 +62,46 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     }
 
     @Override
+    public void storeFineGrainedPositions(FineGrainedPositions fineGrainedPositions) {
+        try {
+            Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db bikerack
+
+            //convert hazardAlert to mutable document
+            JSONObject json_finegrainedPositions = new JSONObject(gson.toJson(fineGrainedPositions));
+            MutableDocument mutableDocument_finedgrainedPositions = this.convertJSONToMutableDocument(json_finegrainedPositions);
+
+            //save mutable document representing the hazardAlert to the local db
+            couchDB.saveMutableDocumentToDatabase(db_fineGrainedPositions, mutableDocument_finedgrainedPositions);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public FineGrainedPositions readFineGrainedPositions(String firebaseID) {
-        return null;
+        FineGrainedPositions fineGrainedPositions = null;
+        try {
+            JSONObject jsonObject_result = null;
+            Database db_finegrainedpositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db bikerack
+
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(db_finegrainedpositions))
+                    .where(Expression.property(HazardAlert.ConstantsHazardAlert.FIREBASEID.toString()).equalTo(Expression.string(firebaseID)));
+            ResultSet results = couchDB.queryDatabase(query);
+            for (Result result : results) {
+                //convert result to jsonObject-string
+                jsonObject_result = new JSONObject(result.toMap());
+                fineGrainedPositions = gson.fromJson(jsonObject_result.toString(), FineGrainedPositions.class);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return fineGrainedPositions;
     }
 
     @Override
     public FineGrainedPositions readFineGrainedPositions(Track track) {
-        return null;
+        return this.readFineGrainedPositions(track.getFirebaseID());
     }
 
     @Override
@@ -81,10 +111,10 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
             //convert hazardAlert to mutable document
             JSONObject json_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
-            MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_hazardAlert);
+            MutableDocument mutableDocument_hazardAlerts = this.convertJSONToMutableDocument(json_hazardAlert);
 
             //save mutable document representing the hazardAlert to the local db
-            couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_bikeRack);
+            couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_hazardAlerts);
         } catch (JSONException e) {
             e.printStackTrace();
         }
