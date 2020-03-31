@@ -41,7 +41,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteBikeRack(BikeRack bikeRack) {
-
+        this.deleteBikeRack(bikeRack.getFirebaseID());
     }
 
     @Override
@@ -76,22 +76,65 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void storeHazardAlerts(HazardAlert hazardAlert) {
+        try {
+            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db bikerack
 
+            //convert hazardAlert to mutable document
+            JSONObject json_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
+            MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_hazardAlert);
+
+            //save mutable document representing the hazardAlert to the local db
+            couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_bikeRack);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public List<HazardAlert> readHazardAlerts(String postcode) {
-        return null;
+        List<HazardAlert> hazardAlerts = new ArrayList<>();
+        try {
+            JSONObject jsonObject_result = null;
+            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db bikerack
+            HazardAlert hazardAlert = null;
+
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(db_hazardAlert))
+                    .where(Expression.property(HazardAlert.ConstantsHazardAlert.POSTCODE.toString()).equalTo(Expression.string(postcode)));
+            ResultSet results = couchDB.queryDatabase(query);
+            for (Result result : results) {
+                //convert result to jsonObject-string
+                jsonObject_result = new JSONObject(result.toMap());
+                hazardAlert = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
+                hazardAlerts.add(hazardAlert);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return hazardAlerts;
     }
 
     @Override
     public void deleteHazardAlert(String fireBaseID) {
-
+        try {
+            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db bikerack
+            HazardAlert hazardAlert = null;
+            JSONObject jsonObject_result = null;
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(db_hazardAlert))
+                    .where(Expression.property(HazardAlert.ConstantsHazardAlert.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
+            ResultSet results = couchDB.queryDatabase(query);
+            for (Result result : results) {
+                couchDB.deleteDocumentByID(db_hazardAlert, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void deleteHazardAlert(HazardAlert hazardAlert) {
-
+        this.deleteHazardAlert(hazardAlert.getFirebaseID());
     }
 
     /**
@@ -195,7 +238,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             BikeRack bikeRack = null;
             JSONObject jsonObject_result = null;
             Query query = QueryBuilder.select(SelectResult.all())
-                    .from(DataSource.database(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK)))
+                    .from(DataSource.database(db_bikerack))
                     .where(Expression.property(BikeRack.ConstantsBikeRack.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
