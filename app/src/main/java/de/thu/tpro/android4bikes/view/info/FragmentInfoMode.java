@@ -43,7 +43,7 @@ public class FragmentInfoMode extends Fragment {
         achievements.add(new KmAchievement("B", 2, 2, 2, 2));
 
         Profile profile = new Profile("Olaf", "Olafsen", "00x13dxxx", 10, 1, achievements);
-        firebaseConnection.storeProfileToFireStoreAndLocalDB(profile);
+        //firebaseConnection.storeProfileToFireStoreAndLocalDB(profile);
 
         GlobalContext.setContext(getActivity().getApplicationContext());
         determineAllViews();
