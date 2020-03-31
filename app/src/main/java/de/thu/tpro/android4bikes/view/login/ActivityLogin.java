@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.activities.login;
+package de.thu.tpro.android4bikes.view.login;
 
 
 import android.content.Intent;
@@ -25,7 +25,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.activities.info.ActivityInfoMode;
+import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 
 /**
  * Firebase Authentication:
@@ -62,7 +62,7 @@ public class ActivityLogin extends AppCompatActivity {
         super.onStart();
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            Intent intent = new Intent(getApplicationContext(), ActivityInfoMode.class);
+            Intent intent = new Intent(getApplicationContext(), FragmentInfoMode.class);
             startActivity(intent);
         }
     }
@@ -136,7 +136,7 @@ public class ActivityLogin extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Intent intent = new Intent(getApplicationContext(), ActivityInfoMode.class);
+                            Intent intent = new Intent(getApplicationContext(), FragmentInfoMode.class);
                             startActivity(intent);
                         } else {
                             Toast.makeText(ActivityLogin.this, R.string.Activity_Login_Toast_Fail, Toast.LENGTH_SHORT).show();

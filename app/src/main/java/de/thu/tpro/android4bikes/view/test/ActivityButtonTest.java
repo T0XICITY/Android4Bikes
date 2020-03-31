@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.activities.test;
+package de.thu.tpro.android4bikes.view.test;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -17,7 +17,7 @@ public class ActivityButtonTest extends AppCompatActivity implements Observer {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_button_test);
+        setContentView(R.layout.fragment_button_test);
 
         BluetoothButtonHandler.getInstance(getApplicationContext()).addObserver(this);
 
