@@ -93,7 +93,8 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
     }
 
     /**
-     * Should work
+     * Saves a position in the local Database
+     * @param position is the position which should be stored in the local database
      * */
     @Override
     public void savePosition(Position position) {
@@ -107,7 +108,8 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
     }
 
     /**
-     * Should work
+     * Get all positions which are stored in the local database
+     * @return list of all positions
      * */
     @Override
     public List<Position> getAllPositions() {
@@ -126,20 +128,14 @@ public class CouchDbHelper implements Android4BikesDatabaseHelper {
     }
 
     /**
-     * delete
+     * Deletes all entries of position of the local database
      * */
-    public Position deletePosition(Position position){
-        Position pos_deleted = null;
-        Query getAllPosQuery = QueryBuilder
-                .select(SelectResult.all())
-                .from(DataSource.database(CouchDB.getInstance()
-                        .getDatabaseFromName(DatabaseNames.DATABASE_POSITION)));
-        ResultSet results = couchDB.queryDatabase(getAllPosQuery);
+    public void deleteAllPositions(){
+        ResultSet results = couchDB.queryDatabase(Queries.getAllPosQuery);
         results.forEach(result -> {
             String id = result.getString(0);
             couchDB.deleteDocumentByID(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION),id);
         });
-        return pos_deleted;
     }
 
     /**
