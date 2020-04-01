@@ -1,9 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Android4Bikes</string>
-    <string name="HazardAlert_HazardType_DamagedRoad"></string>
-    <string name="HazardAlert_HazardType_IcyRoad"></string>
-    <string name="HazardAlert_HazardType_SlipperyRoad"></string>
-    <string name="HazardAlert_HazardType_Roadkill"></string>
-    <string name="HazardAlert_HazardType_Rockfall"></string>
+    <!--Navigation Strings-->
+    <string name="title_community">Κοινότητα</string>
+    <string name="title_hazard">Κίνδυνος</string>
+    <string name="title_assistance">Βοήθεια</string>
+    <string name="title_emergency">Τηλέφωνα έκτακτης ανάγκης</string>
+    <string name="title_switchMode">Αλλαγή του τρόπου λειτουργίας</string>
+    <!--Hazard Strings-->
+    <string name="HazardAlert_HazardType_DamagedRoad">Χαλασμένος δρόμος</string>
+    <string name="HazardAlert_HazardType_IcyRoad">Πάγος στο δρόμο</string>
+    <string name="HazardAlert_HazardType_SlipperyRoad">Γλιστερός δρόμος</string>
+    <string name="HazardAlert_HazardType_Roadkill">Χτυπημένο ζώο</string>
+    <string name="HazardAlert_HazardType_Rockfall">Πέφτουν βράχοι</string>
+    <!---Login Strings-->
+    <string name="activity_login_image">Φωτογραφία σύνδεσης</string>
+    <string name="Activity_Login_Toast_Fail">Προέκυψε ένα λάθος σχετικά με την σύνδεση</string>
 </resources>
