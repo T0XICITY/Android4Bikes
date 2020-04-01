@@ -331,7 +331,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
             //convert bikeRack to mutable document
             JSONObject json_bikeRack = new JSONObject(gson.toJson(bikeRack));
-            MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_bikeRack);
+            //MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_bikeRack);
 
             //**************************Work around - should work**************************/
             Map result = gson.fromJson(json_bikeRack.toString(), Map.class);
@@ -383,7 +383,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
              */
 
             //save mutable document representing the bikeRack to the local db
-            couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_bikeRack);
+            couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_test);
         } catch (JSONException e) {
             e.printStackTrace();
         }
