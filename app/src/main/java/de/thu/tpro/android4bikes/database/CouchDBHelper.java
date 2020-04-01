@@ -54,7 +54,8 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         try {
             Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
             JSONObject json_track = new JSONObject(gson.toJson(track));
-            MutableDocument mutableDocument_track = this.convertJSONToMutableDocument(json_track);
+            Map result = gson.fromJson(json_track.toString(), Map.class);
+            MutableDocument mutableDocument_track = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_track, mutableDocument_track);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -233,7 +234,8 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         //todo: review und test
         try {
             JSONObject json_position = new JSONObject(gson.toJson(position));
-            MutableDocument md_position = convertJSONToMutableDocument(json_position);
+            Map result = gson.fromJson(json_position.toString(), Map.class);
+            MutableDocument md_position = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION), md_position);
             posCounter++;
             if (posCounter >= 50) {
@@ -265,7 +267,8 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         try {
             Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(db_profile));
-            MutableDocument mutableDocument_profile = this.convertJSONToMutableDocument(jsonObject_profile);
+            Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
+            MutableDocument mutableDocument_profile = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_profile, mutableDocument_profile);
         } catch (Exception e) {
             e.printStackTrace();
