@@ -340,47 +340,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             BikeRack bikeRack_test = gson.fromJson(string_json_result, BikeRack.class);
             //*****************************************************************************/
 
-            /*
-            Testcode, zum Beweis:
-            Map<String,Object> map_bikeRack = new HashMap<>();
-            map_bikeRack.put("firebaseId","2344");
-
-            Map<String,Object> map_position = new HashMap<>();
-            map_position.put("long",12);
-            map_position.put("lat",13);
-            map_bikeRack.put("pos",map_position);
-
-            MutableDocument mutableDocument_bikeRack2 = new MutableDocument(map_bikeRack);
-            Map<String,Object> result = mutableDocument_bikeRack2.toMap();
-            */
-
-
-            /*
-             Map<String,Object> map_bikerack = bikeRack.toMap();
-                ->toMap() von BikeRack
-                    -"FirebaseID" : "23344"
-
-                    -Mappen von Position
-                        ->toMap()von Position
-                            -latitude
-                            -longitude
-                            zurückliefern von: {"latitude":12, "longitude":12}
-                        <- Rückkehr aus toMap()
-
-                    -"Position":{"latitude":12, "longitude":12} (Value von "Position" ist eine Map)
-                    -"Postcode":"89075"
-                    -"name":"gustavbikerack"
-
-                    -Mappen von Capacity
-                        ->Aufruf von toInt() von Capacity
-                        <-zurückliefern: Zahl von 0 bis 2
-                    -"capacity":2
-
-                    -"hasBikeCharging":true,
-                    -"isCovered":true,
-                    -"isExistent":true,
-             MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_bikeRack);
-             */
 
             //save mutable document representing the bikeRack to the local db
             couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_bikeRack);
