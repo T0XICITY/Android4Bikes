@@ -5,6 +5,7 @@ import android.util.Log;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.Expression;
+import com.couchbase.lite.Meta;
 import com.couchbase.lite.MutableDocument;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryBuilder;
@@ -89,7 +90,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         //todo: review und test
         try {
             Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
-            Query query = QueryBuilder.select(SelectResult.all())
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                     .from(DataSource.database(db_track))
                     .where(Expression.property(Track.ConstantsTrack.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
             ResultSet results = couchDB.queryDatabase(query);
@@ -210,12 +211,14 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
             HazardAlert hazardAlert = null;
             JSONObject jsonObject_result = null;
-            Query query = QueryBuilder.select(SelectResult.all())
+            String mutabledocument_result_id = null;
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                     .from(DataSource.database(db_hazardAlert))
                     .where(Expression.property(HazardAlert.ConstantsHazardAlert.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
-                couchDB.deleteDocumentByID(db_hazardAlert, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
+                mutabledocument_result_id = result.getString(CouchDB.AttributeNames.DATABASE_ID.toText());
+                couchDB.deleteDocumentByID(db_hazardAlert, mutabledocument_result_id);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -257,6 +260,12 @@ public class CouchDBHelper implements LocalDatabaseHelper {
      */
     @Override
     public void resetUtilization() {
+        //Vorschlag fuer Utilization
+        /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        Database utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
+        couchDB.clearDB(utilizationDB);
+        +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
         //todo: review und test
         ResultSet results = couchDB.queryDatabase(Queries.getAllPosQuery);
         results.forEach(result -> {
@@ -312,7 +321,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         //todo: review und test
         try {
             Database db_Profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
-            Query query = QueryBuilder.select(SelectResult.all())
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                     .from(DataSource.database(db_Profile))
                     .where(Expression.property(Profile.ConstantsProfile.GOOGLEID.toString()).equalTo(Expression.string(googleID)));
             ResultSet results = couchDB.queryDatabase(query);
@@ -384,12 +393,15 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
             BikeRack bikeRack = null;
             JSONObject jsonObject_result = null;
-            Query query = QueryBuilder.select(SelectResult.all())
+            String mutabledocument_result_id = null;
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                     .from(DataSource.database(db_bikerack))
                     .where(Expression.property(BikeRack.ConstantsBikeRack.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
             ResultSet results = couchDB.queryDatabase(query);
+
             for (Result result : results) {
-                couchDB.deleteDocumentByID(db_bikerack, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
+                mutabledocument_result_id = result.getString(CouchDB.AttributeNames.DATABASE_ID.toText());
+                couchDB.deleteDocumentByID(db_bikerack, mutabledocument_result_id);
             }
         } catch (Exception e) {
             e.printStackTrace();
