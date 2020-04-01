@@ -1,16 +1,31 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 import java.util.Objects;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 
 public class Profile {
+    @Expose
+    @SerializedName("firstName")
     private String firstName;
+    @Expose
+    @SerializedName("familyName")
     private String familyName;
+    @Expose
+    @SerializedName("googleID")
     private String googleID;
+    @Expose
+    @SerializedName("color")
     private int color;
+    @Expose
+    @SerializedName("overallDistance")
     private int overallDistance;
+    @Expose
+    @SerializedName("achievements")
     private List<Achievement> achievements; //TODO better representation
 
     /**

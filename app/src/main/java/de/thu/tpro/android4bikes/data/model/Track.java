@@ -1,21 +1,46 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 import java.util.Objects;
 
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
 public class Track {
+    @Expose
+    @SerializedName("author_googleID")
     private String author_googleID;
+    @Expose
+    @SerializedName("rating")
     private Rating rating;
+    @Expose
+    @SerializedName("name")
     private String name;
+    @Expose
+    @SerializedName("description")
     private String description;
+    @Expose
+    @SerializedName("firebaseID")
     private String firebaseID;
+    @Expose
+    @SerializedName("creationDate_unixtimestamp")
     private long creationDate_unixtimestamp;
+    @Expose
+    @SerializedName("distance_km")
     private int distance_km;
+    @Expose
+    @SerializedName("coarseGrainedPositions")
     private List<Position> coarseGrainedPositions;
+    @Expose
+    @SerializedName("hazardAlerts")
     private List<HazardAlert> hazardAlerts;
+    @Expose
+    @SerializedName("postcode")
     private String postcode;
+    @Expose
+    @SerializedName("isComplete")
     private boolean isComplete; //TODO: im UI Abfrage, ob Strecke in Bearbeitung auf dem Server ist.
 
     /**

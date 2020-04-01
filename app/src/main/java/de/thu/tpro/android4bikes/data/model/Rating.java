@@ -1,10 +1,19 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Objects;
 
 public class Rating {
+    @Expose
+    @SerializedName("difficulty")
     private int difficulty;
+    @Expose
+    @SerializedName("fun")
     private int fun;
+    @Expose
+    @SerializedName("roadquality")
     private int roadquality;
 
     /**
