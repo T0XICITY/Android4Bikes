@@ -106,12 +106,14 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         try {
             Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db finegrainedposi
 
-            //convert hazardAlert to mutable document
-            JSONObject json_finegrainedPositions = new JSONObject(gson.toJson(fineGrainedPositions));
-            MutableDocument mutableDocument_finedgrainedPositions = this.convertJSONToMutableDocument(json_finegrainedPositions);
+            //**************************Translation to MutableDocument**************************/
+            JSONObject json_fineGrainedPositions = new JSONObject(gson.toJson(fineGrainedPositions));
+            Map map_fineGrainedPositions = gson.fromJson(json_fineGrainedPositions.toString(), Map.class);
+            MutableDocument mutableDocument_fineGrainedPositions = new MutableDocument(map_fineGrainedPositions);
+            //**********************************************************************************/
 
             //save mutable document representing the hazardAlert to the local db
-            couchDB.saveMutableDocumentToDatabase(db_fineGrainedPositions, mutableDocument_finedgrainedPositions);
+            couchDB.saveMutableDocumentToDatabase(db_fineGrainedPositions, mutableDocument_fineGrainedPositions);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -157,12 +159,14 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         try {
             Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
 
-            //convert hazardAlert to mutable document
+            //**************************Translation to MutableDocument**************************/
             JSONObject json_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
-            MutableDocument mutableDocument_hazardAlerts = this.convertJSONToMutableDocument(json_hazardAlert);
+            Map map_hazardAlert = gson.fromJson(json_hazardAlert.toString(), Map.class);
+            MutableDocument mutableDocument_hazardAlert = new MutableDocument(map_hazardAlert);
+            //**********************************************************************************/
 
             //save mutable document representing the hazardAlert to the local db
-            couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_hazardAlerts);
+            couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_hazardAlert);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -329,20 +333,16 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         try {
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
 
-            //convert bikeRack to mutable document
-            JSONObject json_bikeRack = new JSONObject(gson.toJson(bikeRack));
-            //MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_bikeRack);
 
-            //**************************Work around - should work**************************/
-            Map result = gson.fromJson(json_bikeRack.toString(), Map.class);
-            MutableDocument mutableDocument_test = new MutableDocument(result);
-            String string_json_result = gson.toJson(mutableDocument_test.toMap());
-            BikeRack bikeRack_test = gson.fromJson(string_json_result, BikeRack.class);
-            //*****************************************************************************/
+            //**************************Translation to MutableDocument**************************/
+            JSONObject json_bikeRack = new JSONObject(gson.toJson(bikeRack));
+            Map map_bikeRack = gson.fromJson(json_bikeRack.toString(), Map.class);
+            MutableDocument mutableDocument_bikeRack = new MutableDocument(map_bikeRack);
+            //**********************************************************************************/
 
 
             //save mutable document representing the bikeRack to the local db
-            couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_test);
+            couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_bikeRack);
         } catch (JSONException e) {
             e.printStackTrace();
         }
