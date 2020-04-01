@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -148,9 +149,128 @@ public class CouchDbHelperTest {
     }
 
     /**
+     * 1. Generates a hazard alert 'THU' that is located in Ulm
+     * 2. Stores the hazard alert 'THU' to the db.
+     * 3. Reads all stored hazard alerts with the postal code '89075' from the db.
+     * <p>
+     * Requirements for passing this test:
+     * -after storing the new hazard alert in the db there should be one more document in the db
+     * -the hazard alert 'THU' should be in the list of read hazard alerts
+     */
+    @Test
+    public void storeHazardAlert() {
+        //Get database:
+        Database db_hazardAlerts = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+
+        //get count of initially stored documents:
+        long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_hazardAlerts);
+
+        //create new BikeRack
+        HazardAlert hazardAlert_thu = this.generateHazardAlert();
+
+        //store BikeRack in local database
+        couchDbHelper.storeHazardAlerts(hazardAlert_thu);
+
+        //read new amount of stored documents
+        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_hazardAlerts);
+
+        //after storing the bike rack there must be one bike rack more
+        assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+
+        //read the just stored bike rack (THUBikeRack)
+        List<HazardAlert> hazardAlerts_with_postcode_89075 = couchDbHelper.readHazardAlerts(hazardAlert_thu.getPostcode());
+
+        //the just stored bike rack must be in the list of the read bike racks
+        assertTrue(hazardAlerts_with_postcode_89075.contains(hazardAlert_thu));
+
+        couchDbHelper.deleteBikeRack(hazardAlert_thu.getFirebaseID());
+    }
+
+    /**
+     * 1. Clears the db (deletes all documents)
+     * 2. Generates a hazard alert 'THU' that is located in Ulm and stores it to the db.
+     * 3. Deletes the hazard alert 'THU' by using its firebase id.
+     * 4. Reads all stored hazard alerts with the postal code '89075' from the db.
+     * <p>
+     * Requirements for passing this test:
+     * -after clearing the db 'hazard alerts' there should be no more documents in the db
+     * -after inserting and deleting the hazard alert 'THU' there should be no documents in the db
+     * -the hazard alert 'THU' should not be in the list of read bike racks
+     */
+    @Test
+    public void deleteHazardAlert() {
+        //Get database:
+        Database db_hazardAlerts = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+
+        //clear database
+        couchdb.clearDB(db_hazardAlerts);
+
+        //get number of documents
+        long initialNumberOfDouments = couchdb.getNumberOfStoredDocuments(db_hazardAlerts);
+
+        //initial number of documents must be 0
+        assertEquals(0, initialNumberOfDouments);
+
+        //create new BikeRack
+        HazardAlert hazardAlert_THU = this.generateHazardAlert();
+
+        //store BikeRack in local database
+        couchDbHelper.storeHazardAlerts(hazardAlert_THU);
+
+        //delete just inserted hazard alert
+        couchDbHelper.deleteHazardAlert(hazardAlert_THU);
+
+        //read new amount of stored documents
+        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_hazardAlerts);
+
+        //after deletion the hazard alert there must be stored again the initial number of documents
+        assertEquals(initialNumberOfDouments, newNumberOfDocuments);
+
+        //read all hazard alerts with the postcode of the stored and deleted bike rack
+        List<HazardAlert> hazardAlerts_with_postcode_89075 = couchDbHelper.readHazardAlerts(hazardAlert_THU.getPostcode());
+
+        //the just stored bike rack must not be in the list of the read bike racks
+        assertFalse(hazardAlerts_with_postcode_89075.contains(hazardAlert_THU));
+    }
+
+
+    /**
+     * 1. Generates a hazard alert 'THU' that is located in Ulm
+     * 2. Stores the hazard alert 'THU' to the db.
+     * 3. Reads all stored  hazard alert with the postal code '89075' from the db.
+     * <p>
+     * Requirements for passing this test:
+     * -the hazard alert 'THU' should be in the list of read bike racks
+     */
+    @Test
+    public void readHazardAlertRack() {
+        //Get database:
+        Database db_hazardAlerts = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+
+        //clear database
+        couchdb.clearDB(db_hazardAlerts);
+
+        //generate new  hazard alert
+        HazardAlert hazardAlert_THU = this.generateHazardAlert();
+
+        //store  hazard alert in local DB
+        couchDbHelper.storeHazardAlerts(hazardAlert_THU);
+
+        //read from
+        List<HazardAlert> bikeRacks_with_postcode_89075 = couchDbHelper.readHazardAlerts(hazardAlert_THU.getPostcode());
+
+
+        //the just stored hazard alert must be in the list of the read bike racks
+        assertTrue(bikeRacks_with_postcode_89075.contains(hazardAlert_THU));
+
+
+        couchDbHelper.deleteHazardAlert(hazardAlert_THU);
+    }
+
+    /**
      * generates a new instance of the class BikeRack for test purposes
      *
-     * @return
+     * @return instance of a bike rack
      */
     private BikeRack generateTHUBikeRack() {
         //create new BikeRack
@@ -159,5 +279,17 @@ public class CouchDbHelperTest {
                 false, true, false
         );
         return bikeRack_THU;
+    }
+
+    /**
+     * generates a new instance of the class HazardAlert for test purposes
+     *
+     * @return instance of a hazard alert
+     */
+    private HazardAlert generateHazardAlert() {
+        HazardAlert hazardAlert_thu = new HazardAlert(
+                HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
+        );
+        return hazardAlert_thu;
     }
 }
