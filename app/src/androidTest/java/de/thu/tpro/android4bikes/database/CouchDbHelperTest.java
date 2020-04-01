@@ -38,10 +38,7 @@ public class CouchDbHelperTest {
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_bikeRack);
 
         //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
+        BikeRack bikeRack_THU = this.generateTHUBikeRack();
 
         //store BikeRack in local database
         couchDbHelper.storeBikeRack(bikeRack_THU);
@@ -53,10 +50,10 @@ public class CouchDbHelperTest {
         assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
 
         //read the just stored bike rack (THUBikeRack)
-        List<BikeRack> bikeRacks = couchDbHelper.readBikeRacks(bikeRack_THU.getPostcode());
+        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks(bikeRack_THU.getPostcode());
 
         //the just stored bike rack must be in the list of the read bike racks
-        assertTrue(bikeRacks.contains(bikeRack_THU));
+        assertTrue(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
 
         couchDbHelper.deleteBikeRack(bikeRack_THU.getFirebaseID());
     }
@@ -76,10 +73,8 @@ public class CouchDbHelperTest {
         assertEquals(0, initialNumberOfDouments);
 
         //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
+        BikeRack bikeRack_THU = this.generateTHUBikeRack();
+
         //store BikeRack in local database
         couchDbHelper.storeBikeRack(bikeRack_THU);
 
@@ -93,9 +88,48 @@ public class CouchDbHelperTest {
         assertEquals(initialNumberOfDouments, newNumberOfDocuments);
 
         //read all bike racks with the postcode of the stored and deleted bike rack
-        List<BikeRack> bikeRacks = couchDbHelper.readBikeRacks(bikeRack_THU.getPostcode());
+        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks(bikeRack_THU.getPostcode());
 
         //the just stored bike rack must not be in the list of the read bike racks
-        assertFalse(bikeRacks.contains(bikeRack_THU));
+        assertFalse(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
+    }
+
+    @Test
+    public void readBikeRack() {
+        //Get database:
+        Database db_bikeRack = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+
+        //clear database
+        couchdb.clearDB(db_bikeRack);
+
+        //generate new BikeRack
+        BikeRack bikeRack_THU = this.generateTHUBikeRack();
+
+        //store bikeRack in local DB
+        couchDbHelper.storeBikeRack(bikeRack_THU);
+
+        //read from
+        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks(bikeRack_THU.getPostcode());
+
+
+        //the just stored bike rack must be in the list of the read bike racks
+        assertTrue(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
+
+
+        couchDbHelper.deleteBikeRack(bikeRack_THU);
+    }
+
+    /**
+     * generates a new instance of the class BikeRack for test purposes
+     *
+     * @return
+     */
+    private BikeRack generateTHUBikeRack() {
+        //create new BikeRack
+        BikeRack bikeRack_THU = new BikeRack(
+                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                false, true, false
+        );
+        return bikeRack_THU;
     }
 }
