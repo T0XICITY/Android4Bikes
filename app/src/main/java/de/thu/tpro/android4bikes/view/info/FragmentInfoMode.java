@@ -3,6 +3,7 @@ package de.thu.tpro.android4bikes.view.info;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +16,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.view.map.MapFragmentBuilder;
+import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
 public class FragmentInfoMode extends Fragment {
+
+    private static final String LOG_TAG = "FragmentInfoMode";
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
 
     ///Temporary variables just for testing///
     //Todo: Delete after testing
@@ -25,9 +29,6 @@ public class FragmentInfoMode extends Fragment {
     TextView name, mail;
     Button logout;
     /////////////////////////////////////////
-    //Map Variables
-    private static final int REQUEST_CODE = 100;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
 
     @Override
 
@@ -59,15 +60,17 @@ public class FragmentInfoMode extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //TODO: in Util Klasse auslagern
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
-            return;
+
+        // check if location access is granted
+        if (isAccessLocationPermissionGranted()) {
+            // if Yes, continue with map initialization
+            populateMap();
         } else {
-            initMap();
+            // if No, request user for permission and continue later in onRequestPermissionsResult
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
-
 
     /**
      * Request for the permission
@@ -75,21 +78,35 @@ public class FragmentInfoMode extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_CODE:
+            case LOCATION_PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    initMap();
+                    populateMap();
                 }
-                break;
-        }
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-            return;
+             // add cases, when more than 1 permission is need
         }
     }
 
-    private void initMap() {
-        MapFragmentBuilder builder = new MapFragmentBuilder(getActivity());
+    /**
+     * Init Map content with MapViewContentBuilder
+     */
+    private void populateMap() {
+        Log.d(LOG_TAG, "Init Map called");
+
+        MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
         builder.fetchLastLocation(this).build();
     }
+
+    /**
+     * Checks, if permission is granted to access location
+     * @return <code>true</code>, if permission is granted<br/><code>false</code> otherwise
+     */
+    private boolean isAccessLocationPermissionGranted() {
+        return ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+
+    // TODO: clean up methods below
 
     private void determineAllViews() {
     }

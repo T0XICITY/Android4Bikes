@@ -20,7 +20,7 @@ import com.google.android.gms.tasks.Task;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-public class MapFragmentBuilder  implements OnMapReadyCallback {
+public class MapViewContentBuilder implements OnMapReadyCallback {
 
 
     private Location currentLocation;
@@ -29,7 +29,7 @@ public class MapFragmentBuilder  implements OnMapReadyCallback {
     private Activity parent;
     private SupportMapFragment mapFragment;
 
-    public MapFragmentBuilder(Activity parent) {
+    public MapViewContentBuilder(Activity parent) {
         //we need the parent Activity to init our map
         this.parent = parent;
 
@@ -41,7 +41,7 @@ public class MapFragmentBuilder  implements OnMapReadyCallback {
      * Fetch the last location
      * @param container the surrounding Fragment
      */
-    public MapFragmentBuilder fetchLastLocation(Fragment container){
+    public MapViewContentBuilder fetchLastLocation(Fragment container){
         Task<Location> task = flpc.getLastLocation();
         task.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
@@ -57,7 +57,7 @@ public class MapFragmentBuilder  implements OnMapReadyCallback {
                             .findFragmentById(R.id.map);
 
                     // set callback listener on Google Map ready
-                    mapFragment.getMapAsync(MapFragmentBuilder.this::onMapReady);
+                    mapFragment.getMapAsync(MapViewContentBuilder.this::onMapReady);
                 }
             }
         });
