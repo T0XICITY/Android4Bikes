@@ -260,18 +260,9 @@ public class CouchDBHelper implements LocalDatabaseHelper {
      */
     @Override
     public void resetUtilization() {
-        //Vorschlag fuer Utilization
-        /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //todo:review und test
         Database utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
         couchDB.clearDB(utilizationDB);
-        +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
-        //todo: review und test
-        ResultSet results = couchDB.queryDatabase(Queries.getAllPosQuery);
-        results.forEach(result -> {
-            String id = result.getString(0);
-            couchDB.deleteDocumentByID(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION), id);
-        });
     }
 
     @Override
