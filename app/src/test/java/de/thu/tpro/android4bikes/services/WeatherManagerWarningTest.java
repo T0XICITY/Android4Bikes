@@ -2,11 +2,10 @@ package de.thu.tpro.android4bikes.services;
 
 import org.junit.Test;
 
-import java.util.List;
+import de.thu.tpro.android4bikes.services.weather.WeatherManagerWarning;
 
-import de.thu.tpro.android4bikes.services.weatherData.warning.DWDwarning;
-
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 
 public class WeatherManagerWarningTest {

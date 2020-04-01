@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.services;
+package de.thu.tpro.android4bikes.services.weather;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -10,12 +10,12 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import de.thu.tpro.android4bikes.services.weatherData.openWeather.OpenWeatherObject;
+import de.thu.tpro.android4bikes.services.weather.weatherData.openWeather.OpenWeatherObject;
 
-public class WeatherManagerOpenWeather {
+public class OpenWeatherHelper {
     private static final String appID = "27d59ee2b5c90cf9beed248c6b4ef026";
 
-    public WeatherManagerOpenWeather() {
+    public OpenWeatherHelper() {
     }
 
     private URL getPreparedUrl(double latitude, double longitude) {
