@@ -20,6 +20,8 @@ import com.google.android.material.snackbar.Snackbar;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
+import de.thu.tpro.android4bikes.view.menu.createTrack.FragmentCreateTrack;
+import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 
 /**
  * @author stlutz
@@ -28,7 +30,6 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String LOG_TAG = "MainActivity";
-
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    //Choose selected Fragment
     @Override
     public boolean onNavigationItemSelected(MenuItem menu) {
         switch (menu.getItemId()) {
@@ -78,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateFragment();
         return true;
     }
-
     /**
      * Initiates the BottomAppBar and set listeners to nav buttons
      */
@@ -107,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                currentFragment = new FragmentRoadsideAssistance();
+                updateFragment();
                 Log.d("Mitte", "Clicked mitte");
                 //TODO Change Mode
                 createSnackbar();
@@ -143,4 +146,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void updateFragment() {
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, currentFragment).commit();
     }
+
+
 }

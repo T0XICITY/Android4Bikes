@@ -23,5 +23,4 @@
         android:title="@string/title_emergency"
         app:showAsAction="always" />
 
-
 </menu>
