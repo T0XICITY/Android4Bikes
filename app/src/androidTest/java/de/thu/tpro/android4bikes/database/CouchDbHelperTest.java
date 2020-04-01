@@ -29,6 +29,15 @@ public class CouchDbHelperTest {
         couchdb = CouchDB.getInstance();
     }
 
+    /**
+     * 1. Generates a bike rack "THU" that is located in Ulm
+     * 2. Stores the bike rack 'THU' to the db.
+     * 3. Reads all stored bike racks with the postal code '89075' from the db.
+     * <p>
+     * Requirements for passing this test:
+     * -after storing the new bike rack in the db there should be one more document in the db
+     * -the bike rack 'THU' should be in the list of read bike racks
+     */
     @Test
     public void storeBikeRack() {
         //Get database:
@@ -58,6 +67,17 @@ public class CouchDbHelperTest {
         couchDbHelper.deleteBikeRack(bikeRack_THU.getFirebaseID());
     }
 
+    /**
+     * 1. Clears the db (deletes all documents)
+     * 2. Generates a bike rack 'THU' that is located in Ulm and stores it to the db.
+     * 3. Deletes the bike rack 'THU' by using its firebase id.
+     * 4. Reads all stored bike racks with the postal code '89075' from the db.
+     *
+     * Requirements for passing this test:
+     * -after clearing the db 'bike racks' there should be no more documents in the db
+     * -after inserting and deleting the bike rack 'THU' there should be no documents in the db
+     * -the bike rack 'THU' should not be in the list of read bike racks
+     */
     @Test
     public void deleteBikeRack() {
         //Get database:
@@ -94,6 +114,14 @@ public class CouchDbHelperTest {
         assertFalse(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
     }
 
+    /**
+     * 1. Generates a bike rack 'THU' that is located in Ulm
+     * 2. Stores the bike rack 'THU' to the db.
+     * 3. Reads all stored bike racks with the postal code '89075' from the db.
+     *
+     * Requirements for passing this test:
+     * -the bike rack 'THU' should be in the list of read bike racks
+     */
     @Test
     public void readBikeRack() {
         //Get database:
