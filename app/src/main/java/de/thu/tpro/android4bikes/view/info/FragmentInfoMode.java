@@ -1,61 +1,23 @@
 package de.thu.tpro.android4bikes.view.info;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.view.map.MapFragmentBuilder;
 
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
-import de.thu.tpro.android4bikes.view.MainActivity;
-import de.thu.tpro.android4bikes.view.login.ActivityLogin;
-
-import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
-
-import de.thu.tpro.android4bikes.util.GlobalContext;
-
-public class FragmentInfoMode extends Fragment implements OnMapReadyCallback {
+public class FragmentInfoMode extends Fragment {
 
     ///Temporary variables just for testing///
     //Todo: Delete after testing
@@ -66,10 +28,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback {
     //Map Variables
     private static final int REQUEST_CODE = 100;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
-    private Location currentLocation;
-    private GoogleMap googleMap;
-    private FusedLocationProviderClient flpc;
-    private Activity parent;
 
     @Override
 
@@ -88,22 +46,49 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback {
         GlobalContext.setContext(getActivity().getApplicationContext());
         determineAllViews();
 
-        firebaseConnection.readBikeRacksFromFireStoreAndStoreItToLocalDB("89075");*/
+        firebaseConnection.readBikeRacksFromFireStoreAndStoreItToLocalDB("89075");
 
         //HazardAlert hazardAlert = new HazardAlert(HazardAlert.HazardType.ICY_ROAD);
         //tv_Test.setText(hazardAlert.getType());
         //testLogOut();
         a();
-        b();
+        b();*/
         return inflater.inflate(R.layout.fragment_info_mode, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //we need the parent Activity to init our map
-        parent = getActivity();
-        initMap();
+        //TODO: in Util Klasse auslagern
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+            return;
+        } else {
+            initMap();
+        }
+    }
+
+
+    /**
+     * Request for the permission
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    initMap();
+                }
+                break;
+        }
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+    }
+
+    private void initMap() {
+        MapFragmentBuilder builder = new MapFragmentBuilder(getActivity());
+        builder.fetchLastLocation(this).build();
     }
 
     private void determineAllViews() {
@@ -139,65 +124,4 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback {
         });
 
     }*/
-
-    //MAP METHODS
-    private void initMap() {
-        GlobalContext.setContext(parent.getApplicationContext());
-        flpc = LocationServices.getFusedLocationProviderClient(parent);
-        fetchLastLocation();
-    }
-
-    /**
-     * Fetch the last location
-     */
-    private void fetchLastLocation() {
-
-        if (ActivityCompat.checkSelfPermission(parent, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(parent, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
-            return;
-        }
-        Task<Location> task = flpc.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-                    Toast.makeText(parent.getApplicationContext(), currentLocation.getLatitude() +
-                            " " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
-                    SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-
-                    // set callback listener on Google Map ready
-                    mapFragment.getMapAsync(FragmentInfoMode.this::onMapReady);
-                }
-            }
-        });
-    }
-
-    /**
-     * Request for the permission
-     */
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    fetchLastLocation();
-                }
-                break;
-        }
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-            return;
-        }
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("My current location");
-        googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
-        googleMap.addMarker(markerOptions);
-    }
 }
