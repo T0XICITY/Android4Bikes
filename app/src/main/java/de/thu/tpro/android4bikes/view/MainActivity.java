@@ -5,48 +5,57 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.view.menu.createTrack.FragmentCreateTrack;
+import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
+import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 
 /**
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String LOG_TAG = "MainActivity";
+
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
     private Fragment currentFragment;
     private BottomAppBar bottomBar;
+    private ImageButton btn_tracks;
+    private ImageButton btn_community;
+    private DrawerLayout dLayout;
+    private NavigationView drawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        initNav();
+        initNavigationDrawer();
+        initBottomNavigation();
         initFAB();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.bottomappbar_navigation, menu);
+        getMenuInflater().inflate(R.menu.menu_items, menu);
         return true;
     }
 
-    //Choose selected Fragment
     @Override
-    public boolean onOptionsItemSelected(MenuItem menu) {
+    public boolean onNavigationItemSelected(MenuItem menu) {
         switch (menu.getItemId()) {
             case R.id.menu_assistance:
                 Log.d(LOG_TAG, "Clicked menu_assistance!");
@@ -58,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.menu_emergencyCall:
                 Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
-                //currentFragment = new ThirdFragment();
+                currentFragment = new FragmentRoadsideAssistance();
                 break;
             case R.id.menu_hazard:
                 Log.d(LOG_TAG, "Clicked menu_hazard!");
@@ -71,12 +80,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Initiates the BottomAppBar
+     * Initiates the BottomAppBar and set listeners to nav buttons
      */
-    private void initNav() {
+    private void initBottomNavigation() {
         bottomBar = findViewById(R.id.bottomAppBar);
-        setSupportActionBar(bottomBar);
-        currentFragment = new FragmentCreateTrack();
+        btn_community = findViewById(R.id.imagebutton_community);
+        btn_tracks = findViewById(R.id.imagebutton_tracks);
+
+        btn_community.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(LOG_TAG,"clicked community");
+                toggleNavigationDrawer();
+            }
+        });
+
+        currentFragment = new FragmentInfoMode();
         updateFragment();
     }
 
@@ -95,6 +114,22 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void initNavigationDrawer(){
+        dLayout=findViewById(R.id.drawerLayout);
+        Log.d("FragmentInfoMode",dLayout.toString());
+        dLayout.closeDrawer(GravityCompat.END);
+        drawer =findViewById(R.id.navigationDrawer);
+        drawer.setNavigationItemSelectedListener(this);
+    }
+
+    public void toggleNavigationDrawer(){
+        if (dLayout.isDrawerOpen(GravityCompat.END)){
+            dLayout.closeDrawer(GravityCompat.END);
+        }else{
+            dLayout.openDrawer(GravityCompat.END);
+        }
+
+    }
     /**
      * Creates a Snackbar to test the floating action button
      */
