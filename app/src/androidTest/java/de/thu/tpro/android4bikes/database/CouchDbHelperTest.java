@@ -7,11 +7,13 @@ import com.couchbase.lite.Database;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
@@ -265,6 +267,27 @@ public class CouchDbHelperTest {
 
 
         couchDbHelper.deleteHazardAlert(hazardAlert_THU);
+    }
+
+    @Test
+    public void storeProfile(){
+        Database db_profile = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+
+        Profile profile = new Profile("Timmy","Tester","nullacht15",1234,10,new ArrayList<>());
+
+        long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_profile);
+
+        couchDbHelper.storeProfile(profile);
+
+        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_profile);
+
+        assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+
+        Profile readProfile = couchDbHelper.readProfile(profile.getGoogleID());
+
+        assertEquals(profile,readProfile);
+
+        couchDbHelper.deleteProfile(profile);
     }
 
     /**

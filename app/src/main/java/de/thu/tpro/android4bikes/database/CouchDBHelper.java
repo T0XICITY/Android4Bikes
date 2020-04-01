@@ -265,12 +265,15 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         couchDB.clearDB(utilizationDB);
     }
 
+    /**
+     * @param Profile
+     */
     @Override
-    public void storeProfile(Profile Profile) {
+    public void storeProfile(Profile profile) {
         //todo: review und test
         try {
             Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
-            JSONObject jsonObject_profile = new JSONObject(gson.toJson(db_profile));
+            JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
             MutableDocument mutableDocument_profile = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_profile, mutableDocument_profile);
