@@ -104,7 +104,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     public void storeFineGrainedPositions(FineGrainedPositions fineGrainedPositions) {
         //TODO: Review and testing
         try {
-            Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db bikerack
+            Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db finegrainedposi
 
             //convert hazardAlert to mutable document
             JSONObject json_finegrainedPositions = new JSONObject(gson.toJson(fineGrainedPositions));
@@ -123,7 +123,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         FineGrainedPositions fineGrainedPositions = null;
         try {
             JSONObject jsonObject_result = null;
-            Database db_finegrainedpositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db bikerack
+            Database db_finegrainedpositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db finegrainedpositions
 
             Query query = QueryBuilder.select(SelectResult.all())
                     .from(DataSource.database(db_finegrainedpositions))
@@ -132,6 +132,11 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             for (Result result : results) {
                 //convert result to jsonObject-string
                 jsonObject_result = new JSONObject(result.toMap());
+
+                //result document -> "db_finefrainedpositions":{ <object> }
+                //because the necessary object in nested, we have to access it by getting it:
+                jsonObject_result = (JSONObject) jsonObject_result.get(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS.toText());
+
                 fineGrainedPositions = gson.fromJson(jsonObject_result.toString(), FineGrainedPositions.class);
             }
         } catch (Exception e) {
@@ -150,7 +155,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     public void storeHazardAlerts(HazardAlert hazardAlert) {
         //TODO: Review and testing
         try {
-            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db bikerack
+            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
 
             //convert hazardAlert to mutable document
             JSONObject json_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
@@ -169,7 +174,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         List<HazardAlert> hazardAlerts = new ArrayList<>();
         try {
             JSONObject jsonObject_result = null;
-            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db bikerack
+            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
             HazardAlert hazardAlert = null;
 
             Query query = QueryBuilder.select(SelectResult.all())
@@ -179,6 +184,11 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             for (Result result : results) {
                 //convert result to jsonObject-string
                 jsonObject_result = new JSONObject(result.toMap());
+
+                //result document -> "db_haradAlert":{ <object> }
+                //because the necessary object in nested, we have to access it by getting it:
+                jsonObject_result = (JSONObject) jsonObject_result.get(DatabaseNames.DATABASE_HAZARD_ALERT.toText());
+
                 hazardAlert = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
                 hazardAlerts.add(hazardAlert);
             }
@@ -192,7 +202,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     public void deleteHazardAlert(String fireBaseID) {
         //TODO: Review and testing
         try {
-            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db bikerack
+            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
             HazardAlert hazardAlert = null;
             JSONObject jsonObject_result = null;
             Query query = QueryBuilder.select(SelectResult.all())
@@ -323,6 +333,48 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             JSONObject json_bikeRack = new JSONObject(gson.toJson(bikeRack));
             MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_bikeRack);
 
+            /*
+            Testcode, zum Beweis:
+            Map<String,Object> map_bikeRack = new HashMap<>();
+            map_bikeRack.put("firebaseId","2344");
+
+            Map<String,Object> map_position = new HashMap<>();
+            map_position.put("long",12);
+            map_position.put("lat",13);
+            map_bikeRack.put("pos",map_position);
+
+            MutableDocument mutableDocument_bikeRack2 = new MutableDocument(map_bikeRack);
+            Map<String,Object> result = mutableDocument_bikeRack2.toMap();
+            */
+
+
+            /*
+             Map<String,Object> map_bikerack = bikeRack.toMap();
+                ->toMap() von BikeRack
+                    -"FirebaseID" : "23344"
+
+                    -Mappen von Position
+                        ->toMap()von Position
+                            -latitude
+                            -longitude
+                            zurückliefern von: {"latitude":12, "longitude":12}
+                        <- Rückkehr aus toMap()
+
+                    -"Position":{"latitude":12, "longitude":12} (Value von "Position" ist eine Map)
+                    -"Postcode":"89075"
+                    -"name":"gustavbikerack"
+
+                    -Mappen von Capacity
+                        ->Aufruf von toInt() von Capacity
+                        <-zurückliefern: Zahl von 0 bis 2
+                    -"capacity":2
+
+                    -"hasBikeCharging":true,
+                    -"isCovered":true,
+                    -"isExistent":true,
+             MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_bikeRack);
+             */
+
             //save mutable document representing the bikeRack to the local db
             couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_bikeRack);
         } catch (JSONException e) {
@@ -346,7 +398,8 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             for (Result result : results) {
                 //convert result to jsonObject-string
                 jsonObject_result = new JSONObject(result.toMap());
-                bikeRack = gson.fromJson(jsonObject_result.get(DatabaseNames.DATABASE_BIKERACK.toText()).toString(), BikeRack.class);
+                jsonObject_result = (JSONObject) jsonObject_result.get(DatabaseNames.DATABASE_BIKERACK.toText());
+                bikeRack = gson.fromJson(jsonObject_result.toString(), BikeRack.class);
                 bikeRacks.add(bikeRack);
             }
         } catch (Exception e) {
