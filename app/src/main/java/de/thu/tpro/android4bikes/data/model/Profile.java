@@ -1,6 +1,7 @@
 package de.thu.tpro.android4bikes.data.model;
 
 import java.util.List;
+import java.util.Objects;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 
@@ -93,5 +94,35 @@ public class Profile {
         public String toString() {
             return type;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Profile)) return false;
+        Profile profile = (Profile) o;
+        return getColor() == profile.getColor() &&
+                getOverallDistance() == profile.getOverallDistance() &&
+                getFirstName().equals(profile.getFirstName()) &&
+                getFamilyName().equals(profile.getFamilyName()) &&
+                getGoogleID().equals(profile.getGoogleID()) &&
+                getAchievements().equals(profile.getAchievements());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFirstName(), getFamilyName(), getGoogleID(), getColor(), getOverallDistance(), getAchievements());
+    }
+
+    @Override
+    public String toString() {
+        return "Profile{" +
+                "firstName='" + firstName + '\'' +
+                ", familyName='" + familyName + '\'' +
+                ", googleID='" + googleID + '\'' +
+                ", color=" + color +
+                ", overallDistance=" + overallDistance +
+                ", achievements=" + achievements +
+                '}';
     }
 }

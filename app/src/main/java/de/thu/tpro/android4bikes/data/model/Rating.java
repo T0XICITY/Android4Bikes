@@ -1,5 +1,7 @@
 package de.thu.tpro.android4bikes.data.model;
 
+import java.util.Objects;
+
 public class Rating {
     private int difficulty;
     private int fun;
@@ -55,5 +57,29 @@ public class Rating {
         public String toString() {
             return type;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Rating)) return false;
+        Rating rating = (Rating) o;
+        return getDifficulty() == rating.getDifficulty() &&
+                getFun() == rating.getFun() &&
+                getRoadquality() == rating.getRoadquality();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getDifficulty(), getFun(), getRoadquality());
+    }
+
+    @Override
+    public String toString() {
+        return "Rating{" +
+                "difficulty=" + difficulty +
+                ", fun=" + fun +
+                ", roadquality=" + roadquality +
+                '}';
     }
 }

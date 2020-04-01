@@ -1,6 +1,7 @@
 package de.thu.tpro.android4bikes.data.model;
 
 import java.util.List;
+import java.util.Objects;
 
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
@@ -174,5 +175,45 @@ public class Track {
         public String toString() {
             return type;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Track)) return false;
+        Track track = (Track) o;
+        return getCreationDate_unixtimestamp() == track.getCreationDate_unixtimestamp() &&
+                getDistance_km() == track.getDistance_km() &&
+                isComplete() == track.isComplete() &&
+                getAuthor_googleID().equals(track.getAuthor_googleID()) &&
+                getRating().equals(track.getRating()) &&
+                getName().equals(track.getName()) &&
+                getDescription().equals(track.getDescription()) &&
+                getFirebaseID().equals(track.getFirebaseID()) &&
+                getCoarseGrainedPositions().equals(track.getCoarseGrainedPositions()) &&
+                getHazardAlerts().equals(track.getHazardAlerts()) &&
+                getPostcode().equals(track.getPostcode());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getAuthor_googleID(), getRating(), getName(), getDescription(), getFirebaseID(), getCreationDate_unixtimestamp(), getDistance_km(), getCoarseGrainedPositions(), getHazardAlerts(), getPostcode(), isComplete());
+    }
+
+    @Override
+    public String toString() {
+        return "Track{" +
+                "author_googleID='" + author_googleID + '\'' +
+                ", rating=" + rating +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", firebaseID='" + firebaseID + '\'' +
+                ", creationDate_unixtimestamp=" + creationDate_unixtimestamp +
+                ", distance_km=" + distance_km +
+                ", coarseGrainedPositions=" + coarseGrainedPositions +
+                ", hazardAlerts=" + hazardAlerts +
+                ", postcode='" + postcode + '\'' +
+                ", isComplete=" + isComplete +
+                '}';
     }
 }
