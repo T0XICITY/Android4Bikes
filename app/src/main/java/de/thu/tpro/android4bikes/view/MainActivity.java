@@ -41,7 +41,7 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 
     private static final String LOG_TAG = "MainActivity";
@@ -54,11 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton btn_community;
     private DrawerLayout dLayout;
     private NavigationView drawer;
-    private static final int REQUEST_CODE = 100;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
-    private Location currentLocation;
-    private GoogleMap googleMap;
-    private FusedLocationProviderClient flpc;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,11 +62,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         initNavigationDrawer();
         initBottomNavigation();
-
-        GlobalContext.setContext(getApplicationContext());
-        flpc = LocationServices.getFusedLocationProviderClient(this);
-        fetchLastLocation();
-
 
         initFAB();
     }
@@ -103,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             default:
                 Log.d(LOG_TAG, "Default case");
         }
+        toggleNavigationDrawer();
         updateFragment();
         return true;
     }
@@ -122,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 toggleNavigationDrawer();
             }
         });
-
+        //set Fragment as the starting Fragment.
         currentFragment = new FragmentInfoMode();
         updateFragment();
     }
@@ -175,60 +167,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, currentFragment).commit();
     }
 
-    /**
-     * Fetch the last location
-     */
-    private void fetchLastLocation() {
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
-            return;
-        }
-        Task<Location> task = flpc.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-                    Toast.makeText(getApplicationContext(), currentLocation.getLatitude() +
-                            " " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
-                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                            .findFragmentById(R.id.map);
-
-                    // set callback listener on Google Map ready
-                    mapFragment.getMapAsync(MainActivity.this);
-                }
-            }
-        });
-    }
-
-    /**
-     * Request for the permission
-     */
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    fetchLastLocation();
-                }
-                break;
-        }
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-            return;
-        }
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("My current location");
-        googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
-        googleMap.addMarker(markerOptions);
-    }
 
 
 }
