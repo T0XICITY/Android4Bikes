@@ -247,10 +247,10 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             posCounter++;
             if (posCounter >= 50) {
                 List<Position> positions = this.getAllPositions();
-                FirebaseConnection.getInstance().storeUtilizationToFireStore(positions); //todo: Is it right this way?
+                //FirebaseConnection.getInstance().storeUtilizationToFireStore(positions); //todo: How to call this ? - This way it's wrong!
                 this.resetUtilization();
             }
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
