@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import de.thu.tpro.android4bikes.R;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
@@ -51,7 +53,7 @@ public class FragmentInfoMode extends Fragment {
     @Override
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
+        /*FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
         super.onCreate(savedInstanceState);
         List<Achievement> achievements = new ArrayList<>();
         achievements.add(new KmAchievement("A", 1, 1, 1, 1));
@@ -67,10 +69,11 @@ public class FragmentInfoMode extends Fragment {
 
         //HazardAlert hazardAlert = new HazardAlert(HazardAlert.HazardType.ICY_ROAD);
         //tv_Test.setText(hazardAlert.getType());
-        //testLogOut();
+        //testLogOut();*/
         a();
         b();
-        return inflater.inflate(R.layout.fragment_info_mode,container,false);
+        View viewInfo = inflater.inflate(R.layout.fragment_info_mode,container,false);
+        return viewInfo;
     }
 
 

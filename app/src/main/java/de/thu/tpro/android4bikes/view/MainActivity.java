@@ -32,7 +32,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
+import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
@@ -43,12 +48,10 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
  */
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
-
     private static final String LOG_TAG = "MainActivity";
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
-    private Fragment currentFragment;
     private BottomAppBar bottomBar;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
@@ -59,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Location currentLocation;
     private GoogleMap googleMap;
     private FusedLocationProviderClient flpc;
+    private FragmentTransaction fragTransaction;
+    private Fragment fragDriving, fragInfo, currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         flpc = LocationServices.getFusedLocationProviderClient(this);
         fetchLastLocation();
 
+        initFragments();
 
         initFAB();
     }
@@ -139,7 +145,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 updateFragment();
                 Log.d("Mitte", "Clicked mitte");
                 //TODO Change Mode
-                createSnackbar();
+                //createSnackbar();
+                switchInfoDriving();
+
             }
         });
     }
@@ -165,15 +173,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Creates a Snackbar to test the floating action button
      */
     private void createSnackbar() {
-        Snackbar.make(findViewById(R.id.fragment_container), R.string.title_switchMode, 1000).setAnchorView(bottomBar).show();
+        Snackbar.make(findViewById(R.id.fragment_container), currentFragment.getId(), 1000).setAnchorView(bottomBar).show();
     }
 
     /**
      * Replaces the displayed fragment with the {@link #currentFragment}
      */
     private void updateFragment() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, currentFragment).commit();
+        fragTransaction = getSupportFragmentManager().beginTransaction();
+        fragTransaction.replace(R.id.fragment_container, currentFragment);
+        fragTransaction.commit();
     }
+
+    /**
+     * Switch between Info and driving mode
+     */
+    private void switchInfoDriving() {
+        if (currentFragment.equals(fragDriving)) {
+            currentFragment = fragInfo;
+        } else {
+            currentFragment = fragDriving;
+        }
+        fragTransaction = getSupportFragmentManager().beginTransaction();
+        fragTransaction.replace(R.id.fragment_container, currentFragment);
+        fragTransaction.commit();
+    }
+
+    /**
+     * Create Fragments
+     */
+    private void initFragments() {
+        fragDriving = new FragmentDrivingMode();
+        fragInfo = new FragmentInfoMode();
+    }
+
+
+}
 
     /**
      * Fetch the last location
