@@ -9,12 +9,11 @@ import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-import static org.junit.Assert.*;
-
 public class FirebaseConnectionTest {
     private static FirebaseConnection firebaseConnection;
+
     @BeforeClass
-    public static void setUp(){
+    public static void setUp() {
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         firebaseConnection = FirebaseConnection.getInstance();
     }
@@ -27,8 +26,8 @@ public class FirebaseConnectionTest {
     public void storeBikeRackInFireStoreAndLocalDB() {
 
         BikeRack bikeRack_THU = new BikeRack(
-                  "pfo4eIrvzrI0m363KF0K", new Position(9.997507,48.408880),"THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true,false
+                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                false, true, false
         );
         firebaseConnection.submitBikeRackToFireStoreAndLocalDB(bikeRack_THU);
         try {
