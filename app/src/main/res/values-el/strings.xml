@@ -1,9 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Android4Bikes</string>
-    <string name="HazardAlert_HazardType_DamagedRoad"></string>
-    <string name="HazardAlert_HazardType_IcyRoad"></string>
-    <string name="HazardAlert_HazardType_SlipperyRoad"></string>
-    <string name="HazardAlert_HazardType_Roadkill"></string>
-    <string name="HazardAlert_HazardType_Rockfall"></string>
+    <!--Navigation Strings-->
+    <string name="title_community">Community</string>
+    <string name="title_hazard">Hazard</string>
+    <string name="title_assistance">Assistance</string>
+    <string name="title_emergency">Emergency Numbers</string>
+    <string name="title_switchMode">Mode Switch</string>
+    <string name="title_tracks">Tracks</string>
+    <!--Hazard Strings-->
+    <string name="HazardAlert_HazardType_DamagedRoad">Damaged road</string>
+    <string name="HazardAlert_HazardType_IcyRoad">Icy road</string>
+    <string name="HazardAlert_HazardType_SlipperyRoad">Slippery road</string>
+    <string name="HazardAlert_HazardType_Roadkill">Roadkill</string>
+    <string name="HazardAlert_HazardType_Rockfall">Rockfall</string>
+    <!---Login Strings-->
+    <string name="activity_login_image">Login Image</string>
+    <string name="Activity_Login_Toast_Fail">Sorry auth failed.</string>
+
+    <!-- Roadside Assistance Strings -->
+    <string-array name="roadside_assistance_list">
+        <item>Ambulance Service</item>
+        <item>Fire Department</item>
+        <item>Police</item>
+        <item>Roadside Assistance</item>
+        <item>Youth Helpline</item>
+        <item>Manual Input</item>
+    </string-array>
 </resources>

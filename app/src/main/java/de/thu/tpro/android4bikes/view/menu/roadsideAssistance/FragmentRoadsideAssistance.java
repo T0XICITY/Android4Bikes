@@ -6,15 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 
 import de.thu.tpro.android4bikes.R;
 
 /**
- * @author Elias,Stefanie
+ * @author Elias, Stefanie
  */
 public class FragmentRoadsideAssistance extends Fragment {
 
@@ -26,7 +24,7 @@ public class FragmentRoadsideAssistance extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         vm_RoadsideAssistance = new ViewModelRoadsideAssistance(getResources());
 
-        View view =  inflater.inflate(R.layout.fragment_road_assistance, container, false);
+        View view = inflater.inflate(R.layout.fragment_road_assistance, container, false);
         lv_road_assistance = view.findViewById(R.id.lv_road_assistance);
         return view;
     }
@@ -40,7 +38,7 @@ public class FragmentRoadsideAssistance extends Fragment {
     /**
      * showing Listview with RoadsideAssistance entries
      */
-    private void initRoadAssistanceList(){
+    private void initRoadAssistanceList() {
         RoadsideAssistanceListAdapter roadsideAssistanceListAdapter = new RoadsideAssistanceListAdapter(getActivity(),
                 vm_RoadsideAssistance.getEntries());
         lv_road_assistance.setAdapter(roadsideAssistanceListAdapter);

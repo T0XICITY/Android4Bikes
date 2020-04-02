@@ -3,7 +3,6 @@ package de.thu.tpro.android4bikes.view.info;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,12 +30,9 @@ public class FragmentInfoMode extends Fragment {
     /////////////////////////////////////////
 
     @Override
-
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        /*FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
         super.onCreate(savedInstanceState);
-
-        //TODO: uncomment code.
-/*        FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
         List<Achievement> achievements = new ArrayList<>();
         achievements.add(new KmAchievement("A", 1, 1, 1, 1));
         achievements.add(new KmAchievement("B", 2, 2, 2, 2));
@@ -120,6 +116,7 @@ public class FragmentInfoMode extends Fragment {
     private void b() {
 
     }
+
 /*    ///Temporary method for logout testing///
     //Todo: Delete after testing
     private void testLogOut() {
@@ -143,4 +140,6 @@ public class FragmentInfoMode extends Fragment {
         });
 
     }*/
+
+
 }

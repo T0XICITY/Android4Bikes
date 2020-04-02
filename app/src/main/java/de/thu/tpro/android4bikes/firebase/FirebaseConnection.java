@@ -74,7 +74,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG, "Profile " + Profile.getFamilyName() + " added successfully");
                         try {
-                            storeProfileToFireStoreAndLocalDB(Profile);
+                            localDatabaseHelper.storeProfile(Profile);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
