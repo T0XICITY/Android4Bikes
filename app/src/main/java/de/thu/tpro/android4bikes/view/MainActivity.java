@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final String LOG_TAG = "MainActivity";
     //The App will start with this Fragment shown first
-    private final Fragment STARTFRAGMENT = new FragmentDrivingMode();
+    private final Fragment STARTFRAGMENT = new FragmentInfoMode();
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */

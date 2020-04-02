@@ -7,20 +7,24 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.services.GpsLocation;
+import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
 public class FragmentDrivingMode extends Fragment implements LocationListener {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private static final String LOG_TAG = "FragmentDrivingMode";
 
     //TODO Delete after testing
     private int cntr = 0;
@@ -35,6 +39,26 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         updateSpeed(null);
         return viewDriving;
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        populateMap();
+    }
+
+    /**
+     * Init Map content with MapViewContentBuilder
+     */
+    private void populateMap() {
+        Log.d(LOG_TAG, "Init Map called");
+        //to adjust the Map Controls position TODO: define offset programmatically. Problem height = wrap_content return 0
+        int verticalOffest = 0;
+        Log.d(LOG_TAG,verticalOffest+"");
+        MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
+        builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
+    }
+
+
 
     /**
      * Display current Speed into textViews
