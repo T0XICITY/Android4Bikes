@@ -22,7 +22,7 @@ import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class MapViewContentBuilder implements OnMapReadyCallback {
 
-
+    private int verticalOffset;
     private Location currentLocation;
     private GoogleMap googleMap;
     private FusedLocationProviderClient flpc;
@@ -71,8 +71,22 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
         googleMap.addMarker(markerOptions);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setZoomGesturesEnabled(true);
+        googleMap.setPadding(0,0,0,verticalOffset);
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        //googleMap.getUiSettings().setRotateGesturesEnabled(false);
+        //googleMap.getUiSettings().setScrollGesturesEnabled(false);
+        //googleMap.getUiSettings().setTiltGesturesEnabled(false);
     }
+
+    public MapViewContentBuilder setVerticalOffset(int offset){
+        verticalOffset=offset;
+        return this;
+    }
+
     public SupportMapFragment build(){
         return mapFragment;
     }
+
 }
