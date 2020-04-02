@@ -6,34 +6,36 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.view.menu.createTrack.FragmentCreateTrack;
+import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
+import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 
 /**
  * @author stlutz
  * This activity acts as a container for all fragments
  */
 public class MainActivity extends AppCompatActivity {
-
     private static final String LOG_TAG = "MainActivity";
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
-    private Fragment currentFragment;
     private BottomAppBar bottomBar;
+    private FragmentTransaction fragTransaction;
+    private Fragment fragDriving, fragInfo, currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initFragments();
         initNav();
         initFAB();
     }
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     private void initNav() {
         bottomBar = findViewById(R.id.bottomAppBar);
         setSupportActionBar(bottomBar);
-        currentFragment = new FragmentCreateTrack();
+        currentFragment = new FragmentInfoMode();
         updateFragment();
     }
 
@@ -90,7 +92,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("Mitte", "Clicked mitte");
                 //TODO Change Mode
-                createSnackbar();
+                //createSnackbar();
+                switchInfoDriving();
+
             }
         });
     }
@@ -99,13 +103,40 @@ public class MainActivity extends AppCompatActivity {
      * Creates a Snackbar to test the floating action button
      */
     private void createSnackbar() {
-        Snackbar.make(findViewById(R.id.fragment_container), R.string.title_switchMode, 1000).setAnchorView(bottomBar).show();
+        int i = currentFragment.getId();
+        Snackbar.make(findViewById(R.id.fragment_container), currentFragment.getId(), 1000).setAnchorView(bottomBar).show();
     }
 
     /**
      * Replaces the displayed fragment with the {@link #currentFragment}
      */
     private void updateFragment() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, currentFragment).commit();
+        fragTransaction = getSupportFragmentManager().beginTransaction();
+        fragTransaction.replace(R.id.fragment_container, currentFragment);
+        fragTransaction.commit();
     }
+
+    /**
+     * Switch between Info and driving mode
+     */
+    private void switchInfoDriving() {
+        if (currentFragment.equals(fragDriving)) {
+            currentFragment = fragInfo;
+        } else {
+            currentFragment = fragDriving;
+        }
+        fragTransaction = getSupportFragmentManager().beginTransaction();
+        fragTransaction.replace(R.id.fragment_container, currentFragment);
+        fragTransaction.commit();
+    }
+
+    /**
+     * Create Fragments
+     */
+    private void initFragments() {
+        fragDriving = new FragmentDrivingMode();
+        fragInfo = new FragmentInfoMode();
+    }
+
+
 }
