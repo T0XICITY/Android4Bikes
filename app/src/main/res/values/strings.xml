@@ -16,7 +16,8 @@
     <!---Login Strings-->
     <string name="activity_login_image">Login Image</string>
     <string name="Activity_Login_Toast_Fail">Sorry auth failed.</string>
-
+    <!---Map Strings TODO: Remove-->
+    <string name="map_key" translatable="false">AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc</string>
     <!-- Roadside Assistance Strings -->
     <string-array name="roadside_assistance_list">
         <item>Ambulance Service</item>

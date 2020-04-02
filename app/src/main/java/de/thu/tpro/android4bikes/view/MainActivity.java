@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-}
+
 
     /**
      * Fetch the last location
