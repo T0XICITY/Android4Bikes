@@ -29,6 +29,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         viewDriving = inflater.inflate(R.layout.fragment_driving_mode, container, false);
         locationPermissions();
         updateSpeed(null);
@@ -57,7 +58,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         txtCnt.setText(Integer.toString(cntr));
         txtLocation.setText(loc);
     }
-
+        //TODO: handle permission in a central class
     private void locationPermissions() {
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

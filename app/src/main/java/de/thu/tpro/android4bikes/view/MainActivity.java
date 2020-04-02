@@ -2,6 +2,7 @@ package de.thu.tpro.android4bikes.view;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,10 +32,13 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String LOG_TAG = "MainActivity";
+    //The App will start with this Fragment shown first
+    private final Fragment STARTFRAGMENT = new FragmentDrivingMode();
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
     private BottomAppBar bottomBar;
+    FloatingActionButton fab;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
     private DrawerLayout dLayout;
@@ -104,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
         //set Fragment as the starting Fragment.
-        currentFragment = new FragmentInfoMode();
+        currentFragment = STARTFRAGMENT;
         updateFragment();
     }
 
@@ -112,17 +116,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Initiates Floating Action Button
      */
     private void initFAB() {
-        FloatingActionButton fab = findViewById(R.id.fab_switchMode);
+        fab = findViewById(R.id.fab_switchMode);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentFragment = new FragmentRoadsideAssistance();
+                switchInfoDriving();
                 updateFragment();
                 Log.d("Mitte", "Clicked mitte");
-                //TODO Change Mode
-                //createSnackbar();
-                switchInfoDriving();
-
             }
         });
     }
@@ -166,12 +166,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
             currentFragment = fragInfo;
+            bottomBar.performShow();
+
         } else {
             currentFragment = fragDriving;
+            bottomBar.performHide();
         }
-        fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.replace(R.id.fragment_container, currentFragment);
-        fragTransaction.commit();
     }
 
     /**

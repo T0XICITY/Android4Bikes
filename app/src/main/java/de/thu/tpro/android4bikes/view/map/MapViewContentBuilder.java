@@ -12,7 +12,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -21,6 +24,7 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class MapViewContentBuilder implements OnMapReadyCallback {
+    private static final int ZOOMLEVEL = 15;
 
     private int verticalOffset;
     private Location currentLocation;
@@ -67,12 +71,11 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("My current location");
+        MarkerOptions markerOptions = createMarker(latLng,"Current Location");
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOMLEVEL));
         googleMap.addMarker(markerOptions);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
-        googleMap.getUiSettings().setZoomGesturesEnabled(true);
         googleMap.setPadding(0,0,0,verticalOffset);
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         //googleMap.getUiSettings().setRotateGesturesEnabled(false);
@@ -80,6 +83,13 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         //googleMap.getUiSettings().setTiltGesturesEnabled(false);
     }
 
+    private MarkerOptions createMarker(LatLng latLng,String markerName){
+        //BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.material_bike);
+
+        //TODO: make markercolor/icon diferent, depending on Markertype
+        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(markerName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        return markerOptions;
+    }
     public MapViewContentBuilder setVerticalOffset(int offset){
         verticalOffset=offset;
         return this;
