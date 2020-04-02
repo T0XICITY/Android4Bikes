@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 

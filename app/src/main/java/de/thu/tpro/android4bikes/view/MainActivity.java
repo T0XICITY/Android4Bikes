@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -32,13 +33,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
-import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 
@@ -49,6 +46,8 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private static final String LOG_TAG = "MainActivity";
+    private static final int REQUEST_CODE = 100;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
@@ -57,8 +56,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton btn_community;
     private DrawerLayout dLayout;
     private NavigationView drawer;
-    private static final int REQUEST_CODE = 100;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
     private Location currentLocation;
     private GoogleMap googleMap;
     private FusedLocationProviderClient flpc;
@@ -124,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btn_community.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(LOG_TAG,"clicked community");
+                Log.d(LOG_TAG, "clicked community");
                 toggleNavigationDrawer();
             }
         });
@@ -152,18 +149,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private void initNavigationDrawer(){
-        dLayout=findViewById(R.id.drawerLayout);
-        Log.d("FragmentInfoMode",dLayout.toString());
+    private void initNavigationDrawer() {
+        dLayout = findViewById(R.id.drawerLayout);
+        Log.d("FragmentInfoMode", dLayout.toString());
         dLayout.closeDrawer(GravityCompat.END);
-        drawer =findViewById(R.id.navigationDrawer);
+        drawer = findViewById(R.id.navigationDrawer);
         drawer.setNavigationItemSelectedListener(this);
     }
 
-    public void toggleNavigationDrawer(){
-        if (dLayout.isDrawerOpen(GravityCompat.END)){
+    public void toggleNavigationDrawer() {
+        if (dLayout.isDrawerOpen(GravityCompat.END)) {
             dLayout.closeDrawer(GravityCompat.END);
-        }else{
+        } else {
             dLayout.openDrawer(GravityCompat.END);
         }
 
@@ -206,8 +203,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragDriving = new FragmentDrivingMode();
         fragInfo = new FragmentInfoMode();
     }
-
-
 
 
     /**

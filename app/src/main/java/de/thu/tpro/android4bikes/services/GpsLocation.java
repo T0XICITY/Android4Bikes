@@ -4,6 +4,7 @@ import android.location.Location;
 
 public class GpsLocation extends Location {
     private static Location lastLocation;
+
     public GpsLocation(Location location) {
         super(location);
     }

@@ -33,10 +33,10 @@
         android:id="@+id/ib_Call"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginEnd="5dp"
         android:contentDescription="Call Institution"
         android:src="@drawable/ic_emergency__call"
-        android:layout_marginEnd="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

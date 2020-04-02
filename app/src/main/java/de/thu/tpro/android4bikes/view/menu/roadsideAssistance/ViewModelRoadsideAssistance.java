@@ -8,7 +8,7 @@ import java.util.List;
 import de.thu.tpro.android4bikes.R;
 
 /**
- * @author Elias,Stefanie
+ * @author Elias, Stefanie
  */
 public class ViewModelRoadsideAssistance {
 
@@ -36,7 +36,7 @@ public class ViewModelRoadsideAssistance {
 
         // init entries list
         entries = new ArrayList<>();
-        for (int i = 0; i< institutionStrings.length; i++) {
+        for (int i = 0; i < institutionStrings.length; i++) {
             entries.add(new RoadsideAssistanceEntry(
                     institutionStrings[i],
                     institutionImages[i],
