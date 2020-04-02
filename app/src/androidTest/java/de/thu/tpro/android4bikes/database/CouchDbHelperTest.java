@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
@@ -273,6 +274,100 @@ public class CouchDbHelperTest {
         couchDbHelper.deleteHazardAlert(hazardAlert_THU);
     }
 
+    /**
+     * 1. Generates a track.
+     * 2. Generates a fine grained position associated to the generated track.
+     * 3. Stores the fine grained position to the db.
+     * 4. Reads the fine grained position
+     * <p>
+     * Requirements for passing this test:
+     * -after storing the new fine grained position in the db there should be one more document in the db
+     * -the fine grained position should be in the list of read hazard alerts
+     */
+    @Test
+    public void storeFineGrainedPositions() {
+        //Get database:
+        Database db_finegrainedPositions = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS);
+
+        //get count of initially stored documents:
+        long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_finegrainedPositions);
+
+        //create new instance of the class "FineGrainedPositions"
+        Track track_Ulm = generateTrack();
+        FineGrainedPositions fineGrainedPositions_trackUlm = this.generateFineGrainedPositions(track_Ulm);
+
+        //store BikeRack in local database
+        couchDbHelper.storeFineGrainedPositions(fineGrainedPositions_trackUlm);
+
+        //read new amount of stored documents
+        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_finegrainedPositions);
+
+        //after storing the fine grained position there must be one fine grained position more
+        assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+
+        //read the just stored fine grained position
+        FineGrainedPositions fineGrainedPositions_trackUlm_read = couchDbHelper.readFineGrainedPositions(track_Ulm);
+
+        //the just stored fine grained position must be in the list of the read fine grained position
+        assertEquals(fineGrainedPositions_trackUlm, fineGrainedPositions_trackUlm_read);
+    }
+
+
+    /**
+     * 1. Generates a track.
+     * 2. Generates a fine grained position associated to the generated track.
+     * 3. Stores the fine grained position to the db.
+     * 4. Reads the fine grained position
+     * <p>
+     * Requirements for passing this test:
+     * -after storing the new fine grained position in the db there should be one more document in the db
+     * -the fine grained position should be in the list of read hazard alerts
+     */
+    @Test
+    public void readFineGrainedPositions() {
+        //Get database:
+        Database db_fineGrainedPositions = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS);
+
+        //clear database
+        couchdb.clearDB(db_fineGrainedPositions);
+
+        //generate new fine grained positions
+        Track track_Ulm = generateTrack();
+        FineGrainedPositions fineGrainedPositions_Ulm = this.generateFineGrainedPositions(track_Ulm);
+
+        //store  fine grained positions in local DB
+        couchDbHelper.storeFineGrainedPositions(fineGrainedPositions_Ulm);
+
+        //read from
+        FineGrainedPositions fineGrainedPositions_Ulm_read = couchDbHelper.readFineGrainedPositions(track_Ulm);
+
+        //the just stored fine grained position must be in the list of the read fine grained position
+        assertEquals(fineGrainedPositions_Ulm, fineGrainedPositions_Ulm_read);
+    }
+
+    /**
+     * 1. Clears the db (deletes all documents)
+     * <p>
+     * Requirements for passing this test:
+     * -after clearing the db 'fineGrainedPositions' there should be no more documents in the db
+     */
+    @Test
+    public void clearFineGrainedPositions() {
+        //Get database:
+        Database db_fineGrainedPositions = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS);
+
+        //clear database
+        couchdb.clearDB(db_fineGrainedPositions);
+
+
+        //get number of documents
+        long readNumberOfDouments = couchdb.getNumberOfStoredDocuments(db_fineGrainedPositions);
+
+        assertEquals(0, readNumberOfDouments);
+
+    }
+
+
     @Test
     public void storeProfile(){
         Database db_profile = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
@@ -534,5 +629,17 @@ public class CouchDbHelperTest {
                 "siebenundvierzig11",1585773516,25,
                 positions,new ArrayList<>(),true);
         return track;
+    }
+
+    /**
+     * generates a new instance of the class FineGrainedPositions for test purposes
+     *
+     * @return instance of a track
+     */
+    private FineGrainedPositions generateFineGrainedPositions(Track track) {
+        FineGrainedPositions fineGrainedPositionsUlm = new FineGrainedPositions();
+        fineGrainedPositionsUlm.addPosition(new Position(9.997507, 48.408880));
+        fineGrainedPositionsUlm.setFirebaseID(track.getFirebaseID());
+        return fineGrainedPositionsUlm;
     }
 }

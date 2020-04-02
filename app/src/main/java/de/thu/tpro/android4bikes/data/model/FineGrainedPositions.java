@@ -45,7 +45,8 @@ public class FineGrainedPositions {
     }
 
     public enum ConstantsFineGrainedPosition {
-        POSITIONS("positions");
+        POSITIONS("positions"),
+        FIREBASID("firebaseID");
         private String type;
 
         ConstantsFineGrainedPosition(String type) {

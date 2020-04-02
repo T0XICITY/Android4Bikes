@@ -31,7 +31,6 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 
 public class CouchDBHelper implements LocalDatabaseHelper {
     private CouchDB couchDB;
@@ -155,6 +154,31 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         return this.readFineGrainedPositions(track.getFirebaseID());
     }
 
+    private void deleteFineGrainedPositions(Track track) {
+        //TODO: Review and testing
+        this.deleteFineGrainedPositions(track.getFirebaseID());
+    }
+
+    private void deleteFineGrainedPositions(String fireBaseID) {
+        //TODO: Review and testing
+        try {
+            Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db fineGrainedPositions
+            String mutabledocument_result_id = null;
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
+                    .from(DataSource.database(db_fineGrainedPositions))
+                    .where(Expression.property(FineGrainedPositions.ConstantsFineGrainedPosition.FIREBASID.toString()).equalTo(Expression.string(fireBaseID)));
+            ResultSet results = couchDB.queryDatabase(query);
+
+            for (Result result : results) {
+                mutabledocument_result_id = result.getString(CouchDB.AttributeNames.DATABASE_ID.toText());
+                couchDB.deleteDocumentByID(db_fineGrainedPositions, mutabledocument_result_id);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     @Override
     public void storeHazardAlerts(HazardAlert hazardAlert) {
         //TODO: Review and testing
@@ -240,12 +264,13 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     public void addToUtilization(Position position) {
         //todo: review und test
         try {
+            Database db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
             JSONObject json_position = new JSONObject(gson.toJson(position));
             Map result = gson.fromJson(json_position.toString(), Map.class);
             MutableDocument md_position = new MutableDocument(result);
-            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION), md_position);
-            posCounter++;
-            if (posCounter >= 50) {
+            couchDB.saveMutableDocumentToDatabase(db_position, md_position);
+
+            if (couchDB.getNumberOfStoredDocuments(db_position) >= 50) {
                 List<Position> positions = this.getAllPositions();
                 //FirebaseConnection.getInstance().storeUtilizationToFireStore(positions); //todo: How to call this ? - This way it's wrong!
                 this.resetUtilization();
@@ -266,7 +291,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     }
 
     /**
-     * @param Profile
+     * @param profile
      */
     @Override
     public void storeProfile(Profile profile) {
