@@ -167,7 +167,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (currentFragment.equals(fragDriving)) {
             currentFragment = fragInfo;
             bottomBar.performShow();
-
         } else {
             currentFragment = fragDriving;
             bottomBar.performHide();

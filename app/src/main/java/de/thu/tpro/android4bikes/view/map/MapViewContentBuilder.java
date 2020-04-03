@@ -85,7 +85,6 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
 
     private MarkerOptions createMarker(LatLng latLng,String markerName){
         //BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.material_bike);
-
         //TODO: make markercolor/icon diferent, depending on Markertype
         MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(markerName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         return markerOptions;
