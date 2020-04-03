@@ -68,7 +68,7 @@ public class FirebaseConnectionTest {
      * -the {@link de.thu.tpro.android4bikes.data.model.BikeRack} 'THU' should be in the list of read {@link de.thu.tpro.android4bikes.data.model.BikeRack}
      */
     @Test
-    public void storeBikeRackInFireStoreAndLocalDB() {
+    public void storeBikeRackInFireStore() {
         //generate a bike rack
         BikeRack bikeRack_THU = generateTHUBikeRack();
 
@@ -94,17 +94,6 @@ public class FirebaseConnectionTest {
 
         //the just stored bike rack has to be contained in the list of official bike racks
         assertTrue(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
-    }
-
-    @Test
-    public void readOfficialBikeRackFromFireStore() {
-        firebaseConnection.readBikeRacksFromFireStoreAndStoreItToLocalDB("89075");
-
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
