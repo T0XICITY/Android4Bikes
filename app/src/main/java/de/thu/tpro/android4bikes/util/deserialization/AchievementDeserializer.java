@@ -11,7 +11,6 @@ import java.lang.reflect.Type;
 
 public class AchievementDeserializer<T> implements JsonDeserializer<T> {
 
-
     @Override
     public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
