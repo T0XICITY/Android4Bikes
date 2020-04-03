@@ -10,6 +10,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
+import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -372,7 +374,7 @@ public class CouchDbHelperTest {
     public void storeProfile(){
         Database db_profile = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
 
-        Profile profile = new Profile("Timmy","Tester","nullacht15",1234,10,new ArrayList<>());
+        Profile profile = createProfile();
 
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_profile);
 
@@ -395,7 +397,7 @@ public class CouchDbHelperTest {
 
         couchdb.clearDB(db_profile);
 
-        Profile profile = new Profile("Timmy","Tester","nullacht15",1234,10,new ArrayList<>());
+        Profile profile = createProfile();
 
         couchDbHelper.storeProfile(profile);
 
@@ -412,9 +414,9 @@ public class CouchDbHelperTest {
 
         couchdb.clearDB(db_profile);
 
-        Profile profile = new Profile("Timmy","Tester","nullacht15",1234,10,new ArrayList<>());
+        Profile profile = createProfile();
 
-        Profile profileUpdate = new Profile("Timmy","Tester","nullacht15",666,55,new ArrayList<>());
+        Profile profileUpdate = createDifferentProfile();
 
         couchDbHelper.storeProfile(profile);
 
@@ -447,7 +449,7 @@ public class CouchDbHelperTest {
 
         assertEquals(0, initialNumberOfDocuments);
 
-        Profile profile = new Profile("Timmy","Tester","nullacht15",1234,10,new ArrayList<>());
+        Profile profile = createProfile();
 
         couchDbHelper.storeProfile(profile);
 
@@ -639,7 +641,31 @@ public class CouchDbHelperTest {
     private FineGrainedPositions generateFineGrainedPositions(Track track) {
         FineGrainedPositions fineGrainedPositionsUlm = new FineGrainedPositions();
         fineGrainedPositionsUlm.addPosition(new Position(9.997507, 48.408880));
+        fineGrainedPositionsUlm.addPosition(new Position(9.997509, 48.408887));
         fineGrainedPositionsUlm.setFirebaseID(track.getFirebaseID());
         return fineGrainedPositionsUlm;
     }
+
+    /**
+     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.Profile} for test purposes
+     * */
+    private Profile createProfile() {
+        List<Achievement> achievements = new ArrayList<>();
+        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
+        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
+
+        return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+    }
+
+    /**
+     * generates a new different instance of the class {@link de.thu.tpro.android4bikes.data.model.Profile} for test purposes
+     * */
+    private Profile createDifferentProfile() {
+        List<Achievement> achievements = new ArrayList<>();
+        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
+        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
+
+        return new Profile("Kostas", "Kostidis", "00x15dxxx", 666, 1000, achievements);
+    }
+
 }

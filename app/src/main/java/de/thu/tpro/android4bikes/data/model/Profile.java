@@ -114,19 +114,19 @@ public class Profile {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Profile)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Profile profile = (Profile) o;
-        return getColor() == profile.getColor() &&
-                getOverallDistance() == profile.getOverallDistance() &&
-                getFirstName().equals(profile.getFirstName()) &&
-                getFamilyName().equals(profile.getFamilyName()) &&
-                getGoogleID().equals(profile.getGoogleID()) &&
-                getAchievements().equals(profile.getAchievements());
+        return color == profile.color &&
+                achievements.equals(profile.achievements) &&
+                overallDistance == profile.overallDistance &&
+                firstName.equals(profile.firstName) &&
+                familyName.equals(profile.familyName) &&
+                googleID.equals(profile.googleID);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getFirstName(), getFamilyName(), getGoogleID(), getColor(), getOverallDistance(), getAchievements());
+        return Objects.hash(firstName, familyName, googleID, color, overallDistance, achievements);
     }
 
     @Override

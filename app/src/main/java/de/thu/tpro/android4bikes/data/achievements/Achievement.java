@@ -1,14 +1,25 @@
 package de.thu.tpro.android4bikes.data.achievements;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Objects;
 
 import de.thu.tpro.android4bikes.R;
 
 public abstract class Achievement {
-    String name;
-    long exp; //Experience Points
-    double significance = 1.0d; //Multiplicator
-    int icon = R.color.Amber400Dark;
+    @Expose
+    @SerializedName("name")
+    protected String name;
+    @Expose
+    @SerializedName("exp")
+    protected long exp; //Experience Points
+    @Expose
+    @SerializedName("significance")
+    protected double significance = 1.0d; //Multiplicator
+    @Expose
+    @SerializedName("icon")
+    protected int icon = R.color.Amber400Dark;
 
     public Achievement() {
 
@@ -28,9 +39,9 @@ public abstract class Achievement {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Achievement)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Achievement that = (Achievement) o;
-        return getExp() == that.getExp() &&
+        return exp == that.exp &&
                 Double.compare(that.significance, significance) == 0 &&
                 icon == that.icon &&
                 name.equals(that.name);
@@ -38,7 +49,7 @@ public abstract class Achievement {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, getExp(), significance, icon);
+        return Objects.hash(name, exp, significance, icon);
     }
 
     @Override

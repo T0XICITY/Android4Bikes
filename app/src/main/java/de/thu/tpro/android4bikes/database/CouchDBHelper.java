@@ -35,7 +35,6 @@ import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 public class CouchDBHelper implements LocalDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
-    private static int posCounter = 0;
 
     public CouchDBHelper() {
         couchDB = CouchDB.getInstance();
@@ -319,7 +318,8 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             ResultSet results = couchDB.queryDatabase(query);
             JSONObject jsonObject_profile = null;
             for (Result result : results) {
-                jsonObject_profile = new JSONObject(result.toMap());
+                Map map_result = result.toMap();
+                jsonObject_profile = new JSONObject(map_result);
                 profile = gson.fromJson(jsonObject_profile.get(DatabaseNames.DATABASE_PROFILE.toText()).toString(), Profile.class);
             }
         } catch (Exception e) {
