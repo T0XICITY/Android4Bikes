@@ -547,9 +547,9 @@ public class CouchDbHelperTest {
 
         double k = 0;
 
-        for (int i = 0; i < 49; i++) {
+        for (int i = 0; i < 99; i++) {
 
-            position = new Position(9.997507+k, 48.408880+k);
+            position = new Position(10.999999 + k, 50.999999 + k);
 
             k = k + 0.000001;
 
@@ -557,11 +557,12 @@ public class CouchDbHelperTest {
 
         }
 
+
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_position);
 
         assertEquals(49,initialNumberOfDocuments);
 
-        position = new Position(10.997507+k, 50.408880+k);
+        position = new Position(10.999999 + k, 50.999999 + k);
 
         couchDbHelper.addToUtilization(position);
         try {

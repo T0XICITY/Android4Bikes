@@ -13,7 +13,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,8 +27,6 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
-
-import static java.util.stream.Collectors.toMap;
 
 public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
@@ -452,13 +449,17 @@ public class FirebaseConnection implements FireStoreDatabase {
     public void storeUtilizationToFireStore(List<Position> utilization) {
         //TODO Review and Testing
         Map<String,Object> map = new HashMap<>();
-        utilization.forEach(entry-> map.put(entry.toString(),entry));
+        //utilization.forEach(entry-> map.put(entry.toString(),entry));
+
+        for (int i = 0; i < utilization.size(); i++) {
+            map.put(Integer.toString(i), utilization.get(i));
+        }
+
         db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
-                .document(ConstantsFirebase.DOCUMENT_UTILIZATION.toString()) //set the id of a given document
-                .set(map, SetOptions.merge()) //set-Method with merge: Will append document if it is existing
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                .add(map)//generate id automatically
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
                     @Override
-                    public void onSuccess(Void aVoid) {
+                    public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "Utilization updated");
                     }
                 })
@@ -468,7 +469,6 @@ public class FirebaseConnection implements FireStoreDatabase {
                         Log.w(TAG, "Error adding Utilization", e);
                     }
                 });
-
     }
 
     public enum ConstantsFirebase {
