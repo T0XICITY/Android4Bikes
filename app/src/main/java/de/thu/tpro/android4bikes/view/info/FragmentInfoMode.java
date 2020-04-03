@@ -79,7 +79,7 @@ public class FragmentInfoMode extends Fragment {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     populateMap();
                 }
-             // add cases, when more than 1 permission is need
+                // add cases, when more than 1 permission is need
         }
     }
 
@@ -88,15 +88,16 @@ public class FragmentInfoMode extends Fragment {
      */
     private void populateMap() {
         Log.d(LOG_TAG, "Init Map called");
-        //to adjust the Map Controls position TODO: define offset programmatically. Problem height = wrap_content return 0
+        //to adjust the Map Controls position TODO: define offset programmatically. Problem height = wrap_content returns 0
         int verticalOffest = 250;
-        Log.d(LOG_TAG,verticalOffest+"");
+        Log.d(LOG_TAG, verticalOffest + "");
         MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
         builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
     }
 
     /**
      * Checks, if permission is granted to access location
+     *
      * @return <code>true</code>, if permission is granted<br/><code>false</code> otherwise
      */
     private boolean isAccessLocationPermissionGranted() {
