@@ -10,10 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.firebase.auth.FirebaseAuth;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,11 +48,13 @@ public class FragmentInfoMode extends Fragment {
 
         //HazardAlert hazardAlert = new HazardAlert(HazardAlert.HazardType.ICY_ROAD);
         //tv_Test.setText(hazardAlert.getType());
-        testLogOut();
+        //testLogOut();
         a();
         b();
-        return inflater.inflate(R.layout.fragment_info_mode, container, false);
+        View viewInfo = inflater.inflate(R.layout.fragment_info_mode, container, false);
+        return viewInfo;
     }
+
 
     private void determineAllViews() {
     }
@@ -69,7 +67,7 @@ public class FragmentInfoMode extends Fragment {
 
     }
 
-    ///Temporary method for logout testing///
+/*    ///Temporary method for logout testing///
     //Todo: Delete after testing
     private void testLogOut() {
         tv_Test = getActivity().findViewById(R.id.tv_Test);
@@ -91,5 +89,7 @@ public class FragmentInfoMode extends Fragment {
             }
         });
 
-    }
+    }*/
+
+
 }

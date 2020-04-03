@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class FineGrainedPositions {
     @Expose
@@ -44,7 +45,8 @@ public class FineGrainedPositions {
     }
 
     public enum ConstantsFineGrainedPosition {
-        POSITIONS("positions");
+        POSITIONS("positions"),
+        FIREBASID("firebaseID");
         private String type;
 
         ConstantsFineGrainedPosition(String type) {
@@ -54,5 +56,27 @@ public class FineGrainedPositions {
         public String toString() {
             return type;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FineGrainedPositions)) return false;
+        FineGrainedPositions that = (FineGrainedPositions) o;
+        return getFirebaseID().equals(that.getFirebaseID()) &&
+                getPositions().equals(that.getPositions());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFirebaseID(), getPositions());
+    }
+
+    @Override
+    public String toString() {
+        return "FineGrainedPositions{" +
+                "firebaseID='" + firebaseID + '\'' +
+                ", positions=" + positions +
+                '}';
     }
 }

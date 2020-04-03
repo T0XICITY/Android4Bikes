@@ -3,6 +3,8 @@ package de.thu.tpro.android4bikes.data.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -131,5 +133,35 @@ public class HazardAlert {
         public String getType() {
             return type;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HazardAlert)) return false;
+        HazardAlert that = (HazardAlert) o;
+        return getExpiryTimestamp() == that.getExpiryTimestamp() &&
+                getDistanceOfInterest() == that.getDistanceOfInterest() &&
+                getType() == that.getType() &&
+                getPosition().equals(that.getPosition()) &&
+                getPostcode().equals(that.getPostcode()) &&
+                getFirebaseID().equals(that.getFirebaseID());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getType(), getPosition(), getPostcode(), getExpiryTimestamp(), getDistanceOfInterest(), getFirebaseID());
+    }
+
+    @Override
+    public String toString() {
+        return "HazardAlert{" +
+                "type=" + type +
+                ", position=" + position +
+                ", postcode='" + postcode + '\'' +
+                ", expiryTimestamp=" + expiryTimestamp +
+                ", distanceOfInterest=" + distanceOfInterest +
+                ", firebaseID='" + firebaseID + '\'' +
+                '}';
     }
 }

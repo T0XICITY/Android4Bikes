@@ -15,7 +15,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -27,18 +26,15 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
-import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
 public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
-    private List<FireStoreObserver> fireStoreObservers;
     private LocalDatabaseHelper localDatabaseHelper;
     private String TAG = "HalloWelt";
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
-        fireStoreObservers = new ArrayList<>();
         localDatabaseHelper = new CouchDBHelper();
     }
 
@@ -50,31 +46,22 @@ public class FirebaseConnection implements FireStoreDatabase {
     }
 
     /**
-     * should be used to subscribe as an observer
-     *
-     * @param fireStoreObserver observer regarding fireStore
-     */
-    public void subscribeObserver(FireStoreObserver fireStoreObserver) {
-        this.fireStoreObservers.add(fireStoreObserver);
-    }
-
-    /**
      * stores a Profile first in the FireStore and after that in the local database
      *
-     * @param Profile profile to store
+     * @param profile profile to store
      */
     @Override
-    public void storeProfileToFireStoreAndLocalDB(Profile Profile) {
+    public void storeProfileToFireStoreAndLocalDB(Profile profile) {
         //TODO Review and Testing
         db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
-                .document(Profile.getGoogleID()) //set the id of a given document
-                .set(Profile) //set-Method: Will create or overwrite document if it is existing
+                .document(profile.getGoogleID()) //set the id of a given document
+                .set(profile) //set-Method: Will create or overwrite document if it is existing
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Profile " + Profile.getFamilyName() + " added successfully");
+                        Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
                         try {
-                            localDatabaseHelper.storeProfile(Profile);
+                            localDatabaseHelper.storeProfile(profile);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -84,7 +71,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding Profile " + Profile.getFamilyName(), e);
+                        Log.w(TAG, "Error adding Profile " + profile.getFamilyName(), e);
                     }
                 });
     }

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.couchbase.lite.DataSource;
 import com.couchbase.lite.Database;
 import com.couchbase.lite.Expression;
+import com.couchbase.lite.Meta;
 import com.couchbase.lite.MutableDocument;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryBuilder;
@@ -14,6 +15,7 @@ import com.couchbase.lite.SelectResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -30,16 +33,21 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
 
 public class CouchDBHelper implements LocalDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
-    private static int posCounter = 0;
+    private Gson gson_achievement;
 
     public CouchDBHelper() {
         couchDB = CouchDB.getInstance();
         gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+
+        //create and set deserializer for the inheritance regarding the class "achievement"
+        GsonBuilder gsonBuilder_achievement = new GsonBuilder();
+        gsonBuilder_achievement.registerTypeAdapter(Achievement.class, new AchievementDeserializer<Achievement>());
+        gson_achievement = gsonBuilder_achievement.create();
     }
 
     @Override
@@ -54,7 +62,8 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         try {
             Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
             JSONObject json_track = new JSONObject(gson.toJson(track));
-            MutableDocument mutableDocument_track = this.convertJSONToMutableDocument(json_track);
+            Map result = gson.fromJson(json_track.toString(), Map.class);
+            MutableDocument mutableDocument_track = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_track, mutableDocument_track);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -88,7 +97,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         //todo: review und test
         try {
             Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
-            Query query = QueryBuilder.select(SelectResult.all())
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                     .from(DataSource.database(db_track))
                     .where(Expression.property(Track.ConstantsTrack.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
             ResultSet results = couchDB.queryDatabase(query);
@@ -106,12 +115,14 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         try {
             Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db finegrainedposi
 
-            //convert hazardAlert to mutable document
-            JSONObject json_finegrainedPositions = new JSONObject(gson.toJson(fineGrainedPositions));
-            MutableDocument mutableDocument_finedgrainedPositions = this.convertJSONToMutableDocument(json_finegrainedPositions);
+            //**************************Translation to MutableDocument**************************/
+            JSONObject json_fineGrainedPositions = new JSONObject(gson.toJson(fineGrainedPositions));
+            Map map_fineGrainedPositions = gson.fromJson(json_fineGrainedPositions.toString(), Map.class);
+            MutableDocument mutableDocument_fineGrainedPositions = new MutableDocument(map_fineGrainedPositions);
+            //**********************************************************************************/
 
             //save mutable document representing the hazardAlert to the local db
-            couchDB.saveMutableDocumentToDatabase(db_fineGrainedPositions, mutableDocument_finedgrainedPositions);
+            couchDB.saveMutableDocumentToDatabase(db_fineGrainedPositions, mutableDocument_fineGrainedPositions);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -151,18 +162,45 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         return this.readFineGrainedPositions(track.getFirebaseID());
     }
 
+    private void deleteFineGrainedPositions(Track track) {
+        //TODO: Review and testing
+        this.deleteFineGrainedPositions(track.getFirebaseID());
+    }
+
+    private void deleteFineGrainedPositions(String fireBaseID) {
+        //TODO: Review and testing
+        try {
+            Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db fineGrainedPositions
+            String mutabledocument_result_id = null;
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
+                    .from(DataSource.database(db_fineGrainedPositions))
+                    .where(Expression.property(FineGrainedPositions.ConstantsFineGrainedPosition.FIREBASID.toString()).equalTo(Expression.string(fireBaseID)));
+            ResultSet results = couchDB.queryDatabase(query);
+
+            for (Result result : results) {
+                mutabledocument_result_id = result.getString(CouchDB.AttributeNames.DATABASE_ID.toText());
+                couchDB.deleteDocumentByID(db_fineGrainedPositions, mutabledocument_result_id);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     @Override
     public void storeHazardAlerts(HazardAlert hazardAlert) {
         //TODO: Review and testing
         try {
             Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
 
-            //convert hazardAlert to mutable document
+            //**************************Translation to MutableDocument**************************/
             JSONObject json_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
-            MutableDocument mutableDocument_hazardAlerts = this.convertJSONToMutableDocument(json_hazardAlert);
+            Map map_hazardAlert = gson.fromJson(json_hazardAlert.toString(), Map.class);
+            MutableDocument mutableDocument_hazardAlert = new MutableDocument(map_hazardAlert);
+            //**********************************************************************************/
 
             //save mutable document representing the hazardAlert to the local db
-            couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_hazardAlerts);
+            couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_hazardAlert);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -205,12 +243,14 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
             HazardAlert hazardAlert = null;
             JSONObject jsonObject_result = null;
-            Query query = QueryBuilder.select(SelectResult.all())
+            String mutabledocument_result_id = null;
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                     .from(DataSource.database(db_hazardAlert))
                     .where(Expression.property(HazardAlert.ConstantsHazardAlert.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
-                couchDB.deleteDocumentByID(db_hazardAlert, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
+                mutabledocument_result_id = result.getString(CouchDB.AttributeNames.DATABASE_ID.toText());
+                couchDB.deleteDocumentByID(db_hazardAlert, mutabledocument_result_id);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -232,16 +272,18 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     public void addToUtilization(Position position) {
         //todo: review und test
         try {
+            Database db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
             JSONObject json_position = new JSONObject(gson.toJson(position));
-            MutableDocument md_position = convertJSONToMutableDocument(json_position);
-            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION), md_position);
-            posCounter++;
-            if (posCounter >= 50) {
+            Map result = gson.fromJson(json_position.toString(), Map.class);
+            MutableDocument md_position = new MutableDocument(result);
+            couchDB.saveMutableDocumentToDatabase(db_position, md_position);
+
+            if (couchDB.getNumberOfStoredDocuments(db_position) >= 50) {
                 List<Position> positions = this.getAllPositions();
-                FirebaseConnection.getInstance().storeUtilizationToFireStore(positions); //todo: Is it right this way?
+                //FirebaseConnection.getInstance().storeUtilizationToFireStore(positions); //todo: How to call this ? - This way it's wrong!
                 this.resetUtilization();
             }
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
@@ -251,21 +293,22 @@ public class CouchDBHelper implements LocalDatabaseHelper {
      */
     @Override
     public void resetUtilization() {
-        //todo: review und test
-        ResultSet results = couchDB.queryDatabase(Queries.getAllPosQuery);
-        results.forEach(result -> {
-            String id = result.getString(0);
-            couchDB.deleteDocumentByID(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION), id);
-        });
+        //todo:review und test
+        Database utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
+        couchDB.clearDB(utilizationDB);
     }
 
+    /**
+     * @param profile
+     */
     @Override
-    public void storeProfile(Profile Profile) {
+    public void storeProfile(Profile profile) {
         //todo: review und test
         try {
             Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
-            JSONObject jsonObject_profile = new JSONObject(gson.toJson(db_profile));
-            MutableDocument mutableDocument_profile = this.convertJSONToMutableDocument(jsonObject_profile);
+            JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
+            Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
+            MutableDocument mutableDocument_profile = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_profile, mutableDocument_profile);
         } catch (Exception e) {
             e.printStackTrace();
@@ -283,9 +326,23 @@ public class CouchDBHelper implements LocalDatabaseHelper {
                     .where(Expression.property(Profile.ConstantsProfile.GOOGLEID.toString()).equalTo(Expression.string(firebaseAccountID)));
             ResultSet results = couchDB.queryDatabase(query);
             JSONObject jsonObject_profile = null;
+            JSONArray jsonArray_achievement = null;
             for (Result result : results) {
-                jsonObject_profile = new JSONObject(result.toMap());
-                profile = gson.fromJson(jsonObject_profile.get(DatabaseNames.DATABASE_PROFILE.toText()).toString(), Profile.class);
+                Map map_result = result.toMap();
+                jsonObject_profile = new JSONObject(map_result);
+                jsonObject_profile = (JSONObject) jsonObject_profile.get(DatabaseNames.DATABASE_PROFILE.toText());
+
+                jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+                List<Achievement> list_achievements = new ArrayList<>();
+
+                for (int i = 0; i < jsonArray_achievement.length(); ++i) {
+                    JSONObject jsonObject_achievement = jsonArray_achievement.getJSONObject(i);
+                    Achievement achievement = gson_achievement.fromJson(jsonObject_achievement.toString(), Achievement.class);
+                    list_achievements.add(achievement);
+                }
+                jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+                profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
+                profile.setAchievements(list_achievements);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -305,7 +362,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         //todo: review und test
         try {
             Database db_Profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
-            Query query = QueryBuilder.select(SelectResult.all())
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                     .from(DataSource.database(db_Profile))
                     .where(Expression.property(Profile.ConstantsProfile.GOOGLEID.toString()).equalTo(Expression.string(googleID)));
             ResultSet results = couchDB.queryDatabase(query);
@@ -329,51 +386,13 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         try {
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
 
-            //convert bikeRack to mutable document
+
+            //**************************Translation to MutableDocument**************************/
             JSONObject json_bikeRack = new JSONObject(gson.toJson(bikeRack));
-            MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_bikeRack);
+            Map map_bikeRack = gson.fromJson(json_bikeRack.toString(), Map.class);
+            MutableDocument mutableDocument_bikeRack = new MutableDocument(map_bikeRack);
+            //**********************************************************************************/
 
-            /*
-            Testcode, zum Beweis:
-            Map<String,Object> map_bikeRack = new HashMap<>();
-            map_bikeRack.put("firebaseId","2344");
-
-            Map<String,Object> map_position = new HashMap<>();
-            map_position.put("long",12);
-            map_position.put("lat",13);
-            map_bikeRack.put("pos",map_position);
-
-            MutableDocument mutableDocument_bikeRack2 = new MutableDocument(map_bikeRack);
-            Map<String,Object> result = mutableDocument_bikeRack2.toMap();
-            */
-
-
-            /*
-             Map<String,Object> map_bikerack = bikeRack.toMap();
-                ->toMap() von BikeRack
-                    -"FirebaseID" : "23344"
-
-                    -Mappen von Position
-                        ->toMap()von Position
-                            -latitude
-                            -longitude
-                            zurückliefern von: {"latitude":12, "longitude":12}
-                        <- Rückkehr aus toMap()
-
-                    -"Position":{"latitude":12, "longitude":12} (Value von "Position" ist eine Map)
-                    -"Postcode":"89075"
-                    -"name":"gustavbikerack"
-
-                    -Mappen von Capacity
-                        ->Aufruf von toInt() von Capacity
-                        <-zurückliefern: Zahl von 0 bis 2
-                    -"capacity":2
-
-                    -"hasBikeCharging":true,
-                    -"isCovered":true,
-                    -"isExistent":true,
-             MutableDocument mutableDocument_bikeRack = this.convertJSONToMutableDocument(json_bikeRack);
-             */
 
             //save mutable document representing the bikeRack to the local db
             couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_bikeRack);
@@ -415,12 +434,15 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
             BikeRack bikeRack = null;
             JSONObject jsonObject_result = null;
-            Query query = QueryBuilder.select(SelectResult.all())
+            String mutabledocument_result_id = null;
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                     .from(DataSource.database(db_bikerack))
                     .where(Expression.property(BikeRack.ConstantsBikeRack.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
             ResultSet results = couchDB.queryDatabase(query);
+
             for (Result result : results) {
-                couchDB.deleteDocumentByID(db_bikerack, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
+                mutabledocument_result_id = result.getString(CouchDB.AttributeNames.DATABASE_ID.toText());
+                couchDB.deleteDocumentByID(db_bikerack, mutabledocument_result_id);
             }
         } catch (Exception e) {
             e.printStackTrace();
