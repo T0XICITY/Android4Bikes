@@ -17,6 +17,7 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class FirebaseConnectionTest {
     private static FirebaseConnection firebaseConnection;
@@ -38,7 +39,7 @@ public class FirebaseConnectionTest {
         firebaseConnection.storeProfileToFireStoreAndLocalDB(profile_kostas);
         //wait a few seconds
         try {
-            Thread.sleep(15000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -49,17 +50,19 @@ public class FirebaseConnectionTest {
 
     @Test
     public void storeBikeRackInFireStoreAndLocalDB() {
-
         BikeRack bikeRack_THU = new BikeRack(
                 "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
+
         firebaseConnection.submitBikeRackToFireStoreAndLocalDB(bikeRack_THU);
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        List<BikeRack> bikeRacks_with_postcode_89075 = couchDBHelper.readBikeRacks(bikeRack_THU.getFirebaseID());
+        assertTrue(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
     }
 
     @Test
