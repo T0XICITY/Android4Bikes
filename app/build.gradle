@@ -28,6 +28,10 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -40,6 +44,7 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
+
 }
 
 dependencies {
