@@ -61,20 +61,20 @@ public class FirebaseConnection implements FireStoreDatabase {
     /**
      * stores a Profile first in the FireStore and after that in the local database
      *
-     * @param Profile profile to store
+     * @param profile profile to store
      */
     @Override
-    public void storeProfileToFireStoreAndLocalDB(Profile Profile) {
+    public void storeProfileToFireStoreAndLocalDB(Profile profile) {
         //TODO Review and Testing
         db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
-                .document(Profile.getGoogleID()) //set the id of a given document
-                .set(Profile) //set-Method: Will create or overwrite document if it is existing
+                .document(profile.getGoogleID()) //set the id of a given document
+                .set(profile) //set-Method: Will create or overwrite document if it is existing
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Profile " + Profile.getFamilyName() + " added successfully");
+                        Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
                         try {
-                            localDatabaseHelper.storeProfile(Profile);
+                            localDatabaseHelper.storeProfile(profile);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -84,7 +84,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding Profile " + Profile.getFamilyName(), e);
+                        Log.w(TAG, "Error adding Profile " + profile.getFamilyName(), e);
                     }
                 });
     }

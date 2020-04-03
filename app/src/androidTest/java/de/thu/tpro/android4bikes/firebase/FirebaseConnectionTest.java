@@ -5,21 +5,46 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
+import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+
+import static org.junit.Assert.assertEquals;
 
 public class FirebaseConnectionTest {
     private static FirebaseConnection firebaseConnection;
+    private static CouchDBHelper couchDBHelper;
+
 
     @BeforeClass
     public static void setUp() {
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         firebaseConnection = FirebaseConnection.getInstance();
+        couchDBHelper = new CouchDBHelper();
+
     }
 
     @Test
-    public void addProfileToFirestore() {
+    public void storeProfileToFireStoreAndLocalDB() {
+        Profile profile_kostas = this.createProfile();
+
+        firebaseConnection.storeProfileToFireStoreAndLocalDB(profile_kostas);
+        //wait a few seconds
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Profile read_profile = couchDBHelper.readProfile(profile_kostas.getGoogleID());
+        assertEquals(profile_kostas, read_profile);
     }
 
     @Test
@@ -50,5 +75,14 @@ public class FirebaseConnectionTest {
 
     @Test
     public void updateToken() {
+    }
+
+    private Profile createProfile() {
+        List<Achievement> achievements = new ArrayList<>();
+        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
+        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
+
+        Profile profile = new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+        return profile;
     }
 }
