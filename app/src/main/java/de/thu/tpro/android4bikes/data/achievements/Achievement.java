@@ -20,12 +20,16 @@ public abstract class Achievement {
     @Expose
     @SerializedName("icon")
     protected int icon = R.color.Amber400Dark;
+    @Expose
+    @SerializedName("classname")
+    private String classname;
 
     public Achievement() {
-
+        this.classname = getClass().getName();
     }
 
     public Achievement(String name, long exp, double significance, int icon) {
+        this(); //call parameterless constructor
         this.name = name;
         this.exp = exp;
         this.significance = significance;
@@ -61,4 +65,6 @@ public abstract class Achievement {
                 ", icon=" + icon +
                 '}';
     }
+
+
 }

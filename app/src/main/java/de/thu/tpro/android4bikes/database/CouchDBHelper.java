@@ -15,6 +15,7 @@ import com.couchbase.lite.SelectResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -31,14 +33,21 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
+import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
 
 public class CouchDBHelper implements LocalDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
+    private Gson gson_achievement;
 
     public CouchDBHelper() {
         couchDB = CouchDB.getInstance();
         gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+
+        //create and set deserializer for the inheritance regarding the class "achievement"
+        GsonBuilder gsonBuilder_achievement = new GsonBuilder();
+        gsonBuilder_achievement.registerTypeAdapter(Achievement.class, new AchievementDeserializer<Achievement>());
+        gson_achievement = gsonBuilder_achievement.create();
     }
 
     @Override
@@ -317,10 +326,23 @@ public class CouchDBHelper implements LocalDatabaseHelper {
                     .where(Expression.property(Profile.ConstantsProfile.GOOGLEID.toString()).equalTo(Expression.string(firebaseAccountID)));
             ResultSet results = couchDB.queryDatabase(query);
             JSONObject jsonObject_profile = null;
+            JSONArray jsonArray_achievement = null;
             for (Result result : results) {
                 Map map_result = result.toMap();
                 jsonObject_profile = new JSONObject(map_result);
-                profile = gson.fromJson(jsonObject_profile.get(DatabaseNames.DATABASE_PROFILE.toText()).toString(), Profile.class);
+                jsonObject_profile = (JSONObject) jsonObject_profile.get(DatabaseNames.DATABASE_PROFILE.toText());
+
+                jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+                List<Achievement> list_achievements = new ArrayList<>();
+
+                for (int i = 0; i < jsonArray_achievement.length(); ++i) {
+                    JSONObject jsonObject_achievement = jsonArray_achievement.getJSONObject(i);
+                    Achievement achievement = gson_achievement.fromJson(jsonObject_achievement.toString(), Achievement.class);
+                    list_achievements.add(achievement);
+                }
+                jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+                profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
+                profile.setAchievements(list_achievements);
             }
         } catch (Exception e) {
             e.printStackTrace();

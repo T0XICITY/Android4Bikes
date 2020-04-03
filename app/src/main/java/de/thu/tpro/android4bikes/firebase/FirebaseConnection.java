@@ -15,7 +15,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -27,18 +26,15 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
-import de.thu.tpro.android4bikes.util.ObserverMechanism.FireStoreObserver;
 
 public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
-    private List<FireStoreObserver> fireStoreObservers;
     private LocalDatabaseHelper localDatabaseHelper;
     private String TAG = "HalloWelt";
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
-        fireStoreObservers = new ArrayList<>();
         localDatabaseHelper = new CouchDBHelper();
     }
 
@@ -47,15 +43,6 @@ public class FirebaseConnection implements FireStoreDatabase {
             firebaseConnection = new FirebaseConnection();
         }
         return firebaseConnection;
-    }
-
-    /**
-     * should be used to subscribe as an observer
-     *
-     * @param fireStoreObserver observer regarding fireStore
-     */
-    public void subscribeObserver(FireStoreObserver fireStoreObserver) {
-        this.fireStoreObservers.add(fireStoreObserver);
     }
 
     /**
