@@ -8,8 +8,8 @@ public class ViewModelDrivingMode {
     private static ViewModelDrivingMode singleton;
     private static final String LOG_TAG = "ViewModelDrivingMode";
 
-    public static ViewModelDrivingMode getInstance(){
-        if (singleton == null){
+    public static ViewModelDrivingMode getInstance() {
+        if (singleton == null) {
             singleton = new ViewModelDrivingMode();
         }
         return singleton;
@@ -19,15 +19,16 @@ public class ViewModelDrivingMode {
     private long accumulatedSpeed;
     private float currSpeed;
 
-    private ViewModelDrivingMode(){
+    private ViewModelDrivingMode() {
         accumulatedSpeed = 0;
         counter = 0;
         currSpeed = 0f;
     }
-    public int updateAverageSpeed(int currentSpeed){
+
+    public int updateAverageSpeed(int currentSpeed) {
         accumulatedSpeed += currentSpeed;
-        if (counter == 0)return 0;
-        return (int) accumulatedSpeed/ counter;
+        if (counter == 0) return 0;
+        return (int) accumulatedSpeed / counter;
     }
 
     /**
@@ -44,7 +45,7 @@ public class ViewModelDrivingMode {
                     "\nLongitude " + location.getLongitude();
         }
         //Log for
-        Log.d(LOG_TAG + " Position",loc);
+        Log.d(LOG_TAG + " Position", loc);
         return Math.round(currSpeed);
 
     }

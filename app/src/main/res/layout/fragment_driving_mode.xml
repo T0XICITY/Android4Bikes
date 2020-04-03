@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,14 +7,14 @@
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/colorPrimary"
+        app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
         app:cardUseCompatPadding="true"
-        app:cardCornerRadius="16dp"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,8 +24,8 @@
             tools:context=".view.driving.FragmentDrivingMode">
 
             <LinearLayout
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -59,9 +58,9 @@
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/txtAverageSpeed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/txtAverageSpeed"
                     android:text="Ø 77 Km/h"
                     android:textSize="30dp" />
             </LinearLayout>
@@ -71,29 +70,21 @@
                 android:layout_height="150dp"
                 android:scaleX="0.75"
                 android:scaleY="0.75"
-                app:cardCornerRadius="250dp"
-                app:cardBackgroundColor="@color/TextWhite"
+                app:cardCornerRadius="150dp"
                 tools:ignore="MissingConstraints">
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    app:cardCornerRadius="250dp"
-                    android:layout_gravity="center">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:scaleX="0.75"
+                    android:scaleY="0.75"
+                    android:src="@drawable/weather" />
 
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleX="0.75"
-                        android:scaleY="0.75"
-
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/weather" />
-
-                </androidx.cardview.widget.CardView>
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
+
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"

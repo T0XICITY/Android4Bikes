@@ -71,16 +71,14 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        MarkerOptions markerOptions = createMarker(latLng,"Current Location");
+
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOMLEVEL));
-        googleMap.addMarker(markerOptions);
+
+        googleMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.setPadding(0,0,0,verticalOffset);
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        //googleMap.getUiSettings().setRotateGesturesEnabled(false);
-        //googleMap.getUiSettings().setScrollGesturesEnabled(false);
-        //googleMap.getUiSettings().setTiltGesturesEnabled(false);
     }
 
     private MarkerOptions createMarker(LatLng latLng,String markerName){

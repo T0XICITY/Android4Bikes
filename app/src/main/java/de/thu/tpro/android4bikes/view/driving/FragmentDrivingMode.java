@@ -40,8 +40,8 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         txtAvgSpeed = viewDrivingMode.findViewById(R.id.txtAverageSpeed);
         locationPermissions();
         viewModel = ViewModelDrivingMode.getInstance();
-        txtCurrentSpeed.setText(viewModel.updateSpeed(null)+"");
-        txtAvgSpeed.setText(viewModel.updateAverageSpeed(0)+"");
+        txtCurrentSpeed.setText(viewModel.updateSpeed(null) + "");
+        txtAvgSpeed.setText(viewModel.updateAverageSpeed(0) + "");
 
         return viewDrivingMode;
     }
@@ -59,12 +59,12 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         Log.d(LOG_TAG, "Init Map called");
         //to adjust the Map Controls position TODO: define offset programmatically. Problem height = wrap_content return 0
         int verticalOffest = 0;
-        Log.d(LOG_TAG,verticalOffest+"");
+        Log.d(LOG_TAG, verticalOffest + "");
         MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
         builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
     }
 
-        //TODO: handle permission in a central class
+    //TODO: handle permission in a central class
     private void locationPermissions() {
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -79,8 +79,8 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     public void onLocationChanged(Location location) {
         GpsLocation myLocation = new GpsLocation(location);
         int currentSpeed = viewModel.updateSpeed(myLocation);
-        txtCurrentSpeed.setText(currentSpeed+"");
-        txtAvgSpeed.setText("Ø "+viewModel.updateAverageSpeed(currentSpeed)+" Km/h");
+        txtCurrentSpeed.setText(currentSpeed + "");
+        txtAvgSpeed.setText("Ø " + viewModel.updateAverageSpeed(currentSpeed) + " Km/h");
     }
 
     @Override
