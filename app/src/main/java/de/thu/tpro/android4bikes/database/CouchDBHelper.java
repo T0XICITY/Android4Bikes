@@ -33,6 +33,7 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
 
 public class CouchDBHelper implements LocalDatabaseHelper {
@@ -277,10 +278,9 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             Map result = gson.fromJson(json_position.toString(), Map.class);
             MutableDocument md_position = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_position, md_position);
-
             if (couchDB.getNumberOfStoredDocuments(db_position) >= 50) {
                 List<Position> positions = this.getAllPositions();
-                //FirebaseConnection.getInstance().storeUtilizationToFireStore(positions); //todo: How to call this ? - This way it's wrong!
+                FirebaseConnection.getInstance().storeUtilizationToFireStore(positions); //todo: How to call this ? - This way it's wrong!
                 this.resetUtilization();
             }
         } catch (JSONException e) {

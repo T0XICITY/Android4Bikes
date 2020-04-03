@@ -561,10 +561,14 @@ public class CouchDbHelperTest {
 
         assertEquals(49,initialNumberOfDocuments);
 
-        position = new Position(9.997507+k, 48.408880+k);
+        position = new Position(10.997507+k, 50.408880+k);
 
         couchDbHelper.addToUtilization(position);
-
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_position);
 
         assertEquals(0,newNumberOfDocuments);

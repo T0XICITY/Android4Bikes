@@ -15,7 +15,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
@@ -26,6 +28,8 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
+
+import static java.util.stream.Collectors.toMap;
 
 public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
@@ -447,9 +451,11 @@ public class FirebaseConnection implements FireStoreDatabase {
     @Override
     public void storeUtilizationToFireStore(List<Position> utilization) {
         //TODO Review and Testing
+        Map<String,Object> map = new HashMap<>();
+        utilization.forEach(entry-> map.put(entry.toString(),entry));
         db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
                 .document(ConstantsFirebase.DOCUMENT_UTILIZATION.toString()) //set the id of a given document
-                .set(utilization, SetOptions.merge()) //set-Method with merge: Will append document if it is existing
+                .set(map, SetOptions.merge()) //set-Method with merge: Will append document if it is existing
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
