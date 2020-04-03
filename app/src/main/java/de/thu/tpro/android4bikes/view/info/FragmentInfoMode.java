@@ -88,7 +88,7 @@ public class FragmentInfoMode extends Fragment {
      */
     private void populateMap() {
         Log.d(LOG_TAG, "Init Map called");
-        //to adjust the Map Controls position TODO: define offset programmatically. Problem height = wrap_content return 0
+        //to adjust the Map Controls position TODO: define offset programmatically. Problem height = wrap_content returns 0
         int verticalOffest = 250;
         Log.d(LOG_TAG,verticalOffest+"");
         MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());

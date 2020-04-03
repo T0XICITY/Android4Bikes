@@ -27,17 +27,23 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     private static final String LOG_TAG = "FragmentDrivingMode";
 
     TextView txtCurrentSpeed;
+    TextView txtAvgSpeed;
     //TODO Delete after testing
-    private int cntr = 0;
-    private View viewDriving;
+    private ViewModelDrivingMode viewModel;
+    private View viewDrivingMode;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        viewDriving = inflater.inflate(R.layout.fragment_driving_mode, container, false);
+        viewDrivingMode = inflater.inflate(R.layout.fragment_driving_mode, container, false);
+        txtCurrentSpeed = viewDrivingMode.findViewById(R.id.txtCurrentSpeed);
+        txtAvgSpeed = viewDrivingMode.findViewById(R.id.txtAverageSpeed);
         locationPermissions();
-        updateSpeed(null);
-        return viewDriving;
+        viewModel = ViewModelDrivingMode.getInstance();
+        txtCurrentSpeed.setText(viewModel.updateSpeed(null)+"");
+        txtAvgSpeed.setText(viewModel.updateAverageSpeed(0)+"");
+
+        return viewDrivingMode;
     }
 
     @Override
@@ -58,27 +64,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
     }
 
-
-    /**
-     * Display current Speed into textViews
-     *
-     * @param location New Location set in onLocationChanged(...)
-     */
-    private void updateSpeed(GpsLocation location) {
-        txtCurrentSpeed = viewDriving.findViewById(R.id.txtCurrentSpeed);
-        float currSpeed = 0f;
-        String loc = "";
-        if (location != null) {
-            currSpeed = location.getSpeed();
-            loc = "Latitude " + location.getLatitude() +
-                    "\nLongitude " + location.getLongitude();
-        }
-        int iSpeed = Math.round(currSpeed);
-        txtCurrentSpeed.setText(iSpeed +"");
-        //Log for
-        Log.d(LOG_TAG + " Position",loc);
-    }
-
         //TODO: handle permission in a central class
     private void locationPermissions() {
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -93,7 +78,9 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         GpsLocation myLocation = new GpsLocation(location);
-        this.updateSpeed(myLocation);
+        int currentSpeed = viewModel.updateSpeed(myLocation);
+        txtCurrentSpeed.setText(currentSpeed+"");
+        txtAvgSpeed.setText("Ø "+viewModel.updateAverageSpeed(currentSpeed)+" Km/h");
     }
 
     @Override
