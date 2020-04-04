@@ -26,7 +26,7 @@ public class AchievementDeserializer<T> implements JsonDeserializer<T> {
         try {
             clazz = Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new JsonParseException(e.getMessage());
+            throw new JsonParseException(e);
         }
         return context.deserialize(jsonObject, clazz);
     }
