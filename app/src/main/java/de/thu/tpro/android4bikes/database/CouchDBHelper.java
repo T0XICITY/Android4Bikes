@@ -36,6 +36,12 @@ import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
 
+/**
+ * The purpose of the {@link de.thu.tpro.android4bikes.database.CouchDBHelper} is the provision of the interface
+ * between the local couchbase lite database an the classes and objects which are used in this project.
+ * It provides methods to store objects in the local database and also to read them.
+ * There are also delete and update methods where it is necessary.
+ */
 public class CouchDBHelper implements LocalDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
@@ -264,11 +270,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         this.deleteHazardAlert(hazardAlert.getFirebaseID());
     }
 
-    /**
-     * Saves a position in the local Database
-     *
-     * @param position is the position which should be stored in the local database
-     */
     @Override
     public void addToUtilization(Position position) {
         //todo: review und test
@@ -288,9 +289,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         }
     }
 
-    /**
-     * Deletes all entries of position of the local database
-     */
     @Override
     public void resetUtilization() {
         //todo:review und test
@@ -298,9 +296,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         couchDB.clearDB(utilizationDB);
     }
 
-    /**
-     * @param profile
-     */
     @Override
     public void storeProfile(Profile profile) {
         //todo: review und test
