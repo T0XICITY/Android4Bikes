@@ -176,32 +176,6 @@ public class Track {
         isComplete = complete;
     }
 
-
-    public enum ConstantsTrack {
-        AUTHOR_GOOGLEID("author_googleID"),
-        RATING("rating"),
-        NAME("name"),
-        DESCRIPTION("description"),
-        COARSEGRAINEDPOSITIONS("coarseGrainedPositions"),
-        FIREBASEID("firebaseID"),
-        TIMESTAMP("creationDate_unixtimestamp"),
-        DISTANCE_KM("distance_km"),
-        HAZARD_ALERTS("hazardAlerts"),
-        POSTCODE("postcode"),
-        IS_COMPLETE("isComplete");
-
-
-        private String type;
-
-        ConstantsTrack(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -240,5 +214,30 @@ public class Track {
                 ", postcode='" + postcode + '\'' +
                 ", isComplete=" + isComplete +
                 '}';
+    }
+
+    public enum ConstantsTrack {
+        AUTHOR_GOOGLEID("author_googleID"),
+        RATING("rating"),
+        NAME("name"),
+        DESCRIPTION("description"),
+        COARSEGRAINEDPOSITIONS("coarseGrainedPositions"),
+        FIREBASEID("firebaseID"),
+        TIMESTAMP("creationDate_unixtimestamp"),
+        DISTANCE_KM("distance_km"),
+        HAZARD_ALERTS("hazardAlerts"),
+        POSTCODE("postcode"),
+        IS_COMPLETE("isComplete");
+
+
+        private String type;
+
+        ConstantsTrack(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 }

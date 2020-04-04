@@ -41,19 +41,19 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
      * @param location New Location set in onLocationChanged(...)
      */
     private void updateSpeed(GpsLocation location) {
-        TextView txtCurrentSpeed = (TextView) viewDriving.findViewById(R.id.txtCurrentSpeed);
-        TextView txtLocation = (TextView) viewDriving.findViewById(R.id.txtLocation);
-        TextView txtCnt = (TextView) viewDriving.findViewById(R.id.txtCntr);
+        TextView txtCurrentSpeed = viewDriving.findViewById(R.id.txtCurrentSpeed);
+        TextView txtLocation = viewDriving.findViewById(R.id.txtLocation);
+        TextView txtCnt = viewDriving.findViewById(R.id.txtCntr);
         float currSpeed = 0f;
         String loc = "";
         if (location != null) {
             currSpeed = location.getSpeed();
-            loc = "Latitude " + Double.toString(location.getLatitude()) +
-                    "\nLongitude " + Double.toString(location.getLongitude());
+            loc = "Latitude " + location.getLatitude() +
+                    "\nLongitude " + location.getLongitude();
         }
         int iSpeed = Math.round(currSpeed);
 
-        txtCurrentSpeed.setText(Integer.toString(iSpeed) + "\nKm/h");
+        txtCurrentSpeed.setText(iSpeed + "\nKm/h");
         txtCnt.setText(Integer.toString(cntr));
         txtLocation.setText(loc);
     }

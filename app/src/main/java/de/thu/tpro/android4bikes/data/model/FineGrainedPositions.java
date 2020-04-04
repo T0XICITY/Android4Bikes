@@ -44,20 +44,6 @@ public class FineGrainedPositions {
         }
     }
 
-    public enum ConstantsFineGrainedPosition {
-        POSITIONS("positions"),
-        FIREBASID("firebaseID");
-        private String type;
-
-        ConstantsFineGrainedPosition(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -78,5 +64,19 @@ public class FineGrainedPositions {
                 "firebaseID='" + firebaseID + '\'' +
                 ", positions=" + positions +
                 '}';
+    }
+
+    public enum ConstantsFineGrainedPosition {
+        POSITIONS("positions"),
+        FIREBASID("firebaseID");
+        private String type;
+
+        ConstantsFineGrainedPosition(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 }
