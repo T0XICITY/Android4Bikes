@@ -186,6 +186,11 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         return positions;
     }
 
+    @Override
+    public Position getLastPosition() {
+        return null;
+    }
+
     /**
      * Generates the JSON representation out of a mutable document
      *

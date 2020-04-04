@@ -20,7 +20,7 @@ public class WeatherTask extends TimerTask {
 
     @Override
     public void run() {
-        Position position = new Position(9.836155, 48.304490);//dbHelper.getLastPosition();
+        Position position = dbHelper.getLastPosition();
         OpenWeatherObject weather = helper.createOpenWeatherObject(position.getLatitude(), position.getLongitude());
         if (weatherObject == null || !weatherObject.toString().equals(weather.toString())) {
             weatherObject = weather;
