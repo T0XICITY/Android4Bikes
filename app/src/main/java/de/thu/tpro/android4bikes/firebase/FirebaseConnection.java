@@ -13,30 +13,48 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
+import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
 
 public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
     private LocalDatabaseHelper localDatabaseHelper;
     private String TAG = "HalloWelt";
+    private Gson gson;
+    private Gson gson_achievement;
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         localDatabaseHelper = new CouchDBHelper();
+        this.gson = new Gson();
+        //create and set deserializer for the inheritance regarding the class "achievement"
+        GsonBuilder gsonBuilder_achievement = new GsonBuilder();
+        gsonBuilder_achievement.registerTypeAdapter(Achievement.class, new AchievementDeserializer<Achievement>());
+        gson_achievement = gsonBuilder_achievement.create();
     }
 
     public static FirebaseConnection getInstance() {
@@ -54,27 +72,33 @@ public class FirebaseConnection implements FireStoreDatabase {
     @Override
     public void storeProfileToFireStoreAndLocalDB(Profile profile) {
         //TODO Review and Testing
-        db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
-                .document(profile.getGoogleID()) //set the id of a given document
-                .set(profile) //set-Method: Will create or overwrite document if it is existing
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
-                        try {
-                            localDatabaseHelper.storeProfile(profile);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+        try {
+            JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
+            Map map_profile = gson.fromJson(jsonObject_profile.toString(), Map.class);
+            db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
+                    .document(profile.getGoogleID()) //set the id of a given document
+                    .set(map_profile) //set-Method: Will create or overwrite document if it is existing
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
+                            try {
+                                localDatabaseHelper.storeProfile(profile);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
 
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding Profile " + profile.getFamilyName(), e);
-                    }
-                });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding Profile " + profile.getFamilyName(), e);
+                        }
+                    });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -92,13 +116,24 @@ public class FirebaseConnection implements FireStoreDatabase {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d(TAG, "Profile " + document.toObject(Profile.class).getFamilyName() + " got successfully");
+                        //Log.d(TAG, "Profile " + document.toObject(Profile.class).getFamilyName() + " got successfully"); //toObjectMethod don't works for profile!!!
                         try {
-                            localDatabaseHelper.storeProfile(document.toObject(Profile.class));
-                        } catch (Exception e) {
+                            Map map_result = document.getData();
+                            JSONObject jsonObject_profile = new JSONObject(map_result);
+                            JSONArray jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+                            List<Achievement> list_achievements = new ArrayList<>();
+                            for (int i = 0; i < jsonArray_achievement.length(); ++i) {
+                                JSONObject jsonObject_achievement = jsonArray_achievement.getJSONObject(i);
+                                Achievement achievement = gson_achievement.fromJson(jsonObject_achievement.toString(), Achievement.class);
+                                list_achievements.add(achievement);
+                            }
+                            jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+                            Profile profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
+                            profile.setAchievements(list_achievements);
+                            localDatabaseHelper.storeProfile(profile);
+                        }catch (JSONException e){
                             e.printStackTrace();
                         }
-
                     } else {
                         Log.d(TAG, "No such Profile");
                         //TODO Exception Document not found

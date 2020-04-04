@@ -58,6 +58,21 @@ public class FirebaseConnectionTest {
         //firebaseConnection.deleteProfileFromFireStoreAndLocalDB(profile_kostas.getGoogleID());
     }
 
+    @Test
+    public void readProfileFromFireStoreAndStoreItToLocalDB(){
+        Profile profile_kostas = this.createProfile();
+
+        firebaseConnection.readProfileFromFireStoreAndStoreItToLocalDB(profile_kostas.getGoogleID());
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Profile read_profile = couchDBHelper.readProfile(profile_kostas.getGoogleID());
+        assertEquals(profile_kostas, read_profile);
+    }
+
     /**
      * 1. Generates a {@link de.thu.tpro.android4bikes.data.model.BikeRack} 'THU' that is located in Ulm
      * 2. Stores the same {@link de.thu.tpro.android4bikes.data.model.BikeRack} 'THU' three times to the {@link com.google.firebase.firestore.FirebaseFirestore}
