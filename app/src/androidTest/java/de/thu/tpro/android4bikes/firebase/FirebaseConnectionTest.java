@@ -13,6 +13,7 @@ import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
@@ -27,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class FirebaseConnectionTest {
     private static FirebaseConnection firebaseConnection;
     private static CouchDBHelper couchDBHelper;
+    private static CouchDB couchDB;
 
 
     @BeforeClass
@@ -34,18 +36,20 @@ public class FirebaseConnectionTest {
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         firebaseConnection = FirebaseConnection.getInstance();
         couchDBHelper = new CouchDBHelper();
-
+        couchDB = CouchDB.getInstance();
     }
 
     @Test
     public void storeProfileToFireStoreAndLocalDB() {
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_PROFILE));
+        
         Profile profile_kostas = this.createProfile();
 
         firebaseConnection.storeProfileToFireStoreAndLocalDB(profile_kostas);
 
         //wait a few seconds because of the asynchronous process of storing data to FireBase
         try {
-            Thread.sleep(10000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -60,6 +64,8 @@ public class FirebaseConnectionTest {
 
     @Test
     public void readProfileFromFireStoreAndStoreItToLocalDB(){
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_PROFILE));
+
         Profile profile_kostas = this.createProfile();
 
         firebaseConnection.readProfileFromFireStoreAndStoreItToLocalDB(profile_kostas.getGoogleID());

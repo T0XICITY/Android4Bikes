@@ -117,27 +117,11 @@ public class FirebaseConnection implements FireStoreDatabase {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         //Log.d(TAG, "Profile " + document.toObject(Profile.class).getFamilyName() + " got successfully"); //toObjectMethod don't works for profile!!!
-                        try {
-                            Map map_result = document.getData();
-                            JSONObject jsonObject_profile = new JSONObject(map_result);
-                            JSONArray jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
-                            List<Achievement> list_achievements = new ArrayList<>();
-                            for (int i = 0; i < jsonArray_achievement.length(); ++i) {
-                                JSONObject jsonObject_achievement = jsonArray_achievement.getJSONObject(i);
-                                Achievement achievement = gson_achievement.fromJson(jsonObject_achievement.toString(), Achievement.class);
-                                list_achievements.add(achievement);
-                            }
-                            jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
-                            Profile profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
-                            profile.setAchievements(list_achievements);
-                            localDatabaseHelper.storeProfile(profile);
-                        }catch (JSONException e){
-                            e.printStackTrace();
-                        }
+                        Map map_result = document.getData();
+                        localDatabaseHelper.storeProfile(map_result);
                     } else {
                         Log.d(TAG, "No such Profile");
                         //TODO Exception Document not found
-
                     }
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());

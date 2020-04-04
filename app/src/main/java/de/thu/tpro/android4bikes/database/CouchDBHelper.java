@@ -305,9 +305,15 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
             MutableDocument mutableDocument_profile = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_profile, mutableDocument_profile);
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void storeProfile(Map map_profile){
+        MutableDocument mutableDocument_profile = new MutableDocument(map_profile);
+        couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE), mutableDocument_profile);
     }
 
     @Override

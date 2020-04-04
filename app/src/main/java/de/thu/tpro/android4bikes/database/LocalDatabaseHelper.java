@@ -1,6 +1,7 @@
 package de.thu.tpro.android4bikes.database;
 
 import java.util.List;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
@@ -19,6 +20,8 @@ public interface LocalDatabaseHelper {
      * @param profile is the profile which should be stored in the local database
      */
     void storeProfile(Profile profile);
+
+    void storeProfile(Map map_profile);
 
     /**
      * Method to read a profile from the local database
