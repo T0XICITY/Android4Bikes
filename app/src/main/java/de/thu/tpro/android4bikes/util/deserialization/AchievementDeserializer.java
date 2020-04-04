@@ -9,6 +9,11 @@ import com.google.gson.JsonPrimitive;
 
 import java.lang.reflect.Type;
 
+/**
+ * AchievementDeserializer is used to deserialize {@link com.google.gson.JsonElement} which is of type {@link de.thu.tpro.android4bikes.data.achievements.Achievement}.
+ * It is necessary to have an own implementation of that because of the inheritance of  Achievements.
+ * By default it is not possible to deserialize with inheritance. This implementation makes it possible.
+ */
 public class AchievementDeserializer<T> implements JsonDeserializer<T> {
 
     @Override
