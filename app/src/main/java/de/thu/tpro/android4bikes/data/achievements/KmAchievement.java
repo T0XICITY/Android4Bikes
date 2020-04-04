@@ -40,7 +40,7 @@ public class KmAchievement extends Achievement {
     @Override
     public String toString() {
         String superToString = super.toString();
-        return superToString +" + KmAchievement{" +
+        return superToString + " + KmAchievement{" +
                 "kmGoal=" + kmGoal +
                 '}';
     }

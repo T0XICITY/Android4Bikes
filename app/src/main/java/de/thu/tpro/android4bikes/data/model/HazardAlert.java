@@ -97,6 +97,36 @@ public class HazardAlert {
         this.expiryTimestamp = expiryTimestamp;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HazardAlert)) return false;
+        HazardAlert that = (HazardAlert) o;
+        return getExpiryTimestamp() == that.getExpiryTimestamp() &&
+                getDistanceOfInterest() == that.getDistanceOfInterest() &&
+                getType() == that.getType() &&
+                getPosition().equals(that.getPosition()) &&
+                getPostcode().equals(that.getPostcode()) &&
+                getFirebaseID().equals(that.getFirebaseID());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getType(), getPosition(), getPostcode(), getExpiryTimestamp(), getDistanceOfInterest(), getFirebaseID());
+    }
+
+    @Override
+    public String toString() {
+        return "HazardAlert{" +
+                "type=" + type +
+                ", position=" + position +
+                ", postcode='" + postcode + '\'' +
+                ", expiryTimestamp=" + expiryTimestamp +
+                ", distanceOfInterest=" + distanceOfInterest +
+                ", firebaseID='" + firebaseID + '\'' +
+                '}';
+    }
+
     public enum ConstantsHazardAlert {
         POSTCODE("postcode"),
         TYPE("type"),
@@ -133,35 +163,5 @@ public class HazardAlert {
         public String getType() {
             return type;
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof HazardAlert)) return false;
-        HazardAlert that = (HazardAlert) o;
-        return getExpiryTimestamp() == that.getExpiryTimestamp() &&
-                getDistanceOfInterest() == that.getDistanceOfInterest() &&
-                getType() == that.getType() &&
-                getPosition().equals(that.getPosition()) &&
-                getPostcode().equals(that.getPostcode()) &&
-                getFirebaseID().equals(that.getFirebaseID());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getType(), getPosition(), getPostcode(), getExpiryTimestamp(), getDistanceOfInterest(), getFirebaseID());
-    }
-
-    @Override
-    public String toString() {
-        return "HazardAlert{" +
-                "type=" + type +
-                ", position=" + position +
-                ", postcode='" + postcode + '\'' +
-                ", expiryTimestamp=" + expiryTimestamp +
-                ", distanceOfInterest=" + distanceOfInterest +
-                ", firebaseID='" + firebaseID + '\'' +
-                '}';
     }
 }

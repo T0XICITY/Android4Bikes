@@ -311,7 +311,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     }
 
     @Override
-    public void storeProfile(Map map_profile){
+    public void storeProfile(Map map_profile) {
         MutableDocument mutableDocument_profile = new MutableDocument(map_profile);
         couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE), mutableDocument_profile);
     }

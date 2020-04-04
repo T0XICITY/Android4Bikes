@@ -91,26 +91,6 @@ public class Profile {
         this.googleID = googleID;
     }
 
-    public enum ConstantsProfile {
-        FIRSTNAME("firstname"),
-        FAMILYNAME("familyname"),
-        GOOGLEID("googleID"),
-        COLOR("color"),
-        OVERALLDISTANCE("overalldistance"),
-        ACHIEVEMENTS("achievements");
-
-
-        private String type;
-
-        ConstantsProfile(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -139,5 +119,25 @@ public class Profile {
                 ", overallDistance=" + overallDistance +
                 ", achievements=" + achievements +
                 '}';
+    }
+
+    public enum ConstantsProfile {
+        FIRSTNAME("firstname"),
+        FAMILYNAME("familyname"),
+        GOOGLEID("googleID"),
+        COLOR("color"),
+        OVERALLDISTANCE("overalldistance"),
+        ACHIEVEMENTS("achievements");
+
+
+        private String type;
+
+        ConstantsProfile(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 }

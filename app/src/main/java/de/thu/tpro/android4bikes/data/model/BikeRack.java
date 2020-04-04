@@ -166,6 +166,40 @@ public class BikeRack {
         this.hasBikeCharging = hasBikeCharging;
     }
 
+    @Override
+    public String toString() {
+        return "BikeRack{" +
+                "firebaseID='" + firebaseID + '\'' +
+                ", position=" + position +
+                ", postcode='" + postcode + '\'' +
+                ", name='" + name + '\'' +
+                ", capacity=" + capacity +
+                ", hasBikeCharging=" + hasBikeCharging +
+                ", isExistent=" + isExistent +
+                ", isCovered=" + isCovered +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BikeRack)) return false;
+        BikeRack bikeRack = (BikeRack) o;
+        return isHasBikeCharging() == bikeRack.isHasBikeCharging() &&
+                isExistent() == bikeRack.isExistent() &&
+                isCovered() == bikeRack.isCovered() &&
+                getFirebaseID().equals(bikeRack.getFirebaseID()) &&
+                getPosition().equals(bikeRack.getPosition()) &&
+                getPostcode().equals(bikeRack.getPostcode()) &&
+                getName().equals(bikeRack.getName()) &&
+                getCapacity() == bikeRack.getCapacity();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getFirebaseID(), getPosition(), getPostcode(), getName(), getCapacity(), isHasBikeCharging(), isExistent(), isCovered());
+    }
+
     public enum ConstantsBikeRack {
         FIREBASEID("firebaseID"),
         POSTCODE("postcode"),
@@ -202,39 +236,5 @@ public class BikeRack {
         public int toInt() {
             return capacity;
         }
-    }
-
-    @Override
-    public String toString() {
-        return "BikeRack{" +
-                "firebaseID='" + firebaseID + '\'' +
-                ", position=" + position +
-                ", postcode='" + postcode + '\'' +
-                ", name='" + name + '\'' +
-                ", capacity=" + capacity +
-                ", hasBikeCharging=" + hasBikeCharging +
-                ", isExistent=" + isExistent +
-                ", isCovered=" + isCovered +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BikeRack)) return false;
-        BikeRack bikeRack = (BikeRack) o;
-        return isHasBikeCharging() == bikeRack.isHasBikeCharging() &&
-                isExistent() == bikeRack.isExistent() &&
-                isCovered() == bikeRack.isCovered() &&
-                getFirebaseID().equals(bikeRack.getFirebaseID()) &&
-                getPosition().equals(bikeRack.getPosition()) &&
-                getPostcode().equals(bikeRack.getPostcode()) &&
-                getName().equals(bikeRack.getName()) &&
-                getCapacity() == bikeRack.getCapacity();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getFirebaseID(), getPosition(), getPostcode(), getName(), getCapacity(), isHasBikeCharging(), isExistent(), isCovered());
     }
 }

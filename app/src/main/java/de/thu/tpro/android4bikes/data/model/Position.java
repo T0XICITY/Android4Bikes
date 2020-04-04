@@ -80,23 +80,6 @@ public class Position {
         }
     }
 
-    public enum ConstantsPosition {
-        LATITUDE("latitude"),
-        LONGITUDE("longitude"),
-        POSITION("position");
-
-
-        private String type;
-
-        ConstantsPosition(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -117,5 +100,22 @@ public class Position {
                 "longitude=" + longitude +
                 ", latitude=" + latitude +
                 '}';
+    }
+
+    public enum ConstantsPosition {
+        LATITUDE("latitude"),
+        LONGITUDE("longitude"),
+        POSITION("position");
+
+
+        private String type;
+
+        ConstantsPosition(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 }

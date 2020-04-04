@@ -42,7 +42,7 @@ public class FirebaseConnectionTest {
     @Test
     public void storeProfileToFireStoreAndLocalDB() {
         couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_PROFILE));
-        
+
         Profile profile_kostas = this.createProfile();
 
         firebaseConnection.storeProfileToFireStoreAndLocalDB(profile_kostas);

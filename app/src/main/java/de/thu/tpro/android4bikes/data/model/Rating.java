@@ -52,22 +52,6 @@ public class Rating {
         this.roadquality = roadquality;
     }
 
-    public enum ConstantsRating {
-        DIFFICULTY("difficulty"),
-        FUN("fun"),
-        ROADQUALITY("roadquality");
-
-        private String type;
-
-        ConstantsRating(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -90,5 +74,21 @@ public class Rating {
                 ", fun=" + fun +
                 ", roadquality=" + roadquality +
                 '}';
+    }
+
+    public enum ConstantsRating {
+        DIFFICULTY("difficulty"),
+        FUN("fun"),
+        ROADQUALITY("roadquality");
+
+        private String type;
+
+        ConstantsRating(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
+        }
     }
 }
