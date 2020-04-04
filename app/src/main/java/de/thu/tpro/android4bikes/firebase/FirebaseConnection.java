@@ -464,8 +464,6 @@ public class FirebaseConnection implements FireStoreDatabase {
     public void storeUtilizationToFireStore(List<Position> utilization) {
         //TODO Review and Testing
         Map<String, Object> map = new HashMap<>();
-        //utilization.forEach(entry-> map.put(entry.toString(),entry));
-
         for (int i = 0; i < utilization.size(); i++) {
             map.put(Integer.toString(i), utilization.get(i));
         }
