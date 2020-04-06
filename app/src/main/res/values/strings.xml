@@ -6,6 +6,7 @@
     <string name="title_assistance">Assistance</string>
     <string name="title_emergency">Emergency Numbers</string>
     <string name="title_switchMode">Mode Switch</string>
+    <string name="title_tracks">Tracks</string>
     <!--Hazard Strings-->
     <string name="HazardAlert_HazardType_DamagedRoad">Damaged road</string>
     <string name="HazardAlert_HazardType_IcyRoad">Icy road</string>
@@ -15,4 +16,15 @@
     <!---Login Strings-->
     <string name="activity_login_image">Login Image</string>
     <string name="Activity_Login_Toast_Fail">Sorry auth failed.</string>
+    <!---Map Strings TODO: Remove-->
+    <string name="map_key" translatable="false">AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc</string>
+    <!-- Roadside Assistance Strings -->
+    <string-array name="roadside_assistance_list">
+        <item>Ambulance Service</item>
+        <item>Fire Department</item>
+        <item>Police</item>
+        <item>Roadside Assistance</item>
+        <item>Youth Helpline</item>
+        <item>Manual Input</item>
+    </string-array>
 </resources>
