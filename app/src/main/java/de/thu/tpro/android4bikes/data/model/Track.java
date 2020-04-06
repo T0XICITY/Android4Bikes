@@ -31,8 +31,8 @@ public class Track {
     @SerializedName("distance_km")
     private int distance_km;
     @Expose
-    @SerializedName("coarseGrainedPositions")
-    private List<Position> coarseGrainedPositions;
+    @SerializedName("fineGrainedPositions")
+    private List<Position> fineGrainedPositions;
     @Expose
     @SerializedName("hazardAlerts")
     private List<HazardAlert> hazardAlerts;
@@ -59,11 +59,11 @@ public class Track {
      * @param firebaseID
      * @param creationDate_unixtimestamp
      * @param distance_km
-     * @param coarseGrainedPositions
+     * @param fineGrainedPositions
      * @param hazardAlerts
      * @param isComplete
      */
-    public Track(String author_googleID, Rating rating, String name, String description, String firebaseID, long creationDate_unixtimestamp, int distance_km, List<Position> coarseGrainedPositions, List<HazardAlert> hazardAlerts, boolean isComplete) {
+    public Track(String author_googleID, Rating rating, String name, String description, String firebaseID, long creationDate_unixtimestamp, int distance_km, List<Position> fineGrainedPositions, List<HazardAlert> hazardAlerts, boolean isComplete) {
         this.author_googleID = author_googleID;
         this.rating = rating;
         this.name = name;
@@ -71,21 +71,21 @@ public class Track {
         this.firebaseID = firebaseID;
         this.creationDate_unixtimestamp = creationDate_unixtimestamp;
         this.distance_km = distance_km;
-        this.coarseGrainedPositions = coarseGrainedPositions;
+        this.fineGrainedPositions = fineGrainedPositions;
         this.hazardAlerts = hazardAlerts;
         this.isComplete = isComplete;
 
         if (isComplete) {
-            this.postcode = GeoLocationHelper.convertPositionToPostcode(coarseGrainedPositions.get(0));
+            this.postcode = GeoLocationHelper.convertPositionToPostcode(fineGrainedPositions.get(0));
         }
     }
 
-    public List<Position> getCoarseGrainedPositions() {
-        return coarseGrainedPositions;
+    public List<Position> getFineGrainedPositions() {
+        return fineGrainedPositions;
     }
 
-    public void setCoarseGrainedPositions(List<Position> coarseGrainedPositions) {
-        this.coarseGrainedPositions = coarseGrainedPositions;
+    public void setFineGrainedPositions(List<Position> fineGrainedPositions) {
+        this.fineGrainedPositions = fineGrainedPositions;
     }
 
     public long getCreationDate_unixtimestamp() {
@@ -97,11 +97,11 @@ public class Track {
     }
 
     public List<Position> getTrack() {
-        return coarseGrainedPositions;
+        return fineGrainedPositions;
     }
 
     public void setTrack(List<Position> track) {
-        this.coarseGrainedPositions = track;
+        this.fineGrainedPositions = track;
     }
 
     public String getFirebaseID() {
@@ -189,14 +189,14 @@ public class Track {
                 getName().equals(track.getName()) &&
                 getDescription().equals(track.getDescription()) &&
                 getFirebaseID().equals(track.getFirebaseID()) &&
-                getCoarseGrainedPositions().equals(track.getCoarseGrainedPositions()) &&
+                getFineGrainedPositions().equals(track.getFineGrainedPositions()) &&
                 getHazardAlerts().equals(track.getHazardAlerts()) &&
                 getPostcode().equals(track.getPostcode());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAuthor_googleID(), getRating(), getName(), getDescription(), getFirebaseID(), getCreationDate_unixtimestamp(), getDistance_km(), getCoarseGrainedPositions(), getHazardAlerts(), getPostcode(), isComplete());
+        return Objects.hash(getAuthor_googleID(), getRating(), getName(), getDescription(), getFirebaseID(), getCreationDate_unixtimestamp(), getDistance_km(), getFineGrainedPositions(), getHazardAlerts(), getPostcode(), isComplete());
     }
 
     @Override
@@ -209,7 +209,7 @@ public class Track {
                 ", firebaseID='" + firebaseID + '\'' +
                 ", creationDate_unixtimestamp=" + creationDate_unixtimestamp +
                 ", distance_km=" + distance_km +
-                ", coarseGrainedPositions=" + coarseGrainedPositions +
+                ", coarseGrainedPositions=" + fineGrainedPositions +
                 ", hazardAlerts=" + hazardAlerts +
                 ", postcode='" + postcode + '\'' +
                 ", isComplete=" + isComplete +
