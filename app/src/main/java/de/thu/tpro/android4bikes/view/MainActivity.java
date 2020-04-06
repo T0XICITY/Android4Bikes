@@ -19,7 +19,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Date;
+
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.database.Database;
+import de.thu.tpro.android4bikes.database.DatabaseConnection;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
@@ -52,6 +56,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         initNavigationDrawer();
         initBottomNavigation();
+
+        Database database = DatabaseConnection.getInstance();
+
+        database.getLastPosition();
+        database.readTracks("89610");
 
 
         initFragments();

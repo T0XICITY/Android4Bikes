@@ -9,6 +9,19 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 
 public class DatabaseConnection implements Database {
+    private static DatabaseConnection instance;
+
+    private DatabaseConnection() {
+
+    }
+
+    public static DatabaseConnection getInstance(){
+        if (instance == null){
+            instance = new DatabaseConnection();
+        }
+        return instance;
+    }
+
     @Override
     public void storeProfile(Profile profile) {
 
