@@ -13,14 +13,15 @@ public class PositionCompressorTest {
 
     @Test
     public void compressAndDecompressPositions() {
-        List<Position> finegrainedpositions = new ArrayList<>();
-        finegrainedpositions.add(new Position(9.997507, 48.408880));
-        finegrainedpositions.add(new Position(9.997509, 48.408887));
+        List<Position> fineGrainedPositions = new ArrayList<>();
+        for(int i =0; i<50000; ++i) {
+            fineGrainedPositions.add(new Position(9.997507 + i, 48.408880 + i));
+        }
 
         PositionCompressor positionCompressor = new PositionCompressor();
-        byte[] compressedPositionList = positionCompressor.compressPositions(finegrainedpositions);
+        byte[] compressedPositionList = positionCompressor.compressPositions(fineGrainedPositions);
 
         List<Position> decompressedPositionList = positionCompressor.decompressPositions(compressedPositionList);
-        assertEquals(finegrainedpositions, decompressedPositionList);
+        assertEquals(fineGrainedPositions, decompressedPositionList);
     }
 }

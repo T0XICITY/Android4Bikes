@@ -17,6 +17,9 @@ import java.util.zip.Inflater;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 
+/**
+ *
+ */
 public class PositionCompressor {
     private JSONHelper<Position> jsonHelper;
 
@@ -94,7 +97,7 @@ public class PositionCompressor {
     }
 
     /**
-     * compressed byte[] -> decompressed byte[] -> JSON-{@link String}
+     * compressed byte[] -> decompressed byte[] -> JSON-{@link String} -> List<{@link Position}>
      *
      * @param compressedPositions
      * @return
