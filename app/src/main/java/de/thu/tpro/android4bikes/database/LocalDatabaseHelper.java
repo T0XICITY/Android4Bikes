@@ -57,4 +57,10 @@ public interface LocalDatabaseHelper {
     void addToUtilization(Position position); //>50: stores to firebase
 
     void resetUtilization(); //resets local utilization db
+
+    /**
+     * Method to get the last position from the local database
+     * @return the last saved position in the database
+     * */
+    Position getLastPosition();
 }
