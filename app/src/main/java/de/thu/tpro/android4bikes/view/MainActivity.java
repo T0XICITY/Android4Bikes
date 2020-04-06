@@ -57,11 +57,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initNavigationDrawer();
         initBottomNavigation();
 
+        /*
         Database database = DatabaseConnection.getInstance();
 
         database.getLastPosition();
         database.readTracks("89610");
-
+        */
 
         initFragments();
 
