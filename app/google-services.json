@@ -1,50 +1,42 @@
 {
   "project_info": {
-    "project_number": "87638328925",
-    "firebase_url": "https://android4bikes.firebaseio.com",
-    "project_id": "android4bikes",
-    "storage_bucket": "android4bikes.appspot.com"
+    "project_number": "481718510407",
+    "firebase_url": "https://android-four-bikes.firebaseio.com",
+    "project_id": "android-four-bikes",
+    "storage_bucket": "android-four-bikes.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:87638328925:android:00e17bac0e255e428cefb4",
+        "mobilesdk_app_id": "1:481718510407:android:bb1a12f0a64bcb79816262",
         "android_client_info": {
           "package_name": "de.thu.tpro.android4bikes"
         }
       },
       "oauth_client": [
         {
-          "client_id": "87638328925-uovc7jdrm9339bra998ebap99i5i7tm6.apps.googleusercontent.com",
+          "client_id": "481718510407-amoetut85colhk8hjac2ck4f2mvb627m.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "de.thu.tpro.android4bikes",
-            "certificate_hash": "992fa93701ca459a323fa59babad47fcf328856a"
+            "certificate_hash": "2099093a27fc4e686f8b536ec5be8077f2187c4f"
           }
         },
         {
-          "client_id": "87638328925-1fkn1qccha7bo77kqebhmuu88ko6tko9.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "de.thu.tpro.android4bikes",
-            "certificate_hash": "353d2ef495d88d6575e1bbca27bcc8106553c540"
-          }
-        },
-        {
-          "client_id": "87638328925-elh9oe4epnvihooi74siag0ttu3ae49v.apps.googleusercontent.com",
+          "client_id": "481718510407-66fknasmobccfqvmdbqjft07944qf6un.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAhXyv3fhGx3AKMyrA-BF9uw209Re9Mek8"
+          "current_key": "AIzaSyCQlTAlnqx3e4cH98a4gP0FeYO-novd3_4"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "87638328925-elh9oe4epnvihooi74siag0ttu3ae49v.apps.googleusercontent.com",
+              "client_id": "481718510407-66fknasmobccfqvmdbqjft07944qf6un.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -52,5 +44,6 @@
       }
     }
   ],
+  
   "configuration_version": "1"
 }

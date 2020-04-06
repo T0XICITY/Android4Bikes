@@ -15,8 +15,12 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
+
 
 public class FragmentInfoMode extends Fragment {
 
@@ -32,14 +36,11 @@ public class FragmentInfoMode extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        /*FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
+        FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
         super.onCreate(savedInstanceState);
         List<Achievement> achievements = new ArrayList<>();
         achievements.add(new KmAchievement("A", 1, 1, 1, 1));
         achievements.add(new KmAchievement("B", 2, 2, 2, 2));
-
-        Profile profile = new Profile("Olaf", "Olafsen", "00x13dxxx", 10, 1, achievements);
-        firebaseConnection.storeProfileToFireStoreAndLocalDB(profile);
 
         GlobalContext.setContext(getActivity().getApplicationContext());
         determineAllViews();

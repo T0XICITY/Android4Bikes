@@ -1,22 +1,32 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import org.json.JSONObject;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
-import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-public class HazardAlert implements JsonRepresentation {
+public class HazardAlert {
+    @Expose
+    @SerializedName("type")
     private HazardType type;
+    @Expose
+    @SerializedName("position")
     private Position position;
+    @Expose
+    @SerializedName("postcode")
     private String postcode;
+    @Expose
+    @SerializedName("expiryTimestamp")
     private long expiryTimestamp;
+    @Expose
+    @SerializedName("distanceOfInterest")
     private int distanceOfInterest;
+    @Expose
+    @SerializedName("firebaseID")
     private String firebaseID;
 
     /**
@@ -24,16 +34,6 @@ public class HazardAlert implements JsonRepresentation {
      */
     public HazardAlert() {
 
-    }
-
-    public HazardAlert(Map<String, Object> map_hazardAlert) {
-        this.type = (HazardType) map_hazardAlert.get(ConstantsHazardAlert.TYPE.toString());
-        Object obj_position = map_hazardAlert.get(ConstantsHazardAlert.POSITION.toString());
-        this.position = new Position((Map<String, Object>) obj_position);
-        this.postcode = (String) map_hazardAlert.get(ConstantsHazardAlert.POSTCODE.toString());
-        this.expiryTimestamp = (long) map_hazardAlert.get(ConstantsHazardAlert.EXPIRYTIMESTAMP.toString());
-        this.distanceOfInterest = (int) map_hazardAlert.get(ConstantsHazardAlert.DISTANCEOFINTEREST.toString());
-        this.firebaseID = (String) map_hazardAlert.get(ConstantsHazardAlert.FIREBASEID.toString());
     }
 
     public HazardAlert(HazardType type, Position position, long expiryTimestamp, int distanceOfInterest, String firebaseID) {
@@ -97,22 +97,34 @@ public class HazardAlert implements JsonRepresentation {
         this.expiryTimestamp = expiryTimestamp;
     }
 
-
     @Override
-    public JSONObject toJSON() throws InvalidJsonException {
-        return new JSONObject(this.toMap());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HazardAlert)) return false;
+        HazardAlert that = (HazardAlert) o;
+        return getExpiryTimestamp() == that.getExpiryTimestamp() &&
+                getDistanceOfInterest() == that.getDistanceOfInterest() &&
+                getType() == that.getType() &&
+                getPosition().equals(that.getPosition()) &&
+                getPostcode().equals(that.getPostcode()) &&
+                getFirebaseID().equals(that.getFirebaseID());
     }
 
     @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map_Hazards = new HashMap<>();
-        map_Hazards.put(ConstantsHazardAlert.TYPE.toString(), type);
-        map_Hazards.put(ConstantsHazardAlert.POSITION.toString(), position);
-        map_Hazards.put(ConstantsHazardAlert.POSTCODE.toString(), postcode);
-        map_Hazards.put(ConstantsHazardAlert.EXPIRYTIMESTAMP.toString(), expiryTimestamp);
-        map_Hazards.put(ConstantsHazardAlert.DISTANCEOFINTEREST.toString(), distanceOfInterest);
-        map_Hazards.put(ConstantsHazardAlert.FIREBASEID.toString(), firebaseID);
-        return map_Hazards;
+    public int hashCode() {
+        return Objects.hash(getType(), getPosition(), getPostcode(), getExpiryTimestamp(), getDistanceOfInterest(), getFirebaseID());
+    }
+
+    @Override
+    public String toString() {
+        return "HazardAlert{" +
+                "type=" + type +
+                ", position=" + position +
+                ", postcode='" + postcode + '\'' +
+                ", expiryTimestamp=" + expiryTimestamp +
+                ", distanceOfInterest=" + distanceOfInterest +
+                ", firebaseID='" + firebaseID + '\'' +
+                '}';
     }
 
     public enum ConstantsHazardAlert {
