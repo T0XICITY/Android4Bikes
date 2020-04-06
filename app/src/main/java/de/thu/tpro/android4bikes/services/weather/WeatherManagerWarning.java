@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import de.thu.tpro.android4bikes.services.weather.weatherData.warning.DWDwarning;
+import de.thu.tpro.android4bikes.data.warning.DWDwarning;
 
 public class WeatherManagerWarning extends Observable {
     private final static String string_url = "https://www.dwd.de/DWD/warnungen/warnapp/json/warnings.json";

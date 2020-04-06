@@ -5,7 +5,7 @@ import java.util.TimerTask;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
-import de.thu.tpro.android4bikes.services.weather.weatherData.openWeather.OpenWeatherObject;
+import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 
 public class WeatherTask extends TimerTask {
     private OpenWeatherManager manager;

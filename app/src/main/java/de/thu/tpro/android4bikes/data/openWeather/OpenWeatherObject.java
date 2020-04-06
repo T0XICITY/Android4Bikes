@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.services.weather.weatherData.openWeather;
+package de.thu.tpro.android4bikes.data.openWeather;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

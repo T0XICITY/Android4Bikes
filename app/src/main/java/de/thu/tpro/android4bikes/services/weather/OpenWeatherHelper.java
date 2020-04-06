@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import de.thu.tpro.android4bikes.services.weather.weatherData.openWeather.OpenWeatherObject;
+import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 
 public class OpenWeatherHelper {
     private static final String appID = "27d59ee2b5c90cf9beed248c6b4ef026";

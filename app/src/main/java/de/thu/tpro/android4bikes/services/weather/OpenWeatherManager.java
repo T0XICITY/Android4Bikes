@@ -3,7 +3,7 @@ package de.thu.tpro.android4bikes.services.weather;
 import java.util.Observable;
 import java.util.Timer;
 
-import de.thu.tpro.android4bikes.services.weather.weatherData.openWeather.OpenWeatherObject;
+import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 
 public class OpenWeatherManager extends Observable {
     private Timer timer;
