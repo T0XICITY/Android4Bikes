@@ -113,7 +113,7 @@ public class FirebaseConnectionTest {
             e.printStackTrace();
         }
 
-         read_profile = couchDBHelper.readProfile(profile_kostas.getGoogleID());
+        read_profile = couchDBHelper.readProfile(profile_kostas.getGoogleID());
 
         assertEquals(profile_kostas_updated,read_profile);
     }
