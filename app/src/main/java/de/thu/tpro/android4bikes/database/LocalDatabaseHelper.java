@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
-import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
@@ -109,29 +108,6 @@ public interface LocalDatabaseHelper {
      * @param fireBaseID is the firebaseID of the track which should be deleted
      */
     void deleteTrack(String fireBaseID);
-
-    /**
-     * Method to store fine grained positions to the local database
-     *
-     * @param fineGrainedPositions are the fine grained positions which should be saved
-     */
-    void storeFineGrainedPositions(FineGrainedPositions fineGrainedPositions);//id in local db equals to track id (firebase id)
-
-    /**
-     * Method to read fine grained positions from the loacal database
-     *
-     * @param firebaseID is the firebaseID of the fine grained positions
-     * @return fine grained positions which where requested
-     */
-    FineGrainedPositions readFineGrainedPositions(String firebaseID);
-
-    /**
-     * Method to read fine grained positions from the loacal database
-     *
-     * @param track is the track with the fine grained positions
-     * @return fine grained positions which where requested
-     */
-    FineGrainedPositions readFineGrainedPositions(Track track); //internally: readFineGrainedPositions(track.getID());
 
     /**
      * Method to store a hazard alert in the local database

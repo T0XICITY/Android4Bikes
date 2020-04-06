@@ -27,7 +27,6 @@ import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
-import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
@@ -115,84 +114,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             e.printStackTrace();
         }
     }
-
-    @Override
-    public void storeFineGrainedPositions(FineGrainedPositions fineGrainedPositions) {
-        //TODO: Review and testing
-        try {
-            Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db finegrainedposi
-
-            //**************************Translation to MutableDocument**************************/
-            JSONObject json_fineGrainedPositions = new JSONObject(gson.toJson(fineGrainedPositions));
-            Map map_fineGrainedPositions = gson.fromJson(json_fineGrainedPositions.toString(), Map.class);
-            MutableDocument mutableDocument_fineGrainedPositions = new MutableDocument(map_fineGrainedPositions);
-            //**********************************************************************************/
-
-            //save mutable document representing the hazardAlert to the local db
-            couchDB.saveMutableDocumentToDatabase(db_fineGrainedPositions, mutableDocument_fineGrainedPositions);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public FineGrainedPositions readFineGrainedPositions(String firebaseID) {
-        //TODO: Review and testing
-        FineGrainedPositions fineGrainedPositions = null;
-        try {
-            JSONObject jsonObject_result = null;
-            Database db_finegrainedpositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db finegrainedpositions
-
-            Query query = QueryBuilder.select(SelectResult.all())
-                    .from(DataSource.database(db_finegrainedpositions))
-                    .where(Expression.property(HazardAlert.ConstantsHazardAlert.FIREBASEID.toString()).equalTo(Expression.string(firebaseID)));
-            ResultSet results = couchDB.queryDatabase(query);
-            for (Result result : results) {
-                //convert result to jsonObject-string
-                jsonObject_result = new JSONObject(result.toMap());
-
-                //result document -> "db_finefrainedpositions":{ <object> }
-                //because the necessary object in nested, we have to access it by getting it:
-                jsonObject_result = (JSONObject) jsonObject_result.get(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS.toText());
-
-                fineGrainedPositions = gson.fromJson(jsonObject_result.toString(), FineGrainedPositions.class);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return fineGrainedPositions;
-    }
-
-    @Override
-    public FineGrainedPositions readFineGrainedPositions(Track track) {
-        //TODO: Review and testing
-        return this.readFineGrainedPositions(track.getFirebaseID());
-    }
-
-    private void deleteFineGrainedPositions(Track track) {
-        //TODO: Review and testing
-        this.deleteFineGrainedPositions(track.getFirebaseID());
-    }
-
-    private void deleteFineGrainedPositions(String fireBaseID) {
-        //TODO: Review and testing
-        try {
-            Database db_fineGrainedPositions = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS); //Get db fineGrainedPositions
-            String mutabledocument_result_id = null;
-            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
-                    .from(DataSource.database(db_fineGrainedPositions))
-                    .where(Expression.property(FineGrainedPositions.ConstantsFineGrainedPosition.FIREBASID.toString()).equalTo(Expression.string(fireBaseID)));
-            ResultSet results = couchDB.queryDatabase(query);
-
-            for (Result result : results) {
-                mutabledocument_result_id = result.getString(CouchDB.AttributeNames.DATABASE_ID.toText());
-                couchDB.deleteDocumentByID(db_fineGrainedPositions, mutabledocument_result_id);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 
     @Override
     public void storeHazardAlerts(HazardAlert hazardAlert) {

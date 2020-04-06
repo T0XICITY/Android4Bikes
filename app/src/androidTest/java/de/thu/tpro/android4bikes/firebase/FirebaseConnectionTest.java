@@ -167,7 +167,7 @@ public class FirebaseConnectionTest {
         //of this bike rack in the FireStore it should be an official bike rack. Only
         //official bike racks can be read!!!
         for (int i = 0; i < 3; ++i) {
-            firebaseConnection.submitBikeRackToFireStoreAndLocalDB(bikeRack_THU);
+            firebaseConnection.submitBikeRackToFireStore(bikeRack_THU);
         }
 
         //wait a few seconds because of the asynchronous process of storing data to FireBase
