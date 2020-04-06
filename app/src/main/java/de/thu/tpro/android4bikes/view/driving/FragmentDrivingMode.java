@@ -55,7 +55,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     /**
      * Init Map content with MapViewContentBuilder
      */
-
     private void populateMap() {
         Log.d(LOG_TAG, "Init Map called");
         //to adjust the Map Controls position TODO: define offset programmatically. Problem height = wrap_content return 0
@@ -63,7 +62,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         Log.d(LOG_TAG, verticalOffest + "");
         MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
         builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
-
     }
 
     //TODO: handle permission in a central class
