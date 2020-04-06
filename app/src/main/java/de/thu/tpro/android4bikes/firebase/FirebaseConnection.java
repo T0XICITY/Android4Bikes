@@ -70,12 +70,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
-                            try {
-                                localDatabaseHelper.storeProfile(profile);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
+                            localDatabaseHelper.storeProfile(profile);
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
