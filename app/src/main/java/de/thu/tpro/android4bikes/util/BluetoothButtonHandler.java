@@ -69,9 +69,6 @@ public class BluetoothButtonHandler extends Observable {
         return false;
     }
 
-    /**
-     * Static class which only contains string constants for better structure
-     */
     private static class Contract {
         public final static String SP_BUTTON = "SP_Button";
         public final static String DEVICEID = "deviceID";

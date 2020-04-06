@@ -1,10 +1,8 @@
-package de.thu.tpro.android4bikes;
+package de.thu.tpro.android4bikes.util;
 
 import org.junit.Test;
 
 import java.util.Random;
-
-import de.thu.tpro.android4bikes.util.HashBase;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;

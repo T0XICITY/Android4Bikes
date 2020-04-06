@@ -1,13 +1,11 @@
 package de.thu.tpro.android4bikes.data.achievements;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import org.json.JSONObject;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 public class KmAchievement extends Achievement {
-    @Expose
-    @SerializedName("kmGoal")
     private int kmGoal;
 
     public KmAchievement() {
@@ -24,24 +22,18 @@ public class KmAchievement extends Achievement {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        KmAchievement that = (KmAchievement) o;
-        return kmGoal == that.kmGoal;
+    public JSONObject toJSON() {
+        return null;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), kmGoal);
-    }
-
-    @Override
-    public String toString() {
-        String superToString = super.toString();
-        return superToString + " + KmAchievement{" +
-                "kmGoal=" + kmGoal +
-                '}';
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("exp", exp);
+        map.put("significance", significance);
+        map.put("icon", icon);
+        map.put("kmgoal", kmGoal);
+        return map;
     }
 }

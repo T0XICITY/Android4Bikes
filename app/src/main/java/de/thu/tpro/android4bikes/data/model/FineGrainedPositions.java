@@ -1,18 +1,17 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
-public class FineGrainedPositions {
-    @Expose
-    @SerializedName("firebaseID")
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
+
+public class FineGrainedPositions implements JsonRepresentation {
     private String firebaseID;
-    @Expose
-    @SerializedName("positions")
     private List<Position> positions;
 
     /**
@@ -45,30 +44,24 @@ public class FineGrainedPositions {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FineGrainedPositions)) return false;
-        FineGrainedPositions that = (FineGrainedPositions) o;
-        return getFirebaseID().equals(that.getFirebaseID()) &&
-                getPositions().equals(that.getPositions());
+    public JSONObject toJSON() throws InvalidJsonException {
+        return null;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(getFirebaseID(), getPositions());
-    }
-
-    @Override
-    public String toString() {
-        return "FineGrainedPositions{" +
-                "firebaseID='" + firebaseID + '\'' +
-                ", positions=" + positions +
-                '}';
+    public Map<String, Object> toMap() {
+        Map<String, Object> map_positions = new HashMap<>();
+        List<Map<String, Object>> list_position = new LinkedList<>();
+        for (Position pos : positions) {
+            list_position.add(pos.toMap());
+        }
+        map_positions.put(ConstantsFineGrainedPosition.POSITIONS.toString(), positions);
+        map_positions.put(ConstantsFineGrainedPosition.POSITIONS.toString(), list_position);
+        return map_positions;
     }
 
     public enum ConstantsFineGrainedPosition {
-        POSITIONS("positions"),
-        FIREBASID("firebaseID");
+        POSITIONS("positions");
         private String type;
 
         ConstantsFineGrainedPosition(String type) {

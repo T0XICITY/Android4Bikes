@@ -24,10 +24,6 @@ import java.util.HashMap;
 
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
-/**
- * {@link de.thu.tpro.android4bikes.database.CouchDB} is the representation regarding the couchbase lite database.
- * With an instance of this class it's possible to perform the basic operations on the local database.
- */
 public class CouchDB {
     private static CouchDB instance;
 
@@ -38,7 +34,6 @@ public class CouchDB {
     private Database database_profile;
     private Database database_rating;
     private Database database_track;
-    private Database database_finegrainedpositions;
 
     /**
      * constructor
@@ -75,7 +70,6 @@ public class CouchDB {
         this.database_profile = null;
         this.database_rating = null;
         this.database_track = null;
-        this.database_finegrainedpositions = null;
 
 
         try {
@@ -86,7 +80,6 @@ public class CouchDB {
             this.database_profile = new Database(DatabaseNames.DATABASE_PROFILE.toText(), config);
             this.database_rating = new Database(DatabaseNames.DATABASE_RATING.toText(), config);
             this.database_track = new Database(DatabaseNames.DATABASE_TRACK.toText(), config);
-            this.database_finegrainedpositions = new Database(DatabaseNames.DATABASE_FINEGRAINEDPOSITIONS.toText(), config);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
             Log.e("HalloWelt", "Failure during creation of the database!");
@@ -122,9 +115,6 @@ public class CouchDB {
                 break;
             case DATABASE_TRACK:
                 db = database_track;
-                break;
-            case DATABASE_FINEGRAINEDPOSITIONS:
-                db = database_finegrainedpositions;
                 break;
         }
         return db;
@@ -495,8 +485,7 @@ public class CouchDB {
         DATABASE_POSITION("positiondb"),
         DATABASE_PROFILE("profiledb"),
         DATABASE_RATING("ratingdb"),
-        DATABASE_TRACK("trackdb"),
-        DATABASE_FINEGRAINEDPOSITIONS("finegrainedpositions");
+        DATABASE_TRACK("trackdb");
 
         private String name;
 
