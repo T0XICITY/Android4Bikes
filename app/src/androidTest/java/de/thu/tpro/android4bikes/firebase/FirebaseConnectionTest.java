@@ -79,6 +79,16 @@ public class FirebaseConnectionTest {
         assertEquals(profile_kostas, read_profile);
     }
 
+    @Test
+    public void updateProfile(){
+
+    }
+
+    @Test
+    public void deleteProfile(){
+        
+    }
+
     /**
      * 1. Generates a {@link de.thu.tpro.android4bikes.data.model.BikeRack} 'THU' that is located in Ulm
      * 2. Stores the same {@link de.thu.tpro.android4bikes.data.model.BikeRack} 'THU' three times to the {@link com.google.firebase.firestore.FirebaseFirestore}
