@@ -15,9 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
@@ -36,22 +33,7 @@ public class FragmentInfoMode extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FirebaseConnection firebaseConnection = FirebaseConnection.getInstance();
         super.onCreate(savedInstanceState);
-        List<Achievement> achievements = new ArrayList<>();
-        achievements.add(new KmAchievement("A", 1, 1, 1, 1));
-        achievements.add(new KmAchievement("B", 2, 2, 2, 2));
-
-        GlobalContext.setContext(getActivity().getApplicationContext());
-        determineAllViews();
-
-        firebaseConnection.readBikeRacksFromFireStoreAndStoreItToLocalDB("89075");
-
-        //HazardAlert hazardAlert = new HazardAlert(HazardAlert.HazardType.ICY_ROAD);
-        //tv_Test.setText(hazardAlert.getType());
-        //testLogOut();
-        a();
-        b();*/
         return inflater.inflate(R.layout.fragment_info_mode, container, false);
     }
 
