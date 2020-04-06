@@ -173,4 +173,10 @@ public interface LocalDatabaseHelper {
      * Method to reset the utilisation (positions) from the local database
      */
     void resetUtilization(); //resets local utilization db
+
+    /**
+     * Method to get the last position from the local database
+     * @return the last saved position in the database
+     * */
+    Position getLastPosition();
 }

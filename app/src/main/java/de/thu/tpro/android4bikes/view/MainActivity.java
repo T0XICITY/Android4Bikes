@@ -1,33 +1,19 @@
 package de.thu.tpro.android4bikes.view;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -43,22 +29,20 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String LOG_TAG = "MainActivity";
-    private static final int REQUEST_CODE = 100;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
+    //The App will start with this Fragment shown first
+    private final Fragment STARTFRAGMENT = new FragmentInfoMode();
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
     private BottomAppBar bottomBar;
+    FloatingActionButton fab;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
     private DrawerLayout dLayout;
     private NavigationView drawer;
-    private Location currentLocation;
-    private GoogleMap googleMap;
-    private FusedLocationProviderClient flpc;
     private FragmentTransaction fragTransaction;
     private Fragment fragDriving, fragInfo, currentFragment;
 
@@ -69,9 +53,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initNavigationDrawer();
         initBottomNavigation();
 
-        GlobalContext.setContext(getApplicationContext());
-        flpc = LocationServices.getFusedLocationProviderClient(this);
-        fetchLastLocation();
 
         initFragments();
 
@@ -106,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             default:
                 Log.d(LOG_TAG, "Default case");
         }
+        toggleNavigationDrawer();
         updateFragment();
         return true;
     }
@@ -125,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 toggleNavigationDrawer();
             }
         });
-
-        currentFragment = new FragmentInfoMode();
+        //set Fragment as the starting Fragment.
+        currentFragment = STARTFRAGMENT;
         updateFragment();
     }
 
@@ -134,17 +116,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Initiates Floating Action Button
      */
     private void initFAB() {
-        FloatingActionButton fab = findViewById(R.id.fab_switchMode);
+        fab = findViewById(R.id.fab_switchMode);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentFragment = new FragmentRoadsideAssistance();
+                switchInfoDriving();
                 updateFragment();
                 Log.d("Mitte", "Clicked mitte");
-                //TODO Change Mode
-                //createSnackbar();
-                switchInfoDriving();
-
             }
         });
     }
@@ -188,12 +166,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
             currentFragment = fragInfo;
+            bottomBar.performShow();
         } else {
             currentFragment = fragDriving;
+            bottomBar.performHide();
         }
-        fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.replace(R.id.fragment_container, currentFragment);
-        fragTransaction.commit();
     }
 
     /**
@@ -205,60 +182,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    /**
-     * Fetch the last location
-     */
-    private void fetchLastLocation() {
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
-            return;
-        }
-        Task<Location> task = flpc.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-                    Toast.makeText(getApplicationContext(), currentLocation.getLatitude() +
-                            " " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
-                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                            .findFragmentById(R.id.map);
-
-                    // set callback listener on Google Map ready
-                    mapFragment.getMapAsync(MainActivity.this);
-                }
-            }
-        });
-    }
-
-    /**
-     * Request for the permission
-     */
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    fetchLastLocation();
-                }
-                break;
-        }
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
-            return;
-        }
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("My current location");
-        googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 5));
-        googleMap.addMarker(markerOptions);
-    }
 
 
 }
