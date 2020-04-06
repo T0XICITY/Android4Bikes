@@ -82,7 +82,40 @@ public class FirebaseConnectionTest {
 
     @Test
     public void updateProfile(){
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_PROFILE));
 
+        Profile profile_kostas = this.createProfile();
+
+        firebaseConnection.storeProfileToFireStoreAndLocalDB(profile_kostas);
+
+        //wait a few seconds because of the asynchronous process of storing data to FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Profile read_profile = couchDBHelper.readProfile(profile_kostas.getGoogleID());
+        assertEquals(profile_kostas, read_profile);
+
+        Profile profile_kostas_updated = profile_kostas;
+        profile_kostas_updated.setColor(255);
+        profile_kostas_updated.setOverallDistance(999);
+        List<Achievement> achievements = profile_kostas.getAchievements();
+        achievements.add(new KmAchievement("",55,6.8,815,999));
+        profile_kostas_updated.setAchievements(achievements);
+
+        firebaseConnection.updateProfileInFireStoreAndLocalDB(profile_kostas_updated);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+         read_profile = couchDBHelper.readProfile(profile_kostas.getGoogleID());
+
+        assertEquals(profile_kostas_updated,read_profile);
     }
 
     @Test
