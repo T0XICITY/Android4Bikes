@@ -11,7 +11,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 public interface Database {
     void storeProfile(Profile profile);
 
-    Profile readProfile(String googleID);
+    void readProfile(String googleID);
 
     void updateProfile(Profile profile);
 
@@ -21,17 +21,17 @@ public interface Database {
 
     void submitBikeRack(BikeRack bikeRack);
 
-    List<BikeRack> readBikeRacks(String postcode);
+    void readBikeRacks(String postcode);
 
     void submitTrack(Track track);
 
-    List<Track> readTracks(String postcode); //isTrackComplete ???!!!
+    void readTracks(String postcode); //isTrackComplete ???!!!
 
     void submitHazardAlerts(HazardAlert hazardAlert);
 
-    List<HazardAlert> readHazardAlerts(String postcode);
+    void readHazardAlerts(String postcode);
 
     void addToUtilization(Position position);
 
-    Position getLastPosition();
+    void getLastPosition();
 }

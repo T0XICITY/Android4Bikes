@@ -22,14 +22,15 @@ public class DatabaseConnection implements Database {
         return instance;
     }
 
+
     @Override
     public void storeProfile(Profile profile) {
 
     }
 
     @Override
-    public Profile readProfile(String googleID) {
-        return null;
+    public void readProfile(String googleID) {
+
     }
 
     @Override
@@ -53,8 +54,8 @@ public class DatabaseConnection implements Database {
     }
 
     @Override
-    public List<BikeRack> readBikeRacks(String postcode) {
-        return null;
+    public void readBikeRacks(String postcode) {
+
     }
 
     @Override
@@ -63,8 +64,8 @@ public class DatabaseConnection implements Database {
     }
 
     @Override
-    public List<Track> readTracks(String postcode) {
-        return null;
+    public void readTracks(String postcode) {
+
     }
 
     @Override
@@ -73,8 +74,8 @@ public class DatabaseConnection implements Database {
     }
 
     @Override
-    public List<HazardAlert> readHazardAlerts(String postcode) {
-        return null;
+    public void readHazardAlerts(String postcode) {
+
     }
 
     @Override
@@ -83,7 +84,7 @@ public class DatabaseConnection implements Database {
     }
 
     @Override
-    public Position getLastPosition() {
-        return null;
+    public void getLastPosition() {
+
     }
 }
