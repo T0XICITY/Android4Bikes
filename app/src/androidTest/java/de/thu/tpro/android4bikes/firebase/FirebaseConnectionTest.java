@@ -18,6 +18,7 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -86,7 +87,33 @@ public class FirebaseConnectionTest {
 
     @Test
     public void deleteProfile(){
-        
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_PROFILE));
+
+        Profile profile_kostas = this.createProfile();
+
+        firebaseConnection.storeProfileToFireStoreAndLocalDB(profile_kostas);
+
+        //wait a few seconds because of the asynchronous process of storing data to FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Profile read_profile = couchDBHelper.readProfile(profile_kostas.getGoogleID());
+
+        assertEquals(profile_kostas, read_profile);
+
+        firebaseConnection.deleteProfileFromFireStoreAndLocalDB(profile_kostas.getGoogleID());
+
+        //wait a few seconds because of the asynchronous process of storing data to FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        assertNull(couchDBHelper.readProfile(profile_kostas.getGoogleID()));
     }
 
     /**
