@@ -41,7 +41,7 @@ public class WeatherManagerWarning extends Observable {
                     notifyObservers();
                 }
             }
-        }, 10, 60000); //one minute
+        }, 10, 60000*15); //15 minutes
     }
 
     public Set<DWDwarning> getDWDwarnings(){
