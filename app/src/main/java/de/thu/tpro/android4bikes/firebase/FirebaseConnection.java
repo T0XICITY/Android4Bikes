@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
-import de.thu.tpro.android4bikes.data.model.FineGrainedPositions;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
@@ -170,7 +169,7 @@ public class FirebaseConnection implements FireStoreDatabase {
      * @param bikeRack bikeRack to store.
      */
     @Override
-    public void submitBikeRackToFireStoreAndLocalDB(BikeRack bikeRack) {
+    public void submitBikeRackToFireStore(BikeRack bikeRack) {
         db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
                 .add(bikeRack) //generate id automatically
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
@@ -231,10 +230,9 @@ public class FirebaseConnection implements FireStoreDatabase {
      * stores a Track and FineGrainedPosition first in the FireStore and after that in the local database
      *
      * @param track                track to store
-     * @param fineGrainedPositions fine grained position data for corresponding track
      */
     @Override
-    public void storeTrackToFireStoreAndLocalDB(Track track, FineGrainedPositions fineGrainedPositions) {
+    public void storeTrackToFireStoreAndLocalDB(Track track) {
         //TODO Review and Testing
         db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
                 .add(track) //generate id automatically
@@ -243,40 +241,7 @@ public class FirebaseConnection implements FireStoreDatabase {
                     public void onSuccess(DocumentReference documentReference) {
                         String firebaseID = documentReference.getId();
                         Log.d(TAG, "Track " + track.getName() + " added successfully");
-
-                        try {
-                            track.setFirebaseID(firebaseID);
-                            fineGrainedPositions.setFirebaseID(track.getFirebaseID()); //fineGrainedPositions has the track id
-
-                            db.collection(ConstantsFirebase.COLLECTION_FINE_GEOPOSITIONS.toString())
-                                    .document(fineGrainedPositions.getFirebaseID()) //set the id of a given document
-                                    .set(fineGrainedPositions) //set-Method: Will create or overwrite document if it is existing
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d(TAG, "Fine-GeoPositions added successfully");
-                                            try {
-                                                localDatabaseHelper.storeTrack(track);
-                                                localDatabaseHelper.storeFineGrainedPositions(fineGrainedPositions);
-
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error adding Fine-GeoPositions", e);
-                                        }
-                                    });
-
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
+                        localDatabaseHelper.storeTrack(track);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -287,76 +252,6 @@ public class FirebaseConnection implements FireStoreDatabase {
                 });
     }
 
-    /**
-     * reads a Track with CoarseGrainedInformation from the FireStore and saves it in the local database
-     *
-     * @param fireBaseID trackID as a String
-     */
-    @Override
-    public void readCoarseGrainedTracksFromFireStoreAndStoreThemToLocalDB(String fireBaseID) {
-        //TODO Review and Testing
-        DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString()).document(fireBaseID);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(TAG, "Track " + document.toObject(Track.class).getName() + " got successfully");
-                        try {
-                            localDatabaseHelper.storeTrack(document.toObject(Track.class));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    } else {
-                        Log.d(TAG, "No such Track");
-                        //TODO Exception Document not found
-
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                    //TODO Exception no Connection
-                }
-            }
-        });
-    }
-
-    /**
-     * reads FineGrainedInformation from the FireStore and saves it in the local database
-     *
-     * @param fireBaseID trackID as a String
-     */
-    @Override
-    public void readFineGrainedTracksFromFireStoreAndStoreThemToLocalDB(String fireBaseID) {
-        //TODO Review and Testing
-        DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_FINE_GEOPOSITIONS.toString()).document(fireBaseID);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(TAG, "Fine-GeoPosition got successfully");
-                        try {
-                            localDatabaseHelper.storeFineGrainedPositions(document.toObject(FineGrainedPositions.class));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    } else {
-                        Log.d(TAG, "No such Fine-GeoPosition");
-                        //TODO Exception Document not found
-
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                    //TODO Exception no Connection
-                }
-            }
-        });
-
-    }
 
     /**
      * deletes a Track from the FireStore and after that in the local database
@@ -393,7 +288,7 @@ public class FirebaseConnection implements FireStoreDatabase {
      * @param hazardAlert hazard alert which gets submitted
      */
     @Override
-    public void submitHazardAlertToFireStoreAndLocalDB(HazardAlert hazardAlert) {
+    public void submitHazardAlertToFireStore(HazardAlert hazardAlert) {
         //TODO Review and Testing
         db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
                 .add(hazardAlert) //generate id automatically
