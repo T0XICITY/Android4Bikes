@@ -43,13 +43,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="60dp" />
+                        android:textAlignment="viewEnd"
+                        android:autoSizeTextType="uniform"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:id="@+id/txtSpeedUnit"
+                        android:textAlignment="viewStart"
                         android:text=" Km/h"
-                        android:textSize="60dp"
+                        android:autoSizeTextType="uniform"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.2"
@@ -62,12 +65,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Ø 77 Km/h"
-                    android:textSize="30dp" />
+                    android:textAlignment="center"
+                    android:autoSizeTextType="uniform"/>
             </LinearLayout>
 
             <androidx.cardview.widget.CardView
                 android:layout_width="150dp"
                 android:layout_height="150dp"
+                android:id="@+id/cardView_Infoicon"
                 android:scaleX="0.75"
                 android:scaleY="0.75"
                 app:cardCornerRadius="150dp"

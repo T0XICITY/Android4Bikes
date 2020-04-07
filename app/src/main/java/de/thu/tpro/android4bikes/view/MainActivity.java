@@ -26,14 +26,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.net.URL;
-
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
-import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.ListRoadAssistance;
-import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.RoadsideAssistanceListAdapter;
 
 /**
  * @author stlutz
@@ -61,6 +57,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        /*
+        Database database = DatabaseConnection.getInstance();
+
+        database.getLastPosition();
+        database.readTracks("89610");
+        */
+
+        initFragments();
         initNavigationDrawer();
         initBottomNavigation();
 
@@ -68,6 +73,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initFAB();
 
 
+
+        //start with InfoFragment
+        currentFragment = fragInfo;
+        updateFragment();
     }
 
     @Override
@@ -118,9 +127,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 toggleNavigationDrawer();
             }
         });
-        //set Fragment as the starting Fragment.
-        currentFragment = STARTFRAGMENT;
-        updateFragment();
     }
 
     /**
@@ -179,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             currentFragment = fragInfo;
             bottomBar.performShow();
         } else {
+            dLayout.closeDrawers();
             currentFragment = fragDriving;
             bottomBar.performHide();
         }
