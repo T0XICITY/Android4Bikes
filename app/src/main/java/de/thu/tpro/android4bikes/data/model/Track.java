@@ -221,7 +221,7 @@ public class Track {
         RATING("rating"),
         NAME("name"),
         DESCRIPTION("description"),
-        COARSEGRAINEDPOSITIONS("coarseGrainedPositions"),
+        FINEGRAINEDPOSITIONS("fineGrainedPositions"),
         FIREBASEID("firebaseID"),
         TIMESTAMP("creationDate_unixtimestamp"),
         DISTANCE_KM("distance_km"),

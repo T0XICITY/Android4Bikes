@@ -28,6 +28,8 @@ public interface FireStoreDatabase {
 
     void deleteTrackFromFireStoreAndLocalDB(String fireBaseID);
 
+    void readTracksFromFireStoreAndStoreItToLocalDB(String fireBaseID);
+
     //HazardAlerts
     void submitHazardAlertToFireStore(HazardAlert hazardAlert);
 
