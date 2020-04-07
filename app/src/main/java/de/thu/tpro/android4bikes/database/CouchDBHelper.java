@@ -24,8 +24,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
+import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -41,7 +43,7 @@ import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
  * It provides methods to store objects in the local database and also to read them.
  * There are also delete and update methods where it is necessary.
  */
-public class CouchDBHelper implements LocalDatabaseHelper {
+public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
     private Gson gson_achievement;
@@ -270,6 +272,16 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             e.printStackTrace();
         }
         return profile;
+    }
+
+
+    public Profile readMyProfile() {
+        //TODO!!!!! AUSIMPLEMENTIEREN
+        //eigenes Profile: { attribute... isMyProfile:"true"}
+        List<Achievement> achievements = new ArrayList<>();
+        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
+        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
+        return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
     }
 
     @Override
