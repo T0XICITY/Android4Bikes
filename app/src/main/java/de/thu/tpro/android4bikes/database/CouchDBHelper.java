@@ -351,6 +351,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     @Override
     public void deleteBikeRack(String fireBaseID) {
         //TODO: Review and testing
+
         try {
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
             BikeRack bikeRack = null;
