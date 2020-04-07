@@ -1,5 +1,7 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -7,12 +9,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -28,13 +34,15 @@ import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelProfile;
 
 /**
  * @author stlutz
  * This activity acts as a container for all fragments
  */
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-
+    private ViewModelProfile model_profile;
     private static final String LOG_TAG = "MainActivity";
     //The App will start with this Fragment shown first
     private final Fragment STARTFRAGMENT = new FragmentInfoMode();
@@ -67,6 +75,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initFragments();
 
         initFAB();
+
+        model_profile = new ViewModelProvider(this).get(ViewModelProfile.class);
+        model_profile.getMyProfile().observe(this, myCurrProfile -> {
+            // Update the UI
+            toastShortInMiddle(myCurrProfile.getFirstName());
+        });
+
+    }
+
+    private void toastShortInMiddle(String text){
+        Toast toast = Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.getView().setBackgroundColor(Color.parseColor("#90ee90"));
+        toast.show();
     }
 
     @Override
@@ -82,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_assistance:
                 Log.d(LOG_TAG, "Clicked menu_assistance!");
                 //currentFragment = new FirstFragment();
+
                 break;
             case R.id.menu_community:
                 Log.d(LOG_TAG, "Clicked menu_community!");
@@ -190,10 +213,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragDriving = new FragmentDrivingMode();
         fragInfo = new FragmentInfoMode();
     }
-
-
-
-
-
-
 }
