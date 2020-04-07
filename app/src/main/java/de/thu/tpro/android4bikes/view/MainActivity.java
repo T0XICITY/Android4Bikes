@@ -1,7 +1,6 @@
 package de.thu.tpro.android4bikes.view;
 
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -11,13 +10,11 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -29,7 +26,6 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
-import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelProfile;
 
 /**
@@ -73,13 +69,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         model_profile = new ViewModelProvider(this).get(ViewModelProfile.class);
         model_profile.getMyProfile().observe(this, myCurrProfile -> {
             // Update the UI
-            toastShortInMiddle(myCurrProfile.getFirstName());
+            toastShortInMiddle(myCurrProfile.toString());
         });
 
     }
 
     private void toastShortInMiddle(String text){
-        Toast toast = Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.getView().setBackgroundColor(Color.parseColor("#90ee90"));
         toast.show();
