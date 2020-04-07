@@ -1,14 +1,21 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -19,11 +26,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.net.URL;
+
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
+import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.ListRoadAssistance;
+import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.RoadsideAssistanceListAdapter;
 
 /**
  * @author stlutz
@@ -47,16 +57,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Fragment fragDriving, fragInfo, currentFragment;
 
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initNavigationDrawer();
         initBottomNavigation();
 
-
         initFragments();
-
         initFAB();
+
+
     }
 
     @Override
@@ -179,11 +190,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initFragments() {
         fragDriving = new FragmentDrivingMode();
         fragInfo = new FragmentInfoMode();
+
     }
 
 
+    private static final int REQUEST_PHONE_CALL = 1;
+    Intent intent;
+
+    public void makePhoneCall(View view) {
+        intent = new Intent(Intent.ACTION_DIAL,Uri.parse("116117"));
+
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE
+                ) == PackageManager.PERMISSION_GRANTED) {
+                    startActivity(intent);
+                } else {
+
+                    //Start dialog requesting permission
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{
+                            Manifest.permission.CALL_PHONE
+                    }, REQUEST_PHONE_CALL);
+                }
+            }
+
+    }
 
 
-
-
-}
