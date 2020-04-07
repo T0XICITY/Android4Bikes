@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,6 +19,7 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,8 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
+import de.thu.tpro.android4bikes.util.JSONHelper;
+import de.thu.tpro.android4bikes.util.compression.PositionCompressor;
 
 public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
@@ -224,24 +228,111 @@ public class FirebaseConnection implements FireStoreDatabase {
     @Override
     public void storeTrackToFireStoreAndLocalDB(Track track) {
         //TODO Review and Testing
-        db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
-                .add(track) //generate id automatically
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+
+        /*
+        Document to store on FireStore:
+        {
+            ...
+            "position": [89, -120, 77, ...] <- Compressed
+        }
+         */
+        try {
+            JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
+            Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
+            PositionCompressor positionCompressor = new PositionCompressor();
+
+            //compress fineGrainedPositions
+            byte[] compressedPositions = positionCompressor.compressPositions(track.getFineGrainedPositions());
+
+            //BLOB
+            Blob blob_trackpositions_compressed = Blob.fromBytes(compressedPositions);
+
+            //replace fineGrainedPositions by compressed version
+            map_track.put(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString(), blob_trackpositions_compressed);
+
+            db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
+                    .add(map_track) //generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            String firebaseID = documentReference.getId();
+                            track.setFirebaseID(firebaseID);
+                            Log.d(TAG, "Track " + track.getName() + " added successfully");
+                            localDatabaseHelper.storeTrack(track);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error submitting BikeRack", e);
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * reads a Track with CoarseGrainedInformation from the FireStore and saves it in the local database
+     *
+     * @param postcode trackID as a String
+     */
+    @Override
+    public void readTracksFromFireStoreAndStoreItToLocalDB(String postcode) {
+        //TODO Review and Testing
+        db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
+                .whereEqualTo(Track.ConstantsTrack.POSTCODE.toString(), postcode)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        String firebaseID = documentReference.getId();
-                        Log.d(TAG, "Track " + track.getName() + " added successfully");
-                        localDatabaseHelper.storeTrack(track);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error submitting BikeRack", e);
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            if (task.getResult().size() > 0) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    //Log.d(TAG, "Track " + document.toObject(Track.class).getName() + " got successfully");
+                                    try {
+
+                                        PositionCompressor positionCompressor = new PositionCompressor();
+                                        Blob blob_compressedPositions = document.getBlob(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString());
+                                        byte[] compressedPositions = blob_compressedPositions.toBytes();
+
+                                        List<Position> fineGrainedPositions = positionCompressor.decompressPositions(compressedPositions);
+
+                                        Map<String, Object> map_track = document.getData();
+
+
+                                        JSONHelper<Track> jsonHelper_Track = new JSONHelper(Track.class);
+                                        JSONHelper<Position> jsonHelper_Position = new JSONHelper(Position.class);
+                                        ArrayList<Map<String, Object>> arraylist_of_map_string_Object_positions = new ArrayList<>();
+
+                                        JSONObject jsonObject_position = null;
+                                        Map map_position = null;
+
+                                        for (Position pos : fineGrainedPositions) {
+                                            jsonObject_position = jsonHelper_Position.convertObjectToJSONObject(pos);
+                                            map_position = gson.fromJson(jsonObject_position.toString(), Map.class);
+                                            arraylist_of_map_string_Object_positions.add(map_position);
+                                        }
+
+                                        map_track.put(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString(), arraylist_of_map_string_Object_positions);
+                                        JSONObject jsonObject_track = new JSONObject(map_track);
+                                        Track track = jsonHelper_Track.convertJSONObjectToObject(jsonObject_track);
+
+                                        track.setFineGrainedPositions(fineGrainedPositions);
+                                        localDatabaseHelper.storeTrack(track);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            } else {
+                                Log.d(TAG, "No such Track");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
                     }
                 });
     }
-
 
     /**
      * deletes a Track from the FireStore and after that in the local database

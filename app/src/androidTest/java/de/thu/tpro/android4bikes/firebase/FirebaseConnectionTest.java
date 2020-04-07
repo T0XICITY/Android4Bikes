@@ -13,6 +13,8 @@ import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Rating;
+import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -188,6 +190,24 @@ public class FirebaseConnectionTest {
     }
 
     @Test
+    public void readTrack() {
+        Track track_THU = generateTrack();
+        firebaseConnection.storeTrackToFireStoreAndLocalDB(track_THU);
+        //wait a few seconds because of the asynchronous process of storing data to FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        firebaseConnection.readTracksFromFireStoreAndStoreItToLocalDB(track_THU.getPostcode());
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void updateToken() {
     }
 
@@ -217,5 +237,19 @@ public class FirebaseConnectionTest {
                 false, true, false
         );
         return bikeRack_THU;
+    }
+
+    /**
+     * generates a new instance of the class Track for test purposes
+     *
+     * @return instance of a track
+     */
+    private Track generateTrack() {
+        List<Position> positions = new ArrayList<>();
+        positions.add(new Position(9.997507, 48.408880));
+        Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke",
+                "siebenundvierzig11", 1585773516, 25,
+                positions, new ArrayList<>(), true);
+        return track;
     }
 }
