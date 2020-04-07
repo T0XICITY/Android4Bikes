@@ -33,6 +33,7 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
 
 /**
  * The purpose of the {@link de.thu.tpro.android4bikes.database.CouchDBHelper} is the provision of the interface
@@ -51,7 +52,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
         //create and set deserializer for the inheritance regarding the class "achievement"
         GsonBuilder gsonBuilder_achievement = new GsonBuilder();
-        //gsonBuilder_achievement.registerTypeAdapter(Achievement.class, new AchievementDeserializer<Achievement>()); //TODO
+        gsonBuilder_achievement.registerTypeAdapter(Achievement.class, new AchievementDeserializer<Achievement>());
         gson_achievement = gsonBuilder_achievement.create();
     }
 
