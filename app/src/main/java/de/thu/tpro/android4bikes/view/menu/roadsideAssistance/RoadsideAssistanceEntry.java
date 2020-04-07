@@ -1,5 +1,7 @@
 package de.thu.tpro.android4bikes.view.menu.roadsideAssistance;
 
+import android.view.View;
+
 /**
  * @author Stefanie
  * POJO ("Plain Old Java Object") to contain data used in RoadsideAssistance ListView
@@ -8,6 +10,7 @@ public class RoadsideAssistanceEntry {
     String text_institution;
     Integer resId_institution;
     Integer resId_call;
+
 
     public RoadsideAssistanceEntry(String text_institution, Integer resId_institution, Integer resId_call) {
         this.text_institution = text_institution;
@@ -38,4 +41,10 @@ public class RoadsideAssistanceEntry {
     public void setResId_call(Integer resId_call) {
         this.resId_call = resId_call;
     }
+
+
+    public void makePhoneCall(View view) {
+    }
+
+
 }

@@ -12,6 +12,7 @@ import de.thu.tpro.android4bikes.R;
  */
 public class ViewModelRoadsideAssistance {
 
+
     // Strings for TextView
     private final String[] institutionStrings;
 
@@ -25,10 +26,27 @@ public class ViewModelRoadsideAssistance {
             R.drawable.ic_emergency_phone
     };
 
+    private final Integer[] callImage = {
+            R.drawable.ic_emergency__call,
+            R.drawable.ic_emergency__call,
+            R.drawable.ic_emergency__call,
+            R.drawable.ic_emergency__call,
+            R.drawable.ic_emergency__call,
+            R.drawable.ic_emergency__call
+
+    };
+
+
     // Image resource for ImageButton
-    private final Integer ib_call = R.drawable.ic_emergency__call;
+    // private final Integer ib_call = R.drawable.ic_emergency__call;
 
     private List<RoadsideAssistanceEntry> entries;
+    private List<ListRoadAssistance> callEntries;
+
+    public ViewModelRoadsideAssistance(String[] institutionStrings) {
+
+        this.institutionStrings = institutionStrings;
+    }
 
     public ViewModelRoadsideAssistance(Resources res) {
         // load strings from XML
@@ -36,11 +54,12 @@ public class ViewModelRoadsideAssistance {
 
         // init entries list
         entries = new ArrayList<>();
+        callEntries = new ArrayList<>();
         for (int i = 0; i < institutionStrings.length; i++) {
             entries.add(new RoadsideAssistanceEntry(
                     institutionStrings[i],
                     institutionImages[i],
-                    ib_call)
+                    callImage[i])
             );
         }
     }
@@ -48,4 +67,11 @@ public class ViewModelRoadsideAssistance {
     public List<RoadsideAssistanceEntry> getEntries() {
         return entries;
     }
+
+    public Integer[] getCallImage() {
+        return callImage;
+    }
+
+
 }
+

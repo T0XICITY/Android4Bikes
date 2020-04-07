@@ -1,6 +1,10 @@
 package de.thu.tpro.android4bikes.view.menu.roadsideAssistance;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +15,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.view.MainActivity;
 
 /**
  * @author Elias, Stefanie
@@ -25,6 +32,7 @@ public class RoadsideAssistanceListAdapter extends BaseAdapter {
     private final LayoutInflater inflater;
     private List<RoadsideAssistanceEntry> entries;
     private Activity context;
+
 
     public RoadsideAssistanceListAdapter(Activity context, List<RoadsideAssistanceEntry> entries) {
         super();
@@ -73,7 +81,7 @@ public class RoadsideAssistanceListAdapter extends BaseAdapter {
         // Inflate UI elements of current Row
         ImageView iv = row.findViewById(R.id.iv_institution);
         TextView tv = row.findViewById(R.id.tv_institution);
-        ImageButton ib = row.findViewById(R.id.ib_Call);
+        ImageButton ib = row.findViewById(R.id.image_Call);
 
         // Insert Data into elements
         iv.setImageResource(entries.get(position).resId_institution);
@@ -83,6 +91,5 @@ public class RoadsideAssistanceListAdapter extends BaseAdapter {
         return row;
     }
 
-    // TODO: Implement Logic when ImageButton is clicked (with OnClickListener)
 
 }

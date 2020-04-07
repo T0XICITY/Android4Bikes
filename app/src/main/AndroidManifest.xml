@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:allowBackup="true"
@@ -20,6 +21,7 @@
             android:value="AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc" />
 
         <activity android:name=".view.login.ActivityLogin" />
+        <activity android:name=".view.menu.roadsideAssistance.ListRoadAssistance" />
         <activity android:name=".view.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

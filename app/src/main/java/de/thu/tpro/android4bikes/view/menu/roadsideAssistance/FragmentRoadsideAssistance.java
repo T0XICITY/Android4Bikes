@@ -43,4 +43,6 @@ public class FragmentRoadsideAssistance extends Fragment {
                 vm_RoadsideAssistance.getEntries());
         lv_road_assistance.setAdapter(roadsideAssistanceListAdapter);
     }
+
+
 }
