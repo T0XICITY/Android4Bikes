@@ -66,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initBottomNavigation();
         initFAB();
 
+        currentFragment = fragInfo;
+        updateFragment();
+
         model_profile = new ViewModelProvider(this).get(ViewModelProfile.class);
         model_profile.getMyProfile().observe(this, myCurrProfile -> {
             // Update the UI
