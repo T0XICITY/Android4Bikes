@@ -49,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initNavigationDrawer();
-        initBottomNavigation();
 
         /*
         Database database = DatabaseConnection.getInstance();
@@ -60,8 +58,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         */
 
         initFragments();
-
+        initNavigationDrawer();
+        initBottomNavigation();
         initFAB();
+
+        //start with InfoFragment
+        currentFragment = fragInfo;
+        updateFragment();
     }
 
     @Override
@@ -112,9 +115,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 toggleNavigationDrawer();
             }
         });
-        //set Fragment as the starting Fragment.
-        currentFragment = STARTFRAGMENT;
-        updateFragment();
     }
 
     /**
