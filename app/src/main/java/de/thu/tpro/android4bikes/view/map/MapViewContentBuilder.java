@@ -46,6 +46,10 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
      * @param container the surrounding Fragment
      */
     public MapViewContentBuilder fetchLastLocation(Fragment container){
+        mapFragment = (SupportMapFragment) container
+                .getChildFragmentManager()
+                .findFragmentById(R.id.map);
+
         Task<Location> task = flpc.getLastLocation();
         task.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
@@ -55,10 +59,6 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
 
                     Toast.makeText(parent.getApplicationContext(), currentLocation.getLatitude() +
                             " " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
-
-                     mapFragment = (SupportMapFragment) container
-                            .getChildFragmentManager()
-                            .findFragmentById(R.id.map);
 
                     // set callback listener on Google Map ready
                     mapFragment.getMapAsync(MapViewContentBuilder.this::onMapReady);
