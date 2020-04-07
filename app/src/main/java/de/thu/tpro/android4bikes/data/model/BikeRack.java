@@ -1,36 +1,22 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import org.json.JSONObject;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
-public class BikeRack {
-    @Expose
-    @SerializedName("firebaseID")
+public class BikeRack implements JsonRepresentation {
     private String firebaseID;
-    @Expose
-    @SerializedName("position")
     private Position position;
-    @Expose
-    @SerializedName("postcode")
     private String postcode;
-    @Expose
-    @SerializedName("name")
     private String name;
-    @Expose
-    @SerializedName("capacity")
     private ConstantsCapacity capacity;
-    @Expose
-    @SerializedName("hasBikeCharging")
     private boolean hasBikeCharging;
-    @Expose
-    @SerializedName("isExistent")
     private boolean isExistent;
-    @Expose
-    @SerializedName("isCovered")
     private boolean isCovered;
 
     /**
@@ -167,41 +153,24 @@ public class BikeRack {
     }
 
     @Override
-    public String toString() {
-        return "BikeRack{" +
-                "firebaseID='" + firebaseID + '\'' +
-                ", position=" + position +
-                ", postcode='" + postcode + '\'' +
-                ", name='" + name + '\'' +
-                ", capacity=" + capacity +
-                ", hasBikeCharging=" + hasBikeCharging +
-                ", isExistent=" + isExistent +
-                ", isCovered=" + isCovered +
-                '}';
+    public JSONObject toJSON() throws InvalidJsonException {
+        return null;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BikeRack)) return false;
-        BikeRack bikeRack = (BikeRack) o;
-        return isHasBikeCharging() == bikeRack.isHasBikeCharging() &&
-                isExistent() == bikeRack.isExistent() &&
-                isCovered() == bikeRack.isCovered() &&
-                getFirebaseID().equals(bikeRack.getFirebaseID()) &&
-                getPosition().equals(bikeRack.getPosition()) &&
-                getPostcode().equals(bikeRack.getPostcode()) &&
-                getName().equals(bikeRack.getName()) &&
-                getCapacity() == bikeRack.getCapacity();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getFirebaseID(), getPosition(), getPostcode(), getName(), getCapacity(), isHasBikeCharging(), isExistent(), isCovered());
+    public Map<String, Object> toMap() {
+        Map<String, Object> map_bikeRack = new HashMap<>();
+        map_bikeRack.put(Position.ConstantsPosition.POSITION.toString(), this.position.toMap());
+        map_bikeRack.put(ConstantsBikeRack.POSTCODE.toString(), this.postcode);
+        map_bikeRack.put(ConstantsBikeRack.BIKE_RACK_NAME.toString(), this.name);
+        map_bikeRack.put(ConstantsBikeRack.CAPACITY.toString(), this.capacity.toInt()); //enum to int
+        map_bikeRack.put(ConstantsBikeRack.IS_EBIKE_STATION.toString(), this.hasBikeCharging);
+        map_bikeRack.put(ConstantsBikeRack.IS_EXISTENT.toString(), this.isExistent);
+        map_bikeRack.put(ConstantsBikeRack.IS_COVERED.toString(), this.isCovered);
+        return map_bikeRack;
     }
 
     public enum ConstantsBikeRack {
-        FIREBASEID("firebaseID"),
         POSTCODE("postcode"),
         BIKE_RACK_NAME("name"),
         CAPACITY("capacity"),

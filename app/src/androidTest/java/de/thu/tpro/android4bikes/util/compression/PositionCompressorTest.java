@@ -14,7 +14,7 @@ public class PositionCompressorTest {
     @Test
     public void compressAndDecompressPositions() {
         List<Position> fineGrainedPositions = new ArrayList<>();
-        for(int i =0; i<50000; ++i) {
+        for (int i = 0; i < 50000; ++i) {
             fineGrainedPositions.add(new Position(9.997507 + i, 48.408880 + i));
         }
 

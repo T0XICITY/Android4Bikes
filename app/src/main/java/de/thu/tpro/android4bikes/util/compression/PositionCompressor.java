@@ -155,6 +155,7 @@ public class PositionCompressor {
 
     /**
      * Serializes an object (Object -> byte[])
+     *
      * @param obj Object that must implement the interface {@link java.io.Serializable}
      * @return bytes regarding the specified object
      * @throws IOException
@@ -169,6 +170,7 @@ public class PositionCompressor {
 
     /**
      * Deserializes a specified array of bytes (byte[] -> Object)
+     *
      * @param data valid bytes regarding the object (as a result of the method 'serialize')
      * @return
      * @throws IOException
@@ -183,6 +185,7 @@ public class PositionCompressor {
 
     /**
      * compresses a given array of bytes (byte[] -> byte[]')
+     *
      * @param data data that should be compressed (byte[])
      * @return compressed array of bytes (byte[])
      * @throws IOException

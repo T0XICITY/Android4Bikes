@@ -1,19 +1,16 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import org.json.JSONObject;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Rating {
-    @Expose
-    @SerializedName("difficulty")
+import de.thu.tpro.android4bikes.database.JsonRepresentation;
+import de.thu.tpro.android4bikes.exception.InvalidJsonException;
+
+public class Rating implements JsonRepresentation {
     private int difficulty;
-    @Expose
-    @SerializedName("fun")
     private int fun;
-    @Expose
-    @SerializedName("roadquality")
     private int roadquality;
 
     /**
@@ -26,6 +23,13 @@ public class Rating {
         this.difficulty = difficulty;
         this.fun = fun;
         this.roadquality = roadquality;
+
+    }
+
+    public Rating(Map<String, Object> map_rating) {
+        this.difficulty = (int) map_rating.get(ConstantsRating.DIFFICULTY.toString());
+        this.fun = (int) map_rating.get(ConstantsRating.FUN.toString());
+        this.roadquality = (int) map_rating.get(ConstantsRating.ROADQUALITY.toString());
     }
 
     public int getDifficulty() {
@@ -53,27 +57,19 @@ public class Rating {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Rating)) return false;
-        Rating rating = (Rating) o;
-        return getDifficulty() == rating.getDifficulty() &&
-                getFun() == rating.getFun() &&
-                getRoadquality() == rating.getRoadquality();
+    public JSONObject toJSON() throws InvalidJsonException {
+        return new JSONObject(this.toMap());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(getDifficulty(), getFun(), getRoadquality());
-    }
+    public Map<String, Object> toMap() {
+        Map<String, Object> map_rating = new HashMap<>();
 
-    @Override
-    public String toString() {
-        return "Rating{" +
-                "difficulty=" + difficulty +
-                ", fun=" + fun +
-                ", roadquality=" + roadquality +
-                '}';
+        map_rating.put(ConstantsRating.DIFFICULTY.toString(), this.difficulty);
+        map_rating.put(ConstantsRating.FUN.toString(), this.fun);
+        map_rating.put(ConstantsRating.ROADQUALITY.toString(), this.roadquality);
+
+        return map_rating;
     }
 
     public enum ConstantsRating {

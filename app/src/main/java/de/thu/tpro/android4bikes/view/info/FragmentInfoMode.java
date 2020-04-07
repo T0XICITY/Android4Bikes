@@ -33,9 +33,7 @@ public class FragmentInfoMode extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-
         return inflater.inflate(R.layout.fragment_info_mode, container, false);
     }
 

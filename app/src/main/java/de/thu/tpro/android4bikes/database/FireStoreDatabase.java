@@ -10,7 +10,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 
 public interface FireStoreDatabase {
     //Profile
-    void storeProfileToFireStoreAndLocalDB(Profile profile);
+    void storeProfileToFireStoreAndLocalDB(Profile Profile);
 
     void readProfileFromFireStoreAndStoreItToLocalDB(String googleID);
 
