@@ -14,14 +14,16 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -34,17 +36,18 @@ import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.compression.PositionCompressor;
 
+
 public class FirebaseConnection implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
-    private List<FireStoreObserver> fireStoreObservers;
     private LocalDatabaseHelper localDatabaseHelper;
     private String TAG = "HalloWelt";
+    private Gson gson;
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
-        fireStoreObservers = new ArrayList<>();
         localDatabaseHelper = new CouchDBHelper();
+        this.gson = new Gson();
     }
 
     public static FirebaseConnection getInstance() {
@@ -55,43 +58,35 @@ public class FirebaseConnection implements FireStoreDatabase {
     }
 
     /**
-     * should be used to subscribe as an observer
-     *
-     * @param fireStoreObserver observer regarding fireStore
-     */
-    public void subscribeObserver(FireStoreObserver fireStoreObserver) {
-        this.fireStoreObservers.add(fireStoreObserver);
-    }
-
-    /**
      * stores a Profile first in the FireStore and after that in the local database
      *
-     * @param Profile profile to store
+     * @param profile profile to store
      */
     @Override
-    public void storeProfileToFireStoreAndLocalDB(Profile Profile) {
+    public void storeProfileToFireStoreAndLocalDB(Profile profile) {
         //TODO Review and Testing
-        db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
-                .document(Profile.getGoogleID()) //set the id of a given document
-                .set(Profile) //set-Method: Will create or overwrite document if it is existing
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Profile " + Profile.getFamilyName() + " added successfully");
-                        try {
-                            localDatabaseHelper.storeProfile(Profile);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+        try {
+            JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
+            Map map_profile = gson.fromJson(jsonObject_profile.toString(), Map.class);
+            db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
+                    .document(profile.getGoogleID()) //set the id of a given document
+                    .set(map_profile) //set-Method: Will create or overwrite document if it is existing
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
+                            localDatabaseHelper.storeProfile(profile);
                         }
-
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding Profile " + Profile.getFamilyName(), e);
-                    }
-                });
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding Profile " + profile.getFamilyName(), e);
+                        }
+                    });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -109,17 +104,12 @@ public class FirebaseConnection implements FireStoreDatabase {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d(TAG, "Profile " + document.toObject(Profile.class).getFamilyName() + " got successfully");
-                        try {
-                            localDatabaseHelper.storeProfile(document.toObject(Profile.class));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
+                        //Log.d(TAG, "Profile " + document.toObject(Profile.class).getFamilyName() + " got successfully"); //toObjectMethod don't works for profile!!!
+                        Map map_result = document.getData();
+                        localDatabaseHelper.storeProfile(map_result);
                     } else {
                         Log.d(TAG, "No such Profile");
                         //TODO Exception Document not found
-
                     }
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
@@ -448,12 +438,16 @@ public class FirebaseConnection implements FireStoreDatabase {
     @Override
     public void storeUtilizationToFireStore(List<Position> utilization) {
         //TODO Review and Testing
+        Map<String, Object> map = new HashMap<>();
+        for (int i = 0; i < utilization.size(); i++) {
+            map.put(Integer.toString(i), utilization.get(i));
+        }
+
         db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
-                .document(ConstantsFirebase.DOCUMENT_UTILIZATION.toString()) //set the id of a given document
-                .set(utilization, SetOptions.merge()) //set-Method with merge: Will append document if it is existing
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                .add(map)//generate id automatically
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
                     @Override
-                    public void onSuccess(Void aVoid) {
+                    public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "Utilization updated");
                     }
                 })
@@ -463,7 +457,6 @@ public class FirebaseConnection implements FireStoreDatabase {
                         Log.w(TAG, "Error adding Utilization", e);
                     }
                 });
-
     }
 
     public enum ConstantsFirebase {

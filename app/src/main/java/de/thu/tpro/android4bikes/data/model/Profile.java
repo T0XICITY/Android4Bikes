@@ -1,21 +1,31 @@
 package de.thu.tpro.android4bikes.data.model;
 
-import org.json.JSONObject;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.database.JsonRepresentation;
 
-public class Profile implements JsonRepresentation {
+public class Profile {
+    @Expose
+    @SerializedName("firstName")
     private String firstName;
+    @Expose
+    @SerializedName("familyName")
     private String familyName;
+    @Expose
+    @SerializedName("googleID")
     private String googleID;
+    @Expose
+    @SerializedName("color")
     private int color;
+    @Expose
+    @SerializedName("overallDistance")
     private int overallDistance;
+    @Expose
+    @SerializedName("achievements")
     private List<Achievement> achievements; //TODO better representation
 
     /**
@@ -82,24 +92,33 @@ public class Profile implements JsonRepresentation {
     }
 
     @Override
-    public JSONObject toJSON() {
-        return new JSONObject(this.toMap());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Profile profile = (Profile) o;
+        return color == profile.color &&
+                achievements.equals(profile.achievements) &&
+                overallDistance == profile.overallDistance &&
+                firstName.equals(profile.firstName) &&
+                familyName.equals(profile.familyName) &&
+                googleID.equals(profile.googleID);
     }
 
     @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put(ConstantsProfile.FIRSTNAME.toString(), firstName);
-        map.put(ConstantsProfile.FAMILYNAME.toString(), familyName);
-        map.put(ConstantsProfile.GOOGLEID.toString(), googleID);
-        map.put(ConstantsProfile.COLOR.toString(), color);
-        map.put(ConstantsProfile.OVERALLDISTANCE.toString(), overallDistance);
-        List<Map<String, Object>> list_achievements = new ArrayList<>();
-        for (Achievement a : achievements) {
-            list_achievements.add(a.toMap());
-        }
-        map.put(ConstantsProfile.ACHIEVEMENTS.toString(), list_achievements);
-        return map;
+    public int hashCode() {
+        return Objects.hash(firstName, familyName, googleID, color, overallDistance, achievements);
+    }
+
+    @Override
+    public String toString() {
+        return "Profile{" +
+                "firstName='" + firstName + '\'' +
+                ", familyName='" + familyName + '\'' +
+                ", googleID='" + googleID + '\'' +
+                ", color=" + color +
+                ", overallDistance=" + overallDistance +
+                ", achievements=" + achievements +
+                '}';
     }
 
     public enum ConstantsProfile {

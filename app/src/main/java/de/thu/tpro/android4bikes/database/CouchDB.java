@@ -24,6 +24,10 @@ import java.util.HashMap;
 
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
+/**
+ * {@link de.thu.tpro.android4bikes.database.CouchDB} is the representation regarding the couchbase lite database.
+ * With an instance of this class it's possible to perform the basic operations on the local database.
+ */
 public class CouchDB {
     private static CouchDB instance;
 
