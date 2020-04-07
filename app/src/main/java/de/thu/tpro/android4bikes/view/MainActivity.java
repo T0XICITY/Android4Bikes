@@ -25,12 +25,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.Date;
-
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.database.Database;
-import de.thu.tpro.android4bikes.database.DatabaseConnection;
-import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
@@ -62,8 +57,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initNavigationDrawer();
-        initBottomNavigation();
 
         /*
         Database database = DatabaseConnection.getInstance();
@@ -73,7 +66,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         */
 
         initFragments();
-
+        initNavigationDrawer();
+        initBottomNavigation();
         initFAB();
 
         model_profile = new ViewModelProvider(this).get(ViewModelProfile.class);
@@ -140,9 +134,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 toggleNavigationDrawer();
             }
         });
-        //set Fragment as the starting Fragment.
-        currentFragment = STARTFRAGMENT;
-        updateFragment();
     }
 
     /**
@@ -201,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             currentFragment = fragInfo;
             bottomBar.performShow();
         } else {
+            dLayout.closeDrawers();
             currentFragment = fragDriving;
             bottomBar.performHide();
         }
