@@ -11,6 +11,7 @@ import java.util.List;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
@@ -162,16 +163,21 @@ public class FirebaseConnectionTest {
         for (int i = 0; i < 3; ++i) {
             firebaseConnection.submitBikeRackToFireStore(bikeRack_THU);
         }
-
         //wait a few seconds because of the asynchronous process of storing data to FireBase
         try {
-            Thread.sleep(10000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         //read official bike racks from couch db and store them to the local db
         firebaseConnection.readBikeRacksFromFireStoreAndStoreItToLocalDB(bikeRack_THU.getPostcode());
+        //wait a few seconds because of the asynchronous process of deleting data from FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         //read all bike racks from the local db with the postcode '89075'
         List<BikeRack> bikeRacks_with_postcode_89075 = couchDBHelper.readBikeRacks(bikeRack_THU.getPostcode());
@@ -287,6 +293,49 @@ public class FirebaseConnectionTest {
         assertFalse(list_read_tracks_with_postcode_89075.contains(track_THU));
     }
 
+    /**
+     * 1. Generates a {@link de.thu.tpro.android4bikes.data.model.HazardAlert} 'THU' that is located in Ulm
+     * 2. Stores the same {@link de.thu.tpro.android4bikes.data.model.HazardAlert} 'THU' three times to the {@link com.google.firebase.firestore.FirebaseFirestore}
+     * 3. Reads all official exemplars of the class {@link de.thu.tpro.android4bikes.data.model.HazardAlert} with the postal code '89075' from the {@link com.google.firebase.firestore.FirebaseFirestore} and stores them to the {@link com.couchbase.lite.CouchbaseLite}
+     * 4. Reads all stored {@link de.thu.tpro.android4bikes.data.model.HazardAlert} with the postal code '89075' from the {@link com.couchbase.lite.CouchbaseLite}
+     * <p>
+     * Requirements for passing this test:
+     * -the {@link de.thu.tpro.android4bikes.data.model.BikeRack} 'THU' should be in the list of read {@link de.thu.tpro.android4bikes.data.model.HazardAlert}s
+     */
+    @Test
+    public void submitAndReadHazardAlerts() {
+        //generate a bike rack
+        HazardAlert hazardAlert_THU = generateHazardAlert();
+
+        //store the same hazard alert three times in the FireStore. After the third occurrence
+        //of this hazard alert in the FireStore it should be an official bhazard alert. Only
+        //official hazard alerts can be read!!!
+        for (int i = 0; i < 3; ++i) {
+            firebaseConnection.submitHazardAlertToFireStore(hazardAlert_THU);
+        }
+        //wait a few seconds because of the asynchronous process of storing data to FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //read official bike racks from couch db and store them to the local db
+        firebaseConnection.readHazardAlertsFromFireStoreAndStoreItToLocalDB(hazardAlert_THU.getPostcode());
+        //wait a few seconds because of the asynchronous process of storing data to FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //read all bike racks from the local db with the postcode '89075'
+        List<HazardAlert> hazardAlerts_with_postcode_89075 = couchDBHelper.readHazardAlerts(hazardAlert_THU.getPostcode());
+
+        //the just stored bike rack has to be contained in the list of official bike racks
+        assertTrue(hazardAlerts_with_postcode_89075.contains(hazardAlert_THU));
+    }
+
 
     @Test
     public void updateToken() {
@@ -332,5 +381,17 @@ public class FirebaseConnectionTest {
                 "siebenundvierzig11", 1585773516, 25,
                 positions, new ArrayList<>(), true);
         return track;
+    }
+
+    /**
+     * generates a new instance of the class HazardAlert for test purposes
+     *
+     * @return instance of a hazard alert
+     */
+    private HazardAlert generateHazardAlert() {
+        HazardAlert hazardAlert_thu = new HazardAlert(
+                HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
+        );
+        return hazardAlert_thu;
     }
 }
