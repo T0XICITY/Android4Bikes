@@ -16,7 +16,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -352,17 +351,18 @@ public class CouchDBHelper implements LocalDatabaseHelper {
      * @return list of all positions
      */
     private List<Position> getAllPositions() {
-        List<Position> positions = new ArrayList<>();
-        ResultSet results = couchDB.readAllDocumentsOfADatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION));
-        results.forEach(result -> {
-            try {
+        List<Position> positions = null;
+        try {
+            positions = new ArrayList<>();
+            ResultSet results = couchDB.readAllDocumentsOfADatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION));
+            for (Result result : results) {
                 JSONObject json_result = new JSONObject(result.toMap());
                 json_result = json_result.getJSONObject(DatabaseNames.DATABASE_POSITION.toText());
                 positions.add(gson.fromJson(json_result.toString(), Position.class));
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return positions;
     }
 
