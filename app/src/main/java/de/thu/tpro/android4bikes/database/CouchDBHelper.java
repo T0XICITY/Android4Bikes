@@ -58,13 +58,11 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteBikeRack(BikeRack bikeRack) {
-        //TODO: Review and testing
         this.deleteBikeRack(bikeRack.getFirebaseID());
     }
 
     @Override
     public void storeTrack(Track track) {
-        //todo: Review und Test
         try {
             Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
             JSONObject json_track = new JSONObject(gson.toJson(track));
@@ -78,8 +76,9 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public List<Track> readTracks(String postcode) {
-        List<Track> tracks = new ArrayList<>();
+        List<Track> tracks = null;
         try {
+            tracks = new ArrayList<>();
             Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
             Query query = QueryBuilder.select(SelectResult.all())
                     .from(DataSource.database(db_track))
@@ -100,7 +99,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteTrack(String fireBaseID) {
-        //todo: review und test
         try {
             Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
             Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
