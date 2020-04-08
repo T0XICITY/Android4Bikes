@@ -484,7 +484,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     }
 
     public enum STATUSCODES {
-        ERROR, SUCCESS
+        SUCCESS, ERROR
     }
 
 }
