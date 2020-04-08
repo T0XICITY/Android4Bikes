@@ -20,6 +20,7 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -148,10 +149,10 @@ public class FirebaseConnectionTest {
      * 4. Reads all stored {@link de.thu.tpro.android4bikes.data.model.BikeRack} with the postal code '89075' from the {@link com.couchbase.lite.CouchbaseLite}
      * <p>
      * Requirements for passing this test:
-     * -the {@link de.thu.tpro.android4bikes.data.model.BikeRack} 'THU' should be in the list of read {@link de.thu.tpro.android4bikes.data.model.BikeRack}
+     * -the {@link de.thu.tpro.android4bikes.data.model.BikeRack} 'THU' should be in the list of read {@link de.thu.tpro.android4bikes.data.model.BikeRack}s
      */
     @Test
-    public void storeBikeRackInFireStore() {
+    public void submitAndReadBikeRack() {
         //generate a bike rack
         BikeRack bikeRack_THU = generateTHUBikeRack();
 
@@ -179,9 +180,31 @@ public class FirebaseConnectionTest {
         assertTrue(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
     }
 
+    /**
+     * 1. Generates a {@link de.thu.tpro.android4bikes.data.model.Track} 'THU' that is located in Ulm
+     * 2. Deletes the {@link de.thu.tpro.android4bikes.data.model.Track} 'THU' in the {@link com.google.firebase.firestore.FirebaseFirestore} and {@link com.couchbase.lite.CouchbaseLite} database
+     * 3. Stores the {@link de.thu.tpro.android4bikes.data.model.Track} 'THU' to the {@link com.google.firebase.firestore.FirebaseFirestore} and {@link com.couchbase.lite.CouchbaseLite} database
+     * 4. Reads all official exemplars of the class {@link de.thu.tpro.android4bikes.data.model.Track} with the postal code '89075' from the {@link com.google.firebase.firestore.FirebaseFirestore} and stores them to the {@link com.couchbase.lite.CouchbaseLite} database
+     * 5. Reads all stored {@link de.thu.tpro.android4bikes.data.model.Track} with the postal code '89075' from the {@link com.couchbase.lite.CouchbaseLite}
+     * <p>
+     * Requirements for passing this test:
+     * -the {@link de.thu.tpro.android4bikes.data.model.Track} 'THU' should be in the list of read {@link de.thu.tpro.android4bikes.data.model.Track}s
+     */
     @Test
-    public void readTrack() {
+    public void storeAndReadTrack() {
+        //Generate Track THU (postal code 89075)
         Track track_THU = generateTrack();
+
+        //Delete track from FireStore and local database if it is existing
+        firebaseConnection.deleteTrackFromFireStoreAndLocalDB(track_THU.getFirebaseID());
+        //wait a few seconds because of the asynchronous process of deleting data from FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //Store the track to FireStore and local database
         firebaseConnection.storeTrackToFireStoreAndLocalDB(track_THU);
         //wait a few seconds because of the asynchronous process of storing data to FireBase
         try {
@@ -189,13 +212,81 @@ public class FirebaseConnectionTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        //read all tracks with the postal code '89075' and store them to the local database
         firebaseConnection.readTracksFromFireStoreAndStoreItToLocalDB(track_THU.getPostcode());
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        List<Track> list_read_tracks_with_postcode_89075 = couchDBHelper.readTracks(track_THU.getPostcode());
+        assertTrue(list_read_tracks_with_postcode_89075.contains(track_THU));
+
+        //delete Track finally from db
+        firebaseConnection.deleteTrackFromFireStoreAndLocalDB(track_THU.getFirebaseID());
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
+
+    /**
+     * 1. Generates a {@link de.thu.tpro.android4bikes.data.model.Track} 'THU' that is located in Ulm
+     * 2. Deletes the {@link de.thu.tpro.android4bikes.data.model.Track} 'THU' in the {@link com.google.firebase.firestore.FirebaseFirestore} and {@link com.couchbase.lite.CouchbaseLite} database
+     * 3. Stores the {@link de.thu.tpro.android4bikes.data.model.Track} 'THU' to the {@link com.google.firebase.firestore.FirebaseFirestore} and {@link com.couchbase.lite.CouchbaseLite} database
+     * 4. Reads all official exemplars of the class {@link de.thu.tpro.android4bikes.data.model.Track} with the postal code '89075' from the {@link com.google.firebase.firestore.FirebaseFirestore} and stores them to the {@link com.couchbase.lite.CouchbaseLite} database
+     * 5. Reads all stored {@link de.thu.tpro.android4bikes.data.model.Track} with the postal code '89075' from the {@link com.couchbase.lite.CouchbaseLite}
+     * 6. Deletes the {@link de.thu.tpro.android4bikes.data.model.Track} 'THU' in the {@link com.google.firebase.firestore.FirebaseFirestore} and {@link com.couchbase.lite.CouchbaseLite} database
+     * 7. Reads all official exemplars of the class {@link de.thu.tpro.android4bikes.data.model.Track} with the postal code '89075' from the {@link com.google.firebase.firestore.FirebaseFirestore} and stores them to the {@link com.couchbase.lite.CouchbaseLite} database
+     * 8. Reads all stored {@link de.thu.tpro.android4bikes.data.model.Track} with the postal code '89075' from the {@link com.couchbase.lite.CouchbaseLite}
+     * <p>
+     * Requirements for passing this test:
+     * -the {@link de.thu.tpro.android4bikes.data.model.Track} 'THU' should first be in the list of read {@link de.thu.tpro.android4bikes.data.model.Track}s
+     * -after the deletion the {@link de.thu.tpro.android4bikes.data.model.Track} shouldn't be in the list of read {@link de.thu.tpro.android4bikes.data.model.Track}s anymore
+     */
+    @Test
+    void deleteTrackFromFireStoreAndLocalDB() {
+        //Generate Track THU (postal code 89075)
+        Track track_THU = generateTrack();
+
+        //Delete track from FireStore and local database if it is already existing
+        firebaseConnection.deleteTrackFromFireStoreAndLocalDB(track_THU.getFirebaseID());
+        //wait a few seconds because of the asynchronous process of deleting data to FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //Store the track to FireStore and local database
+        firebaseConnection.storeTrackToFireStoreAndLocalDB(track_THU);
+        //wait a few seconds because of the asynchronous process of storing data to FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //now the track has to be in the list:
+        List<Track> list_read_tracks_with_postcode_89075 = couchDBHelper.readTracks(track_THU.getPostcode());
+        assertTrue(list_read_tracks_with_postcode_89075.contains(track_THU));
+
+        //now delete the track from firstroe and the local database
+        firebaseConnection.deleteTrackFromFireStoreAndLocalDB(track_THU.getFirebaseID());
+        //wait a few seconds because of the asynchronous process of storing data to FireBase
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //Afterwards the shouldn't be anymore in the list
+        list_read_tracks_with_postcode_89075 = couchDBHelper.readTracks(track_THU.getPostcode());
+        assertFalse(list_read_tracks_with_postcode_89075.contains(track_THU));
+    }
+
 
     @Test
     public void updateToken() {
