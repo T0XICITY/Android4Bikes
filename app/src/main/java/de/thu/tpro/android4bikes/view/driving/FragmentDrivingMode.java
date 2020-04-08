@@ -9,7 +9,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
@@ -66,46 +64,49 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     /**
      * initiates the top cardView and sets the correct sizes for all elements
      */
-    private void initCardView(){
+    private void initCardView() {
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Point size = new Point();
         wm.getDefaultDisplay().getSize(size);
 
-        int infoIconHeight = calculateSize(size.y,0.2);
-        int currentSpeedHeight = calculateSize(size.y ,0.1);
-        int currentSpeedWidth = calculateSize(size.x,0.2);
-        int unitWidth = calculateSize(size.x,0.4);
-        int avgSpeedHeight = calculateSize(size.y,0.05);
-        int avgSpeedWidth =calculateSize(size.x,0.6);
+        int infoIconHeight = calculateSize(size.y, 0.2);
+        int currentSpeedHeight = calculateSize(size.y, 0.1);
+        int currentSpeedWidth = calculateSize(size.x, 0.2);
+        int unitWidth = calculateSize(size.x, 0.4);
+        int avgSpeedHeight = calculateSize(size.y, 0.05);
+        int avgSpeedWidth = calculateSize(size.x, 0.6);
 
-        setViewDimension(infoIcon,infoIconHeight,infoIconHeight);
-        setViewDimension(txtCurrentSpeed,currentSpeedWidth,currentSpeedHeight);
-        setViewDimension(txtSpeedUnit,unitWidth,currentSpeedHeight);
-        setViewDimension(txtAvgSpeed,avgSpeedWidth,avgSpeedHeight);
+        setViewDimension(infoIcon, infoIconHeight, infoIconHeight);
+        setViewDimension(txtCurrentSpeed, currentSpeedWidth, currentSpeedHeight);
+        setViewDimension(txtSpeedUnit, unitWidth, currentSpeedHeight);
+        setViewDimension(txtAvgSpeed, avgSpeedWidth, avgSpeedHeight);
     }
 
     /**
      * sets the size for the current view
+     *
      * @param view
      * @param width
      * @param height
      */
-   private void setViewDimension(View view, int width, int height){
-       ViewGroup.LayoutParams params = view.getLayoutParams();
-       params.height = height;
-       params.width = width;
-       view.setLayoutParams(params);
-   }
+    private void setViewDimension(View view, int width, int height) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        params.height = height;
+        params.width = width;
+        view.setLayoutParams(params);
+    }
 
     /**
      * calculates the size of a view element
+     *
      * @param base
      * @param factor
      * @return base*factor roundet to int
      */
-    private int calculateSize(int base,double factor){
-        return (int)Math.rint(base*factor);
+    private int calculateSize(int base, double factor) {
+        return (int) Math.rint(base * factor);
     }
+
     /**
      * Init Map content with MapViewContentBuilder
      */
@@ -126,7 +127,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
                     MY_PERMISSIONS_REQUEST_LOCATION);
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, this);
     }
 
     @Override
