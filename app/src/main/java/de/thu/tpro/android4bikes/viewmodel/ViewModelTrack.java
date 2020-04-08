@@ -1,11 +1,14 @@
 package de.thu.tpro.android4bikes.viewmodel;
 
+import android.os.AsyncTask;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ThreadLocalRandom;
 
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
@@ -66,4 +69,22 @@ public class ViewModelTrack implements Observer {
             e.printStackTrace();
         }
     }
+
+    class FirebaseTask extends AsyncTask<Void,Void,Void> {
+        private ViewModelTrack model;
+        public FirebaseTask(ViewModelTrack model) {
+            this.model = model;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                //firebaseconnection. ...
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
 }
