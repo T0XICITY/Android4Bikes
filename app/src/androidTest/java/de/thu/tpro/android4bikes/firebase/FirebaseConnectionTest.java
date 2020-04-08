@@ -253,7 +253,7 @@ public class FirebaseConnectionTest {
      * -after the deletion the {@link de.thu.tpro.android4bikes.data.model.Track} shouldn't be in the list of read {@link de.thu.tpro.android4bikes.data.model.Track}s anymore
      */
     @Test
-    void deleteTrackFromFireStoreAndLocalDB() {
+    public void deleteTrackFromFireStoreAndLocalDB() {
         //Generate Track THU (postal code 89075)
         Track track_THU = generateTrack();
 
