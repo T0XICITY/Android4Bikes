@@ -1,6 +1,11 @@
 package de.thu.tpro.android4bikes.view.menu.roadsideAssistance;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +16,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.List;
+
+import javax.crypto.spec.RC2ParameterSpec;
 
 import de.thu.tpro.android4bikes.R;
 
@@ -24,14 +33,16 @@ public class RoadsideAssistanceListAdapter extends BaseAdapter {
 
     private final LayoutInflater inflater;
     private List<RoadsideAssistanceEntry> entries;
+    private String[] listTel;
     private Activity context;
 
-    public RoadsideAssistanceListAdapter(Activity context, List<RoadsideAssistanceEntry> entries) {
+    public RoadsideAssistanceListAdapter(Activity context, List<RoadsideAssistanceEntry> entries, String[] paraListTel) {
         super();
 
         this.context = context;
         this.entries = entries;
         this.inflater = LayoutInflater.from(context);
+        this.listTel = paraListTel;
     }
 
     @Override
@@ -80,9 +91,49 @@ public class RoadsideAssistanceListAdapter extends BaseAdapter {
         tv.setText(entries.get(position).text_institution);
         ib.setImageResource(entries.get(position).resId_call);
 
+        ib.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                makePhoneCall(listTel[position]);
+            }
+        });
+
         return row;
     }
 
-    // TODO: Implement Logic when ImageButton is clicked (with OnClickListener)
+    private static final int REQUEST_PHONE_CALL = 1;
+    Intent intent;
+
+
+    public void makePhoneCall(String tel) {
+        Log.d("testMake", "testMake");
+        intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + tel));
+
+
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE
+        ) == PackageManager.PERMISSION_GRANTED) {
+            Log.d("test", context.toString());
+            context.startActivity(intent);
+        } else {
+            //Start dialog requesting permission
+            ActivityCompat.requestPermissions(context, new String[]{
+                    Manifest.permission.CALL_PHONE
+            }, REQUEST_PHONE_CALL);
+        }
+    }
+
+
+    //called when dialog is finished
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResult) {
+        if (requestCode == REQUEST_PHONE_CALL) {
+            if (grantResult.length > 0 && grantResult[0] == PackageManager.PERMISSION_GRANTED) {
+                context.startActivity(intent);
+            }
+        }
+    }
+
+
 
 }

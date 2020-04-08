@@ -40,7 +40,7 @@ public class FragmentRoadsideAssistance extends Fragment {
      */
     private void initRoadAssistanceList() {
         RoadsideAssistanceListAdapter roadsideAssistanceListAdapter = new RoadsideAssistanceListAdapter(getActivity(),
-                vm_RoadsideAssistance.getEntries());
+                vm_RoadsideAssistance.getEntries(), vm_RoadsideAssistance.getTelnummer());
         lv_road_assistance.setAdapter(roadsideAssistanceListAdapter);
     }
 }

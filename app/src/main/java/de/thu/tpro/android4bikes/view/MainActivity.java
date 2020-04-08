@@ -201,23 +201,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    private static final int REQUEST_PHONE_CALL = 1;
-    Intent intent;
 
-    public void makePhoneCall(View view) {
-        intent = new Intent(Intent.ACTION_DIAL,Uri.parse("116117"));
 
-                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE
-                ) == PackageManager.PERMISSION_GRANTED) {
-                    startActivity(intent);
-                } else {
-
-                    //Start dialog requesting permission
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{
-                            Manifest.permission.CALL_PHONE
-                    }, REQUEST_PHONE_CALL);
-                }
-            }
 
     }
 
