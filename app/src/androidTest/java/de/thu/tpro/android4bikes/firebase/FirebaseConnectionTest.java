@@ -130,7 +130,7 @@ public class FirebaseConnectionTest {
 
         Profile profile_kostas = this.createProfile();
 
-        
+
         firebaseConnection.deleteProfileFromFireStoreAndLocalDB(profile_kostas.getGoogleID());
 
         //wait a few seconds because of the asynchronous process of storing data to FireBase
