@@ -72,8 +72,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initFragments();
         initFAB();
 
-
-
         //start with InfoFragment
         currentFragment = fragInfo;
         updateFragment();
@@ -104,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_hazard:
                 Log.d(LOG_TAG, "Clicked menu_hazard!");
                 break;
+
             default:
                 Log.d(LOG_TAG, "Default case");
         }
