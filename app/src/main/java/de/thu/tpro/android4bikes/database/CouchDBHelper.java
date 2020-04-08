@@ -181,7 +181,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void addToUtilization(Position position) {
-        //todo: review und test
         try {
             Database db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
             JSONObject json_position = new JSONObject(gson.toJson(position));
@@ -190,17 +189,16 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             couchDB.saveMutableDocumentToDatabase(db_position, md_position);
             if (couchDB.getNumberOfStoredDocuments(db_position) >= 50) {
                 List<Position> positions = this.getAllPositions();
-                FirebaseConnection.getInstance().storeUtilizationToFireStore(positions); //todo: How to call this ? - This way it's wrong!
+                FirebaseConnection.getInstance().storeUtilizationToFireStore(positions);
                 this.resetUtilization();
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void resetUtilization() {
-        //todo:review und test
         Database utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
         couchDB.clearDB(utilizationDB);
     }
