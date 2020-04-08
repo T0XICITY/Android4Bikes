@@ -205,27 +205,29 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void storeProfile(Profile profile) {
-        //todo: review und test
         try {
             Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
             MutableDocument mutableDocument_profile = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_profile, mutableDocument_profile);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void storeProfile(Map map_profile) {
-        MutableDocument mutableDocument_profile = new MutableDocument(map_profile);
-        couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE), mutableDocument_profile);
+        try {
+            MutableDocument mutableDocument_profile = new MutableDocument(map_profile);
+            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE), mutableDocument_profile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public Profile readProfile(String firebaseAccountID) {
-        //todo: review und test
         Profile profile = null;
         try {
             Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
@@ -260,14 +262,12 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void updateProfile(Profile profile) {
-        //todo: review und test
         deleteProfile(profile.getGoogleID());
         storeProfile(profile);
     }
 
     @Override
     public void deleteProfile(String googleID) {
-        //todo: review und test
         try {
             Database db_Profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
             Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
@@ -284,7 +284,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteProfile(Profile profile) {
-        //todo: review und test
         this.deleteProfile(profile.getGoogleID());
     }
 
