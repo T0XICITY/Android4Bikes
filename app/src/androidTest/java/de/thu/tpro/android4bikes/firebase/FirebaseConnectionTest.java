@@ -377,6 +377,8 @@ public class FirebaseConnectionTest {
     private Track generateTrack() {
         List<Position> positions = new ArrayList<>();
         positions.add(new Position(9.997507, 48.408880));
+        positions.add(new Position(10.997507, 49.408880));
+        positions.add(new Position(11.997507, 50.408880));
         Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke",
                 "siebenundvierzig11", 1585773516, 25,
                 positions, new ArrayList<>(), true);
