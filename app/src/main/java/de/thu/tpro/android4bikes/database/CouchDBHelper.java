@@ -69,7 +69,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             Map result = gson.fromJson(json_track.toString(), Map.class);
             MutableDocument mutableDocument_track = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_track, mutableDocument_track);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -91,7 +91,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
                 track_result = gson.fromJson(jsonObject_result.get(DatabaseNames.DATABASE_TRACK.toText()).toString(), Track.class);
                 tracks.add(track_result);
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return tracks;
@@ -115,32 +115,26 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void storeHazardAlerts(HazardAlert hazardAlert) {
-        //TODO: Review and testing
         try {
             Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
-
-            //**************************Translation to MutableDocument**************************/
             JSONObject json_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
             Map map_hazardAlert = gson.fromJson(json_hazardAlert.toString(), Map.class);
             MutableDocument mutableDocument_hazardAlert = new MutableDocument(map_hazardAlert);
-            //**********************************************************************************/
-
             //save mutable document representing the hazardAlert to the local db
             couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_hazardAlert);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public List<HazardAlert> readHazardAlerts(String postcode) {
-        //TODO: Review and testing
-        List<HazardAlert> hazardAlerts = new ArrayList<>();
+        List<HazardAlert> hazardAlerts = null;
         try {
+            hazardAlerts = new ArrayList<>();
             JSONObject jsonObject_result = null;
             Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
             HazardAlert hazardAlert = null;
-
             Query query = QueryBuilder.select(SelectResult.all())
                     .from(DataSource.database(db_hazardAlert))
                     .where(Expression.property(HazardAlert.ConstantsHazardAlert.POSTCODE.toString()).equalTo(Expression.string(postcode)));
@@ -148,11 +142,9 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             for (Result result : results) {
                 //convert result to jsonObject-string
                 jsonObject_result = new JSONObject(result.toMap());
-
                 //result document -> "db_haradAlert":{ <object> }
                 //because the necessary object in nested, we have to access it by getting it:
                 jsonObject_result = (JSONObject) jsonObject_result.get(DatabaseNames.DATABASE_HAZARD_ALERT.toText());
-
                 hazardAlert = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
                 hazardAlerts.add(hazardAlert);
             }
@@ -164,7 +156,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteHazardAlert(String fireBaseID) {
-        //TODO: Review and testing
         try {
             Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
             HazardAlert hazardAlert = null;
@@ -185,7 +176,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteHazardAlert(HazardAlert hazardAlert) {
-        //TODO: Review and testing
         this.deleteHazardAlert(hazardAlert.getFirebaseID());
     }
 
