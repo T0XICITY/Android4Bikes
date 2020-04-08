@@ -15,7 +15,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -32,6 +31,7 @@ import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelProfile;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelWeatherWarning;
 
@@ -100,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        ViewModelTrack model_track = new ViewModelProvider(this).get(ViewModelTrack.class);
+        model_track.doSth();
+        model_track.doSth();
+        model_track.doSth();
     }
 
     private void toastShortInMiddle(String text){
