@@ -379,7 +379,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
      */
     private List<Position> getAllPositions() {
         List<Position> positions = new ArrayList<>();
-        ResultSet results = couchDB.queryDatabase(Queries.getAllPosQuery);
+        ResultSet results = couchDB.readAllDocumentsOfADatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION));
         results.forEach(result -> {
             try {
                 JSONObject json_result = new JSONObject(result.toMap());
@@ -444,12 +444,5 @@ public class CouchDBHelper implements LocalDatabaseHelper {
             Log.i("HalloWelt", "No mutable document could be generated.");
         }
         return mutableDocument;
-    }
-
-    private static class Queries {
-        final static Query getAllPosQuery = QueryBuilder
-                .select(SelectResult.all())
-                .from(DataSource.database(CouchDB.getInstance()
-                        .getDatabaseFromName(DatabaseNames.DATABASE_POSITION)));
     }
 }
