@@ -44,6 +44,13 @@ public class FirebaseConnectionTest {
     }
 
     @Test
+    public void testProfileFunctionality(){
+        storeProfileToFireStoreAndLocalDB();
+        readProfileFromFireStoreAndStoreItToLocalDB();
+        updateProfile();
+        deleteProfile();
+    }
+
     public void storeProfileToFireStoreAndLocalDB() {
         couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_PROFILE));
 
@@ -62,11 +69,8 @@ public class FirebaseConnectionTest {
         assertEquals(profile_kostas, read_profile);
 
 
-        //TODO: Remove comment
-        //firebaseConnection.deleteProfileFromFireStoreAndLocalDB(profile_kostas.getGoogleID());
     }
 
-    @Test
     public void readProfileFromFireStoreAndStoreItToLocalDB(){
         couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_PROFILE));
 
@@ -83,7 +87,6 @@ public class FirebaseConnectionTest {
         assertEquals(profile_kostas, read_profile);
     }
 
-    @Test
     public void updateProfile(){
         couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_PROFILE));
 
@@ -121,25 +124,12 @@ public class FirebaseConnectionTest {
         assertEquals(profile_kostas_updated,read_profile);
     }
 
-    @Test
     public void deleteProfile(){
         couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_PROFILE));
 
         Profile profile_kostas = this.createProfile();
 
-        firebaseConnection.storeProfileToFireStoreAndLocalDB(profile_kostas);
-
-        //wait a few seconds because of the asynchronous process of storing data to FireBase
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        Profile read_profile = couchDBHelper.readProfile(profile_kostas.getGoogleID());
-
-        assertEquals(profile_kostas, read_profile);
-
+        
         firebaseConnection.deleteProfileFromFireStoreAndLocalDB(profile_kostas.getGoogleID());
 
         //wait a few seconds because of the asynchronous process of storing data to FireBase
