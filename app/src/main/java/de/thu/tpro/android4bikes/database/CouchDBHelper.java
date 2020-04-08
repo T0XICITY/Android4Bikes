@@ -289,34 +289,26 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void storeBikeRack(BikeRack bikeRack) {
-        //TODO: Review and testing
         try {
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
-
-
-            //**************************Translation to MutableDocument**************************/
             JSONObject json_bikeRack = new JSONObject(gson.toJson(bikeRack));
             Map map_bikeRack = gson.fromJson(json_bikeRack.toString(), Map.class);
             MutableDocument mutableDocument_bikeRack = new MutableDocument(map_bikeRack);
-            //**********************************************************************************/
-
-
             //save mutable document representing the bikeRack to the local db
             couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_bikeRack);
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public List<BikeRack> readBikeRacks(String postcode) {
-        //TODO: Review and testing
-        List<BikeRack> bikeRacks = new ArrayList<>();
+        List<BikeRack> bikeRacks = null;
         try {
+            bikeRacks = new ArrayList<>();
             JSONObject jsonObject_result = null;
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
             BikeRack bikeRack = null;
-
             Query query = QueryBuilder.select(SelectResult.all())
                     .from(DataSource.database(db_bikerack))
                     .where(Expression.property(BikeRack.ConstantsBikeRack.POSTCODE.toString()).equalTo(Expression.string(postcode)));
@@ -336,8 +328,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public void deleteBikeRack(String fireBaseID) {
-        //TODO: Review and testing
-
         try {
             Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
             BikeRack bikeRack = null;
@@ -347,7 +337,6 @@ public class CouchDBHelper implements LocalDatabaseHelper {
                     .from(DataSource.database(db_bikerack))
                     .where(Expression.property(BikeRack.ConstantsBikeRack.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
             ResultSet results = couchDB.queryDatabase(query);
-
             for (Result result : results) {
                 mutabledocument_result_id = result.getString(CouchDB.AttributeNames.DATABASE_ID.toText());
                 couchDB.deleteDocumentByID(db_bikerack, mutabledocument_result_id);
