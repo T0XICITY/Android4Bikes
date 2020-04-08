@@ -13,14 +13,14 @@
         android:title="@string/title_hazard"
         app:showAsAction="always" />
     <item
-        android:id="@+id/menu_assistance"
+        android:id="@+id/menu_tracks"
         android:icon="@drawable/ic_help_test"
-        android:title="@string/title_assistance"
+        android:title="@string/title_tracks"
         app:showAsAction="always" />
     <item
-        android:id="@+id/menu_emergencyCall"
+        android:id="@+id/menu_Call"
         android:icon="@drawable/ic_emergency_test"
-        android:title="@string/title_emergency"
+        android:title="@string/title_telnumbers"
         app:showAsAction="always" />
 
 </menu>

@@ -2,7 +2,6 @@ package de.thu.tpro.android4bikes.view;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +21,7 @@ import com.google.android.material.snackbar.Snackbar;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
+import de.thu.tpro.android4bikes.view.menu.createTrack.FragmentCreateTrack;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 
 /**
@@ -31,8 +31,6 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String LOG_TAG = "MainActivity";
-    //The App will start with this Fragment shown first
-    private final Fragment STARTFRAGMENT = new FragmentInfoMode();
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
@@ -49,14 +47,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_Dialog);
 
         /*
         Database database = DatabaseConnection.getInstance();
-
         database.getLastPosition();
         database.readTracks("89610");
         */
-
         initFragments();
         initNavigationDrawer();
         initBottomNavigation();
@@ -77,15 +74,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(MenuItem menu) {
         switch (menu.getItemId()) {
-            case R.id.menu_assistance:
-                Log.d(LOG_TAG, "Clicked menu_assistance!");
-                //currentFragment = new FirstFragment();
+            case R.id.menu_tracks:
+                Log.d(LOG_TAG, "Clicked menu_tracks!");
+                currentFragment = new FragmentCreateTrack();
                 break;
             case R.id.menu_community:
                 Log.d(LOG_TAG, "Clicked menu_community!");
                 //currentFragment = new SecondFragment();
                 break;
-            case R.id.menu_emergencyCall:
+            case R.id.menu_Call:
                 Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
                 currentFragment = new FragmentRoadsideAssistance();
                 break;
@@ -148,6 +145,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
+/*
+    private void showTracksDialog() {
+        dialog.setView(R.layout.fragment_create_track);
+        dialog.create().show();
+    }
+*/
 
     /**
      * Creates a Snackbar to test the floating action button
