@@ -15,6 +15,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -22,12 +23,17 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Iterator;
+
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.warning.DWDwarning;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelProfile;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelWeatherWarning;
 
 /**
  * @author stlutz
@@ -75,6 +81,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         model_profile.getMyProfile().observe(this, myCurrProfile -> {
             // Update the UI
             toastShortInMiddle(myCurrProfile.toString());
+        });
+
+        ViewModelWeather model_weather = new ViewModelProvider(this).get(ViewModelWeather.class);
+        model_weather.getCurrentWeather().observe(this, newWeather ->{
+            if(newWeather != null){
+                toastShortInMiddle(newWeather.toString());
+            }
+        });
+
+        ViewModelWeatherWarning model_warning = new ViewModelProvider(this).get(ViewModelWeatherWarning.class);
+        model_warning.getWeatherWarnings().observe(this,newWarnings->{
+            if (newWarnings != null){
+                Iterator<DWDwarning> iter = newWarnings.iterator();
+                if (iter.hasNext()){
+                    toastShortInMiddle(iter.next().toString());
+                }
+            }
         });
 
     }

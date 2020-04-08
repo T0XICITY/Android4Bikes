@@ -15,7 +15,7 @@ public class OpenWeatherManager extends Observable {
 
     public void startWeatherSubscription() {
         WeatherTask weatherTask = new WeatherTask(this);
-        timer.schedule(weatherTask, 1000, 1000 * 60 * 15);
+        timer.schedule(weatherTask, 1, 1000 * 60 * 15);
     }
 
     public void stopWeatherSubscription() {

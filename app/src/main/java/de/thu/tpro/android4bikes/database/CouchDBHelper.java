@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.concurrent.ThreadLocalRandom;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
@@ -406,7 +407,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public Position getLastPosition() {
-        return null;
+        //todo
+        int i = ThreadLocalRandom.current().nextInt(1,10);
+        int k = ThreadLocalRandom.current().nextInt(1,10);
+        return new Position( 9.836149+i,48.304486+k);
     }
 
     /**
