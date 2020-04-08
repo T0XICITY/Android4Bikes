@@ -19,11 +19,11 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -37,7 +37,7 @@ import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.compression.PositionCompressor;
 
 
-public class FirebaseConnection implements FireStoreDatabase {
+public class FirebaseConnection extends Observable implements FireStoreDatabase {
     private static FirebaseConnection firebaseConnection;
     private FirebaseFirestore db;
     private LocalDatabaseHelper localDatabaseHelper;
@@ -331,6 +331,8 @@ public class FirebaseConnection implements FireStoreDatabase {
                             }
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
+                            setChanged();
+                            notifyObservers(STATUSCODES.ERROR);
                         }
                     }
                 });
@@ -479,6 +481,10 @@ public class FirebaseConnection implements FireStoreDatabase {
         public String toString() {
             return type;
         }
+    }
+
+    public enum STATUSCODES {
+        ERROR, SUCCESS
     }
 
 }
