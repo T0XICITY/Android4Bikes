@@ -325,10 +325,9 @@ public class CouchDB {
      */
     public ResultSet getAllStoredIds(Database database) {
         ResultSet results = null;
-
-        Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
-                .from(DataSource.database(database));
         try {
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
+                    .from(DataSource.database(database));
             results = query.execute();
             Log.d("HalloWelt", query.explain());
         } catch (Exception e) {
@@ -457,6 +456,25 @@ public class CouchDB {
             e.printStackTrace();
             Log.d("HalloWelt", "couldn't delete docment");
         }
+    }
+
+    /**
+     * returns all documents that are stored in a specified database
+     *
+     * @param database
+     * @return
+     */
+    public ResultSet readAllDocumentsOfADatabase(Database database) {
+        ResultSet results = null;
+        try {
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(database));
+            results = query.execute();
+            //Log.d("HalloWelt", query.explain());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return results;
     }
 
     /**
