@@ -78,12 +78,15 @@ public class ViewModelTrack extends ViewModel implements Observer {
 
     }
 
-    public LiveData<List<Track>> getTracksWithSpecifiedPostcode(String postcode) {
+    public void loadTracksWithSpecifiedPostcode(String postcode) {
         if (postcode != null && postcode.length() >= 3) {
 
             //asynchronous task:
             firebaseConnection.readTracksFromFireStoreAndStoreItToLocalDB(postcode);
         }
+    }
+
+    public LiveData<List<Track>> getTracks(){
         return list_shownTracks;
     }
 
