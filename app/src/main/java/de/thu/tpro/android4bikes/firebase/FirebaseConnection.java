@@ -333,6 +333,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             }
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
+                            //Notify ViewModel "ViewModelTrack" that connection to FireStore isn't possible
                             setChanged();
                             notifyObservers(STATUSCODES.ERROR);
                         }
