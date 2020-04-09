@@ -34,6 +34,7 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.util.JSONHelper;
+import de.thu.tpro.android4bikes.util.TimeBase;
 import de.thu.tpro.android4bikes.util.compression.PositionCompressor;
 
 
@@ -259,7 +260,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         public void onSuccess(DocumentReference documentReference) {
                             String firebaseID = documentReference.getId();
                             track.setFirebaseID(firebaseID);
-                            Log.d(TAG, "Track " + track.getName() + " added successfully");
+                            Log.d(TAG, "Track " + track.getName() + " added successfully "+ TimeBase.getCurrentUnixTimeStamp());
                             localDatabaseHelper.storeTrack(track);
                         }
                     })
@@ -269,6 +270,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             Log.w(TAG, "Error submitting BikeRack", e);
                         }
                     });
+            Log.d("HalloWelt","Ende "+ TimeBase.getCurrentUnixTimeStamp());
         } catch (Exception e) {
             e.printStackTrace();
         }
