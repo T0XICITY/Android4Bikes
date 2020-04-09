@@ -12,13 +12,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.maps.android.clustering.ClusterManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -32,6 +32,8 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
     private FusedLocationProviderClient flpc;
     private Activity parent;
     private SupportMapFragment mapFragment;
+    private ClusterManager<HazardAlertItem> clusterManager;
+    private List<HazardAlertItem> items = new ArrayList<>();
 
     public MapViewContentBuilder(Activity parent) {
         //we need the parent Activity to init our map
@@ -68,6 +70,11 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         return this;
     }
 
+    /**
+     * Method to call the map when is ready to use
+     *
+     * @param googleMap
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
@@ -79,21 +86,54 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.setPadding(0,0,0,verticalOffset);
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        clusterManager = new ClusterManager<HazardAlertItem>(GlobalContext.getContext(), googleMap);
+        /*
+        googleMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_haimage))
+                .title("HazardAlert")
+        );
+        */
+
+        googleMap.setOnCameraIdleListener(clusterManager);
+        googleMap.setOnMarkerClickListener(clusterManager);
+
+
+        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                items.add(new HazardAlertItem(latLng));
+                clusterManager.addItems(items);
+                clusterManager.cluster();
+            }
+
+
+            /*items.add(new MyItem(latLng1));
+            clusterManager.addItems(items);
+            clusterManager.cluster();*/
+        });
     }
 
-    private MarkerOptions createMarker(LatLng latLng,String markerName){
+    /*private MarkerOptions createMarker(LatLng latLng,String markerName){
         //BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.material_bike);
         //TODO: make markercolor/icon diferent, depending on Markertype
-        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(markerName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title(markerName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
         return markerOptions;
-    }
+    }*/
+
+
     public MapViewContentBuilder setVerticalOffset(int offset){
         verticalOffset=offset;
         return this;
     }
 
     public SupportMapFragment build(){
+
         return mapFragment;
     }
 
+
 }
+
+
