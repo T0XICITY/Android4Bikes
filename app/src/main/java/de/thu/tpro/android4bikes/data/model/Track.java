@@ -29,7 +29,7 @@ public class Track {
     private long creationDate_unixtimestamp;
     @Expose
     @SerializedName("distance_km")
-    private int distance_km;
+    private int distance_km; //TODO:!!!!!!!!!! -> Double
     @Expose
     @SerializedName("fineGrainedPositions")
     private List<Position> fineGrainedPositions;

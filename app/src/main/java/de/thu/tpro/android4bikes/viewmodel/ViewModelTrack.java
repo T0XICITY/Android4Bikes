@@ -1,6 +1,5 @@
 package de.thu.tpro.android4bikes.viewmodel;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -12,8 +11,8 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
+import de.thu.tpro.android4bikes.data.commands.Command;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
@@ -81,6 +80,8 @@ public class ViewModelTrack extends ViewModel implements Observer {
     public void loadTracksWithSpecifiedPostcode(String postcode) {
         if (postcode != null && postcode.length() >= 3) {
 
+            incrementWorkInProgress();
+
             //asynchronous task:
             firebaseConnection.readTracksFromFireStoreAndStoreItToLocalDB(postcode);
         }
@@ -94,40 +95,20 @@ public class ViewModelTrack extends ViewModel implements Observer {
         return workInProgress;
     }
 
-    public void doSth() {
 
-        new FirebaseTask(this).execute();
+    private void incrementWorkInProgress() {
+        //add information that there is one more request
+        if (workInProgress.getValue() != null) {
+            int newWorkInProgress = workInProgress.getValue() + 1;
+            workInProgress.postValue(newWorkInProgress + 1);
+        }
+    }
 
-        /*Future<String> result = executorService.submit(doSthImportant, "DONE");
-
-        while(result.isDone() == false) {
-            try {
-               Log.d("HalloWelt","The method return value : " + result.get());
-                break;
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            //Sleep for 1 second
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        }*/
-
-/*
-        executorService.s
-        try {
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            if(workInProgress.getValue()!=null){
-                int newProgress = workInProgress.getValue() - 1;
-                workInProgress.postValue(newProgress);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
+    private void decrementWorkInProgress() {
+        if (workInProgress.getValue() != null && workInProgress.getValue() > 0) {
+            int newWorkInProgress = workInProgress.getValue() - 1;
+            workInProgress.postValue(newWorkInProgress);
+        }
     }
 
 
@@ -136,14 +117,16 @@ public class ViewModelTrack extends ViewModel implements Observer {
         try {
             if (o != null) {
                 if (observable instanceof FireStoreDatabase) {
-                    FirebaseConnection.STATUSCODES statuscode = (FirebaseConnection.STATUSCODES) o;
+                    //read from local database + Rueckgabewert wegschmeissen
 
-                    if (statuscode == FirebaseConnection.STATUSCODES.ERROR) {
-                        //read from local database + Rueckgabewert wegschmeissen
-                        //asynchronous task integration
+                    new Thread(() -> {
+                        Command command = (Command) o;
+                        command.execute();
                     }
-                } else if (observable instanceof LocalDatabaseHelper) {
+                    );
 
+                } else if (observable instanceof LocalDatabaseHelper) {
+                    decrementWorkInProgress();
                 }
             }
         } catch (Exception e) {
@@ -151,40 +134,5 @@ public class ViewModelTrack extends ViewModel implements Observer {
         }
     }
 
-    class FirebaseTask extends AsyncTask<Void,Void,Void> {
-        private ViewModelTrack model;
-        public FirebaseTask(ViewModelTrack model) {
-            this.model = model;
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            try {
-                Log.d("HalloWelt", "doSth() started!!!!\t" + TimeBase.getDateFromMilliSecondsAsString(TimeBase.getCurrentUnixTimeStamp()));
-                Thread r = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            TimeUnit.MILLISECONDS.sleep(10000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        Log.d("HalloWelt", "Thread fertig: " + TimeBase.getDateFromMilliSecondsAsString(TimeBase.getCurrentUnixTimeStamp()));
-                    }
-                });
-                r.start();
-                r.join();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            Log.d("HalloWelt", "ONPOST:\t" + TimeBase.getDateFromMilliSecondsAsString(TimeBase.getCurrentUnixTimeStamp()));
-            super.onPostExecute(aVoid);
-        }
-    }
 
 }

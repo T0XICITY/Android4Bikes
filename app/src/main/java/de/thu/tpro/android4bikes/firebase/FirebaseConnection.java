@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
+import de.thu.tpro.android4bikes.data.commands.Command;
+import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostcodeInLocalDB;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -334,8 +336,9 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
                             //Notify ViewModel "ViewModelTrack" that connection to FireStore isn't possible
+                            Command command = new SearchForTracksWithPostcodeInLocalDB(postcode);
                             setChanged();
-                            notifyObservers(STATUSCODES.ERROR);
+                            notifyObservers(command);
                         }
                     }
                 });

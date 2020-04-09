@@ -68,8 +68,6 @@ public class FirebaseConnectionTest {
 
         Profile read_profile = couchDBHelper.readProfile(profile_kostas.getGoogleID());
         assertEquals(profile_kostas, read_profile);
-
-
     }
 
     public void readProfileFromFireStoreAndStoreItToLocalDB(){
@@ -200,6 +198,9 @@ public class FirebaseConnectionTest {
     public void storeAndReadTrack() {
         //Generate Track THU (postal code 89075)
         Track track_THU = generateTrack();
+
+        //Clear local db
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_TRACK));
 
         //Delete track from FireStore and local database if it is existing
         firebaseConnection.deleteTrackFromFireStoreAndLocalDB(track_THU.getFirebaseID());
@@ -363,7 +364,8 @@ public class FirebaseConnectionTest {
     private BikeRack generateTHUBikeRack() {
         //create new BikeRack
         BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880),
+                "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
         return bikeRack_THU;

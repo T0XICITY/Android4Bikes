@@ -101,9 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         ViewModelTrack model_track = new ViewModelProvider(this).get(ViewModelTrack.class);
-        model_track.doSth();
-        model_track.doSth();
-        model_track.doSth();
     }
 
     private void toastShortInMiddle(String text){
