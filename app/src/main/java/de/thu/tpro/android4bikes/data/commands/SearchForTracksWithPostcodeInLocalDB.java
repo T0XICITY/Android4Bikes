@@ -6,8 +6,8 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 public class SearchForTracksWithPostcodeInLocalDB implements Command {
     private String postcode;
 
-    public SearchForTracksWithPostcodeInLocalDB(Object params) {
-        this.postcode = (String) params;
+    public SearchForTracksWithPostcodeInLocalDB(String postcode) {
+        this.postcode = postcode;
     }
 
     @Override
