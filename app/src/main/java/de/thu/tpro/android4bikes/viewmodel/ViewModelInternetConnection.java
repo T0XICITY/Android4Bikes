@@ -6,6 +6,21 @@ import androidx.lifecycle.ViewModel;
 
 import de.thu.tpro.android4bikes.util.BroadcastReceiverInternetConnection;
 
+/**
+ * Usage:
+ * <pre>{@code
+ *      public void observeInternet(){
+ *         ViewModelInternetConnection model_internet = new ViewModelProvider(this).get(ViewModelInternetConnection.class);
+ *         model_internet.getConnectedToWifi().observe(this, connectedToWifi -> {
+ *             toastShortInMiddle("Wifi connection state: " + connectedToWifi);
+ *         });
+ *         model_internet.getConnectedToMobile().observe(this, connectedToMobile -> {
+ *             toastShortInMiddle("Mobile connection state: " + connectedToMobile);
+ *         });
+ *         model_internet.startObserving();
+ *     }
+ *  * }</pre>
+ */
 public class ViewModelInternetConnection extends ViewModel {
     private MutableLiveData<Boolean> connectedToWifi;
     private MutableLiveData<Boolean> connectedToMobile;

@@ -96,15 +96,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         ViewModelTrack model_track = new ViewModelProvider(this).get(ViewModelTrack.class);*/
+        observeInternet();
 
-        ViewModelInternetConnection model_wifi = new ViewModelProvider(this).get(ViewModelInternetConnection.class);
-        model_wifi.getConnectedToWifi().observe(this, connectedToWifi -> {
+    }
+
+    public void observeInternet() {
+        ViewModelInternetConnection model_internet = new ViewModelProvider(this).get(ViewModelInternetConnection.class);
+        model_internet.getConnectedToWifi().observe(this, connectedToWifi -> {
             toastShortInMiddle("Wifi connection state: " + connectedToWifi);
         });
-        model_wifi.getConnectedToMobile().observe(this, connectedToMobile -> {
+        model_internet.getConnectedToMobile().observe(this, connectedToMobile -> {
             toastShortInMiddle("Mobile connection state: " + connectedToMobile);
         });
-        model_wifi.startObserving();
+        model_internet.startObserving();
     }
 
     private void toastShortInMiddle(String text){
