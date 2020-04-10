@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Observable;
 
 import de.thu.tpro.android4bikes.data.commands.Command;
+import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostalCodeInFireStore;
 import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostcodeInLocalDB;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -220,6 +221,10 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             }
                         } else {
                             Log.d(TAG, "Error getting Bikerack(s): ", task.getException());
+
+                            //notify observers that the connection to FireStore failed!
+                            setChanged();
+                            notifyObservers(new SearchForTracksWithPostalCodeInFireStore(postcode));
                         }
                     }
                 });

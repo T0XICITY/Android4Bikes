@@ -106,6 +106,20 @@ public class ViewModelTrack extends ViewModel implements Observer {
     }
 
     /**
+     * @param geoHash specified geoHash
+     */
+    public void loadTracksWithSpecifiedGeoHash(String geoHash) {
+
+    }
+
+    /**
+     * @param track track to be stored
+     */
+    public void storeTrack(Track track) {
+
+    }
+
+    /**
      *
      * @return LiveData object regarding a list of tracks
      */
@@ -163,7 +177,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
         try {
             if (o != null) {
                 if (observable instanceof FireStoreDatabase) {
-                    //read from local database + Rueckgabewert wegschmeissen
+                    //read from local database
 
                     if (o instanceof Command) {
                         //TODO: INTRODUCE CLASS "PROCESSOR"

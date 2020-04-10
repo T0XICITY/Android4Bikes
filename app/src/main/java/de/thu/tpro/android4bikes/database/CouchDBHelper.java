@@ -255,6 +255,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
                 jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
                 profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
                 profile.setAchievements(list_achievements);
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -335,6 +336,11 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //notify all observers (e.g. ViewModelTrack)
+        setChanged();
+        notifyObservers(bikeRacks);
+
         return bikeRacks;
     }
 
