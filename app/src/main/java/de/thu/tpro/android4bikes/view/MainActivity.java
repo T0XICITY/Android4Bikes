@@ -27,8 +27,8 @@ import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelProfile;
-import de.thu.tpro.android4bikes.viewmodel.ViewModelWifiConnection;
 
 /**
  * @author stlutz
@@ -97,9 +97,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         ViewModelTrack model_track = new ViewModelProvider(this).get(ViewModelTrack.class);*/
 
-        ViewModelWifiConnection model_wifi = new ViewModelProvider(this).get(ViewModelWifiConnection.class);
+        ViewModelInternetConnection model_wifi = new ViewModelProvider(this).get(ViewModelInternetConnection.class);
         model_wifi.getConnectedToWifi().observe(this, connectedToWifi -> {
-            toastShortInMiddle("Connection state: " + connectedToWifi);
+            toastShortInMiddle("Wifi connection state: " + connectedToWifi);
+        });
+        model_wifi.getConnectedToMobile().observe(this, connectedToMobile -> {
+            toastShortInMiddle("Mobile connection state: " + connectedToMobile);
         });
         model_wifi.startObserving();
     }
