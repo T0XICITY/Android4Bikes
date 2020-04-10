@@ -15,7 +15,10 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.GeoPosition;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
 
@@ -40,6 +43,18 @@ public class FragmentInfoMode extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //////TODO: REMOVE AFTER TESTING////////////
+        GeoPosition geoPosition = new GeoPosition();
+        String id = "test667";
+
+        for (int i = 0; i < 5; i++) {
+            geoPosition.setLocation(id +i, new GeoPoint(11,22));
+        }
+        geoPosition.setLocation(id, new GeoPoint(11,22));
+        geoPosition.getLocation(id);
+        geoPosition.geoQuery(new GeoPoint(11,22), 5);
+
 
         // check if location access is granted
         if (isAccessLocationPermissionGranted()) {
