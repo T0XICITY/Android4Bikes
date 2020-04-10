@@ -13,6 +13,7 @@ import androidx.lifecycle.MutableLiveData;
  * Class that provides information about the mobile and the wifi connection by using live data.
  */
 public class BroadcastReceiverInternetConnection extends BroadcastReceiver {
+    //TODO: Maybe issues regarding permissions? .INTERNET bzw .ACCESS_NETWORK_STATE?
     //compare: https://developer.android.com/training/basics/network-ops/managing
     //last access: 10.04.2020
 
