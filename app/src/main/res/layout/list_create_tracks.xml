@@ -23,6 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <TextView
                 android:id="@+id/tv_trackname"
                 android:layout_width="0dp"
@@ -30,11 +31,10 @@
                 android:text="@string/title_tracks"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 android:textColor="?android:attr/textColorSecondary"
-
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent"
-                card_view:layout_constraintEnd_toStartOf="@id/tv_Tracklength"
-                />
+                card_view:layout_constraintEnd_toStartOf="@id/tv_Tracklength" />
+
             <TextView
                 android:id="@+id/tv_Tracklength"
                 android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent"
-                card_view:layout_constraintStart_toEndOf="@id/tv_trackname"/>
+                card_view:layout_constraintStart_toEndOf="@id/tv_trackname" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
@@ -52,11 +52,17 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="description"
+            android:visibility="gone"
             android:textAppearance="?attr/textAppearanceBody2"
-            android:textColor="?android:attr/textColorSecondary"
-            />
-
-<!--TODO: set visibility gone-->
+            android:textColor="?android:attr/textColorSecondary" />
+        <RatingBar
+            android:id="@+id/ratingBar_Rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:rating="3.5"
+            android:isIndicator="true"
+            android:visibility="gone"/>
+        <!--TODO: set visibility gone-->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_start"
             android:layout_width="wrap_content"
@@ -64,8 +70,8 @@
             android:layout_below="@+id/tv_trackname"
             style="?attr/borderlessButtonStyle"
             android:text="START"
-            android:visibility="visible"
-            android:layout_gravity="center"/>
+            android:visibility="gone"
+            android:layout_gravity="center" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -94,8 +94,7 @@
         app:layout_anchor="@id/bottomAppBar"
         app:fabCustomSize="75dp"
         android:src="@drawable/ic_directions_bike_black_24dp"
-        android:scaleType="fitXY"
-        />
+        android:scaleType="fitXY" />
 
     <ListView
         android:id="@+id/lv_layout"

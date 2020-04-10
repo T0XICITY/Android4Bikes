@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -59,11 +60,13 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackAdapter.
         TextView tv_name;
         Button btn_start;
         TextView tv_description;
+        RatingBar rb_rating;
         public CreateTrackViewHolder(@NonNull View itemView) {
             super(itemView);
             tv_name = itemView.findViewById(R.id.tv_trackname);
             btn_start = itemView.findViewById(R.id.btn_start);
             tv_description = itemView.findViewById(R.id.tv_description);
+            rb_rating = itemView.findViewById(R.id.ratingBar_Rating);
             itemView.setOnClickListener(this);
         }
 
@@ -72,9 +75,11 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackAdapter.
             //https://stackoverflow.com/questions/44653323/horizontal-androidanimatelayoutchanges-true-animation-not-smooth
             TransitionManager.beginDelayedTransition((ViewGroup) view.getParent());
             if (btn_start.getVisibility() == View.GONE) {
+                rb_rating.setVisibility(View.VISIBLE);
                 btn_start.setVisibility(View.VISIBLE);
                 tv_description.setVisibility(View.VISIBLE);
             } else {
+                rb_rating.setVisibility(View.GONE);
                 btn_start.setVisibility(View.GONE);
                 tv_description.setVisibility(View.GONE);
             }
