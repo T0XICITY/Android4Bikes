@@ -4,10 +4,14 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.couchbase.lite.Database;
 import com.couchbase.lite.MutableDocument;
+import com.couchbase.lite.Result;
+import com.couchbase.lite.ResultSet;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
@@ -95,5 +99,37 @@ public class CouchDBTest {
         }
         couchdb.clearDB(database_achievements);
         assertEquals(0, couchdb.getNumberOfStoredDocuments(database_achievements));
+    }
+
+    @Test
+    public void queryDatabaseForRegularExpression() {
+        Database database_bikeRacks = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+        couchdb.clearDB(database_bikeRacks);
+
+        MutableDocument mutableDocument = new MutableDocument()
+                .setString("name", "THUBikeRack")
+                .setString("geoHash", "ADAC");
+        couchdb.saveMutableDocumentToDatabase(database_bikeRacks, mutableDocument);
+
+        String regexStart = ""; //start of the regular expression
+        String regexEnd = "+.*"; //regular expression to match any character
+        char[] adac = {'A', 'D', 'A', 'C'};
+
+        //Will perform tests with following regular expressions:
+        //A.+*
+        //AD.+*
+        //ADA.+*
+        //ADAC.+*
+        for (int i = 0; i < adac.length; ++i) {
+            regexStart += adac[i];
+            String regex = regexStart + regexEnd;
+            ResultSet results = couchdb.queryDatabaseForRegularExpression(database_bikeRacks, "geoHash", regex);
+            Map<String, Object> map_readMutable_Document = null;
+            for (Result r : results) {
+                map_readMutable_Document = r.toMap();
+                map_readMutable_Document = (Map<String, Object>) map_readMutable_Document.get("bikerackdb");
+            }
+            assertEquals(mutableDocument.toMap(), map_readMutable_Document);
+        }
     }
 }
