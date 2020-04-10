@@ -34,7 +34,7 @@ public class FragmentCreateTrack extends Fragment {
         trackList.get(0).setName("Mega Harte Tour");
         trackList.get(1).setName("Mega Harte Tour 2: Electric Boogaloo");
         trackList.get(2).setName("Mega Harte Tour 3: Götterdämmerung");
-        
+
         vm_create_track = new ViewModelCreateTrack(trackList);
         View view = inflater.inflate(R.layout.fragment_create_track, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);

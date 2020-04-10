@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (menu.getItemId()) {
             case R.id.menu_tracks:
                 Log.d(LOG_TAG, "Clicked menu_tracks!");
-                currentFragment = new FragmentCreateTrack();
+/*                currentFragment = new FragmentCreateTrack();*/
                 break;
             case R.id.menu_community:
                 Log.d(LOG_TAG, "Clicked menu_community!");
@@ -105,6 +105,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btn_community = findViewById(R.id.imagebutton_community);
         btn_tracks = findViewById(R.id.imagebutton_tracks);
 
+        btn_tracks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(LOG_TAG, "Clicked menu_tracks!");
+                currentFragment = new FragmentCreateTrack();
+                updateFragment();
+            }
+        });
         btn_community.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
