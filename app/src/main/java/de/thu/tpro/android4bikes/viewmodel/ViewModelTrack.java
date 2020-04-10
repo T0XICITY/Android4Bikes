@@ -22,18 +22,16 @@ import de.thu.tpro.android4bikes.util.TimeBase;
  * Class that provides {@link LiveData} regarding {@link Track}s. All operations on track data
  * that are done by the UI have to be done using this class!! Following data
  * can be observed: List<{@link Track}> and an integer variable showing whether there is work in progress.
+ * <h3>Getting access and observing tracking data</h3>
  * <pre>{@code
- *     Getting access and observing tracking data:
- *
  *     public void observeViewModelListForChanges(){
  *       ViewModelTrack model_track = new ViewModelProvider(this).get(ViewModelTrack.class);
  *         model_track.getTracks().observe(this, newTrackList->{
  *             newTrackList.get(0); //get the first element in the list
  *         });
  *     }
- *
- *
  * }</pre>
+ *
  */
 public class ViewModelTrack extends ViewModel implements Observer {
     //UI -> Datenhaltung
@@ -97,8 +95,10 @@ public class ViewModelTrack extends ViewModel implements Observer {
      */
     public void loadTracksWithSpecifiedPostcode(String postcode) {
         if (postcode != null && postcode.length() >= 3) {
-
             incrementWorkInProgress();
+
+            //read tracks from local database
+            couchDBHelper.readTracks(postcode);
 
             //asynchronous task:
             firebaseConnection.readTracksFromFireStoreAndStoreItToLocalDB(postcode);
@@ -165,14 +165,27 @@ public class ViewModelTrack extends ViewModel implements Observer {
                 if (observable instanceof FireStoreDatabase) {
                     //read from local database + Rueckgabewert wegschmeissen
 
-                    //TODO: INTRODUCE CLASS "PROCESSOR"
-                    new Thread(() -> {
-                        Command command = (Command) o;
-                        command.execute();
+                    if (o instanceof Command) {
+                        //TODO: INTRODUCE CLASS "PROCESSOR"
+                        new Thread(() -> {
+                            Command command = (Command) o;
+                            command.execute();
+                        });
+                    } else {
+                        //if something went wrong and there is no alternative action to be taken
+                        //there is no more work in progress
+                        decrementWorkInProgress();
                     }
-                    );
+
 
                 } else if (observable instanceof LocalDatabaseHelper) {
+                    List<Track> list_loaded_tracks = (List<Track>) o;
+
+                    //update list of shown tracks:
+                    list_shownTracks.postValue(list_loaded_tracks);
+
+                    //every time the local database updates this class,
+                    //an operation was performed successfully
                     decrementWorkInProgress();
                 }
             }

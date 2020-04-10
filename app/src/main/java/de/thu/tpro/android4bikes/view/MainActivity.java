@@ -22,18 +22,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.Iterator;
-
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.warning.DWDwarning;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelProfile;
-import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
-import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
-import de.thu.tpro.android4bikes.viewmodel.ViewModelWeatherWarning;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelWifiConnection;
 
 /**
  * @author stlutz
@@ -77,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
-        model_profile = new ViewModelProvider(this).get(ViewModelProfile.class);
+        /*model_profile = new ViewModelProvider(this).get(ViewModelProfile.class);
         model_profile.getMyProfile().observe(this, myCurrProfile -> {
             // Update the UI
             toastShortInMiddle(myCurrProfile.toString());
@@ -100,7 +95,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        ViewModelTrack model_track = new ViewModelProvider(this).get(ViewModelTrack.class);
+        ViewModelTrack model_track = new ViewModelProvider(this).get(ViewModelTrack.class);*/
+
+        ViewModelWifiConnection model_wifi = new ViewModelProvider(this).get(ViewModelWifiConnection.class);
+        model_wifi.getConnectedToWifi().observe(this, connectedToWifi -> {
+            toastShortInMiddle("Connection state: " + connectedToWifi);
+        });
+        model_wifi.startObserving();
     }
 
     private void toastShortInMiddle(String text){
