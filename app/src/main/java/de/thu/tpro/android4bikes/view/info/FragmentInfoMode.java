@@ -48,12 +48,35 @@ public class FragmentInfoMode extends Fragment {
         GeoPosition geoPosition = new GeoPosition();
         String id = "test667";
 
+        // HS ULM 48.408713, 9.997848 -> center
+
+
+
         for (int i = 0; i < 5; i++) {
-            geoPosition.setLocation(id +i, new GeoPoint(11,22));
+            GeoPoint geoPoint = new GeoPoint(50.112945 + (i / 100.0), 8.681731 + (i / 100.0));
+            // geoPosition.setLocation(id +i, geoPoint);
         }
-        geoPosition.setLocation(id, new GeoPoint(11,22));
-        geoPosition.getLocation(id);
-        geoPosition.geoQuery(new GeoPoint(11,22), 5);
+        //geoPosition.setLocation(id, new GeoPoint(50.112945, 8.681731));
+
+        /*
+        // Mensa
+        geoPosition.setLocation("mensa",new GeoPoint(48.409189, 9.998831));
+        // Fbau
+        geoPosition.setLocation("fbau",new GeoPoint(48.408713, 9.997848));
+        // 48.400032, 9.982409 Bahnhof
+        geoPosition.setLocation("HBF",new GeoPoint(48.400032, 9.982409));
+        // 48.427255, 9.958914 Sporthalle Eselsberg
+        geoPosition.setLocation("HalleEselsberg",new GeoPoint(48.427255, 9.958914));
+        // 48.415427, 9.905595 Blaustein
+        geoPosition.setLocation("Blaustein",new GeoPoint(48.415427, 9.905595));
+        // 48.392422, 9.935436 edge innnerhalb
+        geoPosition.setLocation("EdgeInnerhalb",new GeoPoint(48.392422, 9.935436));
+        //48.390289, 9.933048 ausserhalb 5,2km
+        geoPosition.setLocation("EdgeAußerhalb",new GeoPoint(48.390289, 9.933048));
+*/
+        // 48.392422, 9.935436 edge 6.6 außer
+        geoPosition.setLocation("EdgeAuß", new GeoPoint(48.395916, 9.909769));
+        geoPosition.geoQuery(new GeoPoint(48.408713, 9.997848), 3);
 
 
         // check if location access is granted
