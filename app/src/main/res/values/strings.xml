@@ -32,5 +32,10 @@
         <item>Manual Input</item>
     </string-array>
     <!--default Text-->
-    <string name="search" />
+    <string name="search">Search</string>
+    <string name="filter_range">Searching Range</string>
+<!--Button Strings-->
+    <string name="cancel">Cancel</string>
+    <string name="accept">Accept</string>
+
 </resources>

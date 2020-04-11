@@ -50,7 +50,6 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHold
     }
 
     public void replaceData(List<Track> filteredTrackList) {
-
         entries = filteredTrackList;
         notifyDataSetChanged();
     }

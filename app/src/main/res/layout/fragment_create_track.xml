@@ -24,6 +24,7 @@
                 app:iconifiedByDefault="false"
                 app:queryHint="@string/search"/>
             <ImageButton
+                android:id="@+id/btn_filter"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_material_filter"
