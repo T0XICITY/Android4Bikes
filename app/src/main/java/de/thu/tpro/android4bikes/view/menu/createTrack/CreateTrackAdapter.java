@@ -17,12 +17,13 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.TransitionManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Track;
 
-public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackAdapter.CreateTrackViewHolder> {
+public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHolder> {
     private final LayoutInflater inflater;
     private List<Track> entries;
     private Activity context;
@@ -56,33 +57,4 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackAdapter.
         return entries.size();
     }
 
-    public class CreateTrackViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView tv_name;
-        Button btn_start;
-        TextView tv_description;
-        RatingBar rb_rating;
-        public CreateTrackViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tv_name = itemView.findViewById(R.id.tv_trackname);
-            btn_start = itemView.findViewById(R.id.btn_start);
-            tv_description = itemView.findViewById(R.id.tv_description);
-            rb_rating = itemView.findViewById(R.id.ratingBar_Rating);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            //https://stackoverflow.com/questions/44653323/horizontal-androidanimatelayoutchanges-true-animation-not-smooth
-            TransitionManager.beginDelayedTransition((ViewGroup) view.getParent());
-            if (btn_start.getVisibility() == View.GONE) {
-                rb_rating.setVisibility(View.VISIBLE);
-                btn_start.setVisibility(View.VISIBLE);
-                tv_description.setVisibility(View.VISIBLE);
-            } else {
-                rb_rating.setVisibility(View.GONE);
-                btn_start.setVisibility(View.GONE);
-                tv_description.setVisibility(View.GONE);
-            }
-        }
-    }
 }

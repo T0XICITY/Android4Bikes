@@ -93,7 +93,7 @@
         android:layout_height="wrap_content"
         app:layout_anchor="@id/bottomAppBar"
         app:fabCustomSize="75dp"
-        android:src="@drawable/ic_directions_bike_black_24dp"
+        android:src="@drawable/ic_material_bike"
         android:scaleType="fitXY" />
 
     <ListView

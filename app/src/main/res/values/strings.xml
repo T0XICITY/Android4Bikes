@@ -18,6 +18,10 @@
     <string name="Activity_Login_Toast_Fail">Sorry auth failed.</string>
     <!---Map Strings TODO: Remove-->
     <string name="map_key" translatable="false">AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc</string>
+    <!--Rating Strings-->
+    <string name="rating_roadQuality">Road Quality:</string>
+    <string name="rating_difficulty">Dificulty:</string>
+    <string name="rating_funfactor">Fun Level:</string>
     <!-- Roadside Assistance Strings -->
     <string-array name="roadside_assistance_list">
         <item>Ambulance Service</item>
@@ -27,4 +31,6 @@
         <item>Youth Helpline</item>
         <item>Manual Input</item>
     </string-array>
+    <!--default Text-->
+    <string name="search" />
 </resources>
