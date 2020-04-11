@@ -16,7 +16,7 @@
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.SearchView
-                android:id="@+id/search"
+                android:id="@+id/searchView_searchTrack"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

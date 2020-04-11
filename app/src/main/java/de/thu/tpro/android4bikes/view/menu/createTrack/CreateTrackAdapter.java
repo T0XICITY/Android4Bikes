@@ -5,19 +5,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.RatingBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.view.menu.MenuView;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.TransitionManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
@@ -57,4 +49,9 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHold
         return entries.size();
     }
 
+    public void replaceData(List<Track> filteredTrackList) {
+
+        entries = filteredTrackList;
+        notifyDataSetChanged();
+    }
 }
