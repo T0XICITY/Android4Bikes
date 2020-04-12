@@ -11,6 +11,8 @@
         android:layout_height="wrap_content"
         android:background="@drawable/tv_rounded"
         android:contentDescription="nav_header_desc"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
         android:paddingLeft="16dp"
         android:paddingTop="16dp" />
 
