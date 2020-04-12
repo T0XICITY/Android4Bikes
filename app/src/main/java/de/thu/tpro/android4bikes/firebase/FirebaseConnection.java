@@ -465,7 +465,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     public enum ConstantsFirebase {
         COLLECTION_PROFILES("profiles"),
         COLLECTION_UTILIZATION("utilization"),
-        COLLECTION_FINE_GEOPOSITIONS("finegeopositions"),
         COLLECTION_TRACKS("tracks"),
         COLLECTION_BIKERACKS("bikeracks"),
         COLLECTION_OFFICIAL_BIKERACKS("officialbikeracks"),

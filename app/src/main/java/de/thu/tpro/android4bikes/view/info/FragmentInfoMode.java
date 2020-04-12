@@ -17,10 +17,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.GeoPoint;
 
-import java.util.HashMap;
-
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.model.GeoPosition;
+import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
 
@@ -48,83 +46,32 @@ public class FragmentInfoMode extends Fragment {
 
         //////TODO: REMOVE AFTER TESTING////////////
 
-        // HS ULM 48.408713, 9.997848 -> center
+        /**
+         * New GeoFencing instance
+         */
+
+        GeoPoint center = new GeoPoint(48.409468, 9.992305);
+        double radius_in_km = 15.0d;
+        GeoFencing geoFencing = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_OFFICIAL_BIKERACKS, center, radius_in_km);
+
+        /**
+         * Register positions in Firestore using GeoFirestore
+         */
 
         /*
-        // Mensa
-        geoPosition.setLocation("mensa",new GeoPoint(48.409189, 9.998831));
-        // Fbau
-        geoPosition.setLocation("fbau",new GeoPoint(48.408713, 9.997848));
-        // 48.400032, 9.982409 Bahnhof
-        geoPosition.setLocation("HBF",new GeoPoint(48.400032, 9.982409));
-        // 48.427255, 9.958914 Sporthalle Eselsberg
-        geoPosition.setLocation("HalleEselsberg",new GeoPoint(48.427255, 9.958914));
-        // 48.415427, 9.905595 Blaustein
-        geoPosition.setLocation("Blaustein",new GeoPoint(48.415427, 9.905595));
-        // 48.392422, 9.935436 edge innnerhalb
-        geoPosition.setLocation("EdgeInnerhalb",new GeoPoint(48.392422, 9.935436));
-        //48.390289, 9.933048 ausserhalb 5,2km
-        geoPosition.setLocation("EdgeAußerhalb",new GeoPoint(48.390289, 9.933048));
-
-        0km 48.409468, 9.992305
-        1km 48.409141, 9.978735
-        2km 48.408834, 9.965260
-        3km 48.408724, 9.951749
-        4km 48.408427, 9.938229
-        5km 48.408113, 9.924512
-        6km 48.407987, 9.911078
-        7km 48.407673, 9.897550
-        8km 48.407422, 9.883928
-        9km 48.407234, 9.870305
-        10km 48.407297, 9.856967
-        15km 48.406388, 9.789102
-        20km 48.405339, 9.721493
-        30km 48.403406, 9.585960
-        50km 48.401590, 9.314984
-        */
-
-        /**
-         * Points in 10km radius with 1km steps
-         */
-        HashMap<String, GeoPoint> geoPositions_radius_10km = new HashMap<>();
-        geoPositions_radius_10km.put("1km", new GeoPoint(48.409141, 9.978735));
-        geoPositions_radius_10km.put("2km", new GeoPoint(48.408834, 9.965260));
-        geoPositions_radius_10km.put("3km", new GeoPoint(48.408724, 9.951749));
-        geoPositions_radius_10km.put("4km", new GeoPoint(48.408427, 9.938229));
-        geoPositions_radius_10km.put("5km", new GeoPoint(48.408113, 9.924512));
-        geoPositions_radius_10km.put("6km", new GeoPoint(48.407987, 9.911078));
-        geoPositions_radius_10km.put("7km", new GeoPoint(48.407673, 9.897550));
-        geoPositions_radius_10km.put("8km", new GeoPoint(48.407422, 9.883928));
-        geoPositions_radius_10km.put("9km", new GeoPoint(48.407234, 9.870305));
-        geoPositions_radius_10km.put("10km", new GeoPoint(48.407297, 9.856967));
-        geoPositions_radius_10km.put("15km", new GeoPoint(48.406388, 9.789102));
-        geoPositions_radius_10km.put("20km", new GeoPoint(48.405339, 9.721493));
-        geoPositions_radius_10km.put("30km", new GeoPoint(48.403406, 9.585960));
-        geoPositions_radius_10km.put("50km", new GeoPoint(48.401590, 9.314984));
-
-        /***
-         * Get GeoPosition instance
-         */
-        GeoPosition geoPosition = new GeoPosition("radiustest");
-
-        /**
-         * Add positions to Firebase using GeoFirestore
-         */
-        /*geoPositions_radius_10km.forEach(geoPosition::setLocation);
-
+        PositionProvider.get50kmRadiusPositionstest().forEach(geoFencing::registerDocument);
 
         try {
             Thread.sleep(15000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }*/
-        GeoPoint center = new GeoPoint(48.409468, 9.992305);
-        double radius_in_km = 20.0d;
-        geoPosition.geoQuery(center, radius_in_km);
+        }
+        */
 
-        //Log.d("HALLO WELT", "Distance in km from center (0km) to Point 20km: "+ GeoUtils.INSTANCE.distance(48.409141, 9.978735, 48.405339, 9.721493) / 1000);
-
-        //geoPosition.getLocationQuery(center,radius_in_meilen); //not working
+        /**
+         * Listen to Geofence
+         */
+        geoFencing.startGeoFenceListener();
 
         // check if location access is granted
         if (isAccessLocationPermissionGranted()) {
@@ -171,20 +118,6 @@ public class FragmentInfoMode extends Fragment {
     private boolean isAccessLocationPermissionGranted() {
         return ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
-
-    // TODO: clean up methods below
-
-    private void determineAllViews() {
-    }
-
-    private void a() {
-
-    }
-
-    private void b() {
-
     }
 
 /*    ///Temporary method for logout testing///

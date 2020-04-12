@@ -1,11 +1,37 @@
 package de.thu.tpro.android4bikes.positiontest;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.model.Position;
 
 public class PositionProvider {
+
+    public static Map<String, GeoPoint> get50kmRadiusPositionstest() {
+        /**
+         * Points in 10km radius with 1km steps
+         */
+        HashMap<String, GeoPoint> geoPositions_radius_50km = new HashMap<>();
+        geoPositions_radius_50km.put("1km", new GeoPoint(48.409141, 9.978735));
+        geoPositions_radius_50km.put("2km", new GeoPoint(48.408834, 9.965260));
+        geoPositions_radius_50km.put("3km", new GeoPoint(48.408724, 9.951749));
+        geoPositions_radius_50km.put("4km", new GeoPoint(48.408427, 9.938229));
+        geoPositions_radius_50km.put("5km", new GeoPoint(48.408113, 9.924512));
+        geoPositions_radius_50km.put("6km", new GeoPoint(48.407987, 9.911078));
+        geoPositions_radius_50km.put("7km", new GeoPoint(48.407673, 9.897550));
+        geoPositions_radius_50km.put("8km", new GeoPoint(48.407422, 9.883928));
+        geoPositions_radius_50km.put("9km", new GeoPoint(48.407234, 9.870305));
+        geoPositions_radius_50km.put("10km", new GeoPoint(48.407297, 9.856967));
+        geoPositions_radius_50km.put("15km", new GeoPoint(48.406388, 9.789102));
+        geoPositions_radius_50km.put("20km", new GeoPoint(48.405339, 9.721493));
+        geoPositions_radius_50km.put("30km", new GeoPoint(48.403406, 9.585960));
+        geoPositions_radius_50km.put("50km", new GeoPoint(48.401590, 9.314984));
+        return geoPositions_radius_50km;
+    }
 
     public static List<Position> getDummyPosition(){
         List<Position> positions = new ArrayList<>();
