@@ -52,14 +52,14 @@ public class FragmentInfoMode extends Fragment {
 
         GeoPoint center = new GeoPoint(48.409468, 9.992305);
         double radius_in_km = 15.0d;
-        GeoFencing geoFencing = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_OFFICIAL_BIKERACKS, center, radius_in_km);
+        GeoFencing geoFencing_bikeRacks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_OFFICIAL_BIKERACKS, center, radius_in_km);
 
         /**
          * Register positions in Firestore using GeoFirestore
          */
 
         /*
-        PositionProvider.get50kmRadiusPositionstest().forEach(geoFencing::registerDocument);
+        PositionProvider.get50kmRadiusPositionstest().forEach(geoFencing_bikeRacks::registerDocument);
 
         try {
             Thread.sleep(15000);
@@ -71,7 +71,7 @@ public class FragmentInfoMode extends Fragment {
         /**
          * Listen to Geofence
          */
-        geoFencing.startGeoFenceListener();
+        geoFencing_bikeRacks.startGeoFenceListener();
 
         // check if location access is granted
         if (isAccessLocationPermissionGranted()) {
