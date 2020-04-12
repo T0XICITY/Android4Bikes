@@ -21,6 +21,7 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
+import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 
 /**
  * @author stlutz
@@ -93,7 +94,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_hazard:
                 Log.d(LOG_TAG, "Clicked menu_hazard!");
                 break;
-
+            case R.id.menu_settings:
+                currentFragment = new FragmentShowProfile();
+                break;
             default:
                 Log.d(LOG_TAG, "Default case");
         }
