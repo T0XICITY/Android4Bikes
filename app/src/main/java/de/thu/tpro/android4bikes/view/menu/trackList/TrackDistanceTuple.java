@@ -1,6 +1,4 @@
-package de.thu.tpro.android4bikes.view.menu.createTrack;
-
-import android.util.Log;
+package de.thu.tpro.android4bikes.view.menu.trackList;
 
 import de.thu.tpro.android4bikes.data.model.Track;
 

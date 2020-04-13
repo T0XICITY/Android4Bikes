@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.view.menu.createTrack;
+package de.thu.tpro.android4bikes.view.menu.trackList;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +13,11 @@ import androidx.transition.TransitionManager;
 
 import de.thu.tpro.android4bikes.R;
 
-public class CreateTrackViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+/**
+ * @author Stefanie
+ * View Holder class for Track CardView to be displayed inside a RecyclerView
+ */
+public class TrackListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     TextView tv_name;
     Button btn_start;
     TextView tv_description;
@@ -25,7 +29,7 @@ public class CreateTrackViewHolder extends RecyclerView.ViewHolder implements Vi
     RatingBar rating_funfactor;
     LinearLayout detailView;
 
-    public CreateTrackViewHolder(@NonNull View itemView) {
+    public TrackListViewHolder(@NonNull View itemView) {
         super(itemView);
         initCardView();
         itemView.setOnClickListener(this);
@@ -40,6 +44,9 @@ public class CreateTrackViewHolder extends RecyclerView.ViewHolder implements Vi
 
     }
 
+    /**
+     * shows or hides elements inside detail view
+     */
     private void toggleViewVisibility() {
         //https://stackoverflow.com/questions/44653323/horizontal-androidanimatelayoutchanges-true-animation-not-smooth
         if (detailView.getVisibility() == View.GONE) {
@@ -51,6 +58,9 @@ public class CreateTrackViewHolder extends RecyclerView.ViewHolder implements Vi
         }
     }
 
+    /**
+     * Initiates view elements of the card view
+     */
     private void initCardView() {
         tv_name = itemView.findViewById(R.id.tv_trackname);
         btn_start = itemView.findViewById(R.id.btn_start);

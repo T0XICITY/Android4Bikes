@@ -1,9 +1,7 @@
-package de.thu.tpro.android4bikes.view.menu.createTrack;
+package de.thu.tpro.android4bikes.view.menu.trackList;
 
 import android.location.Location;
-import android.util.Log;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,15 +10,20 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 
-public class ViewModelCreateTrack {
+/**
+ * @author Stefanie
+ * contains all fields and logic for data that will be displayed in {@link FragmentTrackList}
+ */
+public class TrackListDataBinder {
 
     private static final String LOG_TAG = "ViewModelCreateTrack";
+    private static final int[] rangeIncrements = {99999,1,5,10,15}; // TODO auslagern um konfiguriertbar zu machen
 
     private List<TrackDistanceTuple> trackDistanceList;
     private GpsLocation currentLocation;
 
     //TODO: Backend anbinden
-    public ViewModelCreateTrack(List<Track> trackList) {
+    public TrackListDataBinder(List<Track> trackList) {
         trackDistanceList = new ArrayList<>();
         for (Track track : trackList) {
             trackDistanceList.add(new TrackDistanceTuple(track));
@@ -62,17 +65,24 @@ public class ViewModelCreateTrack {
     /**
      * filters the track list by various criteria
      *
-     * @param range all tracks must be in a distance of lower or equal than range
+     * @param rangeLevel all tracks must be in a distance of lower or equal than range
      * @param quality all tracks must have a road quality of equal or higher than quality
      * @param difficulty all tracks must have a difficulty of equal or higher than difficulty
      * @param funfactor all tracks must have a fun level of equal or higher than funfactor
      * @return list of all tracks that match the given criteria
      */
-    public List<TrackDistanceTuple> filterTrackList(int range, int quality, int difficulty, int funfactor){
+    public List<TrackDistanceTuple> filterTrackList(int rangeLevel, int quality, int difficulty, int funfactor){
         final List<TrackDistanceTuple> filteredTrackList = new ArrayList<>();
-        for (TrackDistanceTuple tuple : trackDistanceList){
+
+        for (TrackDistanceTuple tuple : trackDistanceList) {
             Track track = tuple.getTrack();
-            if (track.getRating().getRoadquality() >= quality && track.getRating().getDifficulty() >= difficulty && track.getRating().getFun() >= funfactor){
+            // get actual filter range from range increments array
+            int range = rangeIncrements[rangeLevel];
+
+            if (tuple.getDistanceToUser() <= range
+                    && track.getRating().getRoadquality() >= quality
+                    && track.getRating().getDifficulty() >= difficulty
+                    && track.getRating().getFun() >= funfactor){
                 filteredTrackList.add(tuple);
             }
 
@@ -81,6 +91,10 @@ public class ViewModelCreateTrack {
         return filteredTrackList;
     }
 
+    /**
+     * updates the current user location and re-calculates the distances to track starting points
+     * @param userLocation current location of the user
+     */
     public void udpateUserLocation(GpsLocation userLocation) {
         currentLocation = userLocation;
         calculateAllDistances();

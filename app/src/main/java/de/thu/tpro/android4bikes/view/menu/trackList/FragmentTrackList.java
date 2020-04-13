@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.view.menu.createTrack;
+package de.thu.tpro.android4bikes.view.menu.trackList;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,13 +32,17 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 
-public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryTextListener, LocationListener {
+/**
+ * @author Stefanie
+ * This fragment contains the view elements and logic regarding tracks
+ */
+public class FragmentTrackList extends Fragment implements SearchView.OnQueryTextListener, LocationListener {
     private static final String LOG_TAG = "FragmentCreateTrack";
 
-    private ViewModelCreateTrack vm_create_track;
+    private TrackListDataBinder vm_create_track;
     RecyclerView recyclerView;
     SearchView searchView;
-    CreateTrackAdapter adapter;
+    TrackListAdapter adapter;
     ImageButton btn_filter;
     LocationManager locationManager;
 //TO DELETE ------------------------------------------
@@ -52,8 +56,8 @@ public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryT
 
         initTracklistDummy();
 
-        vm_create_track = new ViewModelCreateTrack(trackList);
-        View view = inflater.inflate(R.layout.fragment_create_track, container, false);
+        vm_create_track = new TrackListDataBinder(trackList);
+        View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
         btn_filter = view.findViewById(R.id.btn_filter);
         btn_filter.setOnClickListener(v-> openFilterDialog());
@@ -72,7 +76,7 @@ public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryT
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initLocationManager();
-        adapter = new CreateTrackAdapter(getActivity(), vm_create_track.getTrackDistanceList());
+        adapter = new TrackListAdapter(getActivity(), vm_create_track.getTrackDistanceList());
         Log.d("FragmentCreateTrack",getActivity()+"");
         recyclerView.setAdapter(adapter);
     }

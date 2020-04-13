@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.view.menu.createTrack;
+package de.thu.tpro.android4bikes.view.menu.trackList;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -15,13 +15,18 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 
-public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHolder> {
+/**
+ * @author Stefanie
+ * RecyclerView Adapter to create a Set of CardViews for Tracks
+ */
+public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> {
+
     private final LayoutInflater inflater;
     private List<TrackDistanceTuple> entries;
     private Activity context;
     private CardView cardView;
 
-    public CreateTrackAdapter(Activity context, List<TrackDistanceTuple> entries) {
+    public TrackListAdapter(Activity context, List<TrackDistanceTuple> entries) {
         super();
         this.context = context;
         this.entries = entries;
@@ -30,14 +35,14 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHold
 
     @NonNull
     @Override
-    public CreateTrackViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public TrackListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate Layout of current Row
-        View row = inflater.inflate(R.layout.list_create_tracks, parent, false);
-        return new CreateTrackViewHolder(row);
+        View row = inflater.inflate(R.layout.cardview_track_list, parent, false);
+        return new TrackListViewHolder(row);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CreateTrackViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull TrackListViewHolder holder, int position) {
         // Init tracks and ratings
         TrackDistanceTuple tuple = entries.get(position);
         Track currentTrack = tuple.getTrack();

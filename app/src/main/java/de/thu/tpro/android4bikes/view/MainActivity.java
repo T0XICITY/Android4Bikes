@@ -21,7 +21,7 @@ import com.google.android.material.snackbar.Snackbar;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
-import de.thu.tpro.android4bikes.view.menu.createTrack.FragmentCreateTrack;
+import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 
 /**
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 Log.d(LOG_TAG, "Clicked menu_tracks!");
-                currentFragment = new FragmentCreateTrack();
+                currentFragment = new FragmentTrackList();
                 updateFragment();
             }
         });
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 /*
     private void showTracksDialog() {
-        dialog.setView(R.layout.fragment_create_track);
+        dialog.setView(R.layout.fragment_track_list);
         dialog.create().show();
     }
 */
