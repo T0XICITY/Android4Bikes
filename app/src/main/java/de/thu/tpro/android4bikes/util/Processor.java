@@ -16,6 +16,8 @@ public class Processor {
         ~ https://www.straub.as/java/threads/cachedthreadpool.html
         */
         executorService = Executors.newCachedThreadPool();
+
+        // todo: should we use cached thread pool or fixed one //executorService = Executors.newFixedThreadPool(8);
     }
 
     public static Processor getInstance() {
