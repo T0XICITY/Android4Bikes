@@ -77,12 +77,33 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOMLEVEL));
 
 
-        drawcircle(latLng, 200, googleMap);
+        drawcircle(latLng, 50000, googleMap);
+        for (int i = 0; i < 15; i++) {
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latLng.latitude + (i / 20.0), latLng.longitude + (i / 20.0)))
+                    .title("Marker" + i));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latLng.latitude - (i / 20.0), latLng.longitude - (i / 20.0)))
+                    .title("Marker" + i));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latLng.latitude - (i / 20.0), latLng.longitude + (i / 20.0)))
+                    .title("Marker" + i));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latLng.latitude + (i / 20.0), latLng.longitude - (i / 20.0)))
+                    .title("Marker" + i));
+        }
+
+
+
 
         googleMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.setPadding(0,0,0,verticalOffset);
-        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+    }
+
+    private void addMarker(double lat, double lon, int number) {
+
     }
 
     public void drawcircle(LatLng latLng, int radius, GoogleMap googleMap) {
