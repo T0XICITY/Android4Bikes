@@ -1,12 +1,17 @@
 package de.thu.tpro.android4bikes.view.menu.createTrack;
 
+import android.location.Location;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.services.GpsLocation;
 
 public class ViewModelCreateTrack {
     List<Track> trackList;
+    GpsLocation currentLocation;
 
     //TODO: Backend anbinden
     public ViewModelCreateTrack(List<Track> trackList) {
@@ -52,5 +57,17 @@ public class ViewModelCreateTrack {
 
         }
         return filteredTrackList;
+    }
+
+    private double calculateDistance(Track track){
+        Position startPosition = track.getFineGrainedPositions().get(0);
+        Location trackLocation = new Location("");
+        trackLocation.setLatitude(startPosition.getLatitude());
+        trackLocation.setLongitude(startPosition.getLongitude());
+        return currentLocation.distanceTo(trackLocation);
+    }
+
+    public void setLocation(GpsLocation gpsLocation) {
+        currentLocation = gpsLocation;
     }
 }

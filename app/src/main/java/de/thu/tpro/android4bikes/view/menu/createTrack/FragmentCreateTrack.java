@@ -2,6 +2,8 @@ package de.thu.tpro.android4bikes.view.menu.createTrack;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,8 +29,9 @@ import java.util.List;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.services.GpsLocation;
 
-public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryTextListener{
+public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryTextListener, LocationListener {
     private ViewModelCreateTrack vm_create_track;
     RecyclerView recyclerView;
     SearchView searchView;
@@ -120,4 +123,23 @@ public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryT
     private void insertInformation(){
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        vm_create_track.setLocation(new GpsLocation(location));
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
 }
