@@ -1,6 +1,7 @@
 package de.thu.tpro.android4bikes.view.map;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.location.Location;
 import android.widget.Toast;
 
@@ -12,10 +13,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -75,10 +76,17 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOMLEVEL));
 
+
+        drawcircle(latLng, 200, googleMap);
+
         googleMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.setPadding(0,0,0,verticalOffset);
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+    }
+
+    public void drawcircle(LatLng latLng, int radius, GoogleMap googleMap) {
+        Circle circle = googleMap.addCircle(new CircleOptions().center(latLng).radius(radius).strokeColor(Color.RED).fillColor(Color.TRANSPARENT));
     }
 
     private MarkerOptions createMarker(LatLng latLng,String markerName){

@@ -47,6 +47,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private Gson gson;
     private GeoFencing geoFencingHazards;
     private GeoFencing geoFencingBikeracks;
+    private GeoFencing geoFencingTracks;
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
@@ -54,6 +55,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         this.gson = new Gson();
         geoFencingHazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
         geoFencingBikeracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
+        geoFencingTracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
     }
 
     public static FirebaseConnection getInstance() {
@@ -267,6 +269,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             String firebaseID = documentReference.getId();
                             track.setFirebaseID(firebaseID);
                             Log.d(TAG, "Track " + track.getName() + " added successfully");
+                            geoFencingTracks.registerDocument(documentReference.getId(), new GeoPoint(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude()));
                             localDatabaseHelper.storeTrack(track);
                         }
                     })
