@@ -43,5 +43,14 @@ public class ViewModelCreateTrack {
         }
         return filteredTrackList;
     }
+    public List<Track> filteredTrackList(int range,int quality, int dificulty, int funfactor){
+        final List<Track> filteredTrackList = new ArrayList<>();
+        for (Track track: trackList){
+            if (track.getRating().getRoadquality() >= quality && track.getRating().getDifficulty() >= dificulty && track.getRating().getFun() >= funfactor){
+                filteredTrackList.add(track);
+            }
 
+        }
+        return filteredTrackList;
+    }
 }

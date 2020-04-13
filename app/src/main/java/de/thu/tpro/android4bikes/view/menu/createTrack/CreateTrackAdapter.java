@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RatingBar;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 
 public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHolder> {
@@ -39,9 +41,15 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHold
 
     @Override
     public void onBindViewHolder(@NonNull CreateTrackViewHolder holder, int position) {
+        Track currentTrack = entries.get(position);
+        Rating currentRating = currentTrack.getRating();
         // Insert Data into elements
-        Log.d("CreateTrackAdapter", entries.get(position).getName());
-        holder.tv_name.setText(entries.get(position).getName());
+        Log.d("CreateTrackAdapter", currentTrack.getName());
+        holder.tv_name.setText(currentTrack.getName());
+        holder.tv_description.setText(currentTrack.getDescription());
+        holder.rating_roadQuality.setRating(currentRating.getRoadquality());
+        holder.rating_dificulty.setRating(currentRating.getDifficulty());
+        holder.rating_funfactor.setRating(currentRating.getFun());
     }
 
     @Override
@@ -53,4 +61,5 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHold
         entries = filteredTrackList;
         notifyDataSetChanged();
     }
+    private void setRatingBar(){}
 }

@@ -1,12 +1,14 @@
 package de.thu.tpro.android4bikes.view.menu.createTrack;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 
 public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryTextListener{
@@ -33,15 +36,14 @@ public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryT
     ImageButton btn_filter;
 //TO DELETE ------------------------------------------
     List<Track> trackList;
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //test liste TODO: Backend anbinden
-        trackList = Arrays.asList(new Track(),new Track(),new Track());
-        trackList.get(0).setName("Mega Harte Tour");
-        trackList.get(1).setName("Mega Harte Tour 2: Electric Boogaloo");
-        trackList.get(2).setName("Mega Harte Tour 3: Götterdämmerung");
+
+        initTracklistDummy();
 
         vm_create_track = new ViewModelCreateTrack(trackList);
         View view = inflater.inflate(R.layout.fragment_create_track, container, false);
@@ -59,6 +61,22 @@ public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryT
         return view;
     }
 
+    private void initTracklistDummy() {
+        //test liste TODO: Backend anbinden
+        trackList = Arrays.asList(new Track(),new Track(),new Track());
+        trackList.get(0).setRating(new Rating(1,1,1,null));
+        trackList.get(1).setRating(new Rating(3,3,3,null));
+        trackList.get(2).setRating(new Rating(5,5,5,null));
+
+        trackList.get(0).setName("Mega Harte Tour");
+        trackList.get(1).setName("Mega Harte Tour 2: Electric Boogaloo");
+        trackList.get(2).setName("Mega Harte Tour 3: Götterdämmerung");
+
+        trackList.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
+        trackList.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
+        trackList.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
+    }
+
     private void openDialog() {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         builder.setTitle("Filter");
@@ -66,11 +84,19 @@ public class FragmentCreateTrack extends Fragment implements SearchView.OnQueryT
 
         builder.setView(filterDialog);
         builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {dialogInterface.cancel(); });
-        builder.setPositiveButton(R.string.accept, (dialogInterface, i) -> {dialogInterface.cancel();});
+        builder.setPositiveButton(R.string.accept, (dialogInterface, i) -> {dialogInterface.cancel();setFilterOptions(filterDialog);});
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
+    private void setFilterOptions(View filterDialog) {
+        SeekBar seekBarRange = filterDialog.findViewById(R.id.seekBar_range);
+        SeekBar seekBarQuality = filterDialog.findViewById(R.id.seekBar_roadQuality);
+        SeekBar seekBarDificulkty = filterDialog.findViewById(R.id.seekBar_dificulty);
+        SeekBar seekBarfunfactor = filterDialog.findViewById(R.id.seekBar_funfactor);
+        List<Track> filteredList =  vm_create_track.filteredTrackList(seekBarRange.getProgress(),seekBarQuality.getProgress(),seekBarDificulkty.getProgress(),seekBarfunfactor.getProgress());
+        adapter.replaceData(filteredList);
+    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
