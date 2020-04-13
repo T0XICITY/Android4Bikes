@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -76,6 +77,7 @@ public class ViewModelCreateTrack {
             }
 
         }
+        // sort list
         return filteredTrackList;
     }
 
@@ -113,5 +115,6 @@ public class ViewModelCreateTrack {
         for (int i = 0; i < trackDistanceList.size(); i++){
             calculateDistance(i);
         }
+        Collections.sort(trackDistanceList);
     }
 }
