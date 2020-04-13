@@ -1,11 +1,9 @@
 package de.thu.tpro.android4bikes.view.menu.createTrack;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RatingBar;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -19,13 +17,12 @@ import de.thu.tpro.android4bikes.data.model.Track;
 
 public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHolder> {
     private final LayoutInflater inflater;
-    private List<Track> entries;
+    private List<TrackDistanceTuple> entries;
     private Activity context;
     private CardView cardView;
 
-    public CreateTrackAdapter(Activity context, List<Track> entries) {
+    public CreateTrackAdapter(Activity context, List<TrackDistanceTuple> entries) {
         super();
-
         this.context = context;
         this.entries = entries;
         this.inflater = LayoutInflater.from(context);
@@ -41,15 +38,29 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHold
 
     @Override
     public void onBindViewHolder(@NonNull CreateTrackViewHolder holder, int position) {
-        Track currentTrack = entries.get(position);
+        // Init tracks and ratings
+        TrackDistanceTuple tuple = entries.get(position);
+        Track currentTrack = tuple.getTrack();
         Rating currentRating = currentTrack.getRating();
+
         // Insert Data into elements
-        Log.d("CreateTrackAdapter", currentTrack.getName());
         holder.tv_name.setText(currentTrack.getName());
         holder.tv_description.setText(currentTrack.getDescription());
         holder.rating_roadQuality.setRating(currentRating.getRoadquality());
         holder.rating_dificulty.setRating(currentRating.getDifficulty());
         holder.rating_funfactor.setRating(currentRating.getFun());
+        holder.tv_author.setText(currentTrack.getAuthor_googleID());
+        holder.tv_trackLength.setText(""+currentTrack.getDistance_km());
+
+        // Only display distance when available
+        double currentDistance = tuple.getDistanceToUser();
+        String distanceText;
+        if (currentDistance > 0) {
+            distanceText = String.format(context.getResources().getString(R.string.distance), currentDistance);
+        } else {
+            distanceText = (String) context.getResources().getText(R.string.not_available);
+        }
+        holder.tv_trackDistance.setText(distanceText);
     }
 
     @Override
@@ -57,9 +68,12 @@ public class CreateTrackAdapter extends RecyclerView.Adapter<CreateTrackViewHold
         return entries.size();
     }
 
-    public void replaceData(List<Track> filteredTrackList) {
-        entries = filteredTrackList;
+    /**
+     * Replaces the list of tracks with a new one (e.g. when filtered) and updates view
+     * @param newTrackList
+     */
+    public void replaceData(List<TrackDistanceTuple> newTrackList) {
+        entries = newTrackList;
         notifyDataSetChanged();
     }
-    private void setRatingBar(){}
 }

@@ -31,12 +31,12 @@
                 android:text="@string/title_tracks"
                 android:textAppearance="?attr/textAppearanceHeadline6"
                 android:textColor="?android:attr/textColorSecondary"
-                card_view:layout_constraintEnd_toStartOf="@id/tv_Tracklength"
+                card_view:layout_constraintEnd_toStartOf="@id/tv_Trackdistance"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/tv_Tracklength"
+                android:id="@+id/tv_Trackdistance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="27,3 Km"
@@ -45,7 +45,6 @@
                 card_view:layout_constraintStart_toEndOf="@id/tv_trackname"
                 card_view:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-        <!--TODO: set visibility gone-->
         <LinearLayout
             android:id="@+id/linear_detailView"
             android:layout_width="match_parent"
@@ -69,7 +68,27 @@
                 android:layout_marginTop="16dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/track_length"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
 
+                    <TextView
+                        android:id="@+id/tv_tracklength"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="30 Km"
+                        android:textSize="18dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -140,6 +159,24 @@
                         android:numStars="5"
                         android:isIndicator="true"
                         android:rating="3.5"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Author:"
+                        android:layout_marginRight="3dp"/>
+                    <TextView
+                        android:id="@+id/tv_author"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Rüdiger"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

@@ -17,6 +17,9 @@ public class CreateTrackViewHolder extends RecyclerView.ViewHolder implements Vi
     TextView tv_name;
     Button btn_start;
     TextView tv_description;
+    TextView tv_trackLength;
+    TextView tv_trackDistance;
+    TextView tv_author;
     RatingBar rating_roadQuality;
     RatingBar rating_dificulty;
     RatingBar rating_funfactor;
@@ -40,11 +43,11 @@ public class CreateTrackViewHolder extends RecyclerView.ViewHolder implements Vi
     private void toggleViewVisibility() {
         //https://stackoverflow.com/questions/44653323/horizontal-androidanimatelayoutchanges-true-animation-not-smooth
         if (detailView.getVisibility() == View.GONE) {
-            detailView.setVisibility(View.VISIBLE);
-            btn_start.setVisibility(View.VISIBLE);
-        } else {
-            detailView.setVisibility(View.GONE);
-            btn_start.setVisibility(View.GONE);
+                detailView.setVisibility(View.VISIBLE);
+                btn_start.setVisibility(View.VISIBLE);
+            } else {
+                detailView.setVisibility(View.GONE);
+                btn_start.setVisibility(View.GONE);
         }
     }
 
@@ -56,5 +59,8 @@ public class CreateTrackViewHolder extends RecyclerView.ViewHolder implements Vi
         rating_dificulty = itemView.findViewById(R.id.ratingBar_dificulty);
         rating_funfactor = itemView.findViewById(R.id.ratingBar_funfactor);
         detailView = itemView.findViewById(R.id.linear_detailView);
+        tv_trackLength = itemView.findViewById(R.id.tv_tracklength);
+        tv_trackDistance = itemView.findViewById(R.id.tv_Trackdistance);
+        tv_author = itemView.findViewById(R.id.tv_author);
     }
 }
