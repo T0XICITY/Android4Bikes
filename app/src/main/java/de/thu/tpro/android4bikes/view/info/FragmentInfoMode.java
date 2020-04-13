@@ -18,6 +18,9 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.firestore.GeoPoint;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
@@ -57,6 +60,12 @@ public class FragmentInfoMode extends Fragment {
         //FirebaseConnection.getInstance().submitHazardAlertToFireStore(new HazardAlert(
         //HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
         //));
+
+
+        BikeRack bikeRack_THU = new BikeRack(
+                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                false, true, false);
+        FirebaseConnection.getInstance().submitBikeRackToFireStore(bikeRack_THU);
 
         /**
          * Register positions in Firestore using GeoFirestore

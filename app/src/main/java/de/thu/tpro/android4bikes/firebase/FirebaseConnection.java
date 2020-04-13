@@ -46,12 +46,14 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private String TAG = "HalloWelt";
     private Gson gson;
     private GeoFencing geoFencingHazards;
+    private GeoFencing geoFencingBikeracks;
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         localDatabaseHelper = new CouchDBHelper();
         this.gson = new Gson();
         geoFencingHazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        geoFencingBikeracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
     }
 
     public static FirebaseConnection getInstance() {
@@ -181,6 +183,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                 + ","
                                 + bikeRack.getPosition().getLongitude()
                                 + " submitted successfully");
+                        geoFencingBikeracks.registerDocument(documentReference.getId(), new GeoPoint(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude()));
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
