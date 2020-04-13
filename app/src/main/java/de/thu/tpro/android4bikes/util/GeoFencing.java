@@ -3,12 +3,13 @@ package de.thu.tpro.android4bikes.util;
 import android.util.Log;
 
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
 import org.imperiumlabs.geofirestore.GeoFirestore;
 import org.imperiumlabs.geofirestore.GeoQuery;
-import org.imperiumlabs.geofirestore.listeners.GeoQueryEventListener;
+import org.imperiumlabs.geofirestore.listeners.GeoQueryDataEventListener;
 
 import java.util.ArrayList;
 
@@ -19,20 +20,17 @@ public class GeoFencing {
      */
 
     GeoFirestore geoFirestore;
-    GeoQuery geoQuery;
     ArrayList<String> documents_in_area;
+    GeoQuery geoQuery;
 
     /**
      * Create new Geofence Object at a given point with a certain radius of interest.
      *
      * @param collection Firebase collection path
-     * @param center     center point for area of interest
-     * @param radius_km  radius of interest
      */
-    public GeoFencing(ConstantsGeoFencing collection, GeoPoint center, double radius_km) {
+    public GeoFencing(ConstantsGeoFencing collection) {
         CollectionReference collectionReference = FirebaseFirestore.getInstance().collection(collection.toString());
         geoFirestore = new GeoFirestore(collectionReference);
-        geoQuery = geoFirestore.queryAtLocation(center, radius_km);
         documents_in_area = new ArrayList<>();
     }
 
@@ -71,59 +69,85 @@ public class GeoFencing {
         });
     }
 
-    public void updateRadius(double newRadius) {
-        geoQuery.setRadius(newRadius);
+    public void setupGeofence(GeoPoint center, double radius_km) {
+        geoQuery = geoFirestore.queryAtLocation(center, radius_km);
     }
 
-    public void updateCenter(GeoPoint newCenter) {
-        geoQuery.setCenter(newCenter);
+    public boolean updateRadius(double newRadius) {
+        if (geoQuery != null) {
+            geoQuery.setRadius(newRadius);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean updateCenter(GeoPoint newCenter) {
+        if (geoQuery != null) {
+            geoQuery.setCenter(newCenter);
+            return true;
+        }
+        return false;
     }
 
 
-    public void startGeoFenceListener() {
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-            @Override
-            public void onKeyEntered(String s, GeoPoint geoPoint) {
-                documents_in_area.add(s);
-                //Log.d("HALLO WELT", "KeyEntered: "+s+" Geo point: "+ geoPoint);
-            }
-
-            @Override
-            public void onKeyExited(String s) {
-                documents_in_area.remove(s);
-                //Log.d("HALLO WELT", "KeyExit: "+s);
-
-            }
-
-            @Override
-            public void onKeyMoved(String s, GeoPoint geoPoint) {
-                if (!documents_in_area.contains(s)) {
-                    documents_in_area.add(s);
+    public boolean startGeoFenceListener() {
+        if (geoQuery != null) {
+            geoQuery.addGeoQueryDataEventListener(new GeoQueryDataEventListener() {
+                @Override
+                public void onDocumentMoved(DocumentSnapshot documentSnapshot, GeoPoint geoPoint) {
+                    if (!documents_in_area.contains(documentSnapshot.getId())) {
+                        documents_in_area.add(documentSnapshot.getId());
+                    }
+                    //Log.d("HALLO WELT", "DocumentMoved: "+documentSnapshot.getId()+" Geo point: "+ geoPoint);
                 }
-                //Log.d("HALLO WELT", "KeyMoved: "+s+" Geo point: "+ geoPoint);
-            }
 
-            @Override
-            public void onGeoQueryReady() {
-                Log.d("HALLO WELT", "Query ready");
-                documents_in_area.forEach(key -> Log.d("HALLO WELT", key));
-            }
+                @Override
+                public void onDocumentExited(DocumentSnapshot documentSnapshot) {
+                    documents_in_area.remove(documentSnapshot.getId());
+                    //Log.d("HALLO WELT", "DocumentExit: "+documentSnapshot.getId());
+                }
 
-            @Override
-            public void onGeoQueryError(Exception e) {
-                Log.d("HALLO WELT", "Query error" + e.getMessage());
-            }
-        });
+                @Override
+                public void onDocumentEntered(DocumentSnapshot documentSnapshot, GeoPoint geoPoint) {
+                    documents_in_area.add(documentSnapshot.getId());
+                    //Log.d("HALLO WELT", "Document Entered: "+documentSnapshot.getId()+" Geo point: "+ geoPoint);
+                }
+
+                @Override
+                public void onDocumentChanged(DocumentSnapshot documentSnapshot, GeoPoint geoPoint) {
+
+                }
+
+                @Override
+                public void onGeoQueryReady() {
+                    Log.d("HALLO WELT", "Query ready");
+                    documents_in_area.forEach(key -> Log.d("HALLO WELT", key));
+                }
+
+                @Override
+                public void onGeoQueryError(Exception e) {
+                    Log.d("HALLO WELT", "Query error" + e.getMessage());
+                }
+            });
+            return true;
+        }
+        return false;
     }
 
-    public void stopGeoFenceListener() {
-        geoQuery.removeAllListeners();
+    public boolean stopGeoFenceListener() {
+        if (geoQuery != null) {
+            geoQuery.removeAllListeners();
+            return true;
+        }
+        return false;
     }
 
     public enum ConstantsGeoFencing {
         COLLECTION_TRACKS("tracks"),
-        COLLECTION_OFFICIAL_BIKERACKS("officialbikeracks"),
-        COLLECTION_OFFICIAL_HAZARDS("officialhazards");
+        COLLECTION_BIKERACKS("bikeracks"),
+        COLLECTION_HAZARDS("hazards"),
+        COLLECTION_RADIUS("radiustest");
 
 
         private String type;

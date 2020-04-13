@@ -19,6 +19,7 @@ import com.google.firebase.firestore.GeoPoint;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GeoFencing;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
 
@@ -49,10 +50,13 @@ public class FragmentInfoMode extends Fragment {
         /**
          * New GeoFencing instance
          */
-
-        GeoPoint center = new GeoPoint(48.409468, 9.992305);
-        double radius_in_km = 15.0d;
-        GeoFencing geoFencing_bikeRacks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_OFFICIAL_BIKERACKS, center, radius_in_km);
+        GlobalContext.setContext(this.getContext());
+        GeoPoint center = new GeoPoint(48.403498, 9.978170);
+        double radius_in_km = 14.9d;
+        GeoFencing geoFencing_hazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        //FirebaseConnection.getInstance().submitHazardAlertToFireStore(new HazardAlert(
+        //HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
+        //));
 
         /**
          * Register positions in Firestore using GeoFirestore
@@ -65,13 +69,16 @@ public class FragmentInfoMode extends Fragment {
             Thread.sleep(15000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-        */
+        }*/
+
+
+
 
         /**
          * Listen to Geofence
          */
-        geoFencing_bikeRacks.startGeoFenceListener();
+        geoFencing_hazards.setupGeofence(center, radius_in_km);
+        geoFencing_hazards.startGeoFenceListener();
 
         // check if location access is granted
         if (isAccessLocationPermissionGranted()) {

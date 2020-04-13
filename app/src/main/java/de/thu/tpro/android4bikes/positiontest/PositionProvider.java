@@ -13,7 +13,7 @@ public class PositionProvider {
 
     public static Map<String, GeoPoint> get50kmRadiusPositionstest() {
         /**
-         * Points in 10km radius with 1km steps
+         * Points in 50km radius
          */
         HashMap<String, GeoPoint> geoPositions_radius_50km = new HashMap<>();
         geoPositions_radius_50km.put("1km", new GeoPoint(48.409141, 9.978735));

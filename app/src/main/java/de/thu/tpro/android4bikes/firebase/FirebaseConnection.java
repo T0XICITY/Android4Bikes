@@ -12,6 +12,7 @@ import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
@@ -33,6 +34,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
+import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.compression.PositionCompressor;
 
@@ -43,11 +45,13 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private LocalDatabaseHelper localDatabaseHelper;
     private String TAG = "HalloWelt";
     private Gson gson;
+    private GeoFencing geoFencingHazards;
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         localDatabaseHelper = new CouchDBHelper();
         this.gson = new Gson();
+        geoFencingHazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
     }
 
     public static FirebaseConnection getInstance() {
@@ -376,25 +380,19 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     @Override
     public void submitHazardAlertToFireStore(HazardAlert hazardAlert) {
         //TODO Review and Testing
+        //-> bei Erfolg
         db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
                 .add(hazardAlert) //generate id automatically
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        String firebaseID = documentReference.getId();
-                        Log.d(TAG, "HazardAlert with Location "
-                                + hazardAlert.getPosition().getLatitude()
-                                + ","
-                                + hazardAlert.getPosition().getLongitude()
-                                + " submitted successfully");
-                    }
+                .addOnSuccessListener(documentReference -> {
+                    String firebaseID = documentReference.getId();
+                    Log.d(TAG, "HazardAlert with Location "
+                            + hazardAlert.getPosition().getLatitude()
+                            + ","
+                            + hazardAlert.getPosition().getLongitude()
+                            + " submitted successfully");
+                    geoFencingHazards.registerDocument(documentReference.getId(), new GeoPoint(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude()));
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error submitting HazardAlert", e);
-                    }
-                });
+                .addOnFailureListener(e -> Log.w(TAG, "Error submitting HazardAlert", e));
     }
 
     /**
