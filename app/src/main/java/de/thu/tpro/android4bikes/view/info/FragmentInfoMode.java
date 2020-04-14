@@ -15,7 +15,14 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+import de.thu.tpro.android4bikes.util.GeoFencing;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
 
@@ -40,6 +47,8 @@ public class FragmentInfoMode extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        GlobalContext.setContext(this.getContext());
 
         // check if location access is granted
         if (isAccessLocationPermissionGranted()) {
@@ -86,20 +95,6 @@ public class FragmentInfoMode extends Fragment {
     private boolean isAccessLocationPermissionGranted() {
         return ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
-
-    // TODO: clean up methods below
-
-    private void determineAllViews() {
-    }
-
-    private void a() {
-
-    }
-
-    private void b() {
-
     }
 
 /*    ///Temporary method for logout testing///
