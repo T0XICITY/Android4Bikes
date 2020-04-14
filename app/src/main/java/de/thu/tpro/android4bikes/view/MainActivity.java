@@ -1,6 +1,7 @@
 package de.thu.tpro.android4bikes.view;
 
 import android.graphics.Color;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -21,11 +22,13 @@ import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
+import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelProfile;
@@ -146,12 +149,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_hazard:
                 Log.d(LOG_TAG, "Clicked menu_hazard!");
                 break;
+            case R.id.menu_setting:
+                Log.d(LOG_TAG, "Clicked menu_setting!");
+                break;
+            case R.id.menu_logout:
+                Log.d(LOG_TAG, "Clicked menu_logout!");
+                doLogout();
+                break;
             default:
                 Log.d(LOG_TAG, "Default case");
         }
         toggleNavigationDrawer();
         updateFragment();
         return true;
+    }
+
+    private void doLogout() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this,ActivityLogin.class);
+        startActivity(intent);
     }
 
     /**
