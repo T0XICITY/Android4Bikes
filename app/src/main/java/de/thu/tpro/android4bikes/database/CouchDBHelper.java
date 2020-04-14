@@ -251,7 +251,7 @@ public class CouchDBHelper implements LocalDatabaseHelper {
                 }
                 jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
                 profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
-                profile.setAchievements(list_achievements);
+                profile.addAchievements(list_achievements);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -369,6 +369,16 @@ public class CouchDBHelper implements LocalDatabaseHelper {
     @Override
     public Position getLastPosition() {
         return null;
+    }
+
+    @Override
+    public void storeBikeRack(Map map_bikeRack) {
+        try{
+            MutableDocument mutableDocument_bikeRack = new MutableDocument(map_bikeRack);
+            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK), mutableDocument_bikeRack);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**

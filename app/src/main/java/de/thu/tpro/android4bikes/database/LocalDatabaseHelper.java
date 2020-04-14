@@ -155,4 +155,6 @@ public interface LocalDatabaseHelper {
      * @return the last saved position in the database
      * */
     Position getLastPosition();
+
+    void storeBikeRack(Map map_result);
 }

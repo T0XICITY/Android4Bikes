@@ -14,7 +14,7 @@ public class TrackProvider {
         Rating rating = new Rating(2, 3, 1, "neunzehnhundert99");
         List<Position> fineGrainedPositions = PositionProvider.getDummyPosition();
         List<HazardAlert> hazardAlerts = new ArrayList<>();
-        hazardAlerts.add(new HazardAlert(HazardAlert.HazardType.DAMAGED_ROAD, new Position(9.860655,48.310792),
+        hazardAlerts.add(new HazardAlert(HazardAlert.HazardType.DAMAGED_ROAD, new Position(48.310792, 9.860655),
                 1609459200, 1, "zweitausend20"));
         return new Track("nullacht15",rating,"Meine Teststrecke","Das ist meine super tolle Teststrecke :)","siebenundvierzig11",
                 TimeBase.getCurrentUnixTimeStamp(),2,fineGrainedPositions,hazardAlerts,true);
