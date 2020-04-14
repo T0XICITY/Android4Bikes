@@ -18,10 +18,6 @@
     <string name="Activity_Login_Toast_Fail">Sorry auth failed.</string>
     <!---Map Strings TODO: Remove-->
     <string name="map_key" translatable="false">AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc</string>
-    <!--Rating Strings-->
-    <string name="rating_roadQuality">Road Quality:</string>
-    <string name="rating_difficulty">Dificulty:</string>
-    <string name="rating_funfactor">Fun Level:</string>
     <!-- Tracks Strings -->
     <string name="distance">%1$.2f km</string> <!-- '%1$.2f' means Placeholder for float with 2 decimals -->
     <string name="range">%1$d km</string>
@@ -29,6 +25,15 @@
     <string name="unfiltered">All</string>
     <string name="filter_rating">%1$s \u2605</string>
     <string name="track_length">Track Length</string>
+    <string name="property_Range">Range</string>
+    <string name="property_RoadQuality">Road Quality</string>
+    <string name="property_Difficulty">Difficulty</string>
+    <string name="property_Funfactor">Fun Level</string>
+    <!-- Sorting Strings -->
+    <string name="sortBy">Sort by</string>
+    <string name="sortingOrder">Order by</string>
+    <string name="ascending">Ascending</string>
+    <string name="descending">Descending</string>
 
     <!-- Roadside Assistance Strings -->
     <string-array name="roadside_assistance_list">

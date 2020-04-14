@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -44,6 +46,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     private RecyclerView recyclerView;
     private TrackListAdapter adapter;
     private TextView tv_trackList;
+
+    // Filter dialog elements
     private TextView tv_indicator_range;
     private TextView tv_indicator_quality;
     private TextView tv_indicator_difficulty;
@@ -52,6 +56,10 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     private SeekBar seekBarQuality;
     private SeekBar seekBarDificulty;
     private SeekBar seekBarFunFactor;
+
+    // Sorting dialog elements
+    private RadioGroup rg_sortTracks;
+    private RadioGroup rg_orderTracks;
 
     //TODO: delete when backend is connected to view
     private List<Track> trackList;
@@ -68,8 +76,12 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
         tv_trackList = view.findViewById(R.id.tv_totalTracksList);
+
         ImageButton btn_filter = view.findViewById(R.id.btn_filter_tracks);
         btn_filter.setOnClickListener(v -> openFilterDialog());
+
+        ImageButton btn_sort = view.findViewById(R.id.btn_sort_tracks);
+        btn_sort.setOnClickListener(v -> openSortingDialog());
 
         SearchView searchView = view.findViewById(R.id.searchView_searchTrack);
         searchView.setOnQueryTextListener(this);
@@ -86,6 +98,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         super.onViewCreated(view, savedInstanceState);
         initLocationManager();
         adapter = new TrackListAdapter(getActivity(), dataBinder.getTrackDistanceList());
+
         Log.d("FragmentCreateTrack", getActivity() + "");
         recyclerView.setAdapter(adapter);
         updateTotalTracksTextView();
@@ -225,6 +238,38 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     }
 
     /**
+     * opens a MaterialAlertDialog with sorting options
+     */
+    private void openSortingDialog() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
+
+        // inflaters gonna inflate
+        View view = getLayoutInflater().inflate(R.layout.dialog_tracklist_sorting, null);
+
+        // get RadioGroups
+        rg_sortTracks = view.findViewById(R.id.radioGroup_sortTracks);
+        preselectSorting();
+        rg_orderTracks = view.findViewById(R.id.radioGroup_orderTracks);
+        preselectOrdering();
+
+        // add custom layout to dialog
+        builder.setView(view);
+
+        builder.setPositiveButton(R.string.accept, (dialogInterface, i) -> {
+            // determine and apply sorting rules
+            TrackDistanceTuple.SortBy sortBy = determineSortBy();
+            boolean ascending = determineSortOrder();
+            dataBinder.applySortingRules(sortBy, ascending);
+            adapter.replaceData(dataBinder.sortTrackDistanceList());
+        });
+        builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+            // Nothing to do - cancel is handled automatically
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    /**
      * Updates the displayed text of indicator TextViews in the filter Dialog
      */
     private void updateFilterIndicators() {
@@ -261,6 +306,9 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         updateTotalTracksTextView();
     }
 
+    /**
+     * resets all filters (data and view) to defaults
+     */
     private void resetFilters() {
         dataBinder.setFilterRange(0);
         dataBinder.setFilterQuality(0);
@@ -268,6 +316,62 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         dataBinder.setFilterFunfactor(0);
         updateFilterSeekbars();
         updateFilterIndicators();
+    }
+
+
+    private TrackDistanceTuple.SortBy determineSortBy() {
+        TrackDistanceTuple.SortBy sortBy = TrackDistanceTuple.SortBy.RANGE;
+        switch (rg_sortTracks.getCheckedRadioButtonId()) {
+            case R.id.radio_sortTracks_Range:
+                sortBy = TrackDistanceTuple.SortBy.RANGE;
+                break;
+            case R.id.radio_sortTracks_Quality:
+                sortBy = TrackDistanceTuple.SortBy.QUALITY;
+                break;
+            case R.id.radio_sortTracks_Difficulty:
+                sortBy = TrackDistanceTuple.SortBy.DIFFICULTY;
+                break;
+            case R.id.radio_sortTracks_Funfactor:
+                sortBy = TrackDistanceTuple.SortBy.FUNFACTOR;
+            default:
+                break;
+        }
+        return sortBy;
+    }
+
+     private boolean determineSortOrder() {
+        // true = ascending, false = descending
+        return rg_orderTracks.getCheckedRadioButtonId() == R.id.radio_trackOrder_asc;
+    }
+
+    /**
+     * Pre-selects the radio button in "sort by" group, depending on what was selected before (or default)
+     */
+    private void preselectSorting() {
+        switch (dataBinder.getCheckedSortBy()) {
+            case RANGE:
+                ((RadioButton) rg_sortTracks.findViewById(R.id.radio_sortTracks_Range)).setChecked(true);
+                break;
+            case QUALITY:
+                ((RadioButton) rg_sortTracks.findViewById(R.id.radio_sortTracks_Quality)).setChecked(true);
+                break;
+            case DIFFICULTY:
+                ((RadioButton) rg_sortTracks.findViewById(R.id.radio_sortTracks_Difficulty)).setChecked(true);
+                break;
+            case FUNFACTOR:
+                ((RadioButton) rg_sortTracks.findViewById(R.id.radio_sortTracks_Funfactor)).setChecked(true);
+                break;
+        }
+    }
+
+    /**
+     * Pre-selects the radio button in "order by" group, depending on what was selected before (or default)
+     */
+    private void preselectOrdering() {
+        if (dataBinder.isSortAscending())
+            ((RadioButton) rg_orderTracks.findViewById(R.id.radio_trackOrder_asc)).setChecked(true);
+        else
+            ((RadioButton) rg_orderTracks.findViewById(R.id.radio_trackOrder_desc)).setChecked(true);
     }
 
 

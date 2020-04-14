@@ -30,6 +30,9 @@ public class TrackListDataBinder {
     private List<TrackDistanceTuple> trackDistanceList;
     private GpsLocation currentLocation;
 
+    private TrackDistanceTuple.SortBy checkedSortBy;
+    private boolean sortAscending;
+
     //TODO: Backend anbinden
     public TrackListDataBinder(Resources res, List<Track> trackList) {
         this.res = res;
@@ -37,6 +40,14 @@ public class TrackListDataBinder {
         for (Track track : trackList) {
             trackDistanceList.add(new TrackDistanceTuple(track));
         }
+        // init default filter values
+        this.filter_range = 0;
+        this.filter_quality = 0;
+        this.filter_difficulty = 0;
+        this.filter_funfactor = 0;
+
+        // init default sorting
+        applySortingRules(TrackDistanceTuple.SortBy.RANGE, true);
     }
 
     /**
@@ -102,6 +113,7 @@ public class TrackListDataBinder {
     public void udpateUserLocation(GpsLocation userLocation) {
         currentLocation = userLocation;
         calculateAllDistances();
+        sortTrackDistanceList();
     }
 
     /**
@@ -133,7 +145,6 @@ public class TrackListDataBinder {
         for (int i = 0; i < trackDistanceList.size(); i++){
             calculateDistance(i);
         }
-        Collections.sort(trackDistanceList);
     }
 
     public void setFilterRange(int filterRange) {
@@ -229,5 +240,39 @@ public class TrackListDataBinder {
                     Integer.toString(filter_funfactor+1));
         else
             return res.getString(R.string.unfiltered);
+    }
+
+    public TrackDistanceTuple.SortBy getCheckedSortBy() {
+        return checkedSortBy;
+    }
+
+    public boolean isSortAscending() {
+        return sortAscending;
+    }
+
+    /**
+     * Applies sorting rules to the Comparable interface of each TrackDistanceTuple
+     * @param sortBy indicates which field will be sorted by
+     * @param ascending true = sort ascending; false = sort descending
+     */
+    public void applySortingRules(TrackDistanceTuple.SortBy sortBy, boolean ascending) {
+        // keep for later
+        this.checkedSortBy = sortBy;
+        this.sortAscending = ascending;
+
+        // apply sorting and order
+        for (TrackDistanceTuple tuple : trackDistanceList) {
+            tuple.setSortBy(sortBy);
+            tuple.setSortOrderAscending(ascending);
+        }
+    }
+
+    /**
+     * Sorts the TrackDistanceList by the previously given criteria.<br/>
+     * See {@link #applySortingRules(TrackDistanceTuple.SortBy, boolean)}
+     */
+    public List<TrackDistanceTuple> sortTrackDistanceList() {
+        Collections.sort(trackDistanceList);
+        return trackDistanceList;
     }
 }
