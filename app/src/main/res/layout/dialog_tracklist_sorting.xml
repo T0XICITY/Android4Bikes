@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="15dp">
+
+    <TextView
+        android:id="@+id/tv_sortBy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sortBy"
+        android:layout_marginBottom="5dp"
+        style="@style/TextAppearance.MaterialComponents.Headline6"/>
+    
+    <RadioGroup
+        android:id="@+id/radioGroup_sortTracks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RadioButton
+            android:id="@+id/radio_sortTracks_Range"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/property_Range"/>
+        <RadioButton
+            android:id="@+id/radio_sortTracks_Quality"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/property_RoadQuality"/>
+        <RadioButton
+            android:id="@+id/radio_sortTracks_Difficulty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/property_Difficulty"/>
+        <RadioButton
+            android:id="@+id/radio_sortTracks_Funfactor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/property_Funfactor"/>
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tv_orderTracks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sortingOrder"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        style="@style/TextAppearance.MaterialComponents.Headline6"/>
+
+    <RadioGroup
+        android:id="@+id/radioGroup_orderTracks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RadioButton
+            android:id="@+id/radio_trackOrder_asc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ascending"/>
+        <RadioButton
+            android:id="@+id/radio_trackOrder_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/descending"/>
+    </RadioGroup>
+
+</LinearLayout>
