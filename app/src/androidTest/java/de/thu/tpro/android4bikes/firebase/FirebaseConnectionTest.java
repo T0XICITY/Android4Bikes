@@ -2,6 +2,8 @@ package de.thu.tpro.android4bikes.firebase;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -42,6 +44,7 @@ public class FirebaseConnectionTest {
         firebaseConnection = FirebaseConnection.getInstance();
         couchDBHelper = new CouchDBHelper();
         couchDB = CouchDB.getInstance();
+        FirebaseAuth.getInstance().signInAnonymously();
     }
 
     @Test
