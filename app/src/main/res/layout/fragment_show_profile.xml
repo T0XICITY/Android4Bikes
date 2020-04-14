@@ -44,7 +44,8 @@
                 android:layout_height="wrap_content"
                 android:text="Account Settings"
                 android:textSize="25dp"
-                android:textStyle="bold|italic"></TextView>
+                android:textStyle="bold"
+                android:textColor="@color/Green400Primary"></TextView>
 
         </LinearLayout>
 
@@ -94,6 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="39dp"
             android:hint="Nickname"
+            android:layout_marginTop="10dp"
             android:textColorHint="@color/Grey800Primary"
             app:boxBackgroundMode="outline"
             app:boxStrokeColor="@color/Green400Primary"
@@ -174,7 +176,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonForGoogle"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:layout_marginBottom="10dp"
                 android:layout_marginTop="10dp"
@@ -194,6 +196,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginTop="20dp"
             >
 
             <Button
