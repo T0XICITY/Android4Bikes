@@ -12,12 +12,10 @@ import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -188,7 +186,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                     + ","
                                     + bikeRack.getPosition().getLongitude()
                                     + " submitted successfully");
-                            geoFencingBikeracks.registerDocument(documentReference.getId(), new GeoPoint(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude()));
+                            geoFencingBikeracks.registerDocument(documentReference.getId(), bikeRack.getPosition().getGeoPoint());
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -271,7 +269,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             String firebaseID = documentReference.getId();
                             track.setFirebaseID(firebaseID);
                             Log.d(TAG, "Track " + track.getName() + " added successfully");
-                            geoFencingTracks.registerDocument(documentReference.getId(), new GeoPoint(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude()));
+                            geoFencingTracks.registerDocument(documentReference.getId(), track.getFineGrainedPositions().get(0).getGeoPoint());
                             localDatabaseHelper.storeTrack(track);
                         }
                     })
@@ -398,7 +396,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             + ","
                             + hazardAlert.getPosition().getLongitude()
                             + " submitted successfully");
-                    geoFencingHazards.registerDocument(documentReference.getId(), new GeoPoint(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude()));
+                    geoFencingHazards.registerDocument(documentReference.getId(), hazardAlert.getPosition().getGeoPoint());
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "Error submitting HazardAlert", e));
     }
