@@ -371,6 +371,16 @@ public class CouchDBHelper implements LocalDatabaseHelper {
         return null;
     }
 
+    @Override
+    public void storeBikeRack(Map map_bikeRack) {
+        try{
+            MutableDocument mutableDocument_bikeRack = new MutableDocument(map_bikeRack);
+            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK), mutableDocument_bikeRack);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Generates the JSON representation out of a mutable document
      *

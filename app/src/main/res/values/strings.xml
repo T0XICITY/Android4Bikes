@@ -29,6 +29,7 @@
     <string name="unfiltered">All</string>
     <string name="filter_rating">%1$s \u2605</string>
     <string name="track_length">Track Length</string>
+
     <!-- Roadside Assistance Strings -->
     <string-array name="roadside_assistance_list">
         <item>Ambulance Service</item>
@@ -38,6 +39,10 @@
         <item>Youth Helpline</item>
         <item>Manual Input</item>
     </string-array>
+
+    <!--settings and logout-->
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
     <!--default Text-->
     <string name="search">Search</string>
     <string name="filter_range">Searching Range</string>

@@ -1,12 +1,22 @@
 package de.thu.tpro.android4bikes.firebase;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
@@ -18,6 +28,7 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 
 import static org.junit.Assert.assertEquals;
@@ -34,15 +45,30 @@ public class FirebaseConnectionTest {
     private static FirebaseConnection firebaseConnection;
     private static CouchDBHelper couchDBHelper;
     private static CouchDB couchDB;
+    private static CountDownLatch authSignal = null;
+    private static FirebaseAuth auth;
+
 
 
     @BeforeClass
-    public static void setUp() {
+    public static void setUp() throws InterruptedException {
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         firebaseConnection = FirebaseConnection.getInstance();
         couchDBHelper = new CouchDBHelper();
         couchDB = CouchDB.getInstance();
+        authSignal = new CountDownLatch(1);
+        auth = FirebaseAuth.getInstance();
+
+        auth.signInWithEmailAndPassword("test@test.de", "123456").addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    final AuthResult result = task.getResult();
+                    authSignal.countDown();
+                }
+            });
+
     }
+
 
     @Test
     public void testProfileFunctionality(){
@@ -50,6 +76,43 @@ public class FirebaseConnectionTest {
         readProfileFromFireStoreAndStoreItToLocalDB();
         updateProfile();
         deleteProfile();
+    }
+    @Test
+    public void geoTest(){
+        /**
+         * New GeoFencing instance
+         */
+
+        GeoPoint center = new GeoPoint(48.403498, 9.978170);
+        double radius_in_km = 14.9d;
+        GeoFencing geoFencing_hazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        //FirebaseConnection.getInstance().submitHazardAlertToFireStore(new HazardAlert(
+        //HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
+        //));
+
+        BikeRack bikeRack_THU = new BikeRack(
+                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                false, true, false);
+        FirebaseConnection.getInstance().submitBikeRackToFireStore(bikeRack_THU);
+
+        /**
+         * Register positions in Firestore using GeoFirestore
+         */
+
+        /*
+        PositionProvider.get50kmRadiusPositionstest().forEach(geoFencing_bikeRacks::registerDocument);
+
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+
+        /**
+         * Listen to Geofence
+         */
+        geoFencing_hazards.setupGeofence(center, radius_in_km);
+        geoFencing_hazards.startGeoFenceListener();
     }
 
     public void storeProfileToFireStoreAndLocalDB() {
@@ -110,7 +173,7 @@ public class FirebaseConnectionTest {
         profile_kostas_updated.setOverallDistance(999);
         List<Achievement> achievements = profile_kostas.getAchievements();
         achievements.add(new KmAchievement("",55,6.8,815,999));
-        profile_kostas_updated.setAchievements(achievements);
+        profile_kostas_updated.addAchievements(achievements);
 
         firebaseConnection.updateProfileInFireStoreAndLocalDB(profile_kostas_updated);
 
@@ -154,6 +217,7 @@ public class FirebaseConnectionTest {
      */
     @Test
     public void submitAndReadBikeRack() {
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_BIKERACK));
         //generate a bike rack
         BikeRack bikeRack_THU = generateTHUBikeRack();
 
@@ -169,6 +233,8 @@ public class FirebaseConnectionTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_BIKERACK));
 
         //read official bike racks from couch db and store them to the local db
         firebaseConnection.readBikeRacksFromFireStoreAndStoreItToLocalDB(bikeRack_THU.getPostcode());
@@ -304,6 +370,7 @@ public class FirebaseConnectionTest {
      */
     @Test
     public void submitAndReadHazardAlerts() {
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_HAZARD_ALERT));
         //generate a bike rack
         HazardAlert hazardAlert_THU = generateHazardAlert();
 
@@ -363,7 +430,7 @@ public class FirebaseConnectionTest {
     private BikeRack generateTHUBikeRack() {
         //create new BikeRack
         BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
         return bikeRack_THU;
@@ -376,9 +443,9 @@ public class FirebaseConnectionTest {
      */
     private Track generateTrack() {
         List<Position> positions = new ArrayList<>();
-        positions.add(new Position(9.997507, 48.408880));
-        positions.add(new Position(10.997507, 49.408880));
-        positions.add(new Position(11.997507, 50.408880));
+        positions.add(new Position(48.408880, 9.997507));
+        positions.add(new Position(49.408880, 10.997507));
+        positions.add(new Position(50.408880, 11.997507));
         Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke",
                 "siebenundvierzig11", 1585773516, 25,
                 positions, new ArrayList<>(), true);
@@ -392,7 +459,7 @@ public class FirebaseConnectionTest {
      */
     private HazardAlert generateHazardAlert() {
         HazardAlert hazardAlert_thu = new HazardAlert(
-                HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
+                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, "12345"
         );
         return hazardAlert_thu;
     }
