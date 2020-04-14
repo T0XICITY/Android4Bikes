@@ -5,7 +5,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
     private Fragment fragDriving, fragInfo, currentFragment;
-
+    private ImageView imageView;
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,19 +62,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initFragments();
         initNavigationDrawer();
         initBottomNavigation();
-
         initFragments();
         initFAB();
 
+        onCreateClick();
         //start with InfoFragment
         currentFragment = fragInfo;
         updateFragment();
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_items, menu);
         return true;
+    }
+
+    public void onCreateClick() {
+
+        View header = drawer.getHeaderView(0);
+        imageView = (ImageView) header.findViewById(R.id.imageView_profile);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                currentFragment = new FragmentShowProfile();
+                updateFragment();
+            }
+        });
     }
 
     //Choose selected Fragment

@@ -72,7 +72,7 @@
                 app:boxStrokeColor="@color/Green400Primary"
                 app:hintTextColor="@color/Green400Primary"
                 app:boxBackgroundMode="outline"
-
+                app:endIconMode="clear_text"
 
 
                 >
@@ -96,9 +96,12 @@
             app:boxBackgroundMode="outline"
             app:boxStrokeColor="@color/Green400Primary"
             app:hintTextColor="@color/Green400Primary"
+            app:endIconMode="clear_text"
             app:counterEnabled="true"
             app:counterMaxLength="20"
-            app:errorEnabled="true">
+            app:errorEnabled="true"
+
+            >
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -126,9 +129,9 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Birthday"
+                android:hint="Date of birth"
                 android:textColorHint="@color/Grey800Primary"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="15dp"
                 app:boxStrokeColor="@color/Green400Primary"
                 app:hintTextColor="@color/Green400Primary"
                 app:boxBackgroundMode="outline"
@@ -138,7 +141,8 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="datetime" />
+                    android:inputType="datetime"
+                    android:drawableRight="@drawable/ic_calendar" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -169,7 +173,7 @@
                 android:textColorHint="@color/Grey800Primary"
                 app:boxStrokeColor="@color/Green400Primary"
                 app:hintTextColor="@color/Green400Primary"
-
+                app:endIconMode="clear_text"
                 >
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -232,23 +236,30 @@
                 ></Button>
 
             <Button
-                android:id="@+id/ButtonConfirm"
+                android:id="@+id/buttonConfirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="true"
                 android:layout_marginLeft="51dp"
                 android:text="Confirm"></Button>
 
             <Button
-                android:id="@+id/ButtonLogout"
+                android:id="@+id/buttonLogout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="51dp"
                 android:text="Logout"
-
+                android:background="@color/Green400Primary"
 
                 ></Button>
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
 
 
     </LinearLayout>
