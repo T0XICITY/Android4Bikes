@@ -41,23 +41,20 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     private static final String LOG_TAG = "FragmentCreateTrack";
 
     private TrackListDataBinder dataBinder;
-    RecyclerView recyclerView;
-    SearchView searchView;
-    TrackListAdapter adapter;
-    ImageButton btn_filter;
-    LocationManager locationManager;
-    TextView tv_trackList;
-    TextView tv_indicator_range;
-    TextView tv_indicator_quality;
-    TextView tv_indicator_difficulty;
-    TextView tv_indicator_funfactor;
-    SeekBar seekBarRange;
-    SeekBar seekBarQuality;
-    SeekBar seekBarDificulty;
-    SeekBar seekBarFunFactor;
+    private RecyclerView recyclerView;
+    private TrackListAdapter adapter;
+    private TextView tv_trackList;
+    private TextView tv_indicator_range;
+    private TextView tv_indicator_quality;
+    private TextView tv_indicator_difficulty;
+    private TextView tv_indicator_funfactor;
+    private SeekBar seekBarRange;
+    private SeekBar seekBarQuality;
+    private SeekBar seekBarDificulty;
+    private SeekBar seekBarFunFactor;
 
     //TODO: delete when backend is connected to view
-    List<Track> trackList;
+    private List<Track> trackList;
 
 
     @Nullable
@@ -71,10 +68,10 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
         tv_trackList = view.findViewById(R.id.tv_totalTracksList);
-        btn_filter = view.findViewById(R.id.btn_filter);
+        ImageButton btn_filter = view.findViewById(R.id.btn_filter);
         btn_filter.setOnClickListener(v -> openFilterDialog());
 
-        searchView = view.findViewById(R.id.searchView_searchTrack);
+        SearchView searchView = view.findViewById(R.id.searchView_searchTrack);
         searchView.setOnQueryTextListener(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -96,7 +93,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
 
     @SuppressLint("MissingPermission")
     private void initLocationManager() {
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 1f, this);
     }
 
@@ -291,9 +288,9 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         trackList.get(1).setDistance_km(30);
         trackList.get(2).setDistance_km(7);
 
-        trackList.get(0).setFineGrainedPositions(Arrays.asList(new Position(9.9949, 48.4049)));
-        trackList.get(1).setFineGrainedPositions(Arrays.asList(new Position(9.9730, 48.1773)));
-        trackList.get(2).setFineGrainedPositions(Arrays.asList(new Position(10.0015, 48.3909)));
+        trackList.get(0).setFineGrainedPositions(Arrays.asList(new Position(48.4049,9.9949)));
+        trackList.get(1).setFineGrainedPositions(Arrays.asList(new Position(48.1773, 9.9730)));
+        trackList.get(2).setFineGrainedPositions(Arrays.asList(new Position(48.3909, 10.0015)));
 
         trackList.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
         trackList.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");

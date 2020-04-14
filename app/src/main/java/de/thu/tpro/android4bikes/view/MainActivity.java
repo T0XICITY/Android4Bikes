@@ -77,15 +77,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(MenuItem menu) {
         switch (menu.getItemId()) {
-            case R.id.menu_tracks:
-                Log.d(LOG_TAG, "Clicked menu_tracks!");
-/*                currentFragment = new FragmentCreateTrack();*/
-                break;
             case R.id.menu_community:
                 Log.d(LOG_TAG, "Clicked menu_community!");
                 //currentFragment = new SecondFragment();
                 break;
-            case R.id.menu_Call:
+            case R.id.menu_emergencyCall:
                 Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
                 currentFragment = new FragmentRoadsideAssistance();
                 break;
