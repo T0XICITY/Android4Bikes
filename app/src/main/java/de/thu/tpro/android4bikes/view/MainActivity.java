@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initFragments();
         initFAB();
 
-        onCreateClick();
+        onCreateClickShowProfile();
         //start with InfoFragment
         currentFragment = fragInfo;
         updateFragment();
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void onCreateClick() {
+    public void onCreateClickShowProfile() {
 
         View header = drawer.getHeaderView(0);
         imageView = (ImageView) header.findViewById(R.id.imageView_profile);
@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 currentFragment = new FragmentShowProfile();
                 updateFragment();
+                closeContextMenu();
             }
         });
     }
@@ -111,9 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_hazard:
                 Log.d(LOG_TAG, "Clicked menu_hazard!");
                 break;
-            case R.id.menu_settings:
-                currentFragment = new FragmentShowProfile();
-                break;
+
             default:
                 Log.d(LOG_TAG, "Default case");
         }

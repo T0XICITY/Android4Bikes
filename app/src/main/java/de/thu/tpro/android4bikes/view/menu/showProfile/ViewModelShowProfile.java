@@ -26,33 +26,10 @@ import de.thu.tpro.android4bikes.R;
  */
 
 
-public class ViewModelShowProfile extends BaseAdapter {
-
-    private TextView mtV;
-    private Button mBtn;
-    private Calendar c;
-    private DatePickerDialog dpd;
+public class ViewModelShowProfile {
 
 
-    @Override
-    public int getCount() {
-        return 0;
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return null;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return 0;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
 
 
-        return null;
-    }
+
 }
