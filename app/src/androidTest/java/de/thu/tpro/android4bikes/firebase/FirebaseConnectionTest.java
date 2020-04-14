@@ -217,6 +217,7 @@ public class FirebaseConnectionTest {
      */
     @Test
     public void submitAndReadBikeRack() {
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_BIKERACK));
         //generate a bike rack
         BikeRack bikeRack_THU = generateTHUBikeRack();
 
@@ -232,6 +233,8 @@ public class FirebaseConnectionTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_BIKERACK));
 
         //read official bike racks from couch db and store them to the local db
         firebaseConnection.readBikeRacksFromFireStoreAndStoreItToLocalDB(bikeRack_THU.getPostcode());
@@ -367,6 +370,7 @@ public class FirebaseConnectionTest {
      */
     @Test
     public void submitAndReadHazardAlerts() {
+        couchDB.clearDB(couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_HAZARD_ALERT));
         //generate a bike rack
         HazardAlert hazardAlert_THU = generateHazardAlert();
 
