@@ -77,6 +77,7 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOMLEVEL));
 
 
+        // TODO: remove after testing
         drawcircle(latLng, 200, googleMap);
 
         googleMap.setMyLocationEnabled(true);
@@ -85,6 +86,7 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
     }
 
+    // TODO: remove after testing
     public void drawcircle(LatLng latLng, int radius, GoogleMap googleMap) {
         Circle circle = googleMap.addCircle(new CircleOptions().center(latLng).radius(radius).strokeColor(Color.RED).fillColor(Color.TRANSPARENT));
     }
