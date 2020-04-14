@@ -3,6 +3,7 @@ package de.thu.tpro.android4bikes.data.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,12 +29,6 @@ public class Profile {
     @SerializedName("achievements")
     private List<Achievement> achievements; //TODO better representation
 
-    /**
-     * no-arg Constructor needed for Firebase auto-cast
-     */
-    public Profile() {
-    }
-
     public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Achievement> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
@@ -41,6 +36,9 @@ public class Profile {
         this.color = color;
         this.overallDistance = overallDistance;
         this.achievements = achievements;
+        if (this.achievements == null) {
+            this.achievements = new ArrayList<>();
+        }
     }
 
     public int getOverallDistance() {
@@ -55,8 +53,12 @@ public class Profile {
         return achievements;
     }
 
-    public void setAchievements(List<Achievement> achievements) {
-        this.achievements = achievements;
+    public void addAchievements(List<Achievement> achievements) {
+        this.achievements.addAll(achievements);
+    }
+
+    public void addAchievement(Achievement achievement) {
+        achievements.add(achievement);
     }
 
     public int getColor() {

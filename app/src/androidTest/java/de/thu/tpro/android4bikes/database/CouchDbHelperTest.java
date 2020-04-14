@@ -456,7 +456,7 @@ public class CouchDbHelperTest {
 
         for (int i = 0; i < 99; i++) {
 
-            position = new Position(10.999999 + k, 50.999999 + k);
+            position = new Position(50.999999 + k, 10.999999 + k);
 
             k = k + 0.000001;
 
@@ -469,7 +469,7 @@ public class CouchDbHelperTest {
 
         assertEquals(49,initialNumberOfDocuments);
 
-        position = new Position(10.999999 + k, 50.999999 + k);
+        position = new Position(50.999999 + k, 10.999999 + k);
 
         couchDbHelper.addToUtilization(position);
         try {
@@ -488,7 +488,7 @@ public class CouchDbHelperTest {
 
         couchdb.clearDB(db_position);
 
-        Position position = new Position(9.997507, 48.408880);
+        Position position = new Position(48.408880, 9.997507);
 
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_position);
 
@@ -514,7 +514,7 @@ public class CouchDbHelperTest {
     private BikeRack generateTHUBikeRack() {
         //create new BikeRack
         BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
         return bikeRack_THU;
@@ -527,7 +527,7 @@ public class CouchDbHelperTest {
      */
     private HazardAlert generateHazardAlert() {
         HazardAlert hazardAlert_thu = new HazardAlert(
-                HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
+                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, "12345"
         );
         return hazardAlert_thu;
     }
@@ -538,7 +538,7 @@ public class CouchDbHelperTest {
      * */
     private Track generateTrack(){
         List<Position> positions = new ArrayList<>();
-        positions.add(new Position(9.997507, 48.408880));
+        positions.add(new Position(48.408880, 9.997507));
         Track track = new Track("nullacht15",new Rating(),"Heimweg","Das ist meine super tolle Strecke",
                 "siebenundvierzig11",1585773516,25,
                 positions,new ArrayList<>(),true);
