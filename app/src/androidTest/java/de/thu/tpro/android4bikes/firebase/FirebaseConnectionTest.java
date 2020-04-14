@@ -110,7 +110,7 @@ public class FirebaseConnectionTest {
         profile_kostas_updated.setOverallDistance(999);
         List<Achievement> achievements = profile_kostas.getAchievements();
         achievements.add(new KmAchievement("",55,6.8,815,999));
-        profile_kostas_updated.setAchievements(achievements);
+        profile_kostas_updated.addAchievements(achievements);
 
         firebaseConnection.updateProfileInFireStoreAndLocalDB(profile_kostas_updated);
 
