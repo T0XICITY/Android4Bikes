@@ -20,14 +20,25 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:clickable="true"
+                android:focusable="true"
                 app:iconifiedByDefault="false"
                 app:queryHint="@string/search"/>
             <ImageButton
-                android:id="@+id/btn_filter"
+                android:id="@+id/btn_sort_tracks"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_material_sort"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp"/>
+            <ImageButton
+                android:id="@+id/btn_filter_tracks"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_material_filter"
-                style="?android:attr/borderlessButtonStyle"/>
+                android:background="?android:attr/selectableItemBackground"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"/>
         </LinearLayout>
 
         <TextView

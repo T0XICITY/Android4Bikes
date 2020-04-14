@@ -68,7 +68,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
         tv_trackList = view.findViewById(R.id.tv_totalTracksList);
-        ImageButton btn_filter = view.findViewById(R.id.btn_filter);
+        ImageButton btn_filter = view.findViewById(R.id.btn_filter_tracks);
         btn_filter.setOnClickListener(v -> openFilterDialog());
 
         SearchView searchView = view.findViewById(R.id.searchView_searchTrack);
