@@ -76,7 +76,7 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOMLEVEL));
 
-
+        // TODO: remove after testing
         drawcircle(latLng, 50000, googleMap);
         for (int i = 0; i < 15; i++) {
             googleMap.addMarker(new MarkerOptions()
@@ -100,10 +100,6 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.setPadding(0,0,0,verticalOffset);
         googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-    }
-
-    private void addMarker(double lat, double lon, int number) {
-
     }
 
     // TODO: remove after testing
