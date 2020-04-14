@@ -104,9 +104,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ViewModelInternetConnection model_internet = new ViewModelProvider(this).get(ViewModelInternetConnection.class);
         model_internet.getConnectedToWifi().observe(this, connectedToWifi -> {
             toastShortInMiddle("Wifi connection state: " + connectedToWifi);
+            Log.d("HalloWelt", "Wifi connection state: " + connectedToWifi);
         });
         model_internet.getConnectedToMobile().observe(this, connectedToMobile -> {
             toastShortInMiddle("Mobile connection state: " + connectedToMobile);
+            Log.d("HalloWelt", "Mobile connection state: " + connectedToMobile);
         });
         model_internet.startObserving();
     }
