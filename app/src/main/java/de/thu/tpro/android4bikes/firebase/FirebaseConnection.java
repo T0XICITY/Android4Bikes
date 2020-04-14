@@ -378,25 +378,31 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     @Override
     public void submitHazardAlertToFireStore(HazardAlert hazardAlert) {
         //TODO Review and Testing
-        db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
-                .add(hazardAlert) //generate id automatically
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        String firebaseID = documentReference.getId();
-                        Log.d(TAG, "HazardAlert with Location "
-                                + hazardAlert.getPosition().getLatitude()
-                                + ","
-                                + hazardAlert.getPosition().getLongitude()
-                                + " submitted successfully");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error submitting HazardAlert", e);
-                    }
-                });
+        try{
+            JSONObject jsonObject_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
+            Map map_hazardAlert = gson.fromJson(jsonObject_hazardAlert.toString(), Map.class);
+            db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
+                    .add(map_hazardAlert) //generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            String firebaseID = documentReference.getId();
+                            Log.d(TAG, "HazardAlert with Location "
+                                    + hazardAlert.getPosition().getLatitude()
+                                    + ","
+                                    + hazardAlert.getPosition().getLongitude()
+                                    + " submitted successfully");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error submitting HazardAlert", e);
+                        }
+                    });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -416,14 +422,12 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, "Hazard with Location "
-                                        + document.toObject(HazardAlert.class).getPosition().getLatitude()
-                                        + ","
-                                        + document.toObject(HazardAlert.class).getPosition().getLongitude()
-                                        + " got successfully");
-
+                                Map map_result = document.getData();
+                                Log.d(TAG, "Got Hazard "+ map_result.toString());
                                 try {
-                                    localDatabaseHelper.storeHazardAlerts(document.toObject(HazardAlert.class));
+                                    JSONObject jsonObject_result = new JSONObject(map_result);
+                                    HazardAlert result = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
+                                    localDatabaseHelper.storeHazardAlerts(result);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
