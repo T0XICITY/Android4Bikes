@@ -92,7 +92,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             Log.w(TAG, "Error adding Profile " + profile.getFamilyName(), e);
                         }
                     });
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -174,26 +174,32 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
      */
     @Override
     public void submitBikeRackToFireStore(BikeRack bikeRack) {
-        db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
-                .add(bikeRack) //generate id automatically
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        String firebaseID = documentReference.getId();
-                        Log.d(TAG, "Bikerack with Location "
-                                + bikeRack.getPosition().getLatitude()
-                                + ","
-                                + bikeRack.getPosition().getLongitude()
-                                + " submitted successfully");
-                        geoFencingBikeracks.registerDocument(documentReference.getId(), new GeoPoint(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude()));
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error submitting BikeRack", e);
-                    }
-                });
+        try{
+            JSONObject jsonObject_bikeRack = new JSONObject(gson.toJson(bikeRack));
+            Map map_bikeRack = gson.fromJson(jsonObject_bikeRack.toString(), Map.class);
+            db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
+                    .add(map_bikeRack) //generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            String firebaseID = documentReference.getId();
+                            Log.d(TAG, "Bikerack with Location "
+                                    + bikeRack.getPosition().getLatitude()
+                                    + ","
+                                    + bikeRack.getPosition().getLongitude()
+                                    + " submitted successfully");
+                            geoFencingBikeracks.registerDocument(documentReference.getId(), new GeoPoint(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude()));
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error submitting BikeRack", e);
+                        }
+                    });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -204,6 +210,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
      */
     @Override
     public void readBikeRacksFromFireStoreAndStoreItToLocalDB(String postcode) {
+        try {
         db.collection(ConstantsFirebase.COLLECTION_OFFICIAL_BIKERACKS.toString())
                 .whereEqualTo(BikeRack.ConstantsBikeRack.POSTCODE.toString(), postcode)
                 .get()
@@ -212,23 +219,18 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, "Bikerack with Location "
-                                        + document.toObject(BikeRack.class).getPosition().getLatitude()
-                                        + ","
-                                        + document.toObject(BikeRack.class).getPosition().getLongitude()
-                                        + " got successfully");
-
-                                try {
-                                    localDatabaseHelper.storeBikeRack(document.toObject(BikeRack.class));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                Map map_result = document.getData();
+                                Log.d(TAG, "Got BikeRack "+ map_result.toString());
+                                localDatabaseHelper.storeBikeRack(map_result);
                             }
                         } else {
                             Log.d(TAG, "Error getting Bikerack(s): ", task.getException());
                         }
                     }
                 });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
