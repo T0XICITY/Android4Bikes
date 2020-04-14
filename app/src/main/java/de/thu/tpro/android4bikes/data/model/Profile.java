@@ -61,6 +61,10 @@ public class Profile {
         achievements.add(achievement);
     }
 
+    public void setAchievements(List<Achievement> achievements) {
+        this.achievements = achievements;
+    }
+
     public int getColor() {
         return color;
     }
