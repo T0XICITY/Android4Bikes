@@ -15,6 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.maps.GoogleMap;
+
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
@@ -23,17 +25,25 @@ public class FragmentInfoMode extends Fragment {
 
     private static final String LOG_TAG = "FragmentInfoMode";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
+    ViewGroup container;
+    MapViewContentBuilder builder;
+    int chosenMarkerId;
+
 
     ///Temporary variables just for testing///
     //Todo: Delete after testing
     private TextView tv_Test;
+    private GoogleMap googleMap;
     TextView name, mail;
     Button logout;
+
     /////////////////////////////////////////
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //chosenMarkerId = ((MainActivity)getActivity()).initMarkerFAB();
+        Log.d(LOG_TAG, " CustomMarkerIdChosen" + chosenMarkerId);
         return inflater.inflate(R.layout.fragment_info_mode, container, false);
     }
 
@@ -41,10 +51,12 @@ public class FragmentInfoMode extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
         // check if location access is granted
         if (isAccessLocationPermissionGranted()) {
             // if Yes, continue with map initialization
             populateMap();
+
         } else {
             // if No, request user for permission and continue later in onRequestPermissionsResult
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -73,9 +85,11 @@ public class FragmentInfoMode extends Fragment {
         Log.d(LOG_TAG, "Init Map called");
         //to adjust the Map Controls position TODO: define offset programmatically. Problem height = wrap_content returns 0
         int verticalOffest = 250;
-        Log.d(LOG_TAG, verticalOffest + "");
-        MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
-        builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
+
+        builder = new MapViewContentBuilder(getActivity());
+        builder.setVerticalOffset(verticalOffest)
+                .fetchLastLocation(this)
+                .build();
     }
 
     /**
@@ -88,9 +102,12 @@ public class FragmentInfoMode extends Fragment {
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Initiates Floating Action Button for Hazard Alert Markers
+     */
+
 
     // TODO: clean up methods below
-
     private void determineAllViews() {
     }
 

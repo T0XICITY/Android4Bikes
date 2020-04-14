@@ -9,7 +9,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -116,6 +115,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         Log.d(LOG_TAG, verticalOffest + "");
         MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
         builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
+
     }
 
     //TODO: handle permission in a central class
@@ -128,6 +128,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
     }
+
 
     @Override
     public void onLocationChanged(Location location) {

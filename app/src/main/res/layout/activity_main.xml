@@ -19,6 +19,27 @@
             android:layout_above="@id/fragment_container"
             android:orientation="horizontal" />
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="right"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabMain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:backgroundTint="@color/DeepPurple400Light"
+                app:fabSize="normal"
+                app:srcCompat="@drawable/ic_add_black_24dp" />
+        </LinearLayout>
+
+
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigationDrawer"
             android:layout_width="240dp"
