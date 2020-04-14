@@ -57,6 +57,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> 
         holder.tv_author.setText(currentTrack.getAuthor_googleID());
         holder.tv_trackLength.setText(""+currentTrack.getDistance_km());
 
+
         // Only display distance when available
         double currentDistance = tuple.getDistanceToUser();
         String distanceText;

@@ -24,6 +24,11 @@
     <string name="rating_funfactor">Fun Level:</string>
     <!-- Tracks Strings -->
     <string name="distance">%1$.2f km</string> <!-- '%1$.2f' means Placeholder for float with 2 decimals -->
+    <string name="range">%1$d km</string>
+    <string name="total_track_List">Total Tracks: %1$d </string>
+    <string name="unfiltered">All</string>
+    <string name="filter_rating">%1$s \u2605</string>
+    <string name="track_length">Track Length</string>
     <!-- Roadside Assistance Strings -->
     <string-array name="roadside_assistance_list">
         <item>Ambulance Service</item>
@@ -37,9 +42,9 @@
     <string name="search">Search</string>
     <string name="filter_range">Searching Range</string>
     <string name="not_available">N/A</string>
-<!--Button Strings-->
+    <!--Button Strings-->
     <string name="cancel">Cancel</string>
     <string name="accept">Accept</string>
-    <string name="track_length">Track Length</string>
+    <string name="reset">Reset</string>
 
 </resources>

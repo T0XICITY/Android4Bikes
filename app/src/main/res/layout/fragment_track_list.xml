@@ -4,11 +4,10 @@
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
+        android:orientation="vertical">
         <LinearLayout
             android:id="@+id/linearLayout_Topbar_Track"
             android:layout_width="match_parent"
@@ -30,13 +29,17 @@
                 android:src="@drawable/ic_material_filter"
                 style="?android:attr/borderlessButtonStyle"/>
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_totalTracksList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/total_track_List"
+            android:textAlignment="center" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_tracks"
             android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@id/linearLayout_Topbar_Track" />
-    </RelativeLayout>
-
+            android:layout_height="match_parent" />
+    </LinearLayout>
 </LinearLayout>
