@@ -48,46 +48,7 @@ public class FragmentInfoMode extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //////TODO: REMOVE AFTER TESTING////////////
-
-        /**
-         * New GeoFencing instance
-         */
         GlobalContext.setContext(this.getContext());
-        GeoPoint center = new GeoPoint(48.403498, 9.978170);
-        double radius_in_km = 14.9d;
-        GeoFencing geoFencing_hazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
-        //FirebaseConnection.getInstance().submitHazardAlertToFireStore(new HazardAlert(
-        //HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
-        //));
-
-
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(9.997507, 48.408880), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false);
-        FirebaseConnection.getInstance().submitBikeRackToFireStore(bikeRack_THU);
-
-        /**
-         * Register positions in Firestore using GeoFirestore
-         */
-
-        /*
-        PositionProvider.get50kmRadiusPositionstest().forEach(geoFencing_bikeRacks::registerDocument);
-
-        try {
-            Thread.sleep(15000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-
-
-
-
-        /**
-         * Listen to Geofence
-         */
-        geoFencing_hazards.setupGeofence(center, radius_in_km);
-        geoFencing_hazards.startGeoFenceListener();
 
         // check if location access is granted
         if (isAccessLocationPermissionGranted()) {
