@@ -16,6 +16,8 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+import de.thu.tpro.android4bikes.util.BroadcastReceiverInternetConnection;
+import de.thu.tpro.android4bikes.util.ObserverMechanism.InternetObserver;
 import de.thu.tpro.android4bikes.util.TimeBase;
 
 /**
@@ -33,7 +35,7 @@ import de.thu.tpro.android4bikes.util.TimeBase;
  * }</pre>
  *
  */
-public class ViewModelTrack extends ViewModel implements Observer {
+public class ViewModelTrack extends ViewModel implements Observer, InternetObserver {
     //UI -> Datenhaltung
     //SUBMITTRACK: Create Track -> ViewModel ruft FireBase an
     //READTRACK : Liste an Tracks erhalten (PLZ) -> alle tracks in ulm sehen
@@ -81,6 +83,8 @@ public class ViewModelTrack extends ViewModel implements Observer {
         //this is observer of local database (in case of success)
         couchDBHelper.addObserver(this);
 
+        //observer mechanism
+        BroadcastReceiverInternetConnection.getInstance().addObserver(this);
     }
 
     /**
@@ -191,8 +195,8 @@ public class ViewModelTrack extends ViewModel implements Observer {
                         decrementWorkInProgress();
                     }
 
-
                 } else if (observable instanceof LocalDatabaseHelper) {
+                    //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
                     List<Track> list_loaded_tracks = (List<Track>) o;
 
                     //update list of shown tracks:
@@ -201,6 +205,9 @@ public class ViewModelTrack extends ViewModel implements Observer {
                     //every time the local database updates this class,
                     //an operation was performed successfully
                     decrementWorkInProgress();
+                } else if (o instanceof Command) {
+                    Command command = (Command) o;
+                    command.execute();
                 }
             }
         } catch (Exception e) {
@@ -209,4 +216,8 @@ public class ViewModelTrack extends ViewModel implements Observer {
     }
 
 
+    @Override
+    public void updatedInternetConnection(boolean wifi, boolean mobile) {
+
+    }
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import de.thu.tpro.android4bikes.util.BroadcastReceiverInternetConnection;
+import de.thu.tpro.android4bikes.util.ObserverMechanism.InternetObserver;
 
 /**
  * Usage:
@@ -21,15 +22,23 @@ import de.thu.tpro.android4bikes.util.BroadcastReceiverInternetConnection;
  *     }
  *  * }</pre>
  */
-public class ViewModelInternetConnection extends ViewModel {
+public class ViewModelInternetConnection extends ViewModel implements InternetObserver {
     private MutableLiveData<Boolean> connectedToWifi;
     private MutableLiveData<Boolean> connectedToMobile;
     private BroadcastReceiverInternetConnection broadcastReceiver_mobile_wifi;
 
     public ViewModelInternetConnection() {
+        //create live data
+        this.connectedToWifi = new MutableLiveData<>();
+        this.connectedToMobile = new MutableLiveData<>();
+
+        //post initial values
+        connectedToMobile.postValue(false);
+        connectedToWifi.postValue(false);
+
+        //trigger broadcastreceiver
         this.broadcastReceiver_mobile_wifi = BroadcastReceiverInternetConnection.getInstance();
-        this.connectedToWifi = broadcastReceiver_mobile_wifi.getConnectedToWifi();
-        this.connectedToMobile = broadcastReceiver_mobile_wifi.getConnectedToMobile();
+        this.broadcastReceiver_mobile_wifi.updateConnectedFlags();
     }
 
     public LiveData<Boolean> getConnectedToWifi() {
@@ -46,5 +55,12 @@ public class ViewModelInternetConnection extends ViewModel {
 
     public void stopObserving() {
         broadcastReceiver_mobile_wifi.stopObserving();
+    }
+
+    @Override
+    public void updatedInternetConnection(boolean wifi, boolean mobile) {
+        //update liva data:
+        this.connectedToWifi.postValue(wifi);
+        this.connectedToMobile.postValue(mobile);
     }
 }

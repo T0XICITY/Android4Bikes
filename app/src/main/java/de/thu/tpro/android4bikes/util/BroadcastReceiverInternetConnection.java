@@ -7,12 +7,17 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import androidx.lifecycle.MutableLiveData;
+import java.util.ArrayList;
+import java.util.List;
+
+import de.thu.tpro.android4bikes.util.ObserverMechanism.InternetObservable;
+import de.thu.tpro.android4bikes.util.ObserverMechanism.InternetObserver;
 
 /**
  * Class that provides information about the mobile and the wifi connection by using live data.
  */
-public class BroadcastReceiverInternetConnection extends BroadcastReceiver {
+public class BroadcastReceiverInternetConnection extends BroadcastReceiver implements InternetObservable {
+
     //TODO: Maybe issues regarding permissions? .INTERNET bzw .ACCESS_NETWORK_STATE?
     //compare: https://developer.android.com/training/basics/network-ops/managing
     //last access: 10.04.2020
@@ -20,14 +25,19 @@ public class BroadcastReceiverInternetConnection extends BroadcastReceiver {
     //Singleton pattern:
     private static BroadcastReceiverInternetConnection instance;
 
-    //TODO: Evaluate current update mechanism
-    private MutableLiveData<Boolean> connectedToWifi; //LiveData: because class cant't inherit from class Observable
-    private MutableLiveData<Boolean> connectedToMobile;
+    //observer mechanism
+    private List<InternetObserver> list_observer;
+    private boolean wifiConnected;
+    private boolean mobileConnected;
 
+    /**
+     * the observation starts automatically after creating an instance of this class.
+     */
     private BroadcastReceiverInternetConnection() {
-        this.connectedToMobile = new MutableLiveData<>();
-        this.connectedToWifi = new MutableLiveData<>();
+        //observer mechanism:
+        list_observer = new ArrayList<>();
         updateConnectedFlags(); //update mobile connection and wifi connection flag
+        this.startObserving();
     }
 
     public static BroadcastReceiverInternetConnection getInstance() {
@@ -35,14 +45,6 @@ public class BroadcastReceiverInternetConnection extends BroadcastReceiver {
             instance = new BroadcastReceiverInternetConnection();
         }
         return instance;
-    }
-
-    public MutableLiveData<Boolean> getConnectedToWifi() {
-        return connectedToWifi;
-    }
-
-    public MutableLiveData<Boolean> getConnectedToMobile() {
-        return connectedToMobile;
     }
 
     /**
@@ -78,15 +80,10 @@ public class BroadcastReceiverInternetConnection extends BroadcastReceiver {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        forceConnectionUpdate();
+        updateConnectedFlags();
+        notifyConnectionChange();
     }
 
-    /**
-     * force update regarding the connection
-     */
-    public void forceConnectionUpdate() {
-        updateConnectedFlags();
-    }
 
     /**
      * updates the liva data objects regarding the mobile and the wifi connection
@@ -106,8 +103,29 @@ public class BroadcastReceiverInternetConnection extends BroadcastReceiver {
             wifiConnected = false;
             mobileConnected = false;
         }
-        connectedToWifi.postValue(wifiConnected);
-        connectedToMobile.postValue(mobileConnected);
+
+        if (this.wifiConnected != wifiConnected || this.mobileConnected != mobileConnected) {
+            notifyConnectionChange();
+        }
+        this.mobileConnected = mobileConnected;
+        this.wifiConnected = wifiConnected;
+    }
+
+    @Override
+    public void notifyConnectionChange() {
+        for (InternetObserver o : list_observer) {
+            o.updatedInternetConnection(this.wifiConnected, this.mobileConnected);
+        }
+    }
+
+    @Override
+    public void addObserver(InternetObserver observer) {
+        this.list_observer.add(observer);
+    }
+
+    @Override
+    public void removeObserver(InternetObserver observer) {
+        this.list_observer.remove(observer);
     }
 
 }

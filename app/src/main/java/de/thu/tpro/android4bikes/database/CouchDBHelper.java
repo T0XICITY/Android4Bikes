@@ -47,6 +47,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
     private Gson gson_achievement;
+    private boolean isSyncing;
 
     public CouchDBHelper() {
         couchDB = CouchDB.getInstance();
@@ -56,6 +57,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         GsonBuilder gsonBuilder_achievement = new GsonBuilder();
         gsonBuilder_achievement.registerTypeAdapter(Achievement.class, new AchievementDeserializer<Achievement>());
         gson_achievement = gsonBuilder_achievement.create();
+
+        //Synchronization status regarding Firebase
+        this.isSyncing = false;
     }
 
     @Override
@@ -450,4 +454,15 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
         return mutableDocument;
     }
+
+    /**
+     * synchronizes data with FireStore
+     */
+    public void synchronizeDataWithFireStore() {
+        if (!isSyncing) {
+            this.isSyncing = true;
+            //TODO: Implementation.
+        }
+    }
+
 }
