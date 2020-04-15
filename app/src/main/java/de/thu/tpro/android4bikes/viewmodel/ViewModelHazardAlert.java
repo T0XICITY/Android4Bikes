@@ -14,6 +14,7 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+import de.thu.tpro.android4bikes.util.Processor;
 
 /**
  * Class that provides {@link LiveData} regarding {@link HazardAlert}s. All operations on HazardAlert data
@@ -34,8 +35,10 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
     private CouchDBHelper localDB;
     private MutableLiveData<List<HazardAlert>> hazardAlerts;
     private MutableLiveData<Integer> workInProgress;
+    private Processor processor;
 
     public ViewModelHazardAlert(){
+        processor = Processor.getInstance();
         fireStoreDatabase = FirebaseConnection.getInstance();
         localDB = new CouchDBHelper();
         hazardAlerts = new MutableLiveData<>();
@@ -50,18 +53,23 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
     }
 
     public void submitHazardAlert(HazardAlert hazardAlert){
-        fireStoreDatabase.submitHazardAlertToFireStore(hazardAlert);
+        processor.startRunnable(()->{
+            incrementWorkInProgress();
+            localDB.storeHazardAlerts(hazardAlert);
+        });
     }
 
     public void loadHazardAlertsWithSpecifiedPostcode(String postcode) {
         if (postcode != null) {
-            incrementWorkInProgress();
+            processor.startRunnable(()->{
+                incrementWorkInProgress();
+                localDB.readHazardAlerts(postcode);
+            });
 
-            //read tracks from local database
-            localDB.readHazardAlerts(postcode);
-
-            //asynchronous task:
-            fireStoreDatabase.readHazardAlertsFromFireStoreAndStoreItToLocalDB(postcode);
+            processor.startRunnable(()->{
+                incrementWorkInProgress();
+                fireStoreDatabase.readHazardAlertsFromFireStoreAndStoreItToLocalDB(postcode);
+            });
         }
     }
 
