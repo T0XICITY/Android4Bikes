@@ -16,7 +16,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
+import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.compression.PositionCompressor;
 
@@ -43,11 +43,17 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private LocalDatabaseHelper localDatabaseHelper;
     private String TAG = "HalloWelt";
     private Gson gson;
+    private GeoFencing geoFencingHazards;
+    private GeoFencing geoFencingBikeracks;
+    private GeoFencing geoFencingTracks;
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         localDatabaseHelper = new CouchDBHelper();
         this.gson = new Gson();
+        geoFencingHazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        geoFencingBikeracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
+        geoFencingTracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
     }
 
     public static FirebaseConnection getInstance() {
@@ -180,6 +186,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                     + ","
                                     + bikeRack.getPosition().getLongitude()
                                     + " submitted successfully");
+                            geoFencingBikeracks.registerDocument(documentReference.getId(), bikeRack.getPosition().getGeoPoint());
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -262,6 +269,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             String firebaseID = documentReference.getId();
                             track.setFirebaseID(firebaseID);
                             Log.d(TAG, "Track " + track.getName() + " added successfully");
+                            geoFencingTracks.registerDocument(documentReference.getId(), track.getFineGrainedPositions().get(0).getGeoPoint());
                             localDatabaseHelper.storeTrack(track);
                         }
                     })
@@ -392,6 +400,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                     + ","
                                     + hazardAlert.getPosition().getLongitude()
                                     + " submitted successfully");
+                            geoFencingHazards.registerDocument(documentReference.getId(), hazardAlert.getPosition().getGeoPoint());
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -469,7 +478,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     public enum ConstantsFirebase {
         COLLECTION_PROFILES("profiles"),
         COLLECTION_UTILIZATION("utilization"),
-        COLLECTION_FINE_GEOPOSITIONS("finegeopositions"),
         COLLECTION_TRACKS("tracks"),
         COLLECTION_BIKERACKS("bikeracks"),
         COLLECTION_OFFICIAL_BIKERACKS("officialbikeracks"),
