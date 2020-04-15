@@ -22,6 +22,7 @@ public class FragmentRoadsideAssistance extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //TODO -> Code korrigieren, da bald deprecated
         vm_RoadsideAssistance = new ViewModelRoadsideAssistance(getResources());
 
         View view = inflater.inflate(R.layout.fragment_road_assistance, container, false);
@@ -40,7 +41,7 @@ public class FragmentRoadsideAssistance extends Fragment {
      */
     private void initRoadAssistanceList() {
         RoadsideAssistanceListAdapter roadsideAssistanceListAdapter = new RoadsideAssistanceListAdapter(getActivity(),
-                vm_RoadsideAssistance.getEntries());
+                vm_RoadsideAssistance.getEntries(), vm_RoadsideAssistance.getTelnummer());
         lv_road_assistance.setAdapter(roadsideAssistanceListAdapter);
     }
 }
