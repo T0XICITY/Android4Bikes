@@ -2,7 +2,6 @@ package de.thu.tpro.android4bikes.view.driving;
 
 import android.location.Location;
 import android.util.Log;
-
 import de.thu.tpro.android4bikes.services.GpsLocation;
 
 public class ViewModelDrivingMode {
@@ -49,6 +48,5 @@ public class ViewModelDrivingMode {
         //Log for
         Log.d(LOG_TAG + " Position", loc);
         return Math.round(currSpeed);
-
     }
 }

@@ -3,10 +3,18 @@ package de.thu.tpro.android4bikes.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -26,6 +34,7 @@ import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
+import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 
 /**
  * @author stlutz
@@ -45,8 +54,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
     private Fragment fragDriving, fragInfo, currentFragment;
-
+    private ImageView imageView;
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -60,17 +70,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initFragments();
         initNavigationDrawer();
         initBottomNavigation();
+        initFragments();
         initFAB();
 
+        onCreateClickShowProfile();
         //start with InfoFragment
         currentFragment = fragInfo;
         updateFragment();
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_items, menu);
         return true;
+    }
+
+    public void onCreateClickShowProfile() {
+
+        View header = drawer.getHeaderView(0);
+        imageView = (ImageView) header.findViewById(R.id.imageView_profile);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                currentFragment = new FragmentShowProfile();
+                updateFragment();
+                closeContextMenu();
+            }
+        });
     }
 
     //Choose selected Fragment
@@ -209,7 +237,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragDriving = new FragmentDrivingMode();
         fragInfo = new FragmentInfoMode();
     }
-
+//https://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android#2592161@Override
+public boolean onKeyDown(int keyCode, KeyEvent event)  {
+    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+        // return to InfoMode
+        currentFragment = new FragmentInfoMode();
+        updateFragment();
+        try{
+            return true;//this line does the rest
+        }
+        catch(IllegalStateException e){
+            e.printStackTrace();
+        }
+        return true;
+    }
+    return super.onKeyDown(keyCode, event); //handles other keys
+}
 
 
 
