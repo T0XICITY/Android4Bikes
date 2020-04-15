@@ -6,27 +6,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/drawerLayout"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.info.FragmentInfoMode">
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/fragment_container"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Title"
+            app:navigationIcon="@drawable/ic_arrow_left"
+            android:background="@color/colorPrimary"
+            app:titleTextColor="@color/TextWhite"
+            android:visibility="gone"/>
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:id="@+id/drawerLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/fragment_container"
-            android:orientation="horizontal" />
+            tools:context=".view.info.FragmentInfoMode">
 
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/navigationDrawer"
-            android:layout_width="240dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            app:headerLayout="@layout/navigation_header"
-            app:menu="@menu/menu_items" />
-    </androidx.drawerlayout.widget.DrawerLayout>
+            <LinearLayout
+                android:id="@+id/fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@id/fragment_container"
+                android:orientation="horizontal" />
+
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/navigationDrawer"
+                android:layout_width="240dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                app:headerLayout="@layout/navigation_header"
+                app:menu="@menu/menu_items" />
+        </androidx.drawerlayout.widget.DrawerLayout>
+    </LinearLayout>
 
     <!--BottomAppBar with Icon on the left and right side of the fab_switchMode-->
     <com.google.android.material.bottomappbar.BottomAppBar
@@ -34,8 +50,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:fabCradleRoundedCornerRadius="80dp"
-        app:fabCradleMargin="15dp">
+        app:fabCradleMargin="15dp"
+        app:fabCradleRoundedCornerRadius="80dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -91,10 +107,10 @@
         android:id="@+id/fab_switchMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_anchor="@id/bottomAppBar"
-        app:fabCustomSize="75dp"
+        android:scaleType="fitXY"
         android:src="@drawable/ic_material_bike"
-        android:scaleType="fitXY" />
+        app:fabCustomSize="75dp"
+        app:layout_anchor="@id/bottomAppBar" />
 
     <ListView
         android:id="@+id/lv_layout"
