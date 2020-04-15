@@ -60,6 +60,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         populateMap();
+
     }
 
     /**
@@ -117,6 +118,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
 
     }
+
 
     //TODO: handle permission in a central class
     private void locationPermissions() {

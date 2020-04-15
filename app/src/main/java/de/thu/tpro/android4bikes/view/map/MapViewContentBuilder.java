@@ -2,7 +2,6 @@ package de.thu.tpro.android4bikes.view.map;
 
 import android.app.Activity;
 import android.location.Location;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -34,15 +33,17 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
     private Activity parent;
     public View v;
     private SupportMapFragment mapFragment;
-    private ClusterManager<HazardAlertItem> clusterManager;
-    private List<HazardAlertItem> items = new ArrayList<>();
+    private ClusterManager<MarkerItem> clusterManager;
+    private List<MarkerItem> items = new ArrayList<>();
     //boolean mapReady = false;
     private int verticalOffset;
     private GoogleMap googleMap;
     private LatLng latLng;
     private MarkerOptions marker;
     private MarkerOptions markerDR;
-    private HazardAlertMarker hazAlrMarker;
+    private HazardAlertMarker hazardAlertMarker;
+    private BikeRackMarker bikeRackMarker;
+    private BikeTrackMarker bikeTrackMarker;
 
     // Constructor
     public MapViewContentBuilder(Activity parent) {
@@ -106,27 +107,24 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.setPadding(0, 0, 0, verticalOffset);
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        clusterManager = new ClusterManager<HazardAlertItem>(GlobalContext.getContext(), googleMap);
 
-        Log.i("Hello googleMAP", " WOW" + googleMap.toString());
+        clusterManager = new ClusterManager<MarkerItem>(GlobalContext.getContext(), googleMap);
         googleMap.setOnCameraIdleListener(clusterManager);
         googleMap.setOnMarkerClickListener(clusterManager);
 
+        // Add custom markers for HazardAlert
+        //googleMap.addMarker(hazardAlertMarker.chooseMarker());
 
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
+        // Add custom markers for BikeRack
+        //googleMap.addMarker(bikeRackMarker.makeMarker());
 
-                googleMap.addMarker(hazAlrMarker.chooseMarker());
-                Log.i(TAG, "GoogleMAp " + googleMap.toString());
-                items.add(new HazardAlertItem(latLng));
-                clusterManager.addItems(items);
-                clusterManager.cluster();
+        // Add custom markers for BikeTrack
+        //googleMap.addMarker(bikeTrackMarker.makeMarker());
 
-            }
+        items.add(new MarkerItem(latLng));
+        clusterManager.addItems(items);
+        clusterManager.cluster();
 
-
-        });
 
     }
 

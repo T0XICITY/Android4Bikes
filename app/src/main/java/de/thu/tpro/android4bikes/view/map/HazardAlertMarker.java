@@ -20,7 +20,6 @@ public class HazardAlertMarker {
     private LatLng latLng;
     private String title;
     private String snippet;
-    private String hazardType;
     private MarkerOptions marker;
 
     public HazardAlertMarker() {
@@ -37,63 +36,63 @@ public class HazardAlertMarker {
         //BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.material_bike);
         //TODO: make markercolor/icon diferent, depending on Markertype
 
-        if (hazardType == HazardAlert.HazardType.ICY_ROAD.toString()) {
+        if (title == HazardAlert.HazardType.ICY_ROAD.toString()) {
 
             MarkerOptions markerIR = new MarkerOptions()
                     .position(latLng)
-                    .title("ICY_ROAD")
-                    .snippet("Random text")
+                    .title("title")
+                    .snippet(snippet)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_green));
             marker = markerIR;
         }
 
-        if (hazardType == HazardAlert.HazardType.DAMAGED_ROAD.toString()) {
+        if (title == HazardAlert.HazardType.DAMAGED_ROAD.toString()) {
 
             MarkerOptions markerDR = new MarkerOptions()
                     .position(latLng)
-                    .title("DAMAGED_ROAD")
-                    .snippet("Random text")
+                    .title("title")
+                    .snippet(snippet)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_purple));
             marker = markerDR;
         }
 
-        if (hazardType == HazardAlert.HazardType.SLIPPERY_ROAD.toString()) {
+        if (title == HazardAlert.HazardType.SLIPPERY_ROAD.toString()) {
 
             MarkerOptions markerSR = new MarkerOptions()
                     .position(latLng)
-                    .title("SLIPPERY_ROAD")
-                    .snippet("Random text")
+                    .title(title)
+                    .snippet(snippet)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_blue));
             marker = markerSR;
 
         }
 
-        if (hazardType == HazardAlert.HazardType.ICY_ROAD.toString()) {
+        if (title == HazardAlert.HazardType.ROADKILL.toString()) {
 
             MarkerOptions markerRK = new MarkerOptions()
                     .position(latLng)
-                    .title(HazardAlert.HazardType.ROADKILL.toString())
-                    .snippet("Random text")
+                    .title(title)
+                    .snippet(snippet)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_black));
             marker = markerRK;
 
         }
 
-        if (hazardType == HazardAlert.HazardType.ICY_ROAD.toString()) {
+        if (title == HazardAlert.HazardType.ROCKFALL.toString()) {
 
             MarkerOptions markerRF = new MarkerOptions()
                     .position(latLng)
-                    .title(HazardAlert.HazardType.ROCKFALL.toString())
-                    .snippet("Random text")
+                    .title(title)
+                    .snippet(snippet)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_red));
             marker = markerRF;
         }
         return marker;
-
     }
 
     public BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes int vectorDrawableResourceId) {
-        Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_place_red);
+
+        Drawable background = ContextCompat.getDrawable(context, vectorDrawableResourceId);
         background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
         vectorDrawable.setBounds(40, 20, vectorDrawable.getIntrinsicWidth() + 40, vectorDrawable.getIntrinsicHeight() + 20);
@@ -105,13 +104,7 @@ public class HazardAlertMarker {
     }
 
 
-    public String getHazardType() {
-        return hazardType;
-    }
 
-    public void setHazardType(String hazardType) {
-        this.hazardType = hazardType;
-    }
 
     public LatLng getPosition() {
         return latLng;

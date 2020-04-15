@@ -56,6 +56,7 @@ public class FragmentInfoMode extends Fragment {
         if (isAccessLocationPermissionGranted()) {
             // if Yes, continue with map initialization
             populateMap();
+            addMarkers();
 
         } else {
             // if No, request user for permission and continue later in onRequestPermissionsResult
@@ -92,6 +93,10 @@ public class FragmentInfoMode extends Fragment {
                 .build();
     }
 
+    private void addMarkers() {
+        builder = new MapViewContentBuilder(getActivity());
+
+    }
     /**
      * Checks, if permission is granted to access location
      *
