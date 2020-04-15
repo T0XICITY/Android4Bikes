@@ -1,6 +1,8 @@
 package de.thu.tpro.android4bikes.data.model;
 
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -28,10 +30,10 @@ public class Position {
     /**
      * constructor using all fields
      *
-     * @param longitude
      * @param latitude
+     * @param longitude
      */
-    public Position(double longitude, double latitude) {
+    public Position(double latitude, double longitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
@@ -78,6 +80,14 @@ public class Position {
         } else {
             throw new InvalidPositionException();
         }
+    }
+
+    public GeoPoint getGeoPoint() {
+        return new GeoPoint(latitude, longitude);
+    }
+
+    public LatLng getLatLng() {
+        return new LatLng(latitude, longitude);
     }
 
     @Override

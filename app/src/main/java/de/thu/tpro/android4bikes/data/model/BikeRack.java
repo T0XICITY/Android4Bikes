@@ -205,7 +205,7 @@ public class BikeRack {
         POSTCODE("postcode"),
         BIKE_RACK_NAME("name"),
         CAPACITY("capacity"),
-        IS_EBIKE_STATION("isEBikeStation"),
+        IS_EBIKE_STATION("hasBikeCharging"),
         IS_EXISTENT("isExistent"),
         IS_COVERED("isCovered");
 
