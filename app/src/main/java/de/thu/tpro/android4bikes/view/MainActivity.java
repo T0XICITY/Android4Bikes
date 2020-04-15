@@ -263,18 +263,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void openRoadsideAssistance() {
         currentFragment = fragAssistance;
         topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.setTitle(R.string.title_telnumbers);
         updateFragment();
     }
 
     private void openTrackList() {
         currentFragment = fragTrackList;
         topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.setTitle(R.string.title_tracks);
         updateFragment();
     }
 
     private void openProfile() {
         currentFragment = fragProfile;
         topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.setTitle(R.string.title_profile);
         updateFragment();
     }
 }
