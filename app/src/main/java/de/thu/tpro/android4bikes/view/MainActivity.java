@@ -3,6 +3,7 @@ package de.thu.tpro.android4bikes.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -236,7 +237,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragDriving = new FragmentDrivingMode();
         fragInfo = new FragmentInfoMode();
     }
-
+//https://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android#2592161@Override
+public boolean onKeyDown(int keyCode, KeyEvent event)  {
+    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+        // return to InfoMode
+        currentFragment = new FragmentInfoMode();
+        updateFragment();
+        try{
+            return true;//this line does the rest
+        }
+        catch(IllegalStateException e){
+            e.printStackTrace();
+        }
+        return true;
+    }
+    return super.onKeyDown(keyCode, event); //handles other keys
+}
 
 
 
