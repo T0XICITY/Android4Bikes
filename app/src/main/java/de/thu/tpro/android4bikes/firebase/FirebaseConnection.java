@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Observable;
 
 import de.thu.tpro.android4bikes.data.commands.Command;
+import de.thu.tpro.android4bikes.data.commands.SearchForHazardAlertsWithPostalCodeInLocalDB;
 import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostalCodeInFireStore;
 import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostcodeInLocalDB;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -445,12 +446,17 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                 Log.d(TAG, "Got Hazard "+ map_result.toString());
                                 try {
                                     localDatabaseHelper.storeHazardAlerts(map_result);
+                                    Command c = new SearchForHazardAlertsWithPostalCodeInLocalDB(postcode);
+                                    setChanged();
+                                    notifyObservers(c);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             }
                         } else {
                             Log.d(TAG, "Error getting Hazard(s): ", task.getException());
+                            setChanged();
+                            notifyObservers(null);
                         }
                     }
                 });
