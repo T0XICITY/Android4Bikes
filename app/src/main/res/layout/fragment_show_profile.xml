@@ -37,7 +37,7 @@
                 android:paddingLeft="10dp"
                 android:paddingTop="15dp"
                 android:layout_marginBottom="15dp"
-                android:src="@drawable/ic_settings"></ImageView>
+                android:src="@drawable/ic_material_cog"></ImageView>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -60,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:paddingRight="15dp"
-                android:src="@drawable/ic_person"></ImageView>
+                android:src="@drawable/ic_person"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textName"
