@@ -65,14 +65,6 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
         }
     }
 
-    private void incrementWorkInProgress() {
-        workInProgress.postValue(workInProgress.getValue() + 1);
-    }
-
-    private void decrementWorkInProgress() {
-        workInProgress.postValue(workInProgress.getValue() - 1);
-    }
-
     public void loadHazardAlertsWithSpecifiedGeoHash(String geoHash) {
 
     }
@@ -81,6 +73,13 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
         return workInProgress;
     }
 
+    private void incrementWorkInProgress() {
+        workInProgress.postValue(workInProgress.getValue() + 1);
+    }
+
+    private void decrementWorkInProgress() {
+        workInProgress.postValue(workInProgress.getValue() - 1);
+    }
 
     @Override
     public void update(Observable observable, Object arg) {

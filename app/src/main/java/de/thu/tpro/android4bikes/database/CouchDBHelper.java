@@ -258,7 +258,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
                 }
                 jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
                 profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
-                profile.addAchievements(list_achievements);
+                profile.setAchievements(list_achievements);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -402,6 +402,17 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             MutableDocument mutableDocument_bikeRack = new MutableDocument(map_bikeRack);
             couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK), mutableDocument_bikeRack);
         }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void storeHazardAlerts(Map map_hazardAlert) {
+        try {
+            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+            MutableDocument mutableDocument_hazardAlert = new MutableDocument(map_hazardAlert);
+            couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_hazardAlert);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
