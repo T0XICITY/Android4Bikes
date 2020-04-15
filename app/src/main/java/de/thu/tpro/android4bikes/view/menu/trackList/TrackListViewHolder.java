@@ -2,7 +2,6 @@ package de.thu.tpro.android4bikes.view.menu.trackList;
 
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -23,6 +22,7 @@ public class TrackListViewHolder extends RecyclerView.ViewHolder implements View
     TextView tv_trackLength;
     TextView tv_trackDistance;
     TextView tv_author;
+    TextView tv_trackLocation;
     RatingBar rating_roadQuality;
     RatingBar rating_dificulty;
     RatingBar rating_funfactor;
@@ -64,9 +64,10 @@ public class TrackListViewHolder extends RecyclerView.ViewHolder implements View
         rating_roadQuality = itemView.findViewById(R.id.ratingBar_roadQuality);
         rating_dificulty = itemView.findViewById(R.id.ratingBar_dificulty);
         rating_funfactor = itemView.findViewById(R.id.ratingBar_funfactor);
-        detailView = itemView.findViewById(R.id.linear_detailView);
+        detailView = itemView.findViewById(R.id.layout_detailView);
         tv_trackLength = itemView.findViewById(R.id.tv_tracklength);
         tv_trackDistance = itemView.findViewById(R.id.tv_Trackdistance);
         tv_author = itemView.findViewById(R.id.tv_author);
+        tv_trackLocation = itemView.findViewById(R.id.tv_trackLocation);
     }
 }
