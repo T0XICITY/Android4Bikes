@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
@@ -117,6 +118,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         Log.d(LOG_TAG, verticalOffest + "");
         MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
         builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
+
     }
 
     //TODO: handle permission in a central class
