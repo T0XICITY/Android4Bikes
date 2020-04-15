@@ -402,6 +402,17 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
     }
 
+    @Override
+    public void storeHazardAlerts(Map map_hazardAlert) {
+        try {
+            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+            MutableDocument mutableDocument_hazardAlert = new MutableDocument(map_hazardAlert);
+            couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_hazardAlert);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Generates the JSON representation out of a mutable document
      *

@@ -444,9 +444,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                 Map map_result = document.getData();
                                 Log.d(TAG, "Got Hazard "+ map_result.toString());
                                 try {
-                                    JSONObject jsonObject_result = new JSONObject(map_result);
-                                    HazardAlert result = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
-                                    localDatabaseHelper.storeHazardAlerts(result);
+                                    localDatabaseHelper.storeHazardAlerts(map_result);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

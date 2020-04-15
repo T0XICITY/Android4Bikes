@@ -157,4 +157,6 @@ public interface LocalDatabaseHelper {
     Position getLastPosition();
 
     void storeBikeRack(Map map_result);
+
+    void storeHazardAlerts(Map map_hazardAlert);
 }
