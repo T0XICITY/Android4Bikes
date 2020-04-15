@@ -16,7 +16,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -36,6 +35,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
+import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.TimeBase;
 import de.thu.tpro.android4bikes.util.compression.PositionCompressor;
@@ -47,11 +47,17 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private LocalDatabaseHelper localDatabaseHelper;
     private String TAG = "HalloWelt";
     private Gson gson;
+    private GeoFencing geoFencingHazards;
+    private GeoFencing geoFencingBikeracks;
+    private GeoFencing geoFencingTracks;
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         localDatabaseHelper = new CouchDBHelper();
         this.gson = new Gson();
+        geoFencingHazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        geoFencingBikeracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
+        geoFencingTracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
     }
 
     public static FirebaseConnection getInstance() {
@@ -184,6 +190,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                     + ","
                                     + bikeRack.getPosition().getLongitude()
                                     + " submitted successfully");
+                            geoFencingBikeracks.registerDocument(documentReference.getId(), bikeRack.getPosition().getGeoPoint());
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -270,6 +277,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             String firebaseID = documentReference.getId();
                             track.setFirebaseID(firebaseID);
                             Log.d(TAG, "Track " + track.getName() + " added successfully "+ TimeBase.getCurrentUnixTimeStamp());
+                            geoFencingTracks.registerDocument(documentReference.getId(), track.getFineGrainedPositions().get(0).getGeoPoint());
                             localDatabaseHelper.storeTrack(track);
                         }
                     })
@@ -388,25 +396,32 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     @Override
     public void submitHazardAlertToFireStore(HazardAlert hazardAlert) {
         //TODO Review and Testing
-        db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
-                .add(hazardAlert) //generate id automatically
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        String firebaseID = documentReference.getId();
-                        Log.d(TAG, "HazardAlert with Location "
-                                + hazardAlert.getPosition().getLatitude()
-                                + ","
-                                + hazardAlert.getPosition().getLongitude()
-                                + " submitted successfully");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error submitting HazardAlert", e);
-                    }
-                });
+        try{
+            JSONObject jsonObject_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
+            Map map_hazardAlert = gson.fromJson(jsonObject_hazardAlert.toString(), Map.class);
+            db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
+                    .add(map_hazardAlert) //generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            String firebaseID = documentReference.getId();
+                            Log.d(TAG, "HazardAlert with Location "
+                                    + hazardAlert.getPosition().getLatitude()
+                                    + ","
+                                    + hazardAlert.getPosition().getLongitude()
+                                    + " submitted successfully");
+                            geoFencingHazards.registerDocument(documentReference.getId(), hazardAlert.getPosition().getGeoPoint());
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error submitting HazardAlert", e);
+                        }
+                    });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -426,14 +441,12 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, "Hazard with Location "
-                                        + document.toObject(HazardAlert.class).getPosition().getLatitude()
-                                        + ","
-                                        + document.toObject(HazardAlert.class).getPosition().getLongitude()
-                                        + " got successfully");
-
+                                Map map_result = document.getData();
+                                Log.d(TAG, "Got Hazard "+ map_result.toString());
                                 try {
-                                    localDatabaseHelper.storeHazardAlerts(document.toObject(HazardAlert.class));
+                                    JSONObject jsonObject_result = new JSONObject(map_result);
+                                    HazardAlert result = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
+                                    localDatabaseHelper.storeHazardAlerts(result);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -477,7 +490,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     public enum ConstantsFirebase {
         COLLECTION_PROFILES("profiles"),
         COLLECTION_UTILIZATION("utilization"),
-        COLLECTION_FINE_GEOPOSITIONS("finegeopositions"),
         COLLECTION_TRACKS("tracks"),
         COLLECTION_BIKERACKS("bikeracks"),
         COLLECTION_OFFICIAL_BIKERACKS("officialbikeracks"),
