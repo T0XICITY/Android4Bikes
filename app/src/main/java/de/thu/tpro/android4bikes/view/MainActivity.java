@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         */
 
         topAppBar = findViewById(R.id.topAppBar);
+        // Clicking Navigation Button ("Back Arrow") sends you back to InfoMode
+        topAppBar.setNavigationOnClickListener(view -> openInfoMode());
 
         initFragments();
         initNavigationDrawer();
