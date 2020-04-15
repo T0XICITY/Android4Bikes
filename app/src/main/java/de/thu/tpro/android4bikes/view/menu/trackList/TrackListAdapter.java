@@ -55,7 +55,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> 
         holder.rating_dificulty.setRating(currentRating.getDifficulty());
         holder.rating_funfactor.setRating(currentRating.getFun());
         holder.tv_author.setText(currentTrack.getAuthor_googleID());
-        holder.tv_trackLength.setText(""+currentTrack.getDistance_km());
+        holder.tv_trackLength.setText(String.format(context.getResources().getString(R.string.distance),(double)currentTrack.getDistance_km()));
 
 
         // Only display distance when available

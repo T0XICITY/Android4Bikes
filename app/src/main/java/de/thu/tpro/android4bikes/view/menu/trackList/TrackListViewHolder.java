@@ -19,7 +19,6 @@ import de.thu.tpro.android4bikes.R;
  */
 public class TrackListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     TextView tv_name;
-    Button btn_start;
     TextView tv_description;
     TextView tv_trackLength;
     TextView tv_trackDistance;
@@ -51,10 +50,8 @@ public class TrackListViewHolder extends RecyclerView.ViewHolder implements View
         //https://stackoverflow.com/questions/44653323/horizontal-androidanimatelayoutchanges-true-animation-not-smooth
         if (detailView.getVisibility() == View.GONE) {
                 detailView.setVisibility(View.VISIBLE);
-                btn_start.setVisibility(View.VISIBLE);
             } else {
                 detailView.setVisibility(View.GONE);
-                btn_start.setVisibility(View.GONE);
         }
     }
 
@@ -63,7 +60,6 @@ public class TrackListViewHolder extends RecyclerView.ViewHolder implements View
      */
     private void initCardView() {
         tv_name = itemView.findViewById(R.id.tv_trackname);
-        btn_start = itemView.findViewById(R.id.btn_start);
         tv_description = itemView.findViewById(R.id.tv_description);
         rating_roadQuality = itemView.findViewById(R.id.ratingBar_roadQuality);
         rating_dificulty = itemView.findViewById(R.id.ratingBar_dificulty);

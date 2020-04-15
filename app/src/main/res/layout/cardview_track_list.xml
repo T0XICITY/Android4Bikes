@@ -18,8 +18,7 @@
         android:layout_margin="10dp"
         android:orientation="vertical">
 
-        <!--https://material.io/develop/android/components/cards/-->
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -28,51 +27,65 @@
                 android:id="@+id/tv_trackname"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="3"
                 android:text="@string/title_tracks"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                android:textColor="?android:attr/textColorSecondary"
-                card_view:layout_constraintEnd_toStartOf="@id/tv_Trackdistance"
-                card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toTopOf="parent" />
+                android:textColor="?android:attr/textColorSecondary" />
 
-            <TextView
-                android:id="@+id/tv_Trackdistance"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="27,3 Km"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintStart_toEndOf="@id/tv_trackname"
-                card_view:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:src="@drawable/ic_material_poi" />
+
+                    <TextView
+                        android:id="@+id/tv_Trackdistance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="27,3 Km"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_trackLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Location"
+                    android:layout_gravity="end"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/linear_detailView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/tv_description"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_weight="1"
-                android:text="description"
-                android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="?android:attr/textColorSecondary"/>
+            android:visibility="visible">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_weight="1"
                 android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="5dp"
+                    android:orientation="horizontal">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -81,14 +94,21 @@
                         android:textSize="18dp"
                         android:textStyle="bold" />
 
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_material_ruler"
+                        android:layout_marginEnd="5dp"/>
+
                     <TextView
                         android:id="@+id/tv_tracklength"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="30 Km"
+                        android:text="@string/distance"
                         android:textSize="18dp"
                         android:textStyle="bold" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -97,22 +117,24 @@
                         android:id="@+id/tv_roadQuality"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_weight="1"
                         android:text="@string/property_RoadQuality"
-                        android:textAppearance="?attr/textAppearanceBody2"
-                        android:textColor="?android:attr/textColorSecondary"/>
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        android:textColor="?android:attr/textColorSecondary" />
 
                     <RatingBar
                         android:id="@+id/ratingBar_roadQuality"
-                        style="?android:attr/ratingBarStyleSmall"
+                        style="?android:attr/ratingBarStyleIndicator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:numStars="5"
-                        android:stepSize="0.1"
                         android:isIndicator="true"
-                        android:rating="3.3"/>
+                        android:numStars="5"
+                        android:rating="3.3"
+                        android:stepSize="0.1" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -121,22 +143,24 @@
                         android:id="@+id/tv_dificulty"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_weight="1"
                         android:text="@string/property_Difficulty"
-                        android:textAppearance="?attr/textAppearanceBody2"
-                        android:textColor="?android:attr/textColorSecondary"/>
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        android:textColor="?android:attr/textColorSecondary" />
 
                     <RatingBar
                         android:id="@+id/ratingBar_dificulty"
-                        style="?android:attr/ratingBarStyleSmall"
+                        style="?android:attr/ratingBarStyleIndicator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:numStars="5"
-                        android:stepSize="0.1"
                         android:isIndicator="true"
-                        android:rating="3.5"/>
+                        android:numStars="5"
+                        android:rating="3.5"
+                        android:stepSize="0.1" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
@@ -145,21 +169,38 @@
                         android:id="@+id/tv_funfactor"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_weight="1"
                         android:text="@string/property_Funfactor"
-                        android:textAppearance="?attr/textAppearanceBody2"
-                        android:textColor="?android:attr/textColorSecondary"/>
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        android:textColor="?android:attr/textColorSecondary" />
 
                     <RatingBar
                         android:id="@+id/ratingBar_funfactor"
-                        style="?android:attr/ratingBarStyleSmall"
+                        style="?android:attr/ratingBarStyleIndicator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:numStars="5"
                         android:isIndicator="true"
-                        android:rating="3.5"/>
+                        android:numStars="5"
+                        android:rating="3.5" />
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/track_description"
+                    android:textAppearance="?attr/textAppearanceSearchResultTitle"
+                    android:textColor="?android:attr/textColorSecondary" />
+
+                <TextView
+                    android:id="@+id/tv_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="description"
+                    android:textAppearance="?attr/textAppearanceBody1"
+                    android:textColor="?android:attr/textColorSecondary" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -169,14 +210,16 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Author:"
-                        android:layout_marginRight="3dp"/>
+                        android:layout_marginTop="5dp"
+                        android:layout_marginRight="3dp"
+                        android:text="Author:" />
+
                     <TextView
                         android:id="@+id/tv_author"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Rüdiger"/>
+                        android:text="Rüdiger" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -190,6 +233,5 @@
             android:layout_gravity="center"
             android:text="START"
             android:visibility="gone" />
-
     </LinearLayout>
 </androidx.cardview.widget.CardView>
