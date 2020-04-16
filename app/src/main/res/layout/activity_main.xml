@@ -53,7 +53,7 @@
         android:layout_gravity="bottom"
         app:fabCradleRoundedCornerRadius="80dp"
         app:fabCradleMargin="15dp"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+        app:hideOnScroll="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -112,7 +112,6 @@
         android:scaleType="fitXY"
         android:src="@drawable/ic_material_bike"
         app:fabCustomSize="75dp"
-        app:layout_anchorGravity="center_horizontal"
         app:layout_anchor="@id/bottomAppBar"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"/>
 
