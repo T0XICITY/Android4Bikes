@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
@@ -28,12 +29,15 @@ import de.thu.tpro.android4bikes.R;
  * @author Elias, Stefanie
  * Custom adapter to display list of {@link RoadsideAssistanceEntry} in ListView
  */
-public class RoadsideAssistanceListAdapter extends BaseAdapter {
+public class RoadsideAssistanceListAdapter extends RecyclerView.Adapter<RoadsideAssistanceViewHolder> {
+
+    private static final int REQUEST_PHONE_CALL = 1;
 
     private final LayoutInflater inflater;
     private List<RoadsideAssistanceEntry> entries;
     private String[] listTel;
     private Activity context;
+    private Intent intent;
 
     public RoadsideAssistanceListAdapter(Activity context, List<RoadsideAssistanceEntry> entries, String[] paraListTel) {
         super();
@@ -44,66 +48,28 @@ public class RoadsideAssistanceListAdapter extends BaseAdapter {
         this.listTel = paraListTel;
     }
 
-    @Override
-    public int getCount() {
-        return entries.size();
-    }
-
-    @Override
-    public RoadsideAssistanceEntry getItem(int i) {
-        return entries.get(i);
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return i;
-    }
-
-    /**
-     * Populates a row with view elements and data from the corresponding
-     * {@link RoadsideAssistanceEntry}.
-     * <p/>
-     * This method is called per row of the ListView.
-     *
-     * @param position    current row number
-     * @param convertView view element of current row
-     * @param parent      parent element
-     * @return view element of current row with data
-     */
     @NonNull
     @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
-        // Inflate Layout of current Row
-        View row = convertView;
-        if (row == null) {
-            row = inflater.inflate(R.layout.list_road_assistance, parent, false);
-        }
-
-        // Inflate UI elements of current Row
-        ImageView iv = row.findViewById(R.id.iv_institution);
-        TextView tv = row.findViewById(R.id.tv_institution);
-        ImageButton ib = row.findViewById(R.id.ib_Call);
-
-        // Insert Data into elements
-        iv.setImageResource(entries.get(position).resId_institution);
-        tv.setText(entries.get(position).text_institution);
-        ib.setImageResource(entries.get(position).resId_call);
-
-        ib.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                makePhoneCall(listTel[position]);
-            }
-        });
-
-        return row;
+    public RoadsideAssistanceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View row = inflater.inflate(R.layout.cardview_emergency_number, null);
+        return new RoadsideAssistanceViewHolder(row);
     }
 
-    private static final int REQUEST_PHONE_CALL = 1;
-    Intent intent;
+    @Override
+    public void onBindViewHolder(@NonNull RoadsideAssistanceViewHolder holder, int position) {
 
+        // Insert Data into elements from view holder
+        holder.iv_institution.setImageResource(entries.get(position).resId_institution);
+        holder.tv_institution.setText(entries.get(position).text_institution);
+        holder.ib_call.setImageResource(entries.get(position).resId_call);
+
+        holder.ib_call.setOnClickListener(view -> {makePhoneCall(listTel[position]);});
+    }
+
+    @Override
+    public int getItemCount() {
+        return entries.size();
+    }
 
     public void makePhoneCall(String tel) {
         Log.d("testMake", "testMake");
