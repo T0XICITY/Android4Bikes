@@ -7,7 +7,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.HeaderViewListAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -15,26 +14,21 @@ import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.google.android.material.bottomappbar.BottomAppBar;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
-import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
+import de.thu.tpro.android4bikes.view.menu.settings.FragmentSettings;
 import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
+import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 
 /**
  * @author stlutz
@@ -89,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onCreateClickShowProfile() {
 
         View header = drawer.getHeaderView(0);
-        imageView = (ImageView) header.findViewById(R.id.imageView_profile);
+        imageView = header.findViewById(R.id.imageView_profile);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_setting:
                 Log.d(LOG_TAG, "Clicked menu_setting!");
+                currentFragment = new FragmentSettings();
                 break;
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
