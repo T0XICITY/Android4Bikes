@@ -18,21 +18,21 @@ public class ViewModelRoadsideAssistance {
 
     // Image resources for ImageView
     private final Integer[] institutionImages = {
-            R.drawable.ic_ambulance,
-            R.drawable.ic_fire_hydrant,
-            R.drawable.ic_police_badge,
-            R.drawable.ic_hammer_wrench,
-            R.drawable.ic_emergency_child,
+            R.drawable.ic_material_ambulance,
+            R.drawable.ic_material_fire_hydrant,
+            R.drawable.ic_material_police,
+            R.drawable.ic_material_hammer_wrench,
+            R.drawable.ic_material_child,
             R.drawable.ic_emergency_phone
     };
 
     private final Integer[] callImage = {
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call
+            R.drawable.ic_emergency_call,
+            R.drawable.ic_emergency_call,
+            R.drawable.ic_emergency_call,
+            R.drawable.ic_emergency_call,
+            R.drawable.ic_emergency_call,
+            R.drawable.ic_emergency_call
     };
 
 

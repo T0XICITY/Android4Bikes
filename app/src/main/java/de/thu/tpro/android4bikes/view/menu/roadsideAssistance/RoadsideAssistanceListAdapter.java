@@ -1,7 +1,6 @@
 package de.thu.tpro.android4bikes.view.menu.roadsideAssistance;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -9,19 +8,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
-
-import javax.crypto.spec.RC2ParameterSpec;
 
 import de.thu.tpro.android4bikes.R;
 
@@ -61,9 +54,9 @@ public class RoadsideAssistanceListAdapter extends RecyclerView.Adapter<Roadside
         // Insert Data into elements from view holder
         holder.iv_institution.setImageResource(entries.get(position).resId_institution);
         holder.tv_institution.setText(entries.get(position).text_institution);
-        holder.ib_call.setImageResource(entries.get(position).resId_call);
+        holder.iv_call.setImageResource(entries.get(position).resId_call);
 
-        holder.ib_call.setOnClickListener(view -> {makePhoneCall(listTel[position]);});
+        holder.cardView.setOnClickListener(view -> {makePhoneCall(listTel[position]);});
     }
 
     @Override
