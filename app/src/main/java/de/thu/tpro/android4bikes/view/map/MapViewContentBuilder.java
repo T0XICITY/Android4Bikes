@@ -1,6 +1,7 @@
 package de.thu.tpro.android4bikes.view.map;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.location.Location;
 import android.view.View;
 import android.widget.Toast;
@@ -13,6 +14,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,11 +41,13 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
     private LatLng latLng;
     private MarkerOptions marker;
     private MarkerOptions markerDR;
-    private HazardAlertMarker hazardAlertMarker;
     //private BikeRackMarker bikeRackMarker;
     //private BikeTrackMarker bikeTrackMarker;
-
     // Constructor
+    private HazardAlertMarker hazardAlertMarker;
+    private BikeRackMarker bikeRackMarker;
+    private BikeTrackMarker bikeTrackMarker;
+
     public MapViewContentBuilder(Activity parent) {
         //we need the parent Activity to init our map
         this.parent = parent;
@@ -100,10 +106,38 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOMLEVEL));
 
+        // TODO: remove after testing
+        drawcircle(latLng, 50000, googleMap);
+        for (int i = 0; i < 15; i++) {
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latLng.latitude + (i / 20.0), latLng.longitude + (i / 20.0)))
+                    .title("Marker" + i));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latLng.latitude - (i / 20.0), latLng.longitude - (i / 20.0)))
+                    .title("Marker" + i));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latLng.latitude - (i / 20.0), latLng.longitude + (i / 20.0)))
+                    .title("Marker" + i));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(latLng.latitude + (i / 20.0), latLng.longitude - (i / 20.0)))
+                    .title("Marker" + i));
+        }
+        //googleMap.addMarker(hazardAlertMarker.chooseMarker());
+        //googleMap.addMarker(bikeRackMarker.makeMarker());
+        //googleMap.addMarker(bikeTrackMarker.makeMarker());
+
+
+
         googleMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
-        googleMap.setPadding(0, 0, 0, verticalOffset);
-        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        googleMap.setPadding(0,0,0,verticalOffset);
+        googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+    }
+
+    // TODO: remove after testing
+    public void drawcircle(LatLng latLng, int radius, GoogleMap googleMap) {
+        Circle circle = googleMap.addCircle(new CircleOptions().center(latLng).radius(radius).strokeColor(Color.RED).fillColor(Color.TRANSPARENT));
+    }
 
         //clusterManager = new ClusterManager<MarkerItem>(GlobalContext.getContext(), googleMap);
         //googleMap.setOnCameraIdleListener(clusterManager);

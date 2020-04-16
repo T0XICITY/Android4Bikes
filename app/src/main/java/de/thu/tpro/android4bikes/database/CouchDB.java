@@ -325,10 +325,9 @@ public class CouchDB {
      */
     public ResultSet getAllStoredIds(Database database) {
         ResultSet results = null;
-
-        Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
-                .from(DataSource.database(database));
         try {
+            Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
+                    .from(DataSource.database(database));
             results = query.execute();
             Log.d("HalloWelt", query.explain());
         } catch (Exception e) {
@@ -383,12 +382,31 @@ public class CouchDB {
      */
     public ResultSet queryDatabaseForSingleAttributeValue(Database database, String key, long value) {
         ResultSet result = null;
-        Query query = QueryBuilder.select(SelectResult.all())
-                .from(DataSource.database(database))
-                .where(Expression.property(key).equalTo(Expression.longValue(value)));
         try {
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(database))
+                    .where(Expression.property(key).equalTo(Expression.longValue(value)));
             result = query.execute();
         } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    /**
+     * @param database Database to query
+     * @param key      Key that shoul be considered
+     * @param regex    regular expression regarding the value
+     * @return ResultSet
+     */
+    public ResultSet queryDatabaseForRegularExpression(Database database, String key, String regex) {
+        ResultSet result = null;
+        try {
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(database))
+                    .where(Expression.property(key).regex(Expression.string(regex)));
+            result = query.execute();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
@@ -457,6 +475,25 @@ public class CouchDB {
             e.printStackTrace();
             Log.d("HalloWelt", "couldn't delete docment");
         }
+    }
+
+    /**
+     * returns all documents that are stored in a specified database
+     *
+     * @param database
+     * @return
+     */
+    public ResultSet readAllDocumentsOfADatabase(Database database) {
+        ResultSet results = null;
+        try {
+            Query query = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(database));
+            results = query.execute();
+            //Log.d("HalloWelt", query.explain());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return results;
     }
 
     /**

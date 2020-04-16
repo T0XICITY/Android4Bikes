@@ -81,7 +81,7 @@ public class HazardAlert {
         this.position = position;
     }
 
-    public String getType() {
+    public int getType() {
         return type.getType();
     }
 
@@ -147,20 +147,20 @@ public class HazardAlert {
     }
 
     public enum HazardType {
-        DAMAGED_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_DamagedRoad)),
-        ICY_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_IcyRoad)),
-        SLIPPERY_ROAD(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_SlipperyRoad)),
-        ROADKILL(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_Roadkill)),
-        ROCKFALL(GlobalContext.getContext().getString(R.string.HazardAlert_HazardType_Rockfall)),
-        GENERAL(""); //todo
+        DAMAGED_ROAD(6),
+        ICY_ROAD(5),
+        SLIPPERY_ROAD(4),
+        ROADKILL(3),
+        ROCKFALL(2),
+        GENERAL(1);
 
-        private String type;
+        private int type;
 
-        HazardType(String type) {
+        HazardType(int type) {
             this.type = type;
         }
 
-        public String getType() {
+        public int getType() {
             return type;
         }
     }

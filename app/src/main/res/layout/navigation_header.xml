@@ -1,15 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="bottom"
+    android:orientation="vertical">
 
-
-    <Button
-        android:id="@+id/logout"
+    <ImageView
+        android:id="@+id/imageView_profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:text="Logout" />
+        android:background="@drawable/tv_rounded"
+        android:contentDescription="nav_header_desc"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
+        android:paddingLeft="16dp"
+        android:paddingTop="16dp"
+        android:clickable="true" />
 
+    <TextView
+        android:id="@+id/tvName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:text="Max Mustermann"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+    <TextView
+        android:id="@+id/tvMail"
+        android:paddingLeft="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="max.mustermann@gmail.com" />
 
 </LinearLayout>

@@ -104,8 +104,6 @@ public class HazardAlertMarker {
     }
 
 
-
-
     public LatLng getPosition() {
         return latLng;
     }

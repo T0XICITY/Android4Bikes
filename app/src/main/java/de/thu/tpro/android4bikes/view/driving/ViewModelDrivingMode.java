@@ -1,7 +1,7 @@
 package de.thu.tpro.android4bikes.view.driving;
 
+import android.location.Location;
 import android.util.Log;
-
 import de.thu.tpro.android4bikes.services.GpsLocation;
 
 public class ViewModelDrivingMode {
@@ -16,6 +16,7 @@ public class ViewModelDrivingMode {
     }
 
     private int counter;
+    private Location lastLocation;
     private long accumulatedSpeed;
     private float currSpeed;
 
@@ -25,10 +26,10 @@ public class ViewModelDrivingMode {
         currSpeed = 0f;
     }
 
-    public int updateAverageSpeed(int currentSpeed) {
+    public float updateAverageSpeed(int currentSpeed) {
         accumulatedSpeed += currentSpeed;
         if (counter == 0) return 0;
-        return (int) accumulatedSpeed / counter;
+        return accumulatedSpeed / counter;
     }
 
     /**
@@ -47,6 +48,5 @@ public class ViewModelDrivingMode {
         //Log for
         Log.d(LOG_TAG + " Position", loc);
         return Math.round(currSpeed);
-
     }
 }

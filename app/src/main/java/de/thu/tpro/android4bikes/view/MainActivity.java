@@ -1,28 +1,35 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.google.android.material.bottomappbar.BottomAppBar;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
+import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
+import de.thu.tpro.android4bikes.view.menu.settings.FragmentSettings;
+import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
+import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -47,35 +54,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
     private Fragment fragDriving, fragInfo, currentFragment;
-    Float translationY = 100f;
-    int markerId;
-    OvershootInterpolator interpolator = new OvershootInterpolator();
-    Boolean isMenuOpen = false;
-
-
-
+    private ImageView imageView;
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_Dialog);
 
         /*
         Database database = DatabaseConnection.getInstance();
-
         database.getLastPosition();
         database.readTracks("89610");
         */
-
         initFragments();
         initNavigationDrawer();
         initBottomNavigation();
+        initFragments();
         initFAB();
 
-
+        onCreateClickShowProfile();
         //start with InfoFragment
         currentFragment = fragInfo;
         updateFragment();
-        //initMarkerFAB();
+
     }
 
     @Override
@@ -84,14 +86,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    public void onCreateClickShowProfile() {
+
+        View header = drawer.getHeaderView(0);
+        imageView = header.findViewById(R.id.imageView_profile);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                currentFragment = new FragmentShowProfile();
+                updateFragment();
+                closeContextMenu();
+            }
+        });
+    }
+
     //Choose selected Fragment
     @Override
     public boolean onNavigationItemSelected(MenuItem menu) {
         switch (menu.getItemId()) {
-            case R.id.menu_assistance:
-                Log.d(LOG_TAG, "Clicked menu_assistance!");
-                //currentFragment = new FirstFragment();
-                break;
             case R.id.menu_community:
                 Log.d(LOG_TAG, "Clicked menu_community!");
                 //currentFragment = new SecondFragment();
@@ -103,12 +116,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_hazard:
                 Log.d(LOG_TAG, "Clicked menu_hazard!");
                 break;
+            case R.id.menu_setting:
+                Log.d(LOG_TAG, "Clicked menu_setting!");
+                currentFragment = new FragmentSettings();
+                break;
+            case R.id.menu_logout:
+                Log.d(LOG_TAG, "Clicked menu_logout!");
+                doLogout();
+                break;
             default:
                 Log.d(LOG_TAG, "Default case");
         }
         toggleNavigationDrawer();
         updateFragment();
         return true;
+    }
+
+    private void doLogout() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(this,ActivityLogin.class);
+        startActivity(intent);
     }
 
     /**
@@ -119,6 +146,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btn_community = findViewById(R.id.imagebutton_community);
         btn_tracks = findViewById(R.id.imagebutton_tracks);
 
+        btn_tracks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(LOG_TAG, "Clicked menu_tracks!");
+                currentFragment = new FragmentTrackList();
+                updateFragment();
+            }
+        });
         btn_community.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -160,6 +195,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
+/*
+    private void showTracksDialog() {
+        dialog.setView(R.layout.fragment_track_list);
+        dialog.create().show();
+    }
+*/
 
     /**
      * Creates a Snackbar to test the floating action button
@@ -198,10 +239,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragDriving = new FragmentDrivingMode();
         fragInfo = new FragmentInfoMode();
     }
-
-    private void handleFabOne() {
-        Log.i(TAG, "handle fab one");
+//https://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android#2592161@Override
+public boolean onKeyDown(int keyCode, KeyEvent event)  {
+    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+        // return to InfoMode
+        currentFragment = new FragmentInfoMode();
+        updateFragment();
+        try{
+            return true;//this line does the rest
+        }
+        catch(IllegalStateException e){
+            e.printStackTrace();
+        }
+        return true;
     }
+    return super.onKeyDown(keyCode, event); //handles other keys
+}
 
     @Override
     public void onClick(View view) {
