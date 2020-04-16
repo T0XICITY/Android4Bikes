@@ -109,7 +109,8 @@
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
         android:src="@drawable/ic_material_bike"
-        app:fabCustomSize="75dp" />
+        app:fabCustomSize="75dp"
+        app:layout_anchor="@id/bottomAppBar"/>
 
     <ListView
         android:id="@+id/lv_layout"

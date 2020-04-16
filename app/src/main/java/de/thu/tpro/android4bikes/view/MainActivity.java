@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragDriving, fragInfo, fragAssistance, fragTrackList, fragProfile, currentFragment;
+    private Fragment fragDriving, fragInfo, fragAssistance, fragTrackList, fragProfile,
+            fragSettings, currentFragment;
     private ImageView imageView;
 
     @Override
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_setting:
                 Log.d(LOG_TAG, "Clicked menu_setting!");
-                currentFragment = new FragmentSettings();
+                openSettings();
                 break;
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
@@ -236,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragAssistance = new FragmentRoadsideAssistance();
         fragProfile = new FragmentShowProfile();
         fragTrackList = new FragmentTrackList();
+        fragSettings = new FragmentSettings();
     }
 
     //https://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android#2592161@Override
@@ -286,6 +288,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragProfile;
         topAppBar.setVisibility(View.VISIBLE);
         topAppBar.setTitle(R.string.title_profile);
+        updateFragment();
+    }
+
+    private void openSettings() {
+        currentFragment = fragSettings;
+        topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.setTitle(R.string.settings);
         updateFragment();
     }
 
