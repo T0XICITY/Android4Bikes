@@ -10,21 +10,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.GoogleMap;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
-import com.google.firebase.firestore.GeoPoint;
-
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.model.BikeRack;
-import de.thu.tpro.android4bikes.data.model.Position;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
-import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 

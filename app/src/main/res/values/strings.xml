@@ -36,6 +36,9 @@
     <string name="ascending">Ascending</string>
     <string name="descending">Descending</string>
 
+    <!-- Feedback Dialog -->
+    <string name="feedback_desc">Description</string>
+
     <!-- Roadside Assistance Strings -->
     <string-array name="roadside_assistance_list">
         <item>Ambulance Service</item>
