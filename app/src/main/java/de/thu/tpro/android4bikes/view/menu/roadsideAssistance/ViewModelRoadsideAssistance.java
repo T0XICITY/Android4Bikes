@@ -22,12 +22,10 @@ public class ViewModelRoadsideAssistance {
             R.drawable.ic_material_fire_hydrant,
             R.drawable.ic_material_police,
             R.drawable.ic_material_hammer_wrench,
-            R.drawable.ic_material_child,
-            R.drawable.ic_emergency_phone
+            R.drawable.ic_material_child
     };
 
     private final Integer[] callImage = {
-            R.drawable.ic_emergency_call,
             R.drawable.ic_emergency_call,
             R.drawable.ic_emergency_call,
             R.drawable.ic_emergency_call,
@@ -38,7 +36,7 @@ public class ViewModelRoadsideAssistance {
 
     private List<RoadsideAssistanceEntry> entries;
     //Phone Numbers
-    private String[] telnummer = {"1116117", "112", "110", "22222", "116111", "0"};
+    private String[] telnummer = {"1116117", "112", "110", "22222", "116111"};
 
 
     public ViewModelRoadsideAssistance(Resources res) {
