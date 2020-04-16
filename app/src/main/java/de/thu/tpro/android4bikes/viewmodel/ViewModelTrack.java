@@ -35,6 +35,8 @@ public class ViewModelTrack extends ViewModel implements Observer {
     //SUBMITTRACK: Create Track -> ViewModel ruft FireBase an
     //READTRACK : Liste an Tracks erhalten (PLZ) -> alle tracks in ulm sehen
 
+    //todo: Stadname bereitstellen
+
     private MutableLiveData<List<Track>> list_shownTracks;
     private CouchDBHelper couchDBHelper;
     private FirebaseConnection firebaseConnection;
