@@ -41,7 +41,7 @@ public class FragmentRoadsideAssistance extends Fragment {
      * showing Listview with RoadsideAssistance entries
      */
     private void initRoadAssistanceList() {
-        RoadsideAssistanceListAdapter roadsideAssistanceListAdapter = new RoadsideAssistanceListAdapter(getActivity(),
+        RoadsideAssistanceListAdapter roadsideAssistanceListAdapter = new RoadsideAssistanceListAdapter(this,
                 vm_RoadsideAssistance.getEntries(), vm_RoadsideAssistance.getTelnummer());
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());

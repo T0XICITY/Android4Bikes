@@ -36,22 +36,22 @@ public class RoadsideAssistanceListAdapter extends RecyclerView.Adapter<Roadside
     private final LayoutInflater inflater;
     private List<RoadsideAssistanceEntry> entries;
     private String[] listTel;
-    private Activity context;
+    private FragmentRoadsideAssistance parent;
     private Intent intent;
 
-    public RoadsideAssistanceListAdapter(Activity context, List<RoadsideAssistanceEntry> entries, String[] paraListTel) {
+    public RoadsideAssistanceListAdapter(FragmentRoadsideAssistance parent, List<RoadsideAssistanceEntry> entries, String[] paraListTel) {
         super();
 
-        this.context = context;
+        this.parent = parent;
         this.entries = entries;
-        this.inflater = LayoutInflater.from(context);
         this.listTel = paraListTel;
+        inflater = LayoutInflater.from(parent.getActivity());
     }
 
     @NonNull
     @Override
     public RoadsideAssistanceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View row = inflater.inflate(R.layout.cardview_emergency_number, null);
+        View row = inflater.inflate(R.layout.cardview_emergency_number, parent, false);
         return new RoadsideAssistanceViewHolder(row);
     }
 
@@ -75,14 +75,12 @@ public class RoadsideAssistanceListAdapter extends RecyclerView.Adapter<Roadside
         Log.d("testMake", "testMake");
         intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + tel));
 
-
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE
+        if (ContextCompat.checkSelfPermission(parent.getActivity(), Manifest.permission.CALL_PHONE
         ) == PackageManager.PERMISSION_GRANTED) {
-            Log.d("test", context.toString());
-            context.startActivity(intent);
+            parent.startActivity(intent);
         } else {
             //Start dialog requesting permission
-            ActivityCompat.requestPermissions(context, new String[]{
+            ActivityCompat.requestPermissions(parent.getActivity(), new String[]{
                     Manifest.permission.CALL_PHONE
             }, REQUEST_PHONE_CALL);
         }
@@ -94,7 +92,7 @@ public class RoadsideAssistanceListAdapter extends RecyclerView.Adapter<Roadside
                                            String permissions[], int[] grantResult) {
         if (requestCode == REQUEST_PHONE_CALL) {
             if (grantResult.length > 0 && grantResult[0] == PackageManager.PERMISSION_GRANTED) {
-                context.startActivity(intent);
+                parent.startActivity(intent);
             }
         }
     }

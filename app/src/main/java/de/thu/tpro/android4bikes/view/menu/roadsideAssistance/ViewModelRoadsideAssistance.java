@@ -33,7 +33,6 @@ public class ViewModelRoadsideAssistance {
             R.drawable.ic_emergency__call,
             R.drawable.ic_emergency__call,
             R.drawable.ic_emergency__call
-
     };
 
 
