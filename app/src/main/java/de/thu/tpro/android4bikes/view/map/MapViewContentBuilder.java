@@ -17,10 +17,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.maps.android.clustering.ClusterManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -33,8 +29,8 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
     private Activity parent;
     public View v;
     private SupportMapFragment mapFragment;
-    private ClusterManager<MarkerItem> clusterManager;
-    private List<MarkerItem> items = new ArrayList<>();
+    //private ClusterManager<MarkerItem> clusterManager;
+    //private List<MarkerItem> items = new ArrayList<>();
     //boolean mapReady = false;
     private int verticalOffset;
     private GoogleMap googleMap;
@@ -109,9 +105,9 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.setPadding(0, 0, 0, verticalOffset);
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        clusterManager = new ClusterManager<MarkerItem>(GlobalContext.getContext(), googleMap);
+        //clusterManager = new ClusterManager<MarkerItem>(GlobalContext.getContext(), googleMap);
         //googleMap.setOnCameraIdleListener(clusterManager);
-        googleMap.setOnMarkerClickListener(clusterManager);
+        //googleMap.setOnMarkerClickListener(clusterManager);
 
         // Add custom markers for HazardAlert
         //googleMap.addMarker(hazardAlertMarker.chooseMarker());
@@ -122,9 +118,9 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         // Add custom markers for BikeTrack
         //googleMap.addMarker(bikeTrackMarker.makeMarker());
 
-        items.add(new MarkerItem(latLng));
+        /*items.add(new MarkerItem(latLng));
         clusterManager.addItems(items);
-        clusterManager.cluster();
+        clusterManager.cluster();*/
 
 
     }
