@@ -42,8 +42,8 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
     private MarkerOptions marker;
     private MarkerOptions markerDR;
     private HazardAlertMarker hazardAlertMarker;
-    private BikeRackMarker bikeRackMarker;
-    private BikeTrackMarker bikeTrackMarker;
+    //private BikeRackMarker bikeRackMarker;
+    //private BikeTrackMarker bikeTrackMarker;
 
     // Constructor
     public MapViewContentBuilder(Activity parent) {
@@ -97,6 +97,7 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
                 }
             }
         });
+
         latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
 
 
@@ -109,7 +110,7 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         clusterManager = new ClusterManager<MarkerItem>(GlobalContext.getContext(), googleMap);
-        googleMap.setOnCameraIdleListener(clusterManager);
+        //googleMap.setOnCameraIdleListener(clusterManager);
         googleMap.setOnMarkerClickListener(clusterManager);
 
         // Add custom markers for HazardAlert

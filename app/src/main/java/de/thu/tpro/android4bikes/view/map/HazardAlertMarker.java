@@ -36,7 +36,7 @@ public class HazardAlertMarker {
         //BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.drawable.material_bike);
         //TODO: make markercolor/icon diferent, depending on Markertype
 
-        if (title == HazardAlert.HazardType.ICY_ROAD.toString()) {
+        if (title.equals(HazardAlert.HazardType.ICY_ROAD.toString())) {
 
             MarkerOptions markerIR = new MarkerOptions()
                     .position(latLng)
@@ -46,7 +46,7 @@ public class HazardAlertMarker {
             marker = markerIR;
         }
 
-        if (title == HazardAlert.HazardType.DAMAGED_ROAD.toString()) {
+        if (title.equals(HazardAlert.HazardType.DAMAGED_ROAD.toString())) {
 
             MarkerOptions markerDR = new MarkerOptions()
                     .position(latLng)
@@ -56,7 +56,7 @@ public class HazardAlertMarker {
             marker = markerDR;
         }
 
-        if (title == HazardAlert.HazardType.SLIPPERY_ROAD.toString()) {
+        if (title.equals(HazardAlert.HazardType.SLIPPERY_ROAD.toString())) {
 
             MarkerOptions markerSR = new MarkerOptions()
                     .position(latLng)
@@ -67,7 +67,7 @@ public class HazardAlertMarker {
 
         }
 
-        if (title == HazardAlert.HazardType.ROADKILL.toString()) {
+        if (title.equals(HazardAlert.HazardType.ROADKILL.toString())) {
 
             MarkerOptions markerRK = new MarkerOptions()
                     .position(latLng)
@@ -78,7 +78,7 @@ public class HazardAlertMarker {
 
         }
 
-        if (title == HazardAlert.HazardType.ROCKFALL.toString()) {
+        if (title.equals(HazardAlert.HazardType.ROCKFALL.toString())) {
 
             MarkerOptions markerRF = new MarkerOptions()
                     .position(latLng)
