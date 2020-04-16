@@ -16,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -37,21 +38,19 @@ import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String LOG_TAG = "MainActivity";
-    /**
-     * currentFragment is saving the fragment, that is currently shown on the screen
-     */
+
     private BottomAppBar bottomBar;
-    FloatingActionButton fab;
+    private MaterialToolbar topAppBar;
+    private FloatingActionButton fab;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragDriving, fragInfo, currentFragment;
+    private Fragment fragDriving, fragInfo, fragAssistance, fragTrackList, fragProfile, currentFragment;
     private ImageView imageView;
 
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -62,6 +61,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         database.getLastPosition();
         database.readTracks("89610");
         */
+
+        topAppBar = findViewById(R.id.topAppBar);
+        // Clicking Navigation Button ("Back Arrow") sends you back to InfoMode
+        topAppBar.setNavigationOnClickListener(view -> openInfoMode());
+
         initFragments();
         initNavigationDrawer();
         initBottomNavigation();
@@ -88,9 +92,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                currentFragment = new FragmentShowProfile();
-                updateFragment();
+                openProfile();
                 closeContextMenu();
             }
         });
@@ -106,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_emergencyCall:
                 Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
-                currentFragment = new FragmentRoadsideAssistance();
+                openRoadsideAssistance();
                 break;
             case R.id.menu_hazard:
                 Log.d(LOG_TAG, "Clicked menu_hazard!");
@@ -122,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(LOG_TAG, "Default case");
         }
         toggleNavigationDrawer();
-        updateFragment();
         return true;
     }
 
@@ -144,8 +145,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 Log.d(LOG_TAG, "Clicked menu_tracks!");
-                currentFragment = new FragmentTrackList();
-                updateFragment();
+                openTrackList();
             }
         });
         btn_community.setOnClickListener(new View.OnClickListener() {
@@ -166,7 +166,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View v) {
                 switchInfoDriving();
-                updateFragment();
                 Log.d("Mitte", "Clicked mitte");
             }
         });
@@ -216,12 +215,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
-            currentFragment = fragInfo;
-            bottomBar.performShow();
+            openInfoMode();
         } else {
-            dLayout.closeDrawers();
-            currentFragment = fragDriving;
-            bottomBar.performHide();
+            openDrivingMode();
         }
     }
 
@@ -231,23 +227,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initFragments() {
         fragDriving = new FragmentDrivingMode();
         fragInfo = new FragmentInfoMode();
+        fragAssistance = new FragmentRoadsideAssistance();
+        fragProfile = new FragmentShowProfile();
+        fragTrackList = new FragmentTrackList();
     }
 
     //https://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android#2592161@Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
             // return to InfoMode
-            currentFragment = new FragmentInfoMode();
-            updateFragment();
-            try {
-                return true;//this line does the rest
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            }
+            openInfoMode();
             return true;
         }
         return super.onKeyDown(keyCode, event); //handles other keys
     }
 
+    private void openInfoMode() {
+        currentFragment = fragInfo;
+        topAppBar.setVisibility(View.GONE);
 
+        updateFragment();
+
+        bottomBar.performShow();
+        dLayout.closeDrawers();
+    }
+
+    private void openDrivingMode() {
+        currentFragment = fragDriving;
+        topAppBar.setVisibility(View.GONE);
+
+        updateFragment();
+
+        bottomBar.performHide();
+        dLayout.closeDrawers();
+    }
+
+    private void openRoadsideAssistance() {
+        currentFragment = fragAssistance;
+        topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.setTitle(R.string.title_telnumbers);
+        updateFragment();
+    }
+
+    private void openTrackList() {
+        currentFragment = fragTrackList;
+        topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.setTitle(R.string.title_tracks);
+        updateFragment();
+    }
+
+    private void openProfile() {
+        currentFragment = fragProfile;
+        topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.setTitle(R.string.title_profile);
+        updateFragment();
+    }
 }

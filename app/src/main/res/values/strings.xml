@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Android4Bikes</string>
     <!--Navigation Strings-->
+    <string name="title_profile">Profile</string>
     <string name="title_community">Community</string>
     <string name="title_hazard">Hazard</string>
     <string name="title_assistance">Assistance</string>
