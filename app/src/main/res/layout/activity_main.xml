@@ -11,13 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".view.info.FragmentInfoMode">
-
         <LinearLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/fragment_container"
             android:orientation="horizontal" />
+
+
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigationDrawer"

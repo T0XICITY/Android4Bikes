@@ -7,6 +7,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -30,18 +31,23 @@ import de.thu.tpro.android4bikes.view.menu.settings.FragmentSettings;
 import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 
+//import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 /**
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final String LOG_TAG = "MainActivity";
+    private static final String TAG = "CUSTOM_MARKER";
+    //The App will start with this Fragment shown first
+    private final Fragment STARTFRAGMENT = new FragmentInfoMode();
     /**
      * currentFragment is saving the fragment, that is currently shown on the screen
      */
     private BottomAppBar bottomBar;
-    FloatingActionButton fab;
+    FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
     private DrawerLayout dLayout;
@@ -172,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+
     private void initNavigationDrawer() {
         dLayout = findViewById(R.id.drawerLayout);
         Log.d("FragmentInfoMode", dLayout.toString());
@@ -249,8 +256,9 @@ public boolean onKeyDown(int keyCode, KeyEvent event)  {
     return super.onKeyDown(keyCode, event); //handles other keys
 }
 
+    @Override
+    public void onClick(View view) {
 
-
-
+    }
 
 }
