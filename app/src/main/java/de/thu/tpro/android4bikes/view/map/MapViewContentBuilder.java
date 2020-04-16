@@ -59,8 +59,6 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
 
 
     public MapViewContentBuilder fetchLastLocation(Fragment container){
-
-
         Task<Location> task = flpc.getLastLocation();
         task.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
@@ -126,19 +124,10 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         //googleMap.addMarker(bikeRackMarker.makeMarker());
         //googleMap.addMarker(bikeTrackMarker.makeMarker());
 
-
-
         googleMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.setPadding(0,0,0,verticalOffset);
         googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-    }
-
-    // TODO: remove after testing
-    public void drawcircle(LatLng latLng, int radius, GoogleMap googleMap) {
-        Circle circle = googleMap.addCircle(new CircleOptions().center(latLng).radius(radius).strokeColor(Color.RED).fillColor(Color.TRANSPARENT));
-    }
-
         //clusterManager = new ClusterManager<MarkerItem>(GlobalContext.getContext(), googleMap);
         //googleMap.setOnCameraIdleListener(clusterManager);
         //googleMap.setOnMarkerClickListener(clusterManager);
@@ -155,10 +144,12 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
         /*items.add(new MarkerItem(latLng));
         clusterManager.addItems(items);
         clusterManager.cluster();*/
-
-
     }
 
+    // TODO: remove after testing
+    public void drawcircle(LatLng latLng, int radius, GoogleMap googleMap) {
+        Circle circle = googleMap.addCircle(new CircleOptions().center(latLng).radius(radius).strokeColor(Color.RED).fillColor(Color.TRANSPARENT));
+    }
 
     public MapViewContentBuilder setVerticalOffset(int offset){
         verticalOffset=offset;
@@ -168,8 +159,4 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
     public SupportMapFragment build(){
         return mapFragment;
     }
-
-
 }
-
-
