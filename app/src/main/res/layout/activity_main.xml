@@ -19,12 +19,13 @@
             app:navigationIcon="@drawable/ic_arrow_left"
             android:background="@color/colorPrimary"
             app:titleTextColor="@color/TextWhite"
-            android:visibility="gone"/>
+            android:visibility="visible"/>
 
         <androidx.drawerlayout.widget.DrawerLayout
             android:id="@+id/drawerLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             tools:context=".view.info.FragmentInfoMode">
 
             <LinearLayout
@@ -51,7 +52,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:fabCradleRoundedCornerRadius="80dp"
-        app:fabCradleMargin="15dp">
+        app:fabCradleMargin="15dp"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -110,7 +112,9 @@
         android:scaleType="fitXY"
         android:src="@drawable/ic_material_bike"
         app:fabCustomSize="75dp"
-        app:layout_anchor="@id/bottomAppBar"/>
+        app:layout_anchorGravity="center_horizontal"
+        app:layout_anchor="@id/bottomAppBar"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"/>
 
     <ListView
         android:id="@+id/lv_layout"

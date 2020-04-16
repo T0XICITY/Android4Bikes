@@ -7,9 +7,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.OvershootInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragSettings, currentFragment;
     private ImageView imageView;
 
+    private boolean toolbarHidden;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,12 +72,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         database.readTracks("89610");
         */
 
-        topAppBar = findViewById(R.id.topAppBar);
-        // Clicking Navigation Button ("Back Arrow") sends you back to InfoMode
-        topAppBar.setNavigationOnClickListener(view -> openInfoMode());
-
         initFragments();
         initNavigationDrawer();
+        initTopBar();
         initBottomNavigation();
         initFragments();
         initFAB();
@@ -240,6 +241,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragSettings = new FragmentSettings();
     }
 
+    private void initTopBar() {
+        toolbarHidden = false;
+        topAppBar = findViewById(R.id.topAppBar);
+        // Clicking Navigation Button ("Back Arrow") sends you back to InfoMode
+        topAppBar.setNavigationOnClickListener(view -> openInfoMode());
+        hideToolbar();
+    }
+
     //https://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android#2592161@Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -252,8 +261,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openInfoMode() {
         currentFragment = fragInfo;
-        topAppBar.setVisibility(View.GONE);
-
+        hideToolbar();
         updateFragment();
 
         bottomBar.performShow();
@@ -262,8 +270,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openDrivingMode() {
         currentFragment = fragDriving;
-        topAppBar.setVisibility(View.GONE);
-
+        hideToolbar();
         updateFragment();
 
         bottomBar.performHide();
@@ -272,30 +279,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openRoadsideAssistance() {
         currentFragment = fragAssistance;
-        topAppBar.setVisibility(View.VISIBLE);
+        showToolbar();
         topAppBar.setTitle(R.string.title_telnumbers);
         updateFragment();
     }
 
     private void openTrackList() {
         currentFragment = fragTrackList;
-        topAppBar.setVisibility(View.VISIBLE);
+        showToolbar();
         topAppBar.setTitle(R.string.title_tracks);
         updateFragment();
     }
 
     private void openProfile() {
         currentFragment = fragProfile;
-        topAppBar.setVisibility(View.VISIBLE);
+        showToolbar();
         topAppBar.setTitle(R.string.title_profile);
         updateFragment();
     }
 
     private void openSettings() {
         currentFragment = fragSettings;
-        topAppBar.setVisibility(View.VISIBLE);
+        showToolbar();
         topAppBar.setTitle(R.string.settings);
         updateFragment();
+    }
+
+    /*
+     * https://stackoverflow.com/questions/26539623/android-lollipop-toolbar-how-to-hide-show-the-toolbar-while-scrolling
+     */
+    private void hideToolbar() {
+        // only perform animation when currently shown
+        if (toolbarHidden)
+            return;
+
+        toolbarHidden = true;
+        topAppBar.animate().translationY(-topAppBar.getBottom())
+                .setInterpolator(new AccelerateInterpolator())
+                .withEndAction(() -> topAppBar.setVisibility(View.GONE)).start();
+    }
+
+    private void showToolbar() {
+        // only perform animation when Toolbar is shown
+        if (!toolbarHidden)
+            return;
+
+        toolbarHidden = false;
+        topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
     }
 
     @Override
