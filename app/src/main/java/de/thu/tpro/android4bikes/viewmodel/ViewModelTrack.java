@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.viewmodel;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -16,9 +14,7 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
-import de.thu.tpro.android4bikes.util.BroadcastReceiverInternetConnection;
-import de.thu.tpro.android4bikes.util.ObserverMechanism.InternetObserver;
-import de.thu.tpro.android4bikes.util.TimeBase;
+import de.thu.tpro.android4bikes.util.Processor;
 
 /**
  * Class that provides {@link LiveData} regarding {@link Track}s. All operations on track data
@@ -33,9 +29,8 @@ import de.thu.tpro.android4bikes.util.TimeBase;
  *         });
  *     }
  * }</pre>
- *
  */
-public class ViewModelTrack extends ViewModel implements Observer, InternetObserver {
+public class ViewModelTrack extends ViewModel implements Observer {
     //UI -> Datenhaltung
     //SUBMITTRACK: Create Track -> ViewModel ruft FireBase an
     //READTRACK : Liste an Tracks erhalten (PLZ) -> alle tracks in ulm sehen
@@ -43,28 +38,16 @@ public class ViewModelTrack extends ViewModel implements Observer, InternetObser
     private MutableLiveData<List<Track>> list_shownTracks;
     private CouchDBHelper couchDBHelper;
     private FirebaseConnection firebaseConnection;
+    private Processor processor;
 
     //is there any outstanding operation? Important for ProgressBars in the UI.
     //if there are outstanding operations "workInProgress" is > 0.
     private MutableLiveData<Integer> workInProgress;
 
-
-    private Runnable doSthImportant = () -> {
-        try {
-            //as soon as this task is startetd there is work in progress
-            /*if(workInProgress.getValue()!=null){
-                int newProgress = workInProgress.getValue() + 1;
-                workInProgress.postValue(newProgress);
-            }*/
-
-
-            Log.d("HalloWelt", "Current time :: " + TimeBase.getDateFromMilliSecondsAsString(TimeBase.getCurrentUnixTimeStamp()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    };
-
     public ViewModelTrack() {
+        //access processor instance
+        processor = Processor.getInstance();
+
         //create LiveData-Wrapper:
         list_shownTracks = new MutableLiveData<>();
         workInProgress = new MutableLiveData<>();
@@ -82,9 +65,6 @@ public class ViewModelTrack extends ViewModel implements Observer, InternetObser
         firebaseConnection.addObserver(this);
         //this is observer of local database (in case of success)
         couchDBHelper.addObserver(this);
-
-        //observer mechanism
-        BroadcastReceiverInternetConnection.getInstance().addObserver(this);
     }
 
     /**
@@ -99,13 +79,22 @@ public class ViewModelTrack extends ViewModel implements Observer, InternetObser
      */
     public void loadTracksWithSpecifiedPostcode(String postcode) {
         if (postcode != null && postcode.length() >= 3) {
-            incrementWorkInProgress();
 
-            //read tracks from local database
-            couchDBHelper.readTracks(postcode);
+            //reading from local database (asynchronously)
+            processor.startRunnable(() -> {
+                incrementWorkInProgress();
+                //read tracks from local database
+                couchDBHelper.readTracks(postcode);
+            });
 
-            //asynchronous task:
-            firebaseConnection.readTracksFromFireStoreAndStoreItToLocalDB(postcode);
+
+            //try to access data from firestore
+            processor.startRunnable(() -> {
+                incrementWorkInProgress();
+                //asynchronous task:
+                firebaseConnection.readTracksFromFireStoreAndStoreItToLocalDB(postcode);
+            });
+
         }
     }
 
@@ -117,10 +106,16 @@ public class ViewModelTrack extends ViewModel implements Observer, InternetObser
     }
 
     /**
+     * store {@link Track} to local database. Synchronization will be done automatically.
      * @param track track to be stored
      */
     public void storeTrack(Track track) {
-
+        //try to store data in fire
+        processor.startRunnable(() -> {
+            incrementWorkInProgress();
+            //asynchronous task:
+            couchDBHelper.storeTrack(track);
+        });
     }
 
     /**
@@ -176,25 +171,21 @@ public class ViewModelTrack extends ViewModel implements Observer, InternetObser
      * @param observable instance that updates this object
      * @param o data to deal with in this update
      */
+    //TODO: Review race condition
     @Override
-    public void update(Observable observable, Object o) {
+    synchronized public void update(Observable observable, Object o) {
         try {
             if (o != null) {
                 if (observable instanceof FireStoreDatabase) {
-                    //read from local database
-
+                    //if a command is available, then execute it. Otherwise the work is done!!
                     if (o instanceof Command) {
-                        //TODO: INTRODUCE CLASS "PROCESSOR"
-                        new Thread(() -> {
-                            Command command = (Command) o;
-                            command.execute();
-                        });
+                        Command command = (Command) o;
+                        command.execute();
                     } else {
                         //if something went wrong and there is no alternative action to be taken
-                        //there is no more work in progress
+                        //there is no more work left
                         decrementWorkInProgress();
                     }
-
                 } else if (observable instanceof LocalDatabaseHelper) {
                     //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
                     List<Track> list_loaded_tracks = (List<Track>) o;
@@ -215,9 +206,4 @@ public class ViewModelTrack extends ViewModel implements Observer, InternetObser
         }
     }
 
-
-    @Override
-    public void updatedInternetConnection(boolean wifi, boolean mobile) {
-
-    }
 }

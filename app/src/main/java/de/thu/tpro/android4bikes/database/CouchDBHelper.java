@@ -80,6 +80,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
     }
 
+    //TODO: Remove return values (not necessary!!) and adjust unit tests
     @Override
     public List<Track> readTracks(String postcode) {
         List<Track> tracks = null;
@@ -100,6 +101,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //Notify observers about the success of the read operation
+        setChanged();
+        notifyObservers(tracks);
         return tracks;
     }
 

@@ -341,19 +341,27 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
 
                                         track.setFineGrainedPositions(fineGrainedPositions);
                                         localDatabaseHelper.storeTrack(track);
+
+                                        //advice observers to access new data stored in the local database using the command pattern
+                                        Command command = new SearchForTracksWithPostcodeInLocalDB(postcode);
+                                        setChanged();
+                                        notifyObservers(command);
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                 }
                             } else {
                                 Log.d(TAG, "No such Track");
+
+                                setChanged();
+                                notifyObservers(null);
                             }
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
                             //Notify ViewModel "ViewModelTrack" that connection to FireStore isn't possible
-                            Command command = new SearchForTracksWithPostcodeInLocalDB(postcode);
+
                             setChanged();
-                            notifyObservers(command);
+                            notifyObservers(null);
                         }
                     }
                 });
