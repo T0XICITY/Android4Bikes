@@ -33,6 +33,9 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
     private FusedLocationProviderClient flpc;
     private Activity parent;
     private SupportMapFragment mapFragment;
+    private HazardAlertMarker hazardAlertMarker;
+    private BikeRackMarker bikeRackMarker;
+    private BikeTrackMarker bikeTrackMarker;
 
     public MapViewContentBuilder(Activity parent) {
         //we need the parent Activity to init our map
@@ -92,7 +95,9 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
                     .position(new LatLng(latLng.latitude + (i / 20.0), latLng.longitude - (i / 20.0)))
                     .title("Marker" + i));
         }
-
+        //googleMap.addMarker(hazardAlertMarker.chooseMarker());
+        //googleMap.addMarker(bikeRackMarker.makeMarker());
+        //googleMap.addMarker(bikeTrackMarker.makeMarker());
 
 
 

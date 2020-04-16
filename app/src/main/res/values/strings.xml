@@ -7,6 +7,7 @@
     <string name="title_telnumbers">Emergency Numbers</string>
     <string name="title_switchMode">Mode Switch</string>
     <string name="title_tracks">Tracks</string>
+    <string name="title_settings">Settings</string>
     <!--Hazard Strings-->
     <string name="HazardAlert_HazardType_DamagedRoad">Damaged road</string>
     <string name="HazardAlert_HazardType_IcyRoad">Icy road</string>
@@ -56,5 +57,35 @@
     <string name="cancel">Cancel</string>
     <string name="accept">Accept</string>
     <string name="reset">Reset</string>
+    <!---Setting Strings -->
+    <string name="settings_Bluetooth">Bluetooth</string>
+    <string name="settings_Bluetooth_summary">Einstellungen für zusätliche Bluetooth Hardware</string>
+    <string name="settings_Bluetooth_addButton">Bluetooth Hardware mit App verbinden</string>
+    <string name="settings_Bluetooth_Button">Bluetooth Hardware aktivieren</string>
+    <string name="settings_Bluetooth_Click">Klick Einstellungen</string>
+    <string name="settings_Offline">Offline Einstellungen</string>
+    <string name="settings_Offline_Map">Offline Karten verwenden</string>
+    <string name="settings_Offline_Radius">Abrufradius in Meter</string>
+    <string name="settings_Weather">Wetter Einstellungen</string>
+    <string name="settings_Weather_Warning">Unwetter Warungen anzeigen</string>
+    <string name="settings_Weather_Frequenz">Wetter Aktuallisierung</string>
+    <string name="settings_Drive">Fahrteinstellungen</string>
+    <string name="settings_Drive_DistanceUnit">Entfernungseinheit</string>
+    <string name="settings_Drive_Averrage">Durchschnittsgeschwindigkeit anzeigen</string>
+    <string name="settings_Privacy">Datenschutzeinstellungen</string>
+    <string name="settings_Privacy_Position">Positionsdaten erfassen?</string>
+    <string name="settings_Privacy_Voice">Sprachsteureung aktivieren</string>
+
+    <string-array name="weather_frequenz_list">
+        <item>15 min</item>
+        <item>30 min</item>
+        <item>45 min</item>
+        <item>60 min</item>
+    </string-array>
+
+    <string-array name="distance_unit">
+        <item>Kilometer</item>
+        <item>Meilen</item>
+    </string-array>
 
 </resources>

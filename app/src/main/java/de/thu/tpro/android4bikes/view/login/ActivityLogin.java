@@ -4,6 +4,7 @@ package de.thu.tpro.android4bikes.view.login;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -26,6 +27,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 
 /**
  * Firebase Authentication:
@@ -143,5 +145,20 @@ public class ActivityLogin extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            // close the app
+            this.finishAffinity();
+            try{
+                return true;//this line does the rest
+            }
+            catch(IllegalStateException e){
+                e.printStackTrace();
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event); //handles other keys
     }
 }
