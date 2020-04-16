@@ -7,6 +7,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -28,20 +29,24 @@ import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
+import de.thu.tpro.android4bikes.view.menu.settings.FragmentSettings;
 import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
+
+//import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final String LOG_TAG = "MainActivity";
+    private static final String TAG = "CUSTOM_MARKER";
 
     private BottomAppBar bottomBar;
+    FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5;
     private MaterialToolbar topAppBar;
-    private FloatingActionButton fab;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
     private DrawerLayout dLayout;
@@ -88,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onCreateClickShowProfile() {
 
         View header = drawer.getHeaderView(0);
-        imageView = (ImageView) header.findViewById(R.id.imageView_profile);
+        imageView = header.findViewById(R.id.imageView_profile);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_setting:
                 Log.d(LOG_TAG, "Clicked menu_setting!");
+                currentFragment = new FragmentSettings();
                 break;
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
@@ -281,5 +287,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         topAppBar.setVisibility(View.VISIBLE);
         topAppBar.setTitle(R.string.title_profile);
         updateFragment();
+    }
+
+    @Override
+    public void onClick(View view) {
+
     }
 }

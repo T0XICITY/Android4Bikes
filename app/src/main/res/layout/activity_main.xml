@@ -50,8 +50,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:fabCradleMargin="15dp"
-        app:fabCradleRoundedCornerRadius="80dp">
+        app:fabCradleRoundedCornerRadius="80dp"
+        app:fabCradleMargin="15dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -109,8 +109,7 @@
         android:layout_height="wrap_content"
         android:scaleType="fitXY"
         android:src="@drawable/ic_material_bike"
-        app:fabCustomSize="75dp"
-        app:layout_anchor="@id/bottomAppBar" />
+        app:fabCustomSize="75dp" />
 
     <ListView
         android:id="@+id/lv_layout"
