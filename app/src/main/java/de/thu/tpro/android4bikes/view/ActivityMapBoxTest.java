@@ -35,7 +35,6 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
@@ -51,28 +50,20 @@ import java.util.List;
 import de.thu.tpro.android4bikes.R;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.division;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
-import static java.nio.file.Paths.get;
 
 /**
  * Use the Mapbox Core Library to receive updates when the device changes location.
@@ -336,7 +327,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
     }
 
     private void initPosFab() {
-        FloatingActionButton FAB = findViewById(R.id.fab_location);
+        FloatingActionButton FAB = findViewById(R.id.fab_pos);
         FAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
