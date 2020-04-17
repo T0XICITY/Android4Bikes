@@ -17,6 +17,8 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -31,12 +33,19 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.mapboxsdk.style.sources.Source;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import de.thu.tpro.android4bikes.R;
 
@@ -84,7 +93,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                     initMarkerSymbols(mapboxMap);
                     initPosFab();
 
-                    SymbolOptions marker = createMarker(48.408880, 9.997507,MapBoxSymbols.BIKERACK);
+                    /*SymbolOptions marker = createMarker(48.408880, 9.997507,MapBoxSymbols.BIKERACK);
 
                     symbolManager = new SymbolManager(mapView, mapboxMap, style);
                     symbolManager.setIconAllowOverlap(true);
@@ -94,7 +103,40 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
 
                     for (int i = 0; i < 5; i++) {
                         symbolManager.create(createMarker(48.408880+i*0.001,9.997507+i*0.001,MapBoxSymbols.BIKERACK));
+                    }*/
+
+
+
+                    JSONObject jsonObject_feature = new JSONObject();
+                    try {
+                        JSONObject jsonObject_properties = new JSONObject();
+                        JSONObject jsonObject_geometry = new JSONObject();
+                        JSONArray jsonArray_points = new JSONArray();
+                        jsonObject_feature.put("type","Feature");
+                        jsonObject_properties.put("title", "BikeRack");
+                        jsonObject_properties.put("poi","restaurant");
+                        jsonObject_properties.put("style","Chinese Restaurant");
+                        jsonObject_properties.put("call-out","Some fast Chinese goodies!");
+                        jsonObject_properties.put("selected","false");
+                        jsonObject_properties.put("favourite","false");
+                        jsonObject_feature.put("properties", jsonObject_properties);
+                        jsonObject_geometry.put("type","Point");
+                        jsonArray_points.put(48.408880);
+                        jsonArray_points.put(9.997507);
+                        jsonObject_geometry.put("coordinates",jsonArray_points);
+                        jsonObject_feature.put("geometry", jsonObject_geometry);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
+
+
+                    List<Feature>list_feature = new ArrayList<>();
+                    Feature f = Feature.fromJson(jsonObject_feature.toString());
+                    list_feature.add(f);
+                    FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+                    Source source = new GeoJsonSource("my.data.source", featureCollection);
+                    style.addSource(source);
                 });
     }
 
