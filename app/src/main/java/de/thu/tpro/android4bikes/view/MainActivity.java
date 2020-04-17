@@ -1,5 +1,6 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -262,6 +264,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openInfoMode() {
         currentFragment = fragInfo;
+        hideSoftKeyboard();
         hideToolbar();
         updateFragment();
 
@@ -271,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openDrivingMode() {
         currentFragment = fragDriving;
+        hideSoftKeyboard();
         hideToolbar();
         updateFragment();
         //just the bottom bar should be hidden, not the FAB
@@ -288,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openTrackList() {
         currentFragment = fragTrackList;
-        hideBottomBar();
+        //hideBottomBar();
         showToolbar();
         topAppBar.setTitle(R.string.title_tracks);
         updateFragment();
@@ -341,6 +345,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.show();
         bottomBar.performShow();
     }
+//https://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
+    private void hideSoftKeyboard(){
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
+    }
+
+
     @Override
     public void onClick(View view) {
 
