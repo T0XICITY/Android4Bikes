@@ -5,8 +5,10 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -81,7 +83,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
 
                     SymbolOptions marker = createMarker(48.408880, 9.997507,MapBoxSymbols.TRACK);
 
-                    SymbolManager symbolManager = new SymbolManager(mapView, mapboxMap, style);
+                    symbolManager = new SymbolManager(mapView, mapboxMap, style);
                     symbolManager.setIconAllowOverlap(true);
                     symbolManager.setTextAllowOverlap(false);
 
@@ -274,6 +276,19 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
+    }
+
+    private void userLocationFAB(){
+        FloatingActionButton FAB = (FloatingActionButton) findViewById(R.id.fab_location);
+        FAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(mapView.getMyLocation() != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
+                    mapView.setCenterCoordinate(new LatLngZoom(mapView.getMyLocation().getLatitude(), mapView.getMyLocation().getLongitude(), 20), true);
+                }
+            }
+        });
     }
 
     private void initMarkerSymbols(MapboxMap mapboxMap) {
