@@ -1,4 +1,5 @@
 package de.thu.tpro.android4bikes.view;
+
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -22,7 +23,6 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
-import com.mapbox.mapboxsdk.location.OnLocationCameraTransitionListener;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -55,6 +55,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
     private  SymbolManager symbolManager;
     private LocationChangeListeningActivityLocationCallback callback =
             new LocationChangeListeningActivityLocationCallback(this);
+    private LatLng lastPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,15 +80,21 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         mapboxMap.setStyle(Style.OUTDOORS, //todo:Embedd own style here
                 style -> {
                     enableLocationComponent(style);
-                    initMarkerSymbols(mapboxMap);
 
-                    SymbolOptions marker = createMarker(48.408880, 9.997507,MapBoxSymbols.TRACK);
+                    initMarkerSymbols(mapboxMap);
+                    initPosFab();
+
+                    SymbolOptions marker = createMarker(48.408880, 9.997507,MapBoxSymbols.BIKERACK);
 
                     symbolManager = new SymbolManager(mapView, mapboxMap, style);
                     symbolManager.setIconAllowOverlap(true);
                     symbolManager.setTextAllowOverlap(false);
 
                     symbolManager.create(marker);
+
+                    for (int i = 0; i < 5; i++) {
+                        symbolManager.create(createMarker(48.408880+i*0.001,9.997507+i*0.001,MapBoxSymbols.BIKERACK));
+                    }
                 });
     }
 
@@ -202,13 +209,8 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                 if (location == null) {
                     return;
                 }
-/*
-                // Create a Toast which displays the new location's coordinates
-                Toast.makeText(activity, String.format(activity.getString(R.string.new_location),
-                        String.valueOf(result.getLastLocation().getLatitude()),
-                        String.valueOf(result.getLastLocation().getLongitude())),
-                        Toast.LENGTH_SHORT).show();
-*/
+
+                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude());
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.mapboxMap != null && result.getLastLocation() != null) {
                     activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
@@ -278,15 +280,16 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         mapView.onLowMemory();
     }
 
-    private void userLocationFAB(){
-        FloatingActionButton FAB = (FloatingActionButton) findViewById(R.id.fab_location);
+    private void initPosFab(){
+        FloatingActionButton FAB = findViewById(R.id.fab_location);
         FAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(mapView.getMyLocation() != null) { // Check to ensure coordinates aren't null, probably a better way of doing this...
-                    mapView.setCenterCoordinate(new LatLngZoom(mapView.getMyLocation().getLatitude(), mapView.getMyLocation().getLongitude(), 20), true);
-                }
+                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                        .target(lastPos)
+                        .zoom(15)
+                        .bearing(0)
+                        .build()),2500);
             }
         });
     }
