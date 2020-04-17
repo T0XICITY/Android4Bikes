@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
@@ -36,18 +37,42 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
+import com.mapbox.mapboxsdk.style.layers.CircleLayer;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
+
+import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.division;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacement;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
+import static java.nio.file.Paths.get;
 
 /**
  * Use the Mapbox Core Library to receive updates when the device changes location.
@@ -61,9 +86,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
     private MapView mapView;
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
-    private  SymbolManager symbolManager;
-    private LocationChangeListeningActivityLocationCallback callback =
-            new LocationChangeListeningActivityLocationCallback(this);
+    private LocationChangeListeningActivityLocationCallback callback = new LocationChangeListeningActivityLocationCallback(this);
     private LatLng lastPos;
 
     @Override
@@ -93,60 +116,96 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                     initMarkerSymbols(mapboxMap);
                     initPosFab();
 
-                    SymbolOptions marker = createMarker(48.408880, 9.997507, MapBoxSymbols.BIKERACK);
-
-                    symbolManager = new SymbolManager(mapView, mapboxMap, style);
-                    symbolManager.setIconAllowOverlap(true);
-                    symbolManager.setTextAllowOverlap(false);
-
-                    symbolManager.create(marker);
-
-
-                    symbolManager.create(createMarker(48.395659, 9.986603, MapBoxSymbols.BIKERACK));
-
-
-                    marker.getData();
-
-
-
-
-                    JSONObject jsonObject_feature = new JSONObject();
-                    try {
-                        JSONObject jsonObject_properties = new JSONObject();
-                        JSONObject jsonObject_geometry = new JSONObject();
-                        JSONArray jsonArray_points = new JSONArray();
-                        jsonObject_feature.put("type","Feature");
-                        jsonObject_properties.put("title", "BikeRack");
-                        jsonObject_properties.put("poi","restaurant");
-                        jsonObject_properties.put("style","Chinese Restaurant");
-                        jsonObject_properties.put("call-out","Some fast Chinese goodies!");
-                        jsonObject_properties.put("selected","false");
-                        jsonObject_properties.put("favourite","false");
-                        jsonObject_feature.put("properties", jsonObject_properties);
-                        jsonObject_geometry.put("type","Point");
-                        jsonArray_points.put(48.408880);
-                        jsonArray_points.put(9.997507);
-                        jsonObject_geometry.put("coordinates",jsonArray_points);
-                        jsonObject_feature.put("geometry", jsonObject_geometry);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-
-                    List<Feature>list_feature = new ArrayList<>();
-                    Feature f = Feature.fromJson(jsonObject_feature.toString());
-                    list_feature.add(f);
-                    FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
-                    Source source = new GeoJsonSource("my.data.source", marker.getGeometry());
-                    style.addSource(source);
+                    addClusteredGeoJsonSource(style);
                 });
+    }
+
+    private void addClusteredGeoJsonSource(@NonNull Style loadedMapStyle) {
+        // Add a new source from the GeoJSON data and set the 'cluster' option to true.
+        List<Feature> list_feature = new ArrayList<>();
+        SymbolOptions marker = createMarker(48.408880, 9.997507, MapBoxSymbols.BIKERACK);
+        SymbolOptions marker2 = createMarker(48.395659, 9.986603, MapBoxSymbols.BIKERACK);
+        SymbolOptions marker3 = createMarker(48.395289, 9.999375, MapBoxSymbols.BIKERACK);
+        list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+        list_feature.add(Feature.fromGeometry(marker2.getGeometry()));
+        list_feature.add(Feature.fromGeometry(marker3.getGeometry()));
+
+        FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+
+        Source source = new GeoJsonSource("my.data.source", featureCollection, new GeoJsonOptions()
+                .withCluster(true)
+                .withClusterRadius(200)
+        );
+        loadedMapStyle.addSource(source);
+
+        //Creating a marker layer for single data points
+        SymbolLayer unclustered = new SymbolLayer("unclustered-points", "my.data.source");
+
+        unclustered.setProperties(
+                iconImage(MapBoxSymbols.BIKERACK.toString())/*,
+                iconSize(
+                        division(
+                                get("mag"), literal(4.0f)
+                        )
+                ),
+                iconColor(
+                        interpolate(exponential(1), get("mag"),
+                                stop(2.0, rgb(0, 255, 0)),
+                                stop(4.5, rgb(0, 0, 255)),
+                                stop(7.0, rgb(255, 0, 0))
+                        )
+                )*/
+        );
+        //unclustered.setFilter(has("mag"));
+        loadedMapStyle.addLayer(unclustered);
+
+        // Use the earthquakes GeoJSON source to create three layers: One layer for each cluster category.
+        // Each point range gets a different fill color.
+        int[][] layers = new int[][]{
+                new int[]{150, ContextCompat.getColor(this, R.color.mapbox_blue)},
+                new int[]{20, ContextCompat.getColor(this, R.color.mapbox_blue)},
+                new int[]{0, ContextCompat.getColor(this, R.color.mapbox_blue)}
+        };
+
+        for (int i = 0; i < layers.length; i++) {
+        //Add clusters' circles
+            CircleLayer circles = new CircleLayer("cluster-" + i, "my.data.source");
+            circles.setProperties(
+                    circleColor(layers[i][1]),
+                    circleRadius(30f)
+            );
+
+            Expression pointCount = toNumber(get("point_count"));
+
+            // Add a filter to the cluster layer that hides the circles based on "point_count"
+            circles.setFilter(
+                    i == 0
+                            ? all(has("point_count"),
+                            gte(pointCount, literal(layers[i][0]))
+                    ) : all(has("point_count"),
+                            gte(pointCount, literal(layers[i][0])),
+                            lt(pointCount, literal(layers[i - 1][0]))
+                    )
+            );
+            loadedMapStyle.addLayer(circles);
+        }
+
+        //Add the count labels
+        SymbolLayer count = new SymbolLayer("count", "my.data.source");
+        count.setProperties(
+                textField(Expression.toString(get("point_count"))),
+                textSize(12f),
+                textColor(Color.WHITE),
+                textIgnorePlacement(true),
+                textAllowOverlap(true)
+        );
+        loadedMapStyle.addLayer(count);
     }
 
     /**
      * Initialize the Maps SDK's LocationComponent
      */
-    @SuppressWarnings( {"MissingPermission"})
+    @SuppressWarnings({"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
@@ -230,54 +289,6 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         }
     }
 
-    private static class LocationChangeListeningActivityLocationCallback
-            implements LocationEngineCallback<LocationEngineResult> {
-
-        private final WeakReference<ActivityMapBoxTest> activityWeakReference;
-
-        LocationChangeListeningActivityLocationCallback(ActivityMapBoxTest activity) {
-            this.activityWeakReference = new WeakReference<>(activity);
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location has changed.
-         *
-         * @param result the LocationEngineResult object which has the last known location within it.
-         */
-        @Override
-        public void onSuccess(LocationEngineResult result) {
-            ActivityMapBoxTest activity = activityWeakReference.get();
-
-            if (activity != null) {
-                Location location = result.getLastLocation();
-
-                if (location == null) {
-                    return;
-                }
-
-                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(),result.getLastLocation().getLongitude());
-                // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.mapboxMap != null && result.getLastLocation() != null) {
-                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
-                }
-            }
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
-         *
-         * @param exception the exception message
-         */
-        @Override
-        public void onFailure(@NonNull Exception exception) {
-            ActivityMapBoxTest activity = activityWeakReference.get();
-            if (activity != null) {
-                Toast.makeText(activity, exception.getLocalizedMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -315,7 +326,6 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         if (locationEngine != null) {
             locationEngine.removeLocationUpdates(callback);
         }
-        symbolManager.onDestroy();
         mapView.onDestroy();
     }
 
@@ -325,7 +335,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         mapView.onLowMemory();
     }
 
-    private void initPosFab(){
+    private void initPosFab() {
         FloatingActionButton FAB = findViewById(R.id.fab_location);
         FAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -334,7 +344,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                         .target(lastPos)
                         .zoom(15)
                         .bearing(0)
-                        .build()),2500);
+                        .build()), 2500);
             }
         });
     }
@@ -342,24 +352,24 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
     private void initMarkerSymbols(MapboxMap mapboxMap) {
         Drawable pinRed = getDrawable(R.drawable.mapbox_marker_icon_default);
         pinRed.setColorFilter(Color.RED, PorterDuff.Mode.SRC_OVER);
-        mapboxMap.getStyle().addImage(MapBoxSymbols.BIKERACK.toString(),pinRed);
+        mapboxMap.getStyle().addImage(MapBoxSymbols.BIKERACK.toString(), pinRed);
 
         Drawable pinGreen = getDrawable(R.drawable.ic_cake);
         pinGreen.setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_OVER);
-        mapboxMap.getStyle().addImage(MapBoxSymbols.TRACK.toString(),pinGreen);
+        mapboxMap.getStyle().addImage(MapBoxSymbols.TRACK.toString(), pinGreen);
 
         Drawable pinBlue = getDrawable(R.drawable.ic_material_bike);
         pinBlue.setColorFilter(Color.BLUE, PorterDuff.Mode.SRC_OVER);
-        mapboxMap.getStyle().addImage(MapBoxSymbols.HAZARDALERT_GENERAL.toString(),pinBlue);
+        mapboxMap.getStyle().addImage(MapBoxSymbols.HAZARDALERT_GENERAL.toString(), pinBlue);
     }
 
-    private SymbolOptions createMarker(double latitude, double longitude, MapBoxSymbols type){
+    private SymbolOptions createMarker(double latitude, double longitude, MapBoxSymbols type) {
         return new SymbolOptions()
                 .withLatLng(new LatLng(latitude, longitude))
                 .withIconImage(type.toString());
     }
 
-    private enum MapBoxSymbols{
+    private enum MapBoxSymbols {
         BIKERACK("BIKERACK"),
         HAZARDALERT_GENERAL("HAZARDALERT_GENERAL"),
         TRACK("TRACK");
@@ -372,6 +382,54 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
 
         public String toString() {
             return type;
+        }
+    }
+
+    private static class LocationChangeListeningActivityLocationCallback
+            implements LocationEngineCallback<LocationEngineResult> {
+
+        private final WeakReference<ActivityMapBoxTest> activityWeakReference;
+
+        LocationChangeListeningActivityLocationCallback(ActivityMapBoxTest activity) {
+            this.activityWeakReference = new WeakReference<>(activity);
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location has changed.
+         *
+         * @param result the LocationEngineResult object which has the last known location within it.
+         */
+        @Override
+        public void onSuccess(LocationEngineResult result) {
+            ActivityMapBoxTest activity = activityWeakReference.get();
+
+            if (activity != null) {
+                Location location = result.getLastLocation();
+
+                if (location == null) {
+                    return;
+                }
+
+                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
+                // Pass the new location to the Maps SDK's LocationComponent
+                if (activity.mapboxMap != null && result.getLastLocation() != null) {
+                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
+                }
+            }
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
+         *
+         * @param exception the exception message
+         */
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+            ActivityMapBoxTest activity = activityWeakReference.get();
+            if (activity != null) {
+                Toast.makeText(activity, exception.getLocalizedMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
