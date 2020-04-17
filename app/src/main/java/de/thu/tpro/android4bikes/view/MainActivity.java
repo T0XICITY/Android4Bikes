@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -264,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         hideToolbar();
         updateFragment();
 
-        bottomBar.performShow();
+        showBottomBar();
         dLayout.closeDrawers();
     }
 
@@ -272,13 +273,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragDriving;
         hideToolbar();
         updateFragment();
-
+        //just the bottom bar should be hidden, not the FAB
         bottomBar.performHide();
         dLayout.closeDrawers();
     }
 
     private void openRoadsideAssistance() {
         currentFragment = fragAssistance;
+        hideBottomBar();
         showToolbar();
         topAppBar.setTitle(R.string.title_telnumbers);
         updateFragment();
@@ -286,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openTrackList() {
         currentFragment = fragTrackList;
+        hideBottomBar();
         showToolbar();
         topAppBar.setTitle(R.string.title_tracks);
         updateFragment();
@@ -293,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openProfile() {
         currentFragment = fragProfile;
+        hideBottomBar();
         showToolbar();
         topAppBar.setTitle(R.string.title_profile);
         updateFragment();
@@ -300,6 +304,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openSettings() {
         currentFragment = fragSettings;
+        hideBottomBar();
         showToolbar();
         topAppBar.setTitle(R.string.settings);
         updateFragment();
@@ -311,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void hideToolbar() {
         // only perform animation when currently shown
         if (toolbarHidden)
-            return;
+        return;
 
         toolbarHidden = true;
         topAppBar.animate().translationY(-topAppBar.getBottom())
@@ -323,12 +328,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // only perform animation when Toolbar is shown
         if (!toolbarHidden)
             return;
-
         toolbarHidden = false;
         topAppBar.setVisibility(View.VISIBLE);
         topAppBar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
     }
 
+    private void hideBottomBar(){
+        fab.hide();
+        bottomBar.performHide();
+    }
+    private void showBottomBar(){
+        fab.show();
+        bottomBar.performShow();
+    }
     @Override
     public void onClick(View view) {
 

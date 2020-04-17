@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/toolbar"
@@ -52,8 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         app:fabCradleRoundedCornerRadius="80dp"
-        app:fabCradleMargin="15dp"
-        app:hideOnScroll="true">
+        app:fabCradleMargin="15dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -112,8 +112,7 @@
         android:scaleType="fitXY"
         android:src="@drawable/ic_material_bike"
         app:fabCustomSize="75dp"
-        app:layout_anchor="@id/bottomAppBar"
-        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"/>
+        app:layout_anchor="@id/bottomAppBar"/>
 
     <ListView
         android:id="@+id/lv_layout"
