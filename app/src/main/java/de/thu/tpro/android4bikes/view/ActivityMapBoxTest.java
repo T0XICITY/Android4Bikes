@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineCallback;
@@ -36,16 +39,13 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 
@@ -93,7 +93,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                     initMarkerSymbols(mapboxMap);
                     initPosFab();
 
-                    /*SymbolOptions marker = createMarker(48.408880, 9.997507,MapBoxSymbols.BIKERACK);
+                    SymbolOptions marker = createMarker(48.408880, 9.997507, MapBoxSymbols.BIKERACK);
 
                     symbolManager = new SymbolManager(mapView, mapboxMap, style);
                     symbolManager.setIconAllowOverlap(true);
@@ -101,9 +101,12 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
 
                     symbolManager.create(marker);
 
-                    for (int i = 0; i < 5; i++) {
-                        symbolManager.create(createMarker(48.408880+i*0.001,9.997507+i*0.001,MapBoxSymbols.BIKERACK));
-                    }*/
+
+                    symbolManager.create(createMarker(48.395659, 9.986603, MapBoxSymbols.BIKERACK));
+
+
+                    marker.getData();
+
 
 
 
@@ -135,7 +138,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                     Feature f = Feature.fromJson(jsonObject_feature.toString());
                     list_feature.add(f);
                     FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
-                    Source source = new GeoJsonSource("my.data.source", featureCollection);
+                    Source source = new GeoJsonSource("my.data.source", marker.getGeometry());
                     style.addSource(source);
                 });
     }
