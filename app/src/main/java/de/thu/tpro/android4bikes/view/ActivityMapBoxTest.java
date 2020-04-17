@@ -118,7 +118,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
             // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
 
-            locationComponent.zoomWhileTracking(15, 5000, new MapboxMap.CancelableCallback() {
+            locationComponent.zoomWhileTracking(15, 2500, new MapboxMap.CancelableCallback() {
                 @Override
                 public void onCancel() {
                 }
