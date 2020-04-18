@@ -399,5 +399,9 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         trackList.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
         trackList.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
         trackList.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
+
+        trackList.get(0).setPostcode("89073");
+        trackList.get(1).setPostcode("88477");
+        trackList.get(2).setPostcode("89231");
     }
 }
