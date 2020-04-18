@@ -178,17 +178,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
     synchronized public void update(Observable observable, Object o) {
         try {
             if (o != null) {
-                if (observable instanceof FireStoreDatabase) {
-                    //if a command is available, then execute it. Otherwise the work is done!!
-                    if (o instanceof Command) {
-                        Command command = (Command) o;
-                        command.execute();
-                    } else {
-                        //if something went wrong and there is no alternative action to be taken
-                        //there is no more work left
-                        decrementWorkInProgress();
-                    }
-                } else if (observable instanceof LocalDatabaseHelper) {
+               if (observable instanceof LocalDatabaseHelper) {
                     //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
                     List<Track> list_loaded_tracks = (List<Track>) o;
 

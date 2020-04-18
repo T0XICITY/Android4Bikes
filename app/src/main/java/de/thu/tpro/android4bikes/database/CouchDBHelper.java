@@ -67,6 +67,19 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         this.deleteBikeRack(bikeRack.getFirebaseID());
     }
 
+
+    /**
+     * stores a list of tracks in the database
+     * @param list_tracks list of tracks
+     */
+    public void storeTracks(List<Track> list_tracks){
+        for(Track track : list_tracks){
+            storeTrack(track);
+        }
+        setChanged();
+        notifyObservers(list_tracks);
+    }
+
     @Override
     public void storeTrack(Track track) {
         try {
@@ -75,6 +88,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             Map result = gson.fromJson(json_track.toString(), Map.class);
             MutableDocument mutableDocument_track = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_track, mutableDocument_track);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
