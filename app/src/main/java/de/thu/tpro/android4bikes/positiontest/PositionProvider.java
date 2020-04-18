@@ -204,8 +204,6 @@ public class PositionProvider {
         positions.add(new Position(48.313436, 9.863611));
         positions.add(new Position(48.313514, 9.863722));
         positions.add(new Position(48.313599, 9.863841));
-        positions.add(new Position(48.30141, 9.842189));
-        positions.add(new Position(48.301387, 9.842348));
         positions.add(new Position(48.313687, 9.863973));
         positions.add(new Position(48.313778, 9.864114));
         positions.add(new Position(48.313874, 9.864266));
