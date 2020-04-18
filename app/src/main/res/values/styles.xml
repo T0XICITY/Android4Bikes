@@ -9,7 +9,9 @@
 
         <item name="materialAlertDialogTheme">
             @style/ThemeOverlay.MaterialComponents.MaterialAlertDialog
+
         </item>
     </style>
+
 
 </resources>
