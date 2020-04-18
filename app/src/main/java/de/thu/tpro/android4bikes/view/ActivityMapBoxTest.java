@@ -2,7 +2,6 @@ package de.thu.tpro.android4bikes.view;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -45,9 +44,15 @@ import com.mapbox.mapboxsdk.style.sources.Source;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
@@ -83,6 +88,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GlobalContext.setContext(this.getApplicationContext());
 
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
@@ -104,33 +110,124 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                 style -> {
                     enableLocationComponent(style);
 
-                    initMarkerSymbols(mapboxMap);
-                    initPosFab();
+                    HashMap<MapBoxSymbols, Drawable> markerPool = new HashMap<>();
+                    markerPool.put(MapBoxSymbols.BIKERACK, getDrawable(R.drawable.mapbox_marker_icon_default));
+                    markerPool.put(MapBoxSymbols.HAZARDALERT_GENERAL, getDrawable(R.drawable.mapbox_marker_icon_default));
+                    markerPool.put(MapBoxSymbols.TRACK, getDrawable(R.drawable.mapbox_marker_icon_default));
+                    initMarkerSymbols(mapboxMap, markerPool);
 
-                    addClusteredGeoJsonSource(style);
+                    initPosFab();
+                    ArrayList<BikeRack> bikeRacks = new ArrayList<>();
+                    for (int i = 0; i < 15; i++) {
+                        bikeRacks.add(generateTHUBikeRack(i));
+                    }
+                    addBikeRackOverlay(style, bikeRacks, "meineDaten");
+                    //addHazardAlertOverlay();
+                    //addTrackOverlay();
                 });
     }
 
-    private void addClusteredGeoJsonSource(@NonNull Style loadedMapStyle) {
-        // Add a new source from the GeoJSON data and set the 'cluster' option to true.
+    /**
+     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack} for test purposes
+     *
+     * @return instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack}
+     */
+    private BikeRack generateTHUBikeRack(int i) {
+        //create new BikeRack
+        BikeRack bikeRack_THU = new BikeRack(
+                "pfo4eIrvzrI0m363KF0K", new Position(48.408880 + i / 1000.0, 9.997507 + i / 1000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                false, true, false
+        );
+        return bikeRack_THU;
+    }
+
+    /**
+     * Create Markers from Track List
+     *
+     * @param loadedMapStyle
+     * @param tracks
+     */
+    private void addTrackOverlay(@NonNull Style loadedMapStyle, ArrayList<Track> tracks, String dataSourceID) {
         List<Feature> list_feature = new ArrayList<>();
-        SymbolOptions marker = createMarker(48.408880, 9.997507, MapBoxSymbols.BIKERACK);
-        SymbolOptions marker2 = createMarker(48.395659, 9.986603, MapBoxSymbols.BIKERACK);
-        SymbolOptions marker3 = createMarker(48.395289, 9.999375, MapBoxSymbols.BIKERACK);
-        list_feature.add(Feature.fromGeometry(marker.getGeometry()));
-        list_feature.add(Feature.fromGeometry(marker2.getGeometry()));
-        list_feature.add(Feature.fromGeometry(marker3.getGeometry()));
-
+        //Generate Markers from ArrayList
+        for (Track track : tracks) {
+            SymbolOptions marker = createMarker(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude(), MapBoxSymbols.TRACK);
+            list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+        }
+        //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+        //Create unclustered symbol layer
+        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 200);
+        createUnclusteredSymbolLayer(loadedMapStyle, id);
+        //Create clustered circle layer
+        createClusteredCircleOverlay(loadedMapStyle, id);
+    }
 
-        Source source = new GeoJsonSource("my.data.source", featureCollection, new GeoJsonOptions()
-                .withCluster(true)
-                .withClusterRadius(200)
+    /**
+     * Create Markers from BikeRack List
+     *
+     * @param loadedMapStyle
+     * @param bikeRacks
+     */
+    private void addBikeRackOverlay(@NonNull Style loadedMapStyle, ArrayList<BikeRack> bikeRacks, String dataSourceID) {
+        List<Feature> list_feature = new ArrayList<>();
+        //Generate Markers from ArrayList
+        for (BikeRack bikeRack : bikeRacks) {
+            SymbolOptions marker = createMarker(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude(), MapBoxSymbols.BIKERACK);
+            list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+        }
+        //Create FeatureCollection from Feature List
+        FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+        //Create unclustered symbol layer
+        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 200);
+        createUnclusteredSymbolLayer(loadedMapStyle, id);
+        //Create clustered circle layer
+        createClusteredCircleOverlay(loadedMapStyle, id);
+    }
+
+    /**
+     * Create markers from HazardAlert list
+     *
+     * @param loadedMapStyle
+     * @param hazardAlerts
+     */
+    private void addHazardAlertOverlay(@NonNull Style loadedMapStyle, ArrayList<HazardAlert> hazardAlerts, String dataSourceID) {
+        // Create Markers from data and set the 'cluster' option to true.
+        List<Feature> list_feature = new ArrayList<>();
+        //Generate Markers from ArrayList
+        for (HazardAlert hazardAlert : hazardAlerts) {
+            SymbolOptions marker = createMarker(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude(), MapBoxSymbols.HAZARDALERT_GENERAL);
+            list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+        }
+        //Create FeatureCollection from Feature List
+        FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+        //Create unclustered symbol layer
+        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 200);
+        createUnclusteredSymbolLayer(loadedMapStyle, id);
+        //Create clustered circle layer
+        createClusteredCircleOverlay(loadedMapStyle, id);
+    }
+
+    private String addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster, int clusterRadius) {
+        //New GeoJsonSource from FeatureCollection
+        Source source = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
+                .withCluster(withCluster)
+                .withClusterRadius(clusterRadius)
         );
         loadedMapStyle.addSource(source);
+        return source.getId();
+    }
 
-        //Creating a marker layer for single data points
-        SymbolLayer unclustered = new SymbolLayer("unclustered-points", "my.data.source");
+    /**
+     * Create unclustered SymbolLayer for small zoom level
+     *
+     * @param loadedMapStyle
+     * @param sourceID
+     */
+    private void createUnclusteredSymbolLayer(@NonNull Style loadedMapStyle, String sourceID) {
+        //Create Symbol Layer for unclustered data points
+        SymbolLayer unclustered = new SymbolLayer("unclustered-points", sourceID);
+
 
         unclustered.setProperties(
                 iconImage(MapBoxSymbols.BIKERACK.toString())/*,
@@ -149,8 +246,16 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         );
         //unclustered.setFilter(has("mag"));
         loadedMapStyle.addLayer(unclustered);
+    }
 
-        // Use the earthquakes GeoJSON source to create three layers: One layer for each cluster category.
+    /**
+     * Create clustered CircleLayer for bigger zoom level
+     *
+     * @param loadedMapStyle
+     * @param sourceID
+     */
+    private void createClusteredCircleOverlay(@NonNull Style loadedMapStyle, String sourceID) {
+
         // Each point range gets a different fill color.
         int[][] layers = new int[][]{
                 new int[]{150, ContextCompat.getColor(this, R.color.mapbox_blue)},
@@ -159,8 +264,8 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         };
 
         for (int i = 0; i < layers.length; i++) {
-        //Add clusters' circles
-            CircleLayer circles = new CircleLayer("cluster-" + i, "my.data.source");
+            //Add clusters' circles
+            CircleLayer circles = new CircleLayer("cluster-" + i, sourceID);
             circles.setProperties(
                     circleColor(layers[i][1]),
                     circleRadius(30f)
@@ -182,7 +287,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         }
 
         //Add the count labels
-        SymbolLayer count = new SymbolLayer("count", "my.data.source");
+        SymbolLayer count = new SymbolLayer("count", sourceID);
         count.setProperties(
                 textField(Expression.toString(get("point_count"))),
                 textSize(12f),
@@ -222,7 +327,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
             // Set the component's render mode
             locationComponent.setRenderMode(RenderMode.COMPASS);
 
-            locationComponent.zoomWhileTracking(15, 2500, new MapboxMap.CancelableCallback() {
+            locationComponent.zoomWhileTracking(15, 3000, new MapboxMap.CancelableCallback() {
                 @Override
                 public void onCancel() {
                 }
@@ -335,23 +440,17 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                         .target(lastPos)
                         .zoom(15)
                         .bearing(0)
-                        .build()), 2500);
+                        .build()), 3000);
             }
         });
     }
 
-    private void initMarkerSymbols(MapboxMap mapboxMap) {
-        Drawable pinRed = getDrawable(R.drawable.mapbox_marker_icon_default);
-        pinRed.setColorFilter(Color.RED, PorterDuff.Mode.SRC_OVER);
-        mapboxMap.getStyle().addImage(MapBoxSymbols.BIKERACK.toString(), pinRed);
-
-        Drawable pinGreen = getDrawable(R.drawable.ic_cake);
-        pinGreen.setColorFilter(Color.GREEN, PorterDuff.Mode.SRC_OVER);
-        mapboxMap.getStyle().addImage(MapBoxSymbols.TRACK.toString(), pinGreen);
-
-        Drawable pinBlue = getDrawable(R.drawable.ic_material_bike);
-        pinBlue.setColorFilter(Color.BLUE, PorterDuff.Mode.SRC_OVER);
-        mapboxMap.getStyle().addImage(MapBoxSymbols.HAZARDALERT_GENERAL.toString(), pinBlue);
+    private void initMarkerSymbols(MapboxMap mapboxMap, HashMap<MapBoxSymbols, Drawable> markers) {
+        //Check if marker HashMap is empty
+        if (!markers.isEmpty()) {
+            //Register Symbols in Mapbox
+            markers.forEach((type, icon) -> mapboxMap.getStyle().addImage(type.toString(), icon));
+        }
     }
 
     private SymbolOptions createMarker(double latitude, double longitude, MapBoxSymbols type) {
