@@ -11,6 +11,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import android.os.AsyncTask;
+import androidx.annotation.Nullable;
+import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.Point;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import de.thu.tpro.android4bikes.positiontest.PositionProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
@@ -124,7 +132,59 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                     addBikeRackOverlay(style, bikeRacks, "meineDaten");
                     //addHazardAlertOverlay();
                     //addTrackOverlay();
+
+                    new LoadGeoJson(ActivityMapBoxTest.this).execute();
                 });
+    }
+
+    private void drawLines(@NonNull FeatureCollection featureCollection) {
+        if (mapboxMap != null) {
+            mapboxMap.getStyle(style -> {
+                if (featureCollection.features() != null) {
+                    if (featureCollection.features().size() > 0) {
+                        style.addSource(new GeoJsonSource("line-source", featureCollection));
+
+                        style.addLayer(new LineLayer("linelayer", "line-source")
+                                .withProperties(PropertyFactory.lineCap(Property.LINE_CAP_SQUARE),
+                                        PropertyFactory.lineJoin(Property.LINE_JOIN_MITER),
+                                        PropertyFactory.lineOpacity(.7f),
+                                        PropertyFactory.lineWidth(7f),
+                                        PropertyFactory.lineColor(Color.parseColor("#00ff00"))));
+                    }
+                }
+            });
+        }
+    }
+
+    private static class LoadGeoJson extends AsyncTask<Void, Void, FeatureCollection> {
+        private WeakReference<ActivityMapBoxTest> weakReference;
+        LoadGeoJson(ActivityMapBoxTest activity) {
+            this.weakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected FeatureCollection doInBackground(Void... voids) {
+            try {
+                ActivityMapBoxTest activity = weakReference.get();
+                if (activity != null) {
+                    List<Point> routeCoordinates = new ArrayList<>();
+                    PositionProvider.getDummyPosition().forEach(position -> routeCoordinates.add(Point.fromLngLat(position.getLongitude(),position.getLatitude())));
+                    return FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(LineString.fromLngLats(routeCoordinates))});
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(@Nullable FeatureCollection featureCollection) {
+            super.onPostExecute(featureCollection);
+            ActivityMapBoxTest activity = weakReference.get();
+            if (activity != null && featureCollection != null) {
+                activity.drawLines(featureCollection);
+            }
+        }
     }
 
     /**
