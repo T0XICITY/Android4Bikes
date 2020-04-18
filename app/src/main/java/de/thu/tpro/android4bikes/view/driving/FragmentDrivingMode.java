@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.OvershootInterpolator;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,13 +21,22 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
 public class FragmentDrivingMode extends Fragment implements LocationListener {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
+    private static final String TAG = "FAB for Driving Mode";
 
     TextView txtCurrentSpeed;
     TextView txtAvgSpeed;
@@ -35,6 +45,16 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     private ViewModelDrivingMode viewModel;
     private View viewDrivingMode;
     private CardView infoIcon;
+    OvershootInterpolator interpolator;
+    boolean isMenuOpen = false;
+    Float translationY = 100f;
+    GpsLocation location;
+    private FloatingActionButton fab, fab1, fab2, fab3;
+    private Date time;
+    private List<Position> hazardAlert = new ArrayList<>();
+    //private List<Position> bikeRacks = new ArrayList<>();
+    //private List<Position> bikeTracks = new ArrayList<>();
+
 
     @Nullable
     @Override
@@ -44,6 +64,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         txtSpeedUnit = viewDrivingMode.findViewById(R.id.txtSpeedUnit);
         txtAvgSpeed = viewDrivingMode.findViewById(R.id.txtAverageSpeed);
         infoIcon = viewDrivingMode.findViewById(R.id.cardView_Infoicon);
+
 
         initCardView();
 
@@ -59,6 +80,8 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         populateMap();
+
+
     }
 
     /**
@@ -117,7 +140,9 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         Log.d(LOG_TAG, verticalOffest + "");
         MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
         builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
+
     }
+
 
     //TODO: handle permission in a central class
     private void locationPermissions() {
@@ -129,6 +154,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, this);
     }
+
 
     @Override
     public void onLocationChanged(Location location) {
@@ -152,4 +178,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     public void onProviderDisabled(String s) {
 
     }
+
+
 }

@@ -4,10 +4,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import de.thu.tpro.android4bikes.R;
 
@@ -16,16 +17,17 @@ import de.thu.tpro.android4bikes.R;
  */
 public class FragmentRoadsideAssistance extends Fragment {
 
-    private ListView lv_road_assistance;
+    private RecyclerView rv_road_assistance;
     private ViewModelRoadsideAssistance vm_RoadsideAssistance;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //TODO -> Code korrigieren, da bald deprecated
         vm_RoadsideAssistance = new ViewModelRoadsideAssistance(getResources());
 
         View view = inflater.inflate(R.layout.fragment_road_assistance, container, false);
-        lv_road_assistance = view.findViewById(R.id.lv_road_assistance);
+        rv_road_assistance = view.findViewById(R.id.lv_road_assistance);
         return view;
     }
 
@@ -39,8 +41,13 @@ public class FragmentRoadsideAssistance extends Fragment {
      * showing Listview with RoadsideAssistance entries
      */
     private void initRoadAssistanceList() {
-        RoadsideAssistanceListAdapter roadsideAssistanceListAdapter = new RoadsideAssistanceListAdapter(getActivity(),
-                vm_RoadsideAssistance.getEntries());
-        lv_road_assistance.setAdapter(roadsideAssistanceListAdapter);
+        RoadsideAssistanceListAdapter roadsideAssistanceListAdapter = new RoadsideAssistanceListAdapter(this,
+                vm_RoadsideAssistance.getEntries(), vm_RoadsideAssistance.getTelnummer());
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
+
+        rv_road_assistance.setAdapter(roadsideAssistanceListAdapter);
+        rv_road_assistance.setLayoutManager(layoutManager);
     }
 }
