@@ -8,13 +8,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import de.thu.tpro.android4bikes.data.commands.Command;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
-import de.thu.tpro.android4bikes.database.FireStoreDatabase;
-import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
-import de.thu.tpro.android4bikes.util.Processor;
 
 /**
  * Class that provides {@link LiveData} regarding {@link Track}s. All operations on track data
@@ -31,24 +26,15 @@ import de.thu.tpro.android4bikes.util.Processor;
  * }</pre>
  */
 public class ViewModelTrack extends ViewModel implements Observer {
-    //UI -> Datenhaltung
-    //SUBMITTRACK: Create Track -> ViewModel ruft FireBase an
-    //READTRACK : Liste an Tracks erhalten (PLZ) -> alle tracks in ulm sehen
-
-    //todo: Stadname bereitstellen
-
     private MutableLiveData<List<Track>> list_shownTracks;
     private CouchDBHelper couchDBHelper;
-    private FirebaseConnection firebaseConnection;
-    private Processor processor;
+
 
     //is there any outstanding operation? Important for ProgressBars in the UI.
     //if there are outstanding operations "workInProgress" is > 0.
     private MutableLiveData<Integer> workInProgress;
 
     public ViewModelTrack() {
-        //access processor instance
-        processor = Processor.getInstance();
 
         //create LiveData-Wrapper:
         list_shownTracks = new MutableLiveData<>();
@@ -59,12 +45,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
 
         //Deal with the local database
         couchDBHelper = new CouchDBHelper();
-        //deal with FireStore:
-        firebaseConnection = FirebaseConnection.getInstance();
 
-
-        //this is observer of FireBase (in the case of failure)
-        firebaseConnection.addObserver(this);
         //this is observer of local database (in case of success)
         couchDBHelper.addObserver(this);
     }
@@ -79,6 +60,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
      *
      * @param postcode postcode of the needed tracks
      */
+    /*
     public void loadTracksWithSpecifiedPostcode(String postcode) {
         if (postcode != null && postcode.length() >= 3) {
 
@@ -98,27 +80,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
             });
 
         }
-    }
-
-    /**
-     * @param geoHash specified geoHash
-     */
-    public void loadTracksWithSpecifiedGeoHash(String geoHash) {
-
-    }
-
-    /**
-     * store {@link Track} to local database. Synchronization will be done automatically.
-     * @param track track to be stored
-     */
-    public void storeTrack(Track track) {
-        //try to store data in fire
-        processor.startRunnable(() -> {
-            incrementWorkInProgress();
-            //asynchronous task:
-            couchDBHelper.storeTrack(track);
-        });
-    }
+    }*/
 
     /**
      *
@@ -139,9 +101,9 @@ public class ViewModelTrack extends ViewModel implements Observer {
 
 
     /**
-     * increment number of outstanding database operations
+     * increment number of outstanding operations
      */
-    private void incrementWorkInProgress() {
+    public void incrementWorkInProgress() {
         //add information that there is one more request
         try {
             if (workInProgress.getValue() != null) {
@@ -151,13 +113,12 @@ public class ViewModelTrack extends ViewModel implements Observer {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
-     * decrement number of outstanding database operations
+     * decrement number of outstanding operations
      */
-    private void decrementWorkInProgress() {
+    public void decrementWorkInProgress() {
         try {
             if (workInProgress.getValue() != null && workInProgress.getValue() > 0) {
                 int newWorkInProgress = workInProgress.getValue() - 1;
@@ -177,20 +138,17 @@ public class ViewModelTrack extends ViewModel implements Observer {
     @Override
     synchronized public void update(Observable observable, Object o) {
         try {
+            List<Track> list_loaded_tracks = null;
             if (o != null) {
-               if (observable instanceof LocalDatabaseHelper) {
-                    //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
-                    List<Track> list_loaded_tracks = (List<Track>) o;
+                //cast to general list
+                List list = (List) o;
 
+                //cast to List<Track>, if o is a Track-List
+                if (list.size() > 0 && list.get(0) instanceof Track) {
+                    //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
+                    list_loaded_tracks = (List<Track>) list;
                     //update list of shown tracks:
                     list_shownTracks.postValue(list_loaded_tracks);
-
-                    //every time the local database updates this class,
-                    //an operation was performed successfully
-                    decrementWorkInProgress();
-                } else if (o instanceof Command) {
-                    Command command = (Command) o;
-                    command.execute();
                 }
             }
         } catch (Exception e) {
