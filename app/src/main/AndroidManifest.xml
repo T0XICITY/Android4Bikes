@@ -15,6 +15,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".view.NavigationMapbox" />
+
         <activity android:name=".view.ActivityMapBoxTest">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,14 +24,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- TODO: REMOVE -->
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc" />
 
-        <activity android:name=".view.MainActivity">
-
-        </activity>
+        <activity android:name=".view.MainActivity" />
         <activity android:name=".view.login.ActivityLogin" />
     </application>
 
