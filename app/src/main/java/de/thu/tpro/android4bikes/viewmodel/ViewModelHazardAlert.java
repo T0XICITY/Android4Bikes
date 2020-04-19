@@ -8,12 +8,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import de.thu.tpro.android4bikes.data.commands.Command;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
-import de.thu.tpro.android4bikes.database.FireStoreDatabase;
-import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.Processor;
 
 /**
@@ -31,7 +27,6 @@ import de.thu.tpro.android4bikes.util.Processor;
  * }</pre>
  */
 public class ViewModelHazardAlert extends ViewModel implements Observer {
-    private FirebaseConnection fireStoreDatabase;
     private CouchDBHelper localDB;
     private MutableLiveData<List<HazardAlert>> hazardAlerts;
     private MutableLiveData<Integer> workInProgress;
@@ -39,12 +34,10 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
 
     public ViewModelHazardAlert(){
         processor = Processor.getInstance();
-        fireStoreDatabase = FirebaseConnection.getInstance();
         localDB = new CouchDBHelper();
         hazardAlerts = new MutableLiveData<>();
         workInProgress = new MutableLiveData<>();
         workInProgress.postValue(0);
-        fireStoreDatabase.addObserver(this);
         localDB.addObserver(this);
     }
 
@@ -59,53 +52,30 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
         });
     }
 
-    public void loadHazardAlertsWithSpecifiedPostcode(String postcode) {
-        if (postcode != null) {
-            processor.startRunnable(()->{
-                incrementWorkInProgress();
-                localDB.readHazardAlerts(postcode);
-            });
-
-            processor.startRunnable(()->{
-                incrementWorkInProgress();
-                fireStoreDatabase.readHazardAlertsFromFireStoreAndStoreItToLocalDB(postcode);
-            });
-        }
-    }
-
-    public void loadHazardAlertsWithSpecifiedGeoHash(String geoHash) {
-
-    }
-
     public LiveData<Integer> getWorkInProgress() {
         return workInProgress;
     }
 
-    private void incrementWorkInProgress() {
+    public void incrementWorkInProgress() {
         workInProgress.postValue(workInProgress.getValue() + 1);
     }
 
-    private void decrementWorkInProgress() {
+    public void decrementWorkInProgress() {
         workInProgress.postValue(workInProgress.getValue() - 1);
     }
 
     @Override
     public void update(Observable observable, Object arg) {
         try {
+            List<HazardAlert> list_loaded_tracks;
             if (arg != null) {
-                if (observable instanceof FireStoreDatabase) {
-                    if (arg instanceof Command) {
-                        new Thread(() -> {
-                            Command command = (Command) arg;
-                            command.execute();
-                        });
-                    } else {
-                        decrementWorkInProgress();
-                    }
-                } else if (observable instanceof LocalDatabaseHelper) {
-                    List<HazardAlert> list_loaded_hazardAlerts = (List<HazardAlert>) arg;
-                    hazardAlerts.postValue(list_loaded_hazardAlerts);
-                    decrementWorkInProgress();
+                //cast to general list
+                List list = (List) arg;
+                if (list.size() > 0 && list.get(0) instanceof HazardAlert) {
+                    //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
+                    list_loaded_tracks = (List<HazardAlert>) list;
+                    //update list of shown tracks:
+                    hazardAlerts.postValue(list_loaded_tracks);
                 }
             }
         } catch (Exception e) {
