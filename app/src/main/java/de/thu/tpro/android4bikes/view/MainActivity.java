@@ -1,5 +1,6 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,11 +8,15 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.OvershootInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -56,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragSettings, currentFragment;
     private ImageView imageView;
 
+    private boolean toolbarHidden;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,12 +75,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         database.readTracks("89610");
         */
 
-        topAppBar = findViewById(R.id.topAppBar);
-        // Clicking Navigation Button ("Back Arrow") sends you back to InfoMode
-        topAppBar.setNavigationOnClickListener(view -> openInfoMode());
-
         initFragments();
         initNavigationDrawer();
+        initTopBar();
         initBottomNavigation();
         initFragments();
         initFAB();
@@ -240,6 +244,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragSettings = new FragmentSettings();
     }
 
+    private void initTopBar() {
+        toolbarHidden = false;
+        topAppBar = findViewById(R.id.topAppBar);
+        // Clicking Navigation Button ("Back Arrow") sends you back to InfoMode
+        topAppBar.setNavigationOnClickListener(view -> openInfoMode());
+        hideToolbar();
+    }
+
     //https://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android#2592161@Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -252,51 +264,94 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openInfoMode() {
         currentFragment = fragInfo;
-        topAppBar.setVisibility(View.GONE);
-
+        hideSoftKeyboard();
+        hideToolbar();
         updateFragment();
 
-        bottomBar.performShow();
+        showBottomBar();
         dLayout.closeDrawers();
     }
 
     private void openDrivingMode() {
         currentFragment = fragDriving;
-        topAppBar.setVisibility(View.GONE);
-
+        hideSoftKeyboard();
+        hideToolbar();
         updateFragment();
-
+        //just the bottom bar should be hidden, not the FAB
         bottomBar.performHide();
         dLayout.closeDrawers();
     }
 
     private void openRoadsideAssistance() {
         currentFragment = fragAssistance;
-        topAppBar.setVisibility(View.VISIBLE);
+        hideBottomBar();
+        showToolbar();
         topAppBar.setTitle(R.string.title_telnumbers);
         updateFragment();
     }
 
     private void openTrackList() {
         currentFragment = fragTrackList;
-        topAppBar.setVisibility(View.VISIBLE);
+        //hideBottomBar();
+        showToolbar();
         topAppBar.setTitle(R.string.title_tracks);
         updateFragment();
     }
 
     private void openProfile() {
         currentFragment = fragProfile;
-        topAppBar.setVisibility(View.VISIBLE);
+        hideBottomBar();
+        showToolbar();
         topAppBar.setTitle(R.string.title_profile);
         updateFragment();
     }
 
     private void openSettings() {
         currentFragment = fragSettings;
-        topAppBar.setVisibility(View.VISIBLE);
+        hideBottomBar();
+        showToolbar();
         topAppBar.setTitle(R.string.settings);
         updateFragment();
     }
+
+    /*
+     * https://stackoverflow.com/questions/26539623/android-lollipop-toolbar-how-to-hide-show-the-toolbar-while-scrolling
+     */
+    private void hideToolbar() {
+        // only perform animation when currently shown
+        if (toolbarHidden)
+        return;
+
+        toolbarHidden = true;
+        topAppBar.animate().translationY(-topAppBar.getBottom())
+                .setInterpolator(new AccelerateInterpolator())
+                .withEndAction(() -> topAppBar.setVisibility(View.GONE)).start();
+    }
+
+    private void showToolbar() {
+        // only perform animation when Toolbar is shown
+        if (!toolbarHidden)
+            return;
+        toolbarHidden = false;
+        topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
+    }
+
+    private void hideBottomBar(){
+        fab.hide();
+        bottomBar.performHide();
+    }
+    private void showBottomBar(){
+        fab.show();
+        bottomBar.performShow();
+    }
+//https://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
+    private void hideSoftKeyboard(){
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (getCurrentFocus() != null)
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
+    }
+
 
     @Override
     public void onClick(View view) {
