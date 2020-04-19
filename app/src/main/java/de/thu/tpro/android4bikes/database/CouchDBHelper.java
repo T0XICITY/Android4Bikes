@@ -368,7 +368,8 @@ public class CouchDBHelper implements LocalDatabaseHelper {
 
     @Override
     public Position getLastPosition() {
-        return null;
+        //todo
+        return new Position(40,9);
     }
 
     @Override

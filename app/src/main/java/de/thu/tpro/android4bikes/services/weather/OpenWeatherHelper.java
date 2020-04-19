@@ -21,7 +21,7 @@ public class OpenWeatherHelper {
     private URL getPreparedUrl(double latitude, double longitude) {
         URL url = null;
         try {
-            String sb = "http://api.openweathermap.org/data/2.5/forecast" +
+            String sb = "https://api.openweathermap.org/data/2.5/forecast" +
                     "?lat=" + latitude +
                     "&lon=" + longitude +
                     "&units=metric" +
