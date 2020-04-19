@@ -410,9 +410,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     @Override
     public Position getLastPosition() {
         //todo
-        int i = ThreadLocalRandom.current().nextInt(1,10);
-        int k = ThreadLocalRandom.current().nextInt(1,10);
-        return new Position( 9.836149+i,48.304486+k);
+        return new Position( 9.836149,48.304486);
     }
 
     @Override
