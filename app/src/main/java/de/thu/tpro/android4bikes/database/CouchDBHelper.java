@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-import java.util.concurrent.ThreadLocalRandom;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
@@ -286,13 +285,14 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     }
 
 
-    public Profile readMyProfile() {
+    public void readMyProfile() {
         //TODO!!!!! AUSIMPLEMENTIEREN
-        //eigenes Profile: { attribute... isMyProfile:"true"}
         List<Achievement> achievements = new ArrayList<>();
         achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
         achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
-        return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+        Profile p = new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+        setChanged();
+        notifyObservers(p);
     }
 
     @Override

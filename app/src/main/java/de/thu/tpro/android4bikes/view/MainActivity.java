@@ -1,27 +1,21 @@
 package de.thu.tpro.android4bikes.view;
 
-import android.graphics.Color;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
-import android.widget.Toast;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -44,11 +38,11 @@ import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
-import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
-import de.thu.tpro.android4bikes.viewmodel.ViewModelProfile;
 import de.thu.tpro.android4bikes.view.menu.settings.FragmentSettings;
 import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -57,7 +51,7 @@ import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
  * This activity acts as a container for all fragments
  */
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , View.OnClickListener{
-    private ViewModelProfile model_profile;
+    private ViewModelOwnProfile model_profile;
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
 
