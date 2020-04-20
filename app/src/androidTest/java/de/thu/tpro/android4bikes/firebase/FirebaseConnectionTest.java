@@ -458,7 +458,7 @@ public class FirebaseConnectionTest {
      */
     private HazardAlert generateHazardAlert() {
         HazardAlert hazardAlert_thu = new HazardAlert(
-                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, "12345"
+                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, "12345", true
         );
         return hazardAlert_thu;
     }

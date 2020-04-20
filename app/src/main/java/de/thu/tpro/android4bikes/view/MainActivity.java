@@ -24,6 +24,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -32,7 +36,11 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
@@ -118,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         ViewModelTrack model_track = new ViewModelProvider(this).get(ViewModelTrack.class);*/
         observeInternet();
+        scheduleUploadTask();
 
     }
 
@@ -132,6 +141,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("HalloWelt", "Mobile connection state: " + connectedToMobile);
         });
         model_internet.startObserving();
+    }
+
+    /**
+     * Defines a task that uploads not synchronized data.
+     */
+    public void scheduleUploadTask() {
+
+        Log.d("HalloWelt", "Started at: " + new Date());
+
+        //constraints regarding when a task should be scheduled
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        //Define the request: How often should the task be scheduled
+        PeriodicWorkRequest saveRequest =
+                new PeriodicWorkRequest.Builder(UploadWorker.class, 15, TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .build();
+
+        //schedule task
+        WorkManager.getInstance(GlobalContext.getContext())
+                .enqueue(saveRequest);
     }
 
     private void toastShortInMiddle(String text){
