@@ -24,6 +24,15 @@ public class ViewModelOwnProfile extends ViewModel implements Observer {
         return myProfile;
     }
 
+    public void updateMyProfile(Profile profile) {
+        myProfile.postValue(profile);
+        couchDBHelper.updateMyOwnProfile(profile);
+    }
+
+    public void deleteMyProfile() {
+        couchDBHelper.deleteMyOwnProfile();
+    }
+
     @Override
     public void update(Observable observable, Object o) {
         try {
