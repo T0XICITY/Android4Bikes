@@ -301,7 +301,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     public void storeMyOwnProfile(Profile profile) {
         try {
-            Database db_ownprofile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNPROFILE);
+            Database db_ownprofile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE);
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
             MutableDocument mutableDocument_profile = new MutableDocument(result);
@@ -321,7 +321,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
      * Deletes the own profile.
      */
     public void deleteMyOwnProfile() {
-        couchDB.clearDB(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNPROFILE));
+        couchDB.clearDB(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE));
     }
 
     /**
@@ -331,7 +331,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     public void readMyOwnProfile() {
         Profile ownProfile = null;
         try {
-            Database db_own_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNPROFILE);
+            Database db_own_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE);
             Query query_own_profile = QueryBuilder.select(SelectResult.all())
                     .from(DataSource.database(db_own_profile));
             ResultSet results = couchDB.queryDatabase(query_own_profile);

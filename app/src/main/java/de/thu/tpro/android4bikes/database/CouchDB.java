@@ -38,7 +38,6 @@ public class CouchDB {
     private Database database_profile;
     private Database database_rating;
     private Database database_track;
-    private Database database_own_profile;
     private Database database_writeBuffer_bikerack;
     private Database database_writeBuffer_hazardalert;
     private Database database_writeBuffer_position;
@@ -86,7 +85,6 @@ public class CouchDB {
         this.database_profile = null;
         this.database_rating = null;
         this.database_track = null;
-        this.database_own_profile = null;
 
         this.database_writeBuffer_bikerack = null;
         this.database_writeBuffer_hazardalert = null;
@@ -109,7 +107,6 @@ public class CouchDB {
             this.database_profile = new Database(DatabaseNames.DATABASE_PROFILE.toText(), config);
             this.database_rating = new Database(DatabaseNames.DATABASE_RATING.toText(), config);
             this.database_track = new Database(DatabaseNames.DATABASE_TRACK.toText(), config);
-            this.database_own_profile = new Database(DatabaseNames.DATABASE_OWNPROFILE.toText(), config);
 
             this.database_writeBuffer_bikerack = new Database(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK.toText(), config);
             this.database_writeBuffer_hazardalert = new Database(DatabaseNames.DATABASE_WRITEBUFFER_HAZARD_ALERT.toText(), config);
@@ -157,9 +154,6 @@ public class CouchDB {
                 break;
             case DATABASE_TRACK:
                 db = database_track;
-                break;
-            case DATABASE_OWNPROFILE:
-                db = database_own_profile;
                 break;
             case DATABASE_WRITEBUFFER_BIKERACK:
                 db = database_writeBuffer_bikerack;
@@ -597,7 +591,6 @@ public class CouchDB {
         DATABASE_POSITION("positiondb"),
         DATABASE_PROFILE("profiledb"),
         DATABASE_RATING("ratingdb"),
-        DATABASE_OWNPROFILE("ownprofiledb"),
         DATABASE_TRACK("trackdb"),
         DATABASE_WRITEBUFFER_BIKERACK("writebufferbikerackdb"),
         DATABASE_WRITEBUFFER_HAZARD_ALERT("writebufferhazardalertsdb"),
