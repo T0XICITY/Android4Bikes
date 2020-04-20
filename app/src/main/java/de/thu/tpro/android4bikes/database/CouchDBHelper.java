@@ -312,7 +312,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
      * reads the own profile out of the database
      * @return own profile
      */
-    public Profile readMyOwnProfile() {
+    public void readMyOwnProfile() {
         Profile ownProfile = null;
         try {
             Database db_own_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNPROFILE);
@@ -341,7 +341,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return ownProfile;
+        setChanged();
+        notifyObservers(ownProfile);
     }
 
     @Override
