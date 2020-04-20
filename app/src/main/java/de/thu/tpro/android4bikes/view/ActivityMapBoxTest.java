@@ -1,11 +1,13 @@
 package de.thu.tpro.android4bikes.view;
 
 import android.annotation.SuppressLint;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -22,6 +24,7 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -49,7 +52,10 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -63,6 +69,9 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
@@ -73,6 +82,8 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
@@ -84,7 +95,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
  * Use the Mapbox Core Library to receive updates when the device changes location.
  */
 public class ActivityMapBoxTest extends AppCompatActivity implements
-        OnMapReadyCallback, PermissionsListener {
+        OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
 
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
@@ -93,12 +104,14 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
     private static final String TAG = "DirectionsActivity";
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
+    private LocationComponent locationComponent;
     private LocationChangeListeningActivityLocationCallback callback = new LocationChangeListeningActivityLocationCallback(this);
     private LatLng lastPos;
     FloatingActionButton navFab;
     // variables for calculating and drawing a route
     private DirectionsRoute currentRoute;
     private NavigationMapRoute navigationMapRoute;
+    SymbolOptions marker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +145,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                     initMarkerSymbols(mapboxMap, markerPool);
 
                     initPosFab();
+                    initNavFab();
                     ArrayList<BikeRack> bikeRacks = new ArrayList<>();
                     for (int i = 0; i < 15; i++) {
                         bikeRacks.add(generateTHUBikeRack(i));
@@ -140,9 +154,89 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                     //addHazardAlertOverlay();
                     //addTrackOverlay();
 
+
+                    mapboxMap.addOnMapClickListener(ActivityMapBoxTest.this);
+
                     new LoadGeoJson(ActivityMapBoxTest.this).execute();
                 });
     }
+
+    //Navigation Stuff---------------------------------------------------
+    @SuppressWarnings({"MissingPermission"})
+    @Override
+    public boolean onMapClick(@NonNull LatLng point) {
+        mapboxMap.getStyle(new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
+                Point destinationPoint = Point.fromLngLat(point.getLongitude(), point.getLatitude());
+                addDestinationIconSymbolLayer(style, destinationPoint);
+                Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
+                        locationComponent.getLastKnownLocation().getLatitude());
+
+                GeoJsonSource source = style.getSourceAs("destination-source-id");
+                if (source != null) {
+                    source.setGeoJson(Feature.fromGeometry(destinationPoint));
+                }
+
+                getRoute(originPoint, destinationPoint);
+            }
+        });
+
+        return true;
+    }
+    private void getRoute(Point origin, Point destination) {
+        NavigationRoute.builder(this)
+                .accessToken(Mapbox.getAccessToken())
+                .origin(origin)
+                .destination(destination)
+                .build()
+                .getRoute(new Callback<DirectionsResponse>() {
+                    @Override
+                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                        // You can get the generic HTTP info about the response
+                        Log.d(TAG, "Response code: " + response.code());
+                        if (response.body() == null) {
+                            Log.e(TAG, "No routes found, make sure you set the right user and access token.");
+                            return;
+                        } else if (response.body().routes().size() < 1) {
+                            Log.e(TAG, "No routes found");
+                            return;
+                        }
+
+                        currentRoute = response.body().routes().get(0);
+
+                        // Draw the route on the map
+                        if (navigationMapRoute != null) {
+                            navigationMapRoute.removeRoute();
+                        } else {
+                            navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
+                        }
+                        navigationMapRoute.addRoute(currentRoute);
+                    }
+
+                    @Override
+                    public void onFailure(Call<DirectionsResponse> call, Throwable throwable) {
+                        Log.e(TAG, "Error: " + throwable.getMessage());
+                    }
+                });
+    }
+    private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle, Point destination) {
+        loadedMapStyle.addImage("destination-icon-id",
+                BitmapFactory.decodeResource(this.getResources(), R.drawable.mapbox_marker_icon_default));
+
+        marker = createMarker(destination.latitude(),destination.longitude(), MapBoxSymbols.BIKERACK);
+        Source source = new GeoJsonSource("THUBikerack", Feature.fromGeometry(marker.getGeometry()));
+        loadedMapStyle.addSource(source);
+        SymbolLayer destinationSymbolLayer = new SymbolLayer("destination-symbol-layer-id", source.getId());
+        destinationSymbolLayer.withProperties(
+                iconImage(ActivityMapBoxTest.MapBoxSymbols.BIKERACK.toString()),
+                iconAllowOverlap(true),
+                iconIgnorePlacement(true)
+        );
+        loadedMapStyle.addLayer(destinationSymbolLayer);
+    }
+
+    //Draw Line Stuff----------------------------------------------------
 
     private void drawLines(@NonNull FeatureCollection featureCollection) {
         if (mapboxMap != null) {
@@ -193,24 +287,11 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
             }
         }
     }
+    //Marker Stuff (clustered and unclustered)---------------------------
 
-    /**
-     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack} for test purposes
-     *
-     * @return instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack}
-     */
-    private BikeRack generateTHUBikeRack(int i) {
-        //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880 + i / 7000.0, 9.997507 + i / 7000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
-        return bikeRack_THU;
-    }
 
     /**
      * Create Markers from Track List
-     *
      * @param loadedMapStyle
      * @param tracks
      */
@@ -232,7 +313,6 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
 
     /**
      * Create Markers from BikeRack List
-     *
      * @param loadedMapStyle
      * @param bikeRacks
      */
@@ -254,7 +334,6 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
 
     /**
      * Create markers from HazardAlert list
-     *
      * @param loadedMapStyle
      * @param hazardAlerts
      */
@@ -365,6 +444,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         loadedMapStyle.addLayer(count);
     }
 
+    //Location Stuff--------------------------------------------------------------
     /**
      * Initialize the Maps SDK's LocationComponent
      */
@@ -374,7 +454,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
 
             // Get an instance of the component
-            LocationComponent locationComponent = mapboxMap.getLocationComponent();
+            locationComponent = mapboxMap.getLocationComponent();
 
             // Set the LocationComponent activation options
             LocationComponentActivationOptions locationComponentActivationOptions =
@@ -451,7 +531,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
             Toast.makeText(this, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
         }
     }
-
+    //----------------------------------------------------------
     @Override
     protected void onStart() {
         super.onStart();
@@ -496,50 +576,6 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
-    }
-
-    private void initPosFab() {
-        FloatingActionButton FAB = findViewById(R.id.fab_pos);
-        FAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                        .target(lastPos)
-                        .zoom(15)
-                        .bearing(0)
-                        .build()), 3000);
-            }
-        });
-    }
-
-    private void initMarkerSymbols(MapboxMap mapboxMap, HashMap<MapBoxSymbols, Drawable> markers) {
-        //Check if marker HashMap is empty
-        if (!markers.isEmpty()) {
-            //Register Symbols in Mapbox
-            markers.forEach((type, icon) -> mapboxMap.getStyle().addImage(type.toString(), icon));
-        }
-    }
-
-    private SymbolOptions createMarker(double latitude, double longitude, MapBoxSymbols type) {
-        return new SymbolOptions()
-                .withLatLng(new LatLng(latitude, longitude))
-                .withIconImage(type.toString());
-    }
-
-    private enum MapBoxSymbols {
-        BIKERACK("BIKERACK"),
-        HAZARDALERT_GENERAL("HAZARDALERT_GENERAL"),
-        TRACK("TRACK");
-
-        private String type;
-
-        MapBoxSymbols(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
     }
 
     private static class LocationChangeListeningActivityLocationCallback
@@ -587,6 +623,96 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                 Toast.makeText(activity, exception.getLocalizedMessage(),
                         Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    //Helper Methods------------------------------------------------------
+    private void initPosFab() {
+        FloatingActionButton FAB = findViewById(R.id.fab_pos);
+        FAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                        .target(lastPos)
+                        .zoom(15)
+                        .bearing(0)
+                        .build()), 3000);
+            }
+        });
+    }
+
+    private void initNavFab() {
+        navFab = findViewById(R.id.start_nav);
+        navFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean simulateRoute = true;
+                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                        .directionsRoute(currentRoute)
+                        .shouldSimulateRoute(simulateRoute)
+                        .build();
+                // Call this method with Context from within an Activity
+                NavigationLauncher.startNavigation(ActivityMapBoxTest.this, options);
+            }
+        });
+    }
+
+    private void initMarkerSymbols(MapboxMap mapboxMap, HashMap<MapBoxSymbols, Drawable> markers) {
+        //Check if marker HashMap is empty
+        if (!markers.isEmpty()) {
+            //Register Symbols in Mapbox
+            markers.forEach((type, icon) -> mapboxMap.getStyle().addImage(type.toString(), icon));
+        }
+    }
+
+    private SymbolOptions createMarker(double latitude, double longitude, MapBoxSymbols type) {
+        /*if(mCurrLocationMarker!=null){
+            mCurrLocationMarker.setPosition(latLng);
+        }else{
+            mCurrLocationMarker = map.addMarker(new MarkerOptions()
+                    .position(latLng);
+        }*/
+        return new SymbolOptions()
+                .withLatLng(new LatLng(latitude, longitude))
+                .withIconImage(type.toString());
+    }
+
+    /**
+     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack} for test purposes
+     *
+     * @return instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack}
+     */
+
+    private BikeRack generateTHUBikeRack(int i) {
+        //create new BikeRack
+        BikeRack bikeRack_THU = new BikeRack(
+                "pfo4eIrvzrI0m363KF0K", new Position(48.408880 + i / 7000.0, 9.997507 + i / 7000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                false, true, false
+        );
+        return bikeRack_THU;
+    }
+    private BikeRack generateTHUBikeRack() {
+        //create new BikeRack
+        BikeRack bikeRack_THU = new BikeRack(
+                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                false, true, false
+        );
+        return bikeRack_THU;
+    }
+
+    private enum MapBoxSymbols {
+        BIKERACK("BIKERACK"),
+        HAZARDALERT_GENERAL("HAZARDALERT_GENERAL"),
+        TRACK("TRACK");
+
+        private String type;
+
+        MapBoxSymbols(String type) {
+            this.type = type;
+        }
+
+        public String toString() {
+            return type;
         }
     }
 }

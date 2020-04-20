@@ -88,20 +88,19 @@ public class NavigationMapbox extends AppCompatActivity implements
                 markerPool.put(NavigationMapbox.MapBoxSymbols.HAZARDALERT_GENERAL, getDrawable(R.drawable.mapbox_marker_icon_default));
                 markerPool.put(NavigationMapbox.MapBoxSymbols.TRACK, getDrawable(R.drawable.mapbox_marker_icon_default));
                 initMarkerSymbols(mapboxMap, markerPool);
-                addDestinationIconSymbolLayer(style);
+
 
                 mapboxMap.addOnMapClickListener(NavigationMapbox.this);
-                initPosFab();
+                initNavFab();
             }
         });
     }
 
 
-    private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle) {
+    private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle, Point destination) {
         loadedMapStyle.addImage("destination-icon-id",
                 BitmapFactory.decodeResource(this.getResources(), R.drawable.mapbox_marker_icon_default));
-        BikeRack bikeRack = generateTHUBikeRack();
-        SymbolOptions marker = createMarker(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude(), NavigationMapbox.MapBoxSymbols.TRACK);
+        SymbolOptions marker = createMarker(destination.latitude(),destination.longitude(), NavigationMapbox.MapBoxSymbols.TRACK);
 
         Source source = new GeoJsonSource("THUBikerack", Feature.fromGeometry(marker.getGeometry()));
         loadedMapStyle.addSource(source);
@@ -117,17 +116,17 @@ public class NavigationMapbox extends AppCompatActivity implements
     @SuppressWarnings({"MissingPermission"})
     @Override
     public boolean onMapClick(@NonNull LatLng point) {
+                Point destinationPoint = Point.fromLngLat(point.getLongitude(), point.getLatitude());
+                addDestinationIconSymbolLayer(mapboxMap.getStyle(),destinationPoint);
+                Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
+                        locationComponent.getLastKnownLocation().getLatitude());
 
-        Point destinationPoint = Point.fromLngLat(point.getLongitude(), point.getLatitude());
-        Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
-                locationComponent.getLastKnownLocation().getLatitude());
+                GeoJsonSource source = mapboxMap.getStyle().getSourceAs("destination-source-id");
+                if (source != null) {
+                    source.setGeoJson(Feature.fromGeometry(destinationPoint));
+                }
 
-        GeoJsonSource source = mapboxMap.getStyle().getSourceAs("destination-source-id");
-        if (source != null) {
-            source.setGeoJson(Feature.fromGeometry(destinationPoint));
-        }
-
-        getRoute(originPoint, destinationPoint);
+                getRoute(originPoint, destinationPoint);
         return true;
     }
 
@@ -233,7 +232,7 @@ public class NavigationMapbox extends AppCompatActivity implements
         }
     }
 
-    private void initPosFab() {
+    private void initNavFab() {
         navFab = findViewById(R.id.start_nav);
         navFab.setOnClickListener(new View.OnClickListener() {
             @Override

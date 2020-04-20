@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     tools:context=".view.ActivityMapBoxTest">
 
     <com.mapbox.mapboxsdk.maps.MapView
@@ -18,10 +18,23 @@
         android:layout_gravity="bottom|right"
         android:layout_margin="16dp"
         android:src="@drawable/ic_my_location_white_24dp"
-        app:fabSize="normal"
-        app:layout_anchorGravity="bottom|right|end"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:maxImageSize="24dp" />
+        mapbox:fabSize="normal"
+        mapbox:layout_anchorGravity="bottom|right|end"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintBottom_toBottomOf="parent"
+        mapbox:maxImageSize="24dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/start_nav"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="96dp"
+        android:tint="@android:color/white"
+        android:visibility="visible"
+        mapbox:maxImageSize="24dp"
+        mapbox:layout_constraintBottom_toBottomOf="parent"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:srcCompat="@drawable/ic_directions_car_black_24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
