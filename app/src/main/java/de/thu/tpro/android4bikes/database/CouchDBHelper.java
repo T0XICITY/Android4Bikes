@@ -46,6 +46,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     private Gson gson;
     private Gson gson_achievement;
     private boolean isSyncing;
+    private DBMode currentMode;
 
     public CouchDBHelper() {
         couchDB = CouchDB.getInstance();
@@ -58,6 +59,12 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
         //Synchronization status regarding Firebase
         this.isSyncing = false;
+        currentMode = DBMode.OFFLINEDATA;
+    }
+
+    public CouchDBHelper(DBMode mode) {
+        this();
+        currentMode = mode;
     }
 
     @Override
@@ -540,6 +547,22 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         if (!isSyncing) {
             this.isSyncing = true;
             //TODO: Implementation.
+        }
+    }
+
+    public enum DBMode {
+        WRITEBUFFER("writebuffer"),
+        OWNDATA("owndata"),
+        OFFLINEDATA("offlinedata");
+
+        private String name;
+
+        DBMode(String type) {
+            this.name = type;
+        }
+
+        public String toText() {
+            return name;
         }
     }
 
