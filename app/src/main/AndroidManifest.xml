@@ -15,7 +15,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.NavigationMapbox" />
 
         <activity android:name=".view.ActivityMapBoxTest">
             <intent-filter>

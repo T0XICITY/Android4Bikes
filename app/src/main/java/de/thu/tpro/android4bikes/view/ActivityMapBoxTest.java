@@ -5,14 +5,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -26,9 +24,10 @@ import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.mapbox.api.matching.v5.MapboxMapMatching;
+import com.mapbox.api.matching.v5.models.MapMatchingResponse;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
@@ -45,9 +44,6 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
-import com.mapbox.mapboxsdk.style.layers.LineLayer;
-import com.mapbox.mapboxsdk.style.layers.Property;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
@@ -66,6 +62,7 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -143,7 +140,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                     markerPool.put(MapBoxSymbols.HAZARDALERT_GENERAL, getDrawable(R.drawable.mapbox_marker_icon_default));
                     markerPool.put(MapBoxSymbols.TRACK, getDrawable(R.drawable.mapbox_marker_icon_default));
                     initMarkerSymbols(mapboxMap, markerPool);
-
+                    //generateCustomRoute(generateTrack().getFineGrainedPositions());
                     initPosFab();
                     initNavFab();
                     ArrayList<BikeRack> bikeRacks = new ArrayList<>();
@@ -157,10 +154,48 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
 
                     mapboxMap.addOnMapClickListener(ActivityMapBoxTest.this);
 
-                    new LoadGeoJson(ActivityMapBoxTest.this).execute();
+                    //new LoadGeoJson(ActivityMapBoxTest.this).execute();
                 });
     }
 
+    //Custom Route
+    private void generateCustomRoute(List<Position> finegrainedPositions) {
+        MapboxMapMatching.builder()
+                .accessToken(getString(R.string.access_token))
+                .coordinates(convertPositionListToPointList(finegrainedPositions))
+                //.steps(false)
+                //.voiceInstructions(true)
+                //.bannerInstructions(true)
+                //.profile(DirectionsCriteria.PROFILE_DRIVING)
+                .build()
+                .enqueueCall(new Callback<MapMatchingResponse>() {
+
+                    @Override
+                    public void onResponse(Call<MapMatchingResponse> call, Response<MapMatchingResponse> response) {
+                        if (response.isSuccessful()) {
+                            currentRoute = response.body().matchings().get(0).toDirectionRoute();
+                            //navigation.startNavigation(route);
+                            // Draw the route on the map
+                            navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
+                            Log.d("HELLO", String.valueOf(currentRoute.distance()));
+                            navigationMapRoute.addRoute(currentRoute);
+                        } else {
+                            Log.d("HELLO", "Response empty");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MapMatchingResponse> call, Throwable throwable) {
+
+                    }
+                });
+    }
+
+    private List<Point> convertPositionListToPointList(List<Position> finegrainedPositions) {
+        List<Point> points = new ArrayList<>();
+        finegrainedPositions.forEach(position -> points.add(Point.fromLngLat(position.getLongitude(), position.getLatitude())));
+        return points;
+    }
     //Navigation Stuff---------------------------------------------------
     @SuppressWarnings({"MissingPermission"})
     @Override
@@ -238,7 +273,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
 
     //Draw Line Stuff----------------------------------------------------
 
-    private void drawLines(@NonNull FeatureCollection featureCollection) {
+    /*private void drawLines(@NonNull FeatureCollection featureCollection) {
         if (mapboxMap != null) {
             mapboxMap.getStyle(style -> {
                 if (featureCollection.features() != null) {
@@ -286,7 +321,7 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
                 activity.drawLines(featureCollection);
             }
         }
-    }
+    }*/
     //Marker Stuff (clustered and unclustered)---------------------------
 
 
@@ -647,12 +682,15 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 boolean simulateRoute = true;
-                NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                        .directionsRoute(currentRoute)
-                        .shouldSimulateRoute(simulateRoute)
-                        .build();
-                // Call this method with Context from within an Activity
-                NavigationLauncher.startNavigation(ActivityMapBoxTest.this, options);
+                if (currentRoute != null) {
+                    Log.d("HELLO", String.valueOf(currentRoute.distance()));
+                    NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                            .directionsRoute(currentRoute)
+                            .shouldSimulateRoute(simulateRoute)
+                            .build();
+                    // Call this method with Context from within an Activity
+                    NavigationLauncher.startNavigation(ActivityMapBoxTest.this, options);
+                }
             }
         });
     }
@@ -691,6 +729,20 @@ public class ActivityMapBoxTest extends AppCompatActivity implements
         );
         return bikeRack_THU;
     }
+
+    /**
+     * generates a new instance of the class Track for test purposes
+     *
+     * @return instance of a track
+     */
+    private Track generateTrack() {
+
+        Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke",
+                "siebenundvierzig11", 1585773516, 25,
+                PositionProvider.getDummyPosition90elements(), new ArrayList<>(), true);
+        return track;
+    }
+
     private BikeRack generateTHUBikeRack() {
         //create new BikeRack
         BikeRack bikeRack_THU = new BikeRack(
