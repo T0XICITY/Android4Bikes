@@ -1,12 +1,10 @@
 package de.thu.tpro.android4bikes.view.menu.trackList;
 
-import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -23,14 +21,13 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> 
 
     private final LayoutInflater inflater;
     private List<TrackDistanceTuple> entries;
-    private Activity context;
-    private CardView cardView;
+    private FragmentTrackList parent;
 
-    public TrackListAdapter(Activity context, List<TrackDistanceTuple> entries) {
+    public TrackListAdapter(FragmentTrackList parent, List<TrackDistanceTuple> entries) {
         super();
-        this.context = context;
+        this.parent = parent;
         this.entries = entries;
-        this.inflater = LayoutInflater.from(context);
+        this.inflater = LayoutInflater.from(parent.getContext());
     }
 
     @NonNull
@@ -38,7 +35,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> 
     public TrackListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate Layout of current Row
         View row = inflater.inflate(R.layout.cardview_track_list, parent, false);
-        return new TrackListViewHolder(row);
+        return new TrackListViewHolder(row, this.parent);
     }
 
     @Override
@@ -52,13 +49,13 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> 
         holder.tv_name.setText(currentTrack.getName());
         holder.tv_description.setText(currentTrack.getDescription());
         holder.rating_roadQuality.setRating(currentRating.getRoadquality());
-        holder.rating_dificulty.setRating(currentRating.getDifficulty());
+        holder.rating_difficulty.setRating(currentRating.getDifficulty());
         holder.rating_funfactor.setRating(currentRating.getFun());
         // TODO: replace ID with actual name (-> waiting for backend)
         holder.tv_author.setText(currentTrack.getAuthor_googleID());
         holder.tv_trackLength.setText(String.format(
-                context.getResources().getString(R.string.distance),
-                (double)currentTrack.getDistance_km())
+                parent.getContext().getResources().getString(R.string.distance),
+                (double) currentTrack.getDistance_km())
         );
         // TODO replace postcode with actual location name (-> waiting for backend)
         holder.tv_trackLocation.setText(currentTrack.getPostcode());
@@ -68,9 +65,9 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> 
         double currentDistance = tuple.getDistanceToUser();
         String distanceText;
         if (currentDistance > 0) {
-            distanceText = String.format(context.getResources().getString(R.string.distance), currentDistance);
+            distanceText = String.format(parent.getContext().getResources().getString(R.string.distance), currentDistance);
         } else {
-            distanceText = (String) context.getResources().getText(R.string.not_available);
+            distanceText = (String) parent.getContext().getResources().getText(R.string.not_available);
         }
         holder.tv_trackDistance.setText(distanceText);
     }
@@ -82,6 +79,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> 
 
     /**
      * Replaces the list of tracks with a new one (e.g. when filtered) and updates view
+     *
      * @param newTrackList
      */
     public void replaceData(List<TrackDistanceTuple> newTrackList) {
