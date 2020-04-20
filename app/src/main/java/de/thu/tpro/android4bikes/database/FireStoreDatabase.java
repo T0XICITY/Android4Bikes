@@ -37,4 +37,6 @@ public interface FireStoreDatabase {
 
     //Heatmap
     void storeUtilizationToFireStore(List<Position> utilization);
+
+    void readProfilesBasedOnTracks(List<Track> o);
 }

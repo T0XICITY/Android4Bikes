@@ -32,10 +32,6 @@ public class ViewModelInternetConnection extends ViewModel implements InternetOb
         this.connectedToWifi = new MutableLiveData<>();
         this.connectedToMobile = new MutableLiveData<>();
 
-        //post initial values
-        connectedToMobile.postValue(false);
-        connectedToWifi.postValue(false);
-
         //trigger broadcastreceiver
         this.broadcastReceiver_mobile_wifi = BroadcastReceiverInternetConnection.getInstance();
         this.broadcastReceiver_mobile_wifi.updateConnectedFlags();
