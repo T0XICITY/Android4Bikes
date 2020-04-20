@@ -49,6 +49,8 @@ public class CouchDB {
     private Database database_ownData_profile;
     private Database database_ownData_track;
 
+    private Database database_deleteBuffer_profile;
+    private Database database_deleteBuffer_track;
 
     /**
      * constructor
@@ -98,6 +100,9 @@ public class CouchDB {
         this.database_ownData_profile = null;
         this.database_ownData_track = null;
 
+        this.database_deleteBuffer_profile = null;
+        this.database_deleteBuffer_track = null;
+
 
         try {
             this.database_achievement = new Database(DatabaseNames.DATABASE_ACHIEVEMENT.toText(), config);
@@ -119,6 +124,9 @@ public class CouchDB {
             this.database_ownData_position = new Database(DatabaseNames.DATABASE_OWNDATA_POSITION.toText(), config);
             this.database_ownData_profile = new Database(DatabaseNames.DATABASE_OWNDATA_PROFILE.toText(), config);
             this.database_ownData_track = new Database(DatabaseNames.DATABASE_OWNDATA_TRACK.toText(), config);
+
+            this.database_deleteBuffer_track = new Database(DatabaseNames.DATABASE_DELETEBUFFER_TRACK.toText(), config);
+            this.database_deleteBuffer_profile = new Database(DatabaseNames.DATABASE_DELETEBUFFER_PROFILE.toText(), config);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
             Log.e("HalloWelt", "Failure during creation of the database!");
@@ -184,6 +192,12 @@ public class CouchDB {
                 break;
             case DATABASE_OWNDATA_TRACK:
                 db = database_ownData_track;
+                break;
+            case DATABASE_DELETEBUFFER_PROFILE:
+                db = database_deleteBuffer_profile;
+                break;
+            case DATABASE_DELETEBUFFER_TRACK:
+                db = database_deleteBuffer_track;
                 break;
         }
         return db;
@@ -601,7 +615,9 @@ public class CouchDB {
         DATABASE_OWNDATA_HAZARD_ALERT("owndatahazardalertsdb"),
         DATABASE_OWNDATA_POSITION("owndatapositiondb"),
         DATABASE_OWNDATA_PROFILE("owndataprofiledb"),
-        DATABASE_OWNDATA_TRACK("owndatatrackdb");
+        DATABASE_OWNDATA_TRACK("owndatatrackdb"),
+        DATABASE_DELETEBUFFER_PROFILE("deletebufferprofiledb"),
+        DATABASE_DELETEBUFFER_TRACK("deletebuffertrackdb");
 
         private String name;
 

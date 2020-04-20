@@ -85,6 +85,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         Database db_track = null;
         try {
             switch (currentMode) {
+                case DELETEBUFFER:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_DELETEBUFFER_TRACK);
+                    break;
                 case WRITEBUFFER:
                     db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
                     break;
@@ -113,6 +116,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         String db_name = null;
         try {
             switch (currentMode) {
+                case DELETEBUFFER:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_DELETEBUFFER_TRACK);
+                    db_name = DatabaseNames.DATABASE_DELETEBUFFER_TRACK.toText();
+                    break;
                 case WRITEBUFFER:
                     db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
                     db_name = DatabaseNames.DATABASE_WRITEBUFFER_TRACK.toText();
@@ -152,6 +159,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         Database db_track = null;
         try {
             switch (currentMode) {
+                case DELETEBUFFER:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_DELETEBUFFER_TRACK);
+                    break;
                 case WRITEBUFFER:
                     db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
                     break;
@@ -356,6 +366,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         Database db_profile = null;
         try {
             switch (currentMode) {
+                case DELETEBUFFER:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_DELETEBUFFER_PROFILE);
+                    break;
                 case WRITEBUFFER:
                     db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
                     break;
@@ -381,6 +394,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
         try {
             switch (currentMode) {
+                case DELETEBUFFER:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_DELETEBUFFER_PROFILE);
+                    db_name = DatabaseNames.DATABASE_DELETEBUFFER_PROFILE.toText();
+                    break;
                 case WRITEBUFFER:
                     db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
                     db_name = DatabaseNames.DATABASE_WRITEBUFFER_PROFILE.toText();
@@ -496,6 +513,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         Database db_profile = null;
         try {
             switch (currentMode) {
+                case DELETEBUFFER:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_DELETEBUFFER_PROFILE);
+                    break;
                 case WRITEBUFFER:
                     db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
                     break;
@@ -763,7 +783,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     public enum DBMode {
         WRITEBUFFER("writebuffer"),
         OWNDATA("owndata"),
-        OFFLINEDATA("offlinedata");
+        OFFLINEDATA("offlinedata"),
+        DELETEBUFFER("deletebuffer");
 
         private String name;
 
