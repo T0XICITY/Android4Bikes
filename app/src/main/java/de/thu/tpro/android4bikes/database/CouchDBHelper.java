@@ -45,7 +45,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     private CouchDB couchDB;
     private Gson gson;
     private Gson gson_achievement;
-    private boolean isSyncing;
     private DBMode currentMode;
 
     public CouchDBHelper() {
@@ -57,8 +56,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         gsonBuilder_achievement.registerTypeAdapter(Achievement.class, new AchievementDeserializer<Achievement>());
         gson_achievement = gsonBuilder_achievement.create();
 
-        //Synchronization status regarding Firebase
-        this.isSyncing = false;
         currentMode = DBMode.OFFLINEDATA;
     }
 
@@ -110,20 +107,34 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     //TODO: Remove return values (not necessary!!) and adjust unit tests
     @Override
-    public List<Track> readTracks(String postcode) {
+    public List<Track> readTracks() {
         List<Track> tracks = null;
+        Database db_track = null;
+        String db_name = null;
         try {
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
+                    db_name = DatabaseNames.DATABASE_WRITEBUFFER_TRACK.toText();
+                    break;
+                case OWNDATA:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
+                    db_name = DatabaseNames.DATABASE_OWNDATA_TRACK.toText();
+                    break;
+                case OFFLINEDATA:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+                    db_name = DatabaseNames.DATABASE_TRACK.toText();
+                    break;
+            }
             tracks = new ArrayList<>();
-            Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
             Query query = QueryBuilder.select(SelectResult.all())
-                    .from(DataSource.database(db_track))
-                    .where(Expression.property(Track.ConstantsTrack.POSTCODE.toString()).equalTo(Expression.string(postcode)));
+                    .from(DataSource.database(db_track));
             ResultSet results = couchDB.queryDatabase(query);
             JSONObject jsonObject_result = null;
             Track track_result = null;
             for (Result result : results) {
                 jsonObject_result = new JSONObject(result.toMap());
-                track_result = gson.fromJson(jsonObject_result.get(DatabaseNames.DATABASE_TRACK.toText()).toString(), Track.class);
+                track_result = gson.fromJson(jsonObject_result.get(db_name).toString(), Track.class);
                 tracks.add(track_result);
             }
         } catch (Exception e) {
@@ -138,8 +149,19 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void deleteTrack(String fireBaseID) {
+        Database db_track = null;
         try {
-            Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
+                    break;
+                case OWNDATA:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
+                    break;
+                case OFFLINEDATA:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+                    break;
+            }
             Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                     .from(DataSource.database(db_track))
                     .where(Expression.property(Track.ConstantsTrack.FIREBASEID.toString()).equalTo(Expression.string(fireBaseID)));
@@ -154,8 +176,19 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void storeHazardAlerts(HazardAlert hazardAlert) {
+        Database db_hazardAlert = null;
         try {
-            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_HAZARD_ALERT);
+                    break;
+                case OWNDATA:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_HAZARD_ALERT);
+                    break;
+                case OFFLINEDATA:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+                    break;
+            }
             JSONObject json_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
             Map map_hazardAlert = gson.fromJson(json_hazardAlert.toString(), Map.class);
             MutableDocument mutableDocument_hazardAlert = new MutableDocument(map_hazardAlert);
@@ -167,23 +200,38 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     }
 
     @Override
-    public List<HazardAlert> readHazardAlerts(String postcode) {
+    public List<HazardAlert> readHazardAlerts() {
         List<HazardAlert> hazardAlerts = null;
+        Database db_hazardAlert = null;
+        String db_name = null;
         try {
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_HAZARD_ALERT);
+                    db_name = DatabaseNames.DATABASE_WRITEBUFFER_HAZARD_ALERT.toText();
+                    break;
+                case OWNDATA:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_HAZARD_ALERT);
+                    db_name = DatabaseNames.DATABASE_OWNDATA_HAZARD_ALERT.toText();
+                    break;
+                case OFFLINEDATA:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+                    db_name = DatabaseNames.DATABASE_HAZARD_ALERT.toText();
+                    break;
+            }
             hazardAlerts = new ArrayList<>();
             JSONObject jsonObject_result = null;
-            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
             HazardAlert hazardAlert = null;
             Query query = QueryBuilder.select(SelectResult.all())
-                    .from(DataSource.database(db_hazardAlert))
-                    .where(Expression.property(HazardAlert.ConstantsHazardAlert.POSTCODE.toString()).equalTo(Expression.string(postcode)));
+                    .from(DataSource.database(db_hazardAlert));
+
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
                 //convert result to jsonObject-string
                 jsonObject_result = new JSONObject(result.toMap());
                 //result document -> "db_haradAlert":{ <object> }
                 //because the necessary object in nested, we have to access it by getting it:
-                jsonObject_result = (JSONObject) jsonObject_result.get(DatabaseNames.DATABASE_HAZARD_ALERT.toText());
+                jsonObject_result = (JSONObject) jsonObject_result.get(db_name);
                 hazardAlert = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
                 hazardAlerts.add(hazardAlert);
             }
@@ -195,8 +243,19 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void deleteHazardAlert(String fireBaseID) {
+        Database db_hazardAlert = null;
         try {
-            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT); //Get db hazardAlerts
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_HAZARD_ALERT);
+                    break;
+                case OWNDATA:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_HAZARD_ALERT);
+                    break;
+                case OFFLINEDATA:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+                    break;
+            }
             HazardAlert hazardAlert = null;
             JSONObject jsonObject_result = null;
             String mutabledocument_result_id = null;
@@ -220,8 +279,19 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void addToUtilization(Position position) {
+        Database db_position = null;
         try {
-            Database db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
+                    break;
+                case OWNDATA:
+                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_POSITION);
+                    break;
+                case OFFLINEDATA:
+                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
+                    break;
+            }
             JSONObject json_position = new JSONObject(gson.toJson(position));
             Map result = gson.fromJson(json_position.toString(), Map.class);
             MutableDocument md_position = new MutableDocument(result);
@@ -238,14 +308,40 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void resetUtilization() {
-        Database utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
-        couchDB.clearDB(utilizationDB);
+        Database utilizationDB = null;
+        try {
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
+                    break;
+                case OWNDATA:
+                    utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_POSITION);
+                    break;
+                case OFFLINEDATA:
+                    utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
+                    break;
+            }
+            couchDB.clearDB(utilizationDB);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void storeProfile(Profile profile) {
+        Database db_profile = null;
         try {
-            Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
+                    break;
+                case OWNDATA:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE);
+                    break;
+                case OFFLINEDATA:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+                    break;
+            }
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
             MutableDocument mutableDocument_profile = new MutableDocument(result);
@@ -257,9 +353,21 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void storeProfile(Map map_profile) {
+        Database db_profile = null;
         try {
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
+                    break;
+                case OWNDATA:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE);
+                    break;
+                case OFFLINEDATA:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+                    break;
+            }
             MutableDocument mutableDocument_profile = new MutableDocument(map_profile);
-            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE), mutableDocument_profile);
+            couchDB.saveMutableDocumentToDatabase(db_profile, mutableDocument_profile);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -268,8 +376,24 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     @Override
     public Profile readProfile(String firebaseAccountID) {
         Profile profile = null;
+        Database db_profile = null;
+        String db_name = null;
+
         try {
-            Database db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
+                    db_name = DatabaseNames.DATABASE_WRITEBUFFER_PROFILE.toText();
+                    break;
+                case OWNDATA:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE);
+                    db_name = DatabaseNames.DATABASE_OWNDATA_PROFILE.toText();
+                    break;
+                case OFFLINEDATA:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+                    db_name = DatabaseNames.DATABASE_PROFILE.toText();
+                    break;
+            }
             Query query = QueryBuilder.select(SelectResult.all())
                     .from(DataSource.database(db_profile))
                     .where(Expression.property(Profile.ConstantsProfile.GOOGLEID.toString()).equalTo(Expression.string(firebaseAccountID)));
@@ -279,7 +403,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             for (Result result : results) {
                 Map map_result = result.toMap();
                 jsonObject_profile = new JSONObject(map_result);
-                jsonObject_profile = (JSONObject) jsonObject_profile.get(DatabaseNames.DATABASE_PROFILE.toText());
+                jsonObject_profile = (JSONObject) jsonObject_profile.get(db_name);
 
                 jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
                 List<Achievement> list_achievements = new ArrayList<>();
@@ -340,7 +464,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             for (Result result : results) {
                 Map map_result = result.toMap();
                 jsonObject_profile = new JSONObject(map_result);
-                jsonObject_profile = (JSONObject) jsonObject_profile.get(DatabaseNames.DATABASE_PROFILE.toText());
+                jsonObject_profile = (JSONObject) jsonObject_profile.get(DatabaseNames.DATABASE_OWNDATA_PROFILE.toText());
 
                 jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
                 List<Achievement> list_achievements = new ArrayList<>();
@@ -369,14 +493,25 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void deleteProfile(String googleID) {
+        Database db_profile = null;
         try {
-            Database db_Profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
+                    break;
+                case OWNDATA:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE);
+                    break;
+                case OFFLINEDATA:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+                    break;
+            }
             Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
-                    .from(DataSource.database(db_Profile))
+                    .from(DataSource.database(db_profile))
                     .where(Expression.property(Profile.ConstantsProfile.GOOGLEID.toString()).equalTo(Expression.string(googleID)));
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
-                couchDB.deleteDocumentByID(db_Profile, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
+                couchDB.deleteDocumentByID(db_profile, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -390,8 +525,19 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void storeBikeRack(BikeRack bikeRack) {
+        Database db_bikerack = null;
         try {
-            Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
+                    break;
+                case OWNDATA:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_BIKERACK);
+                    break;
+                case OFFLINEDATA:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+                    break;
+            }
             JSONObject json_bikeRack = new JSONObject(gson.toJson(bikeRack));
             Map map_bikeRack = gson.fromJson(json_bikeRack.toString(), Map.class);
             MutableDocument mutableDocument_bikeRack = new MutableDocument(map_bikeRack);
@@ -403,21 +549,35 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     }
 
     @Override
-    public List<BikeRack> readBikeRacks(String postcode) {
+    public List<BikeRack> readBikeRacks() {
         List<BikeRack> bikeRacks = null;
+        Database db_bikerack = null;
+        String db_name = null;
         try {
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
+                    db_name = DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK.toText();
+                    break;
+                case OWNDATA:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_BIKERACK);
+                    db_name = DatabaseNames.DATABASE_OWNDATA_BIKERACK.toText();
+                    break;
+                case OFFLINEDATA:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+                    db_name = DatabaseNames.DATABASE_BIKERACK.toText();
+                    break;
+            }
             bikeRacks = new ArrayList<>();
             JSONObject jsonObject_result = null;
-            Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
             BikeRack bikeRack = null;
             Query query = QueryBuilder.select(SelectResult.all())
-                    .from(DataSource.database(db_bikerack))
-                    .where(Expression.property(BikeRack.ConstantsBikeRack.POSTCODE.toString()).equalTo(Expression.string(postcode)));
+                    .from(DataSource.database(db_bikerack));
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
                 //convert result to jsonObject-string
                 jsonObject_result = new JSONObject(result.toMap());
-                jsonObject_result = (JSONObject) jsonObject_result.get(DatabaseNames.DATABASE_BIKERACK.toText());
+                jsonObject_result = (JSONObject) jsonObject_result.get(db_name);
                 bikeRack = gson.fromJson(jsonObject_result.toString(), BikeRack.class);
                 bikeRacks.add(bikeRack);
             }
@@ -434,8 +594,19 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void deleteBikeRack(String fireBaseID) {
+        Database db_bikerack = null;
         try {
-            Database db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK); //Get db bikerack
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
+                    break;
+                case OWNDATA:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_BIKERACK);
+                    break;
+                case OFFLINEDATA:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+                    break;
+            }
             BikeRack bikeRack = null;
             JSONObject jsonObject_result = null;
             String mutabledocument_result_id = null;
@@ -459,12 +630,29 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
      */
     private List<Position> getAllPositions() {
         List<Position> positions = null;
+        Database db_position = null;
+        String db_name = null;
+
         try {
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
+                    db_name = DatabaseNames.DATABASE_WRITEBUFFER_POSITION.toText();
+                    break;
+                case OWNDATA:
+                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_POSITION);
+                    db_name = DatabaseNames.DATABASE_OWNDATA_POSITION.toText();
+                    break;
+                case OFFLINEDATA:
+                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
+                    db_name = DatabaseNames.DATABASE_POSITION.toText();
+                    break;
+            }
             positions = new ArrayList<>();
-            ResultSet results = couchDB.readAllDocumentsOfADatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION));
+            ResultSet results = couchDB.readAllDocumentsOfADatabase(db_position);
             for (Result result : results) {
                 JSONObject json_result = new JSONObject(result.toMap());
-                json_result = json_result.getJSONObject(DatabaseNames.DATABASE_POSITION.toText());
+                json_result = json_result.getJSONObject(db_name);
                 positions.add(gson.fromJson(json_result.toString(), Position.class));
             }
         } catch (Exception e) {
@@ -481,9 +669,21 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void storeBikeRack(Map map_bikeRack) {
-        try{
+        Database db_bikerack = null;
+        try {
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
+                    break;
+                case OWNDATA:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_BIKERACK);
+                    break;
+                case OFFLINEDATA:
+                    db_bikerack = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+                    break;
+            }
             MutableDocument mutableDocument_bikeRack = new MutableDocument(map_bikeRack);
-            couchDB.saveMutableDocumentToDatabase(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK), mutableDocument_bikeRack);
+            couchDB.saveMutableDocumentToDatabase(db_bikerack, mutableDocument_bikeRack);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -491,8 +691,19 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void storeHazardAlerts(Map map_hazardAlert) {
+        Database db_hazardAlert = null;
         try {
-            Database db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_HAZARD_ALERT);
+                    break;
+                case OWNDATA:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_HAZARD_ALERT);
+                    break;
+                case OFFLINEDATA:
+                    db_hazardAlert = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+                    break;
+            }
             MutableDocument mutableDocument_hazardAlert = new MutableDocument(map_hazardAlert);
             couchDB.saveMutableDocumentToDatabase(db_hazardAlert, mutableDocument_hazardAlert);
         } catch (Exception e) {
@@ -547,16 +758,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             Log.i("HalloWelt", "No mutable document could be generated.");
         }
         return mutableDocument;
-    }
-
-    /**
-     * synchronizes data with FireStore
-     */
-    public void synchronizeDataWithFireStore() {
-        if (!isSyncing) {
-            this.isSyncing = true;
-            //TODO: Implementation.
-        }
     }
 
     public enum DBMode {

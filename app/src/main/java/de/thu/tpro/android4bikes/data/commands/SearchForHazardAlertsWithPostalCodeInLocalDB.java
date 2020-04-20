@@ -11,6 +11,6 @@ public class SearchForHazardAlertsWithPostalCodeInLocalDB implements Command{
 
     @Override
     public void execute() {
-        new CouchDBHelper().readHazardAlerts(postcode);
+        new CouchDBHelper().readHazardAlerts();
     }
 }

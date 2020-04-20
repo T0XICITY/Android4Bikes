@@ -12,6 +12,6 @@ public class SearchForTracksWithPostcodeInLocalDB implements Command {
 
     @Override
     public void execute() {
-        new CouchDBHelper().readTracks(postcode);
+        new CouchDBHelper().readTracks();
     }
 }

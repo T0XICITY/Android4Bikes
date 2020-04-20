@@ -66,10 +66,9 @@ public interface LocalDatabaseHelper {
     /**
      * Method to read BikeRacks form the local database
      *
-     * @param postcode is the postcode of the area of the BikeRacks
-     * @return returns a list of all BikeRacks in the postcode area
+     * @return returns a list of all BikeRacks
      */
-    List<BikeRack> readBikeRacks(String postcode);
+    List<BikeRack> readBikeRacks();
 
     /**
      * Method to delete a BikeRack from the local database
@@ -95,12 +94,9 @@ public interface LocalDatabaseHelper {
     /**
      * Method to read tracks from the local database
      *
-     * @param postcode is the postcode of the area where the tracks are
-     * @return list of tracks which are in the area of the postcode
+     * @return list of all tracks
      */
-    List<Track> readTracks(String postcode);
-
-    //query first "fineGrainedPositionsDB" with postcodes to get TrackID. Then query "trackDB" with this TrackID to get the tracks.
+    List<Track> readTracks();
 
     /**
      * Method to delete a track from the local database
@@ -119,10 +115,9 @@ public interface LocalDatabaseHelper {
     /**
      * Method to read hazard alerts from the local database
      *
-     * @param postcode is the area of the hazard alerts
-     * @return list of all hazard alerts in the area of the postcode
+     * @return list of all hazard alerts
      */
-    List<HazardAlert> readHazardAlerts(String postcode);
+    List<HazardAlert> readHazardAlerts();
 
     /**
      * Method to delete a hazard alert from the local database

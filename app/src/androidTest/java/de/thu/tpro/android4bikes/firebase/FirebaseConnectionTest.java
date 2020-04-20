@@ -7,7 +7,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.BeforeClass;
@@ -16,7 +15,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
@@ -244,7 +242,7 @@ public class FirebaseConnectionTest {
         }
 
         //read all bike racks from the local db with the postcode '89075'
-        List<BikeRack> bikeRacks_with_postcode_89075 = couchDBHelper.readBikeRacks(bikeRack_THU.getPostcode());
+        List<BikeRack> bikeRacks_with_postcode_89075 = couchDBHelper.readBikeRacks();
 
         //the just stored bike rack has to be contained in the list of official bike racks
         assertTrue(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
@@ -293,7 +291,7 @@ public class FirebaseConnectionTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        List<Track> list_read_tracks_with_postcode_89075 = couchDBHelper.readTracks(track_THU.getPostcode());
+        List<Track> list_read_tracks_with_postcode_89075 = couchDBHelper.readTracks();
         assertTrue(list_read_tracks_with_postcode_89075.contains(track_THU));
 
         //delete Track finally from db
@@ -343,7 +341,7 @@ public class FirebaseConnectionTest {
         }
 
         //now the track has to be in the list:
-        List<Track> list_read_tracks_with_postcode_89075 = couchDBHelper.readTracks(track_THU.getPostcode());
+        List<Track> list_read_tracks_with_postcode_89075 = couchDBHelper.readTracks();
         assertTrue(list_read_tracks_with_postcode_89075.contains(track_THU));
 
         //now delete the track from firstroe and the local database
@@ -356,7 +354,7 @@ public class FirebaseConnectionTest {
         }
 
         //Afterwards the shouldn't be anymore in the list
-        list_read_tracks_with_postcode_89075 = couchDBHelper.readTracks(track_THU.getPostcode());
+        list_read_tracks_with_postcode_89075 = couchDBHelper.readTracks();
         assertFalse(list_read_tracks_with_postcode_89075.contains(track_THU));
     }
 
@@ -398,7 +396,7 @@ public class FirebaseConnectionTest {
         }
 
         //read all bike racks from the local db with the postcode '89075'
-        List<HazardAlert> hazardAlerts_with_postcode_89075 = couchDBHelper.readHazardAlerts(hazardAlert_THU.getPostcode());
+        List<HazardAlert> hazardAlerts_with_postcode_89075 = couchDBHelper.readHazardAlerts();
 
         //the just stored bike rack has to be contained in the list of official bike racks
         assertTrue(hazardAlerts_with_postcode_89075.contains(hazardAlert_THU));

@@ -68,7 +68,7 @@ public class CouchDbHelperTest {
         assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
 
         //read the just stored bike rack (THUBikeRack)
-        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks(bikeRack_THU.getPostcode());
+        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks();
 
         //the just stored bike rack must be in the list of the read bike racks
         assertTrue(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
@@ -117,7 +117,7 @@ public class CouchDbHelperTest {
         assertEquals(initialNumberOfDouments, newNumberOfDocuments);
 
         //read all bike racks with the postcode of the stored and deleted bike rack
-        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks(bikeRack_THU.getPostcode());
+        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks();
 
         //the just stored bike rack must not be in the list of the read bike racks
         assertFalse(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
@@ -146,7 +146,7 @@ public class CouchDbHelperTest {
         couchDbHelper.storeBikeRack(bikeRack_THU);
 
         //read from
-        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks(bikeRack_THU.getPostcode());
+        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks();
 
 
         //the just stored bike rack must be in the list of the read bike racks
@@ -186,7 +186,7 @@ public class CouchDbHelperTest {
         assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
 
         //read the just stored bike rack (THUBikeRack)
-        List<HazardAlert> hazardAlerts_with_postcode_89075 = couchDbHelper.readHazardAlerts(hazardAlert_thu.getPostcode());
+        List<HazardAlert> hazardAlerts_with_postcode_89075 = couchDbHelper.readHazardAlerts();
 
         //the just stored bike rack must be in the list of the read bike racks
         assertTrue(hazardAlerts_with_postcode_89075.contains(hazardAlert_thu));
@@ -235,7 +235,7 @@ public class CouchDbHelperTest {
         assertEquals(initialNumberOfDouments, newNumberOfDocuments);
 
         //read all hazard alerts with the postcode of the stored and deleted bike rack
-        List<HazardAlert> hazardAlerts_with_postcode_89075 = couchDbHelper.readHazardAlerts(hazardAlert_THU.getPostcode());
+        List<HazardAlert> hazardAlerts_with_postcode_89075 = couchDbHelper.readHazardAlerts();
 
         //the just stored bike rack must not be in the list of the read bike racks
         assertFalse(hazardAlerts_with_postcode_89075.contains(hazardAlert_THU));
@@ -265,7 +265,7 @@ public class CouchDbHelperTest {
         couchDbHelper.storeHazardAlerts(hazardAlert_THU);
 
         //read from
-        List<HazardAlert> bikeRacks_with_postcode_89075 = couchDbHelper.readHazardAlerts(hazardAlert_THU.getPostcode());
+        List<HazardAlert> bikeRacks_with_postcode_89075 = couchDbHelper.readHazardAlerts();
 
 
         //the just stored hazard alert must be in the list of the read bike racks
@@ -389,7 +389,7 @@ public class CouchDbHelperTest {
 
         assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
 
-        List<Track> readTracks = couchDbHelper.readTracks(postcode);
+        List<Track> readTracks = couchDbHelper.readTracks();
 
         assertTrue(readTracks.contains(track));
 
@@ -404,11 +404,9 @@ public class CouchDbHelperTest {
 
         Track track = generateTrack();
 
-        String postcode = "89075";
-
         couchDbHelper.storeTrack(track);
 
-        List<Track> readTracks = couchDbHelper.readTracks(postcode);
+        List<Track> readTracks = couchDbHelper.readTracks();
 
         assertTrue(readTracks.contains(track));
 
@@ -439,7 +437,7 @@ public class CouchDbHelperTest {
 
         assertEquals(initialNumberOfDocuments, newNumberOfDocuments);
 
-        List<Track> readTracks = couchDbHelper.readTracks(postcode);
+        List<Track> readTracks = couchDbHelper.readTracks();
 
         assertTrue(readTracks.isEmpty());
     }
