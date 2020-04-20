@@ -60,30 +60,10 @@ public class DialogDeleteProfile extends AppCompatDialogFragment {
 
 
 
-/*
-        // Yes or No choise
-        builder.setSingleChoiceItems(chooseSequence, 1, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                boolean lokalBool;
-                //if true -> you can delete account if you press the delete button
-               if(which == 0){
-                   Log.d("Wert: " + which,"Wert");
-                    lokalBool = true;
-                    setBool(lokalBool);
 
-
-                }
-                Log.d("Wert2: " + which,"Werte2");
-                lokalBool = false;
-                setBool(lokalBool);
-
-            }
-         });
-*/
 
         // Cancel
-        builder.setPositiveButton("No cancel", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //remain Empty
@@ -92,7 +72,7 @@ public class DialogDeleteProfile extends AppCompatDialogFragment {
 
 
         // Button Delete
-        builder.setNegativeButton("Yes delete it", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Delete it", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //Logoutlogic -> TODO -> to delete the Profile -> at the moment: only a logout
@@ -110,16 +90,5 @@ public class DialogDeleteProfile extends AppCompatDialogFragment {
         return builder.create();
     }
 
-    /*
-    public boolean setBool(boolean bb){
-       this.bool = bb;
-        return this.bool;
-    }
-
-    public boolean getBool(){
-        return this.bool;
-    }
-
-*/
 
 }

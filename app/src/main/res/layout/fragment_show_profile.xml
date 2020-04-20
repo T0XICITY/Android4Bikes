@@ -23,6 +23,40 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageView_Circle"
+                android:layout_width="77dp"
+                android:layout_height="79dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/tv_rounded"
+
+                android:contentDescription="nav_header_desc"
+                android:paddingLeft="20dp"
+                android:paddingTop="20dp" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_ChangeProfileView"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:textAlignment="center"
+                android:layout_gravity="center"
+                android:text="Change Profile image"
+                android:textColorHint="@color/TextWhite"
+                android:backgroundTint="@color/Green400Primary"
+
+                />
+
+
+        </LinearLayout>
 
 
         <LinearLayout
@@ -45,20 +79,19 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="15dp"
+                android:focusable="false"
                 android:hint="Name"
-                android:textColorHint="@color/Grey800Primary"
+                android:textColorHint="@color/Green400Primary"
                 app:boxStrokeColor="@color/Green400Primary"
                 app:hintTextColor="@color/Green400Primary"
                 app:boxBackgroundMode="outline"
-
-
-
                 >
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_Name_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:focusable="false"
                     android:singleLine="true" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -85,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:hint="Email"
                 android:layout_marginTop="10dp"
-                android:textColorHint="@color/Grey800Primary"
+                android:textColorHint="@color/Green400Primary"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/Green400Primary"
                 app:hintTextColor="@color/Green400Primary"
@@ -103,62 +136,130 @@
                     android:focusable="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
-
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_tracks"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/imageView_Circle"
-                android:layout_width="77dp"
-                android:layout_height="79dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/tv_rounded"
-                android:clickable="true"
-                android:contentDescription="nav_header_desc"
-                android:paddingLeft="20dp"
-                android:paddingTop="20dp" />
+            android:layout_width="wrap_content"
+            android:text="Your tracks"
+            android:textColor="@color/Green400Primary"
+            android:paddingTop="15dp"
+            android:paddingBottom="10dp"
+            android:textSize="22dp"></com.google.android.material.textview.MaterialTextView>
 
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_ChangeProfileView"
-                android:layout_height="wrap_content"
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_design"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Your achievements"
+            android:textColor="@color/Green400Primary"
+            android:paddingTop="15dp"
+            android:paddingBottom="10dp"
+            android:textSize="22dp"></com.google.android.material.textview.MaterialTextView>
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="15dp"
+            android:scrollbarSize="10dp">
+            >
+
+            <HorizontalScrollView
                 android:layout_width="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:textAlignment="center"
-                android:layout_gravity="center"
-                android:text="Change Profile image"
-                android:textColorHint="@color/TextWhite"
-                android:backgroundTint="@color/Green400Primary"
-
-                />
-
-
-        </LinearLayout>
-
-
-
-
-            <Button
-                android:id="@+id/buttonConfirm"
-                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:textAlignment="center"
-                android:backgroundTint="@color/Green400Primary"
-                android:text="Confirm"></Button>
+                android:scrollbarSize="10dp">
 
-            <Button
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingRight="5dp">
+
+                    <ImageView
+                        android:id="@+id/iv1"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@color/Blue400Light"
+                        android:layout_marginRight="8dp"
+                        android:clickable="true"></ImageView>
+
+                    <ImageView
+                        android:id="@+id/iv2"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@color/Blue400Dark"
+                        android:layout_marginRight="8dp"
+                        android:clickable="true"></ImageView>
+
+                    <ImageView
+                        android:id="@+id/iv3"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@color/Brown400Light"
+                        android:layout_marginRight="8dp"
+                        android:clickable="true"></ImageView>
+
+                    <ImageView
+                        android:id="@+id/iv4"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@color/Red400Light"
+                        android:layout_marginRight="8dp"
+                        android:clickable="true"></ImageView>
+
+                    <ImageView
+                        android:id="@+id/iv5"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@color/Green800Light"
+                        android:layout_marginRight="8dp"
+                        android:clickable="true"></ImageView>
+
+                    <ImageView
+                        android:id="@+id/iv6"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@color/Yellow400Light"
+                        android:layout_marginRight="8dp"
+                        android:clickable="true"></ImageView>
+
+                    <ImageView
+                        android:id="@+id/iv7"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@color/Orange400Dark"
+                        android:layout_marginRight="8dp"></ImageView>
+
+                    <ImageView
+                        android:id="@+id/iv8"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@color/Pink400Dark"
+                        android:layout_marginRight="8dp"
+                        android:clickable="true"></ImageView>
+
+                    <ImageView
+                        android:id="@+id/iv9"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@color/Grey400Light"
+                        android:layout_marginRight="8dp"
+                        android:clickable="true"></ImageView>
+
+
+                </LinearLayout>
+            </HorizontalScrollView>
+        </ScrollView>
+
+
+        <Button
                 android:id="@+id/buttonDelete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+            android:paddingTop="15dp"
                 android:paddingBottom="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
