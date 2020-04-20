@@ -236,12 +236,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void showTrackFeedback() {
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
-        dialogBuilder.setTitle("Test");
+        dialogBuilder.setTitle("Store your Track!");
         dialogBuilder.setView(R.layout.dialog_track_feedback);
         dialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Snackbar.make(findViewById(R.id.fragment_container), "Store into Firestore", 1000).setAnchorView(bottomBar).show();
+            }
+        });
+
+        dialogBuilder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Snackbar.make(findViewById(R.id.fragment_container), "Dont store ", 1000).setAnchorView(bottomBar).show();
             }
         });
         dialogBuilder.show();
