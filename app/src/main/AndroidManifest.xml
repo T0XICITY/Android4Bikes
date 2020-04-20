@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".view.ActivityMapBoxTest">
+        <activity android:name=".view.ActivityMapBoxTest"/>
         <activity android:name=".view.MainActivity"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -29,8 +29,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc" />
-
-        <activity android:name=".view.MainActivity" />
         <activity android:name=".view.login.ActivityLogin" />
     </application>
 
