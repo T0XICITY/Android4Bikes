@@ -18,21 +18,16 @@ public class ViewModelWeatherWarning extends ViewModel implements Observer {
     public ViewModelWeatherWarning(){
         managerWarning = new WeatherManagerWarning();
         managerWarning.addObserver(this);
+        currentWarnings = new MutableLiveData<>();
         managerWarning.startWeatherTask();
     }
 
     public LiveData<Set<DWDwarning>> getWeatherWarnings(){
-        if (currentWarnings == null){
-            currentWarnings = new MutableLiveData<>();
-        }
         return currentWarnings;
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        if (currentWarnings == null){
-            currentWarnings = new MutableLiveData<>();
-        }
         Set<DWDwarning> newWarnings = managerWarning.getDWDwarnings();
         currentWarnings.postValue(newWarnings);
     }
