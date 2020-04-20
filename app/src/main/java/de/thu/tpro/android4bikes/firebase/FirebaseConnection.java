@@ -499,6 +499,27 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                 });
     }
 
+    /**
+     * TODO
+     *
+     * @param tracks
+     */
+    @Override
+    public void readProfilesBasedOnTracks(List<Track> tracks) {
+        //TODO: PLEASE BY FABI AND PATRICK.
+
+        //TODO: MAINTAIN FOLLOWING CODE BASE:
+        Map<Track, Profile> map_track_profile = new HashMap<>();
+
+        //Implementation
+        //Get all Google IDs from tracks and load those profiles
+        //Afterwards: Save combination of track and profile in Map!!!!
+        //...
+
+        setChanged();
+        notifyObservers(map_track_profile);
+    }
+
     public enum ConstantsFirebase {
         COLLECTION_PROFILES("profiles"),
         COLLECTION_UTILIZATION("utilization"),

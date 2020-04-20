@@ -196,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startActivity(intent);
     }
 
+
     /**
      * Initiates the BottomAppBar and set listeners to nav buttons
      */
