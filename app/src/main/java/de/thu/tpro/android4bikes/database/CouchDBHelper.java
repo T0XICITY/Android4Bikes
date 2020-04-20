@@ -284,8 +284,27 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         return profile;
     }
 
+    public void storeMyOwnProfile(Profile profile) {
+        try {
+            Database db_ownprofile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNPROFILE);
+            JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
+            Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
+            MutableDocument mutableDocument_profile = new MutableDocument(result);
+            couchDB.saveMutableDocumentToDatabase(db_ownprofile, mutableDocument_profile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    public void readMyProfile() {
+    public void updateMyOwnProfile(Profile profile) {
+
+    }
+
+    public void deleteMyOwnProfile() {
+
+    }
+
+    public void readMyOwnProfile() {
         //TODO!!!!! AUSIMPLEMENTIEREN
         List<Achievement> achievements = new ArrayList<>();
         achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
