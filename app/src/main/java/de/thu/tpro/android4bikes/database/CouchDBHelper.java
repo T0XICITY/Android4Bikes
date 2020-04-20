@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Observable;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -296,23 +295,52 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
     }
 
+
     public void updateMyOwnProfile(Profile profile) {
         deleteMyOwnProfile();
         storeMyOwnProfile(profile);
     }
 
+    /**
+     * Deletes the own profile.
+     */
     public void deleteMyOwnProfile() {
-
+        couchDB.clearDB(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNPROFILE));
     }
 
-    public void readMyOwnProfile() {
-        //TODO!!!!! AUSIMPLEMENTIEREN
-        List<Achievement> achievements = new ArrayList<>();
-        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
-        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
-        Profile p = new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
-        setChanged();
-        notifyObservers(p);
+    /**
+     * Reads the own profile out of the database
+     */
+    public Profile readMyOwnProfile() {
+        Profile ownProfile = null;
+        try {
+            Database db_own_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNPROFILE);
+            Query query_own_profile = QueryBuilder.select(SelectResult.all())
+                    .from(DataSource.database(db_own_profile));
+            ResultSet results = couchDB.queryDatabase(query_own_profile);
+            JSONObject jsonObject_profile = null;
+            JSONArray jsonArray_achievement = null;
+            for (Result result : results) {
+                Map map_result = result.toMap();
+                jsonObject_profile = new JSONObject(map_result);
+                jsonObject_profile = (JSONObject) jsonObject_profile.get(DatabaseNames.DATABASE_PROFILE.toText());
+
+                jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+                List<Achievement> list_achievements = new ArrayList<>();
+
+                for (int i = 0; i < jsonArray_achievement.length(); ++i) {
+                    JSONObject jsonObject_achievement = jsonArray_achievement.getJSONObject(i);
+                    Achievement achievement = gson_achievement.fromJson(jsonObject_achievement.toString(), Achievement.class);
+                    list_achievements.add(achievement);
+                }
+                jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+                ownProfile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
+                ownProfile.setAchievements(list_achievements);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ownProfile;
     }
 
     @Override
