@@ -17,6 +17,9 @@ import de.thu.tpro.android4bikes.R;
  * View Holder class for Track CardView to be displayed inside a RecyclerView
  */
 public class TrackListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    private FragmentTrackList parent;
+
+    // package private for easy access
     TextView tv_name;
     TextView tv_description;
     TextView tv_trackLength;
@@ -24,20 +27,21 @@ public class TrackListViewHolder extends RecyclerView.ViewHolder implements View
     TextView tv_author;
     TextView tv_trackLocation;
     RatingBar rating_roadQuality;
-    RatingBar rating_dificulty;
+    RatingBar rating_difficulty;
     RatingBar rating_funfactor;
     LinearLayout detailView;
 
-    public TrackListViewHolder(@NonNull View itemView) {
+    public TrackListViewHolder(@NonNull View itemView, FragmentTrackList parent) {
         super(itemView);
         initCardView();
         itemView.setOnClickListener(this);
+        this.parent = parent;
     }
 
 
     @Override
     public void onClick(View view) {
-
+        parent.searchView.clearFocus();
         TransitionManager.beginDelayedTransition((ViewGroup) view.getParent());
         toggleViewVisibility();
 
@@ -62,7 +66,7 @@ public class TrackListViewHolder extends RecyclerView.ViewHolder implements View
         tv_name = itemView.findViewById(R.id.tv_trackname);
         tv_description = itemView.findViewById(R.id.tv_description);
         rating_roadQuality = itemView.findViewById(R.id.ratingBar_roadQuality);
-        rating_dificulty = itemView.findViewById(R.id.ratingBar_dificulty);
+        rating_difficulty = itemView.findViewById(R.id.ratingBar_dificulty);
         rating_funfactor = itemView.findViewById(R.id.ratingBar_funfactor);
         detailView = itemView.findViewById(R.id.layout_detailView);
         tv_trackLength = itemView.findViewById(R.id.tv_tracklength);

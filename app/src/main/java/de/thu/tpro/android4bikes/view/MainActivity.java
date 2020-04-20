@@ -9,6 +9,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
@@ -16,7 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -30,6 +32,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        GlobalContext.setContext(this.getApplicationContext());
         //dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_Dialog);
 
         /*
@@ -266,8 +270,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         hideSoftKeyboard();
         hideToolbar();
-        updateFragment();
+        animateFabIconChange();
 
+        updateFragment();
         showBottomBar();
         dLayout.closeDrawers();
     }
@@ -276,6 +281,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragDriving;
         hideSoftKeyboard();
         hideToolbar();
+        animateFabIconChange();
+
         updateFragment();
         //just the bottom bar should be hidden, not the FAB
         bottomBar.performHide();
@@ -292,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openTrackList() {
         currentFragment = fragTrackList;
-        //hideBottomBar();
+        hideBottomBar();
         showToolbar();
         topAppBar.setTitle(R.string.title_tracks);
         updateFragment();
@@ -320,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void hideToolbar() {
         // only perform animation when currently shown
         if (toolbarHidden)
-        return;
+            return;
 
         toolbarHidden = true;
         topAppBar.animate().translationY(-topAppBar.getBottom())
@@ -337,21 +344,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         topAppBar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
     }
 
-    private void hideBottomBar(){
+    private void hideBottomBar() {
         fab.hide();
         bottomBar.performHide();
     }
-    private void showBottomBar(){
+
+    private void showBottomBar() {
         fab.show();
         bottomBar.performShow();
     }
-//https://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
-    private void hideSoftKeyboard(){
+
+    // https://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
+    public void hideSoftKeyboard() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (getCurrentFocus() != null)
-            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),0);
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
+    private void animateFabIconChange() {
+        // shrink X to middle
+        fab.animate().scaleX(0).withEndAction(() -> {
+            // change icon
+            if (currentFragment.equals(fragInfo))
+                fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_bike));
+            else
+                fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_information));
+            // grow back to original X
+            fab.animate().scaleX(1).start();
+        }).start();
+    }
 
     @Override
     public void onClick(View view) {
