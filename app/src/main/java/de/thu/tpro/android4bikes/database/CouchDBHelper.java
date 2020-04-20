@@ -297,8 +297,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
 
     public void updateMyOwnProfile(Profile profile) {
-        deleteMyOwnProfile();
-        storeMyOwnProfile(profile);
+
     }
 
     /**
@@ -309,7 +308,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     }
 
     /**
-     * Reads the own profile out of the database
+     * reads the own profile out of the database
+     * @return own profile
      */
     public Profile readMyOwnProfile() {
         Profile ownProfile = null;
