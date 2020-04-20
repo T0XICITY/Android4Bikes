@@ -39,6 +39,17 @@ public class CouchDB {
     private Database database_rating;
     private Database database_track;
     private Database database_own_profile;
+    private Database database_writeBuffer_bikerack;
+    private Database database_writeBuffer_hazardalert;
+    private Database database_writeBuffer_position;
+    private Database database_writeBuffer_profile;
+    private Database database_writeBuffer_track;
+    private Database database_ownData_bikerack;
+    private Database database_ownData_hazardalert;
+    private Database database_ownData_position;
+    private Database database_ownData_profile;
+    private Database database_ownData_track;
+
 
     /**
      * constructor
@@ -77,6 +88,18 @@ public class CouchDB {
         this.database_track = null;
         this.database_own_profile = null;
 
+        this.database_writeBuffer_bikerack = null;
+        this.database_writeBuffer_hazardalert = null;
+        this.database_writeBuffer_position = null;
+        this.database_writeBuffer_profile = null;
+        this.database_writeBuffer_track = null;
+
+        this.database_ownData_bikerack = null;
+        this.database_ownData_hazardalert = null;
+        this.database_ownData_position = null;
+        this.database_ownData_profile = null;
+        this.database_ownData_track = null;
+
 
         try {
             this.database_achievement = new Database(DatabaseNames.DATABASE_ACHIEVEMENT.toText(), config);
@@ -87,6 +110,18 @@ public class CouchDB {
             this.database_rating = new Database(DatabaseNames.DATABASE_RATING.toText(), config);
             this.database_track = new Database(DatabaseNames.DATABASE_TRACK.toText(), config);
             this.database_own_profile = new Database(DatabaseNames.DATABASE_OWNPROFILE.toText(), config);
+
+            this.database_writeBuffer_bikerack = new Database(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK.toText(), config);
+            this.database_writeBuffer_hazardalert = new Database(DatabaseNames.DATABASE_WRITEBUFFER_HAZARD_ALERT.toText(), config);
+            this.database_writeBuffer_position = new Database(DatabaseNames.DATABASE_WRITEBUFFER_POSITION.toText(), config);
+            this.database_writeBuffer_profile = new Database(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE.toText(), config);
+            this.database_writeBuffer_track = new Database(DatabaseNames.DATABASE_WRITEBUFFER_TRACK.toText(), config);
+
+            this.database_ownData_bikerack = new Database(DatabaseNames.DATABASE_OWNDATA_BIKERACK.toText(), config);
+            this.database_ownData_hazardalert = new Database(DatabaseNames.DATABASE_OWNDATA_HAZARD_ALERT.toText(), config);
+            this.database_ownData_position = new Database(DatabaseNames.DATABASE_OWNDATA_POSITION.toText(), config);
+            this.database_ownData_profile = new Database(DatabaseNames.DATABASE_OWNDATA_PROFILE.toText(), config);
+            this.database_ownData_track = new Database(DatabaseNames.DATABASE_OWNDATA_TRACK.toText(), config);
         } catch (CouchbaseLiteException e) {
             e.printStackTrace();
             Log.e("HalloWelt", "Failure during creation of the database!");
@@ -125,6 +160,36 @@ public class CouchDB {
                 break;
             case DATABASE_OWNPROFILE:
                 db = database_own_profile;
+                break;
+            case DATABASE_WRITEBUFFER_BIKERACK:
+                db = database_writeBuffer_bikerack;
+                break;
+            case DATABASE_WRITEBUFFER_HAZARD_ALERT:
+                db = database_writeBuffer_hazardalert;
+                break;
+            case DATABASE_WRITEBUFFER_POSITION:
+                db = database_writeBuffer_position;
+                break;
+            case DATABASE_WRITEBUFFER_PROFILE:
+                db = database_writeBuffer_profile;
+                break;
+            case DATABASE_WRITEBUFFER_TRACK:
+                db = database_writeBuffer_track;
+                break;
+            case DATABASE_OWNDATA_BIKERACK:
+                db = database_ownData_bikerack;
+                break;
+            case DATABASE_OWNDATA_HAZARD_ALERT:
+                db = database_ownData_hazardalert;
+                break;
+            case DATABASE_OWNDATA_POSITION:
+                db = database_ownData_position;
+                break;
+            case DATABASE_OWNDATA_PROFILE:
+                db = database_ownData_profile;
+                break;
+            case DATABASE_OWNDATA_TRACK:
+                db = database_ownData_track;
                 break;
         }
         return db;
@@ -533,7 +598,17 @@ public class CouchDB {
         DATABASE_PROFILE("profiledb"),
         DATABASE_RATING("ratingdb"),
         DATABASE_OWNPROFILE("ownprofiledb"),
-        DATABASE_TRACK("trackdb");
+        DATABASE_TRACK("trackdb"),
+        DATABASE_WRITEBUFFER_BIKERACK("writebufferbikerackdb"),
+        DATABASE_WRITEBUFFER_HAZARD_ALERT("writebufferhazardalertsdb"),
+        DATABASE_WRITEBUFFER_POSITION("writebufferpositiondb"),
+        DATABASE_WRITEBUFFER_PROFILE("writebufferprofiledb"),
+        DATABASE_WRITEBUFFER_TRACK("writebuffertrackdb"),
+        DATABASE_OWNDATA_BIKERACK("owndatabikerackdb"),
+        DATABASE_OWNDATA_HAZARD_ALERT("owndatahazardalertsdb"),
+        DATABASE_OWNDATA_POSITION("owndatapositiondb"),
+        DATABASE_OWNDATA_PROFILE("owndataprofiledb"),
+        DATABASE_OWNDATA_TRACK("owndatatrackdb");
 
         private String name;
 

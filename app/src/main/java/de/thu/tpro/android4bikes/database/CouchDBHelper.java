@@ -81,14 +81,23 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         for(Track track : list_tracks){
             storeTrack(track);
         }
-        setChanged();
-        notifyObservers(list_tracks);
     }
 
     @Override
     public void storeTrack(Track track) {
+        Database db_track = null;
         try {
-            Database db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+            switch (currentMode) {
+                case WRITEBUFFER:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
+                    break;
+                case OWNDATA:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
+                    break;
+                case OFFLINEDATA:
+                    db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+                    break;
+            }
             JSONObject json_track = new JSONObject(gson.toJson(track));
             Map result = gson.fromJson(json_track.toString(), Map.class);
             MutableDocument mutableDocument_track = new MutableDocument(result);
