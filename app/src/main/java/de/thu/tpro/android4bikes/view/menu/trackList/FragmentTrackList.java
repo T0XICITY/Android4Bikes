@@ -8,6 +8,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -34,18 +35,23 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.GpsLocation;
+import de.thu.tpro.android4bikes.view.MainActivity;
 
 /**
  * @author Stefanie
  * This fragment contains the view elements and logic regarding tracks
  */
-public class FragmentTrackList extends Fragment implements SearchView.OnQueryTextListener, LocationListener, SeekBar.OnSeekBarChangeListener {
+public class FragmentTrackList extends Fragment implements SearchView.OnQueryTextListener,
+        LocationListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
     private static final String LOG_TAG = "FragmentCreateTrack";
 
     private TrackListDataBinder dataBinder;
     private RecyclerView recyclerView;
     private TrackListAdapter adapter;
     private TextView tv_trackList;
+
+    // package private to clear focus
+    SearchView searchView;
 
     // Filter dialog elements
     private TextView tv_indicator_range;
@@ -83,8 +89,12 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         ImageButton btn_sort = view.findViewById(R.id.btn_sort_tracks);
         btn_sort.setOnClickListener(v -> openSortingDialog());
 
-        SearchView searchView = view.findViewById(R.id.searchView_searchTrack);
+        searchView = view.findViewById(R.id.searchView_searchTrack);
         searchView.setOnQueryTextListener(this);
+
+        // make all views != searchView clear focus from the searchview when touched
+        recyclerView.setOnTouchListener(this::onTouch);
+        tv_trackList.setOnTouchListener(this::onTouch);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(RecyclerView.VERTICAL);
@@ -97,7 +107,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initLocationManager();
-        adapter = new TrackListAdapter(getActivity(), dataBinder.getTrackDistanceList());
+        adapter = new TrackListAdapter(this, dataBinder.getTrackDistanceList());
 
         Log.d("FragmentCreateTrack", getActivity() + "");
         recyclerView.setAdapter(adapter);
@@ -190,6 +200,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
      * opens a MaterialAlertDialog to show filter options to the user
      */
     private void openFilterDialog() {
+        searchView.clearFocus();
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
 
         // inflaters gonna inflate
@@ -241,6 +253,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
      * opens a MaterialAlertDialog with sorting options
      */
     private void openSortingDialog() {
+        searchView.clearFocus();
+
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
 
         // inflaters gonna inflate
@@ -374,6 +388,15 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
             ((RadioButton) rg_orderTracks.findViewById(R.id.radio_trackOrder_desc)).setChecked(true);
     }
 
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        if (view != searchView) {
+            searchView.clearFocus();
+            return true;
+        }
+        return false;
+    }
+
 
     // TODO: delete after backend is connected to view
     private void initTracklistDummy() {
@@ -399,5 +422,9 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         trackList.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
         trackList.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
         trackList.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
+
+        trackList.get(0).setPostcode("89073");
+        trackList.get(1).setPostcode("88477");
+        trackList.get(2).setPostcode("89231");
     }
 }

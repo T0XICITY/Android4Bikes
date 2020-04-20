@@ -18,28 +18,25 @@ public class ViewModelRoadsideAssistance {
 
     // Image resources for ImageView
     private final Integer[] institutionImages = {
-            R.drawable.ic_emergency__hospital,
-            R.drawable.emergency_fire_department,
-            R.drawable.emergency_police,
-            R.drawable.emergency_roadside_assistance,
-            R.drawable.ic_emergency_child,
-            R.drawable.ic_emergency_phone
+            R.drawable.ic_material_ambulance,
+            R.drawable.ic_material_fire_hydrant,
+            R.drawable.ic_material_police,
+            R.drawable.ic_material_hammer_wrench,
+            R.drawable.ic_material_child
     };
 
     private final Integer[] callImage = {
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call,
-            R.drawable.ic_emergency__call
-
+            R.drawable.ic_emergency_call,
+            R.drawable.ic_emergency_call,
+            R.drawable.ic_emergency_call,
+            R.drawable.ic_emergency_call,
+            R.drawable.ic_emergency_call
     };
 
 
     private List<RoadsideAssistanceEntry> entries;
     //Phone Numbers
-    private String[] telnummer = {"1116117", "112", "110", "22222", "116111", "0"};
+    private String[] telnummer = {"1116117", "112", "110", "22222", "116111"};
 
 
     public ViewModelRoadsideAssistance(Resources res) {

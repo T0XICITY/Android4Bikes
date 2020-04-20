@@ -26,6 +26,6 @@
         <item>Police</item>
         <item>Roadside Assistance</item>
         <item>Youth Helpline</item>
-        <item>Manual Input</item>
+        <!--<item>Manual Input</item>-->
     </string-array>
 </resources>
