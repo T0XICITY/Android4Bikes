@@ -47,8 +47,8 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
 
     public void submitHazardAlert(HazardAlert hazardAlert){
         processor.startRunnable(()->{
-            incrementWorkInProgress();
-            localDB.storeHazardAlerts(hazardAlert);
+            //store it to writebuffer
+            //localDB.storeHazardAlerts(hazardAlert);
         });
     }
 
@@ -67,15 +67,14 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
     @Override
     public void update(Observable observable, Object arg) {
         try {
-            List<HazardAlert> list_loaded_tracks;
+            List<HazardAlert> list_loaded_hazardAlerts;
             if (arg != null) {
                 //cast to general list
                 List list = (List) arg;
                 if (list.size() > 0 && list.get(0) instanceof HazardAlert) {
                     //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
-                    list_loaded_tracks = (List<HazardAlert>) list;
-                    //update list of shown tracks:
-                    hazardAlerts.postValue(list_loaded_tracks);
+                    list_loaded_hazardAlerts = (List<HazardAlert>) list;
+                    hazardAlerts.postValue(list_loaded_hazardAlerts);
                 }
             }
         } catch (Exception e) {
