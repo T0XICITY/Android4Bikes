@@ -54,8 +54,8 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private GeoFencing geoFencingTracks;
 
     //Buffer
-    private CouchDBHelper writeBuffer;
-    private CouchDBHelper deleteBuffer;
+    private CouchDBHelper cdb_writeBuffer;
+    private CouchDBHelper cdb_deleteBuffer;
     private CouchDBHelper ownDataDB;
 
 
@@ -68,8 +68,8 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         geoFencingTracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
 
         //WriteBuffer und DeleteBuffer
-        writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-        deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
+        cdb_writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+        cdb_deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
         ownDataDB = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
     }
 
@@ -552,7 +552,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
 
                             //Delete profile from the WriteBuffer:
-                            writeBuffer.deleteProfile(profile);
+                            cdb_writeBuffer.deleteProfile(profile);
                             //update and creation:
                             ownDataDB.updateMyOwnProfile(profile);
 
@@ -596,7 +596,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         Log.d(TAG, "Profile successfully deleted!");
 
                         //Delete profile from delete buffer
-                        deleteBuffer.deleteProfile(profile);
+                        cdb_deleteBuffer.deleteProfile(profile);
 
                         //Delete profile from ownDataDB
                         ownDataDB.deleteProfile(profile);
@@ -621,6 +621,65 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void storeTrackInFireStore(Track track) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        try {
+            JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
+            Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
+            PositionCompressor positionCompressor = new PositionCompressor();
+
+            //compress fineGrainedPositions
+            byte[] compressedPositions = positionCompressor.compressPositions(track.getFineGrainedPositions());
+
+            //BLOB
+            Blob blob_trackpositions_compressed = Blob.fromBytes(compressedPositions);
+
+            //replace fineGrainedPositions by compressed version
+            map_track.put(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString(), blob_trackpositions_compressed);
+
+            db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
+                    .add(map_track) //generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            String firebaseID = documentReference.getId();
+                            track.setFirebaseID(firebaseID);
+                            Log.d(TAG, "Track " + track.getName() + " added successfully " + TimeBase.getCurrentUnixTimeStamp());
+                            geoFencingTracks.registerDocument(documentReference.getId(), track.getFineGrainedPositions().get(0).getGeoPoint());
+
+
+                            //track to store by own user:
+                            ownDataDB.storeTrack(track);
+
+                            //update buffer
+                            cdb_writeBuffer.deleteTrack(track);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error submitting BikeRack", e);
+                        }
+                    });
+            Log.d("HalloWelt", "Ende " + TimeBase.getCurrentUnixTimeStamp());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            countDownLatch.await();
+            Log.d("HalloWelt", "Await is over");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deleteTrackFromFireStore(Track t) {
+
     }
     //Methods for buffering################################################################################
 

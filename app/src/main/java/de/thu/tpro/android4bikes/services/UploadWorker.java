@@ -14,6 +14,7 @@ import java.util.List;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 
@@ -44,6 +45,7 @@ public class UploadWorker extends Worker {
         //Result.failure(): Task failed
         //Result.retry(): Task should be retried
 
+        //Synchronize profile#######################################################################
         Profile buffered_profile_to_store = readProfileWriteBuffer();
         if (buffered_profile_to_store != null) {
             FirebaseConnection.getInstance().storeProfileToFireStore(buffered_profile_to_store);
@@ -53,9 +55,20 @@ public class UploadWorker extends Worker {
         if (buffered_profile_to_delete != null) {
             FirebaseConnection.getInstance().deleteProfileFromFireStore(buffered_profile_to_delete);
         }
+        //Synchronize profile#######################################################################
 
 
+        //Synchronize track#########################################################################
+        List<Track> list_tracks_to_store = readTrackWriteBuffer();
+        for (Track t : list_tracks_to_store) {
+            FirebaseConnection.getInstance().storeTrackInFireStore(t);
+        }
 
+        List<Track> list_tracks_to_delete = readTrackDeleteBuffer();
+        for (Track t : list_tracks_to_delete) {
+            FirebaseConnection.getInstance().deleteTrackFromFireStore(t);
+        }
+        //Synchronize track#########################################################################
 
         return Result.success();
     }
@@ -89,6 +102,27 @@ public class UploadWorker extends Worker {
     private Profile readProfileDeleteBuffer() {
         Profile buffered_profile = deleteBuffer.readMyOwnProfile();
         return buffered_profile;
+    }
+
+    /**
+     * read tracks that need to be synchronized with the FireStore
+     *
+     * @return all tracks to synchronize with the FireStore
+     */
+    private List<Track> readTrackWriteBuffer() {
+        List<Track> list_buffered_tracks = writeBuffer.readTracks();
+        return list_buffered_tracks;
+    }
+
+
+    /**
+     * read tracks that need to be deleted from the FireStore
+     *
+     * @return all tracks to synchronize with the FireStore
+     */
+    private List<Track> readTrackDeleteBuffer() {
+        List<Track> list_buffered_tracks = deleteBuffer.readTracks();
+        return list_buffered_tracks;
     }
 
 }

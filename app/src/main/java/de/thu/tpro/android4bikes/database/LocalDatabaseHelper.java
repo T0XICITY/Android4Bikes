@@ -106,6 +106,13 @@ public interface LocalDatabaseHelper {
     void deleteTrack(String fireBaseID);
 
     /**
+     * Method to delete a track from the local database
+     *
+     * @param track track that should be deleted
+     */
+    void deleteTrack(Track track);
+
+    /**
      * Method to store a hazard alert in the local database
      *
      * @param hazardAlert is the hazard alert which should be stored

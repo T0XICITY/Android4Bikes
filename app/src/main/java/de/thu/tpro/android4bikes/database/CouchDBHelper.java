@@ -155,6 +155,11 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     }
 
     @Override
+    public void deleteTrack(Track track) {
+        this.deleteTrack(track.getFirebaseID());
+    }
+
+    @Override
     public void deleteTrack(String fireBaseID) {
         Database db_track = null;
         try {
