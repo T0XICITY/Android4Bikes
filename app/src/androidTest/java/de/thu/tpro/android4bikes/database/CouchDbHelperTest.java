@@ -509,6 +509,8 @@ public class CouchDbHelperTest {
 
         Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
 
+        couchdb.clearDB(db_track);
+
         Track track = generateTrack();
 
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
@@ -527,40 +529,84 @@ public class CouchDbHelperTest {
     }
 
     @Test
+    public void storeTrackOwn(){
+        CouchDBHelper cdbOwn = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
+
+        Database db_track_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
+
+        couchdb.clearDB(db_track_own);
+
+        Track track_Own = generateTrack();
+
+        long initialNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_track_own);
+
+        cdbOwn.storeTrack(track_Own);
+
+        long newNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_track_own);
+
+        assertEquals(initialNumberOfDocuments_own + 1, newNumberOfDocuments_own);
+
+        List<Track> readTracks_own = cdbOwn.readTracks();
+
+        assertTrue(readTracks_own.contains(track_Own));
+
+        cdbOwn.deleteTrack(track_Own.getFirebaseID());
+    }
+
+    @Test
     public void trackTestInterference(){
         CouchDBHelper cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+        CouchDBHelper cdbOwn = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
 
         Database db_track_WB = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
         Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+        Database db_track_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
+
 
         couchdb.clearDB(db_track);
         couchdb.clearDB(db_track_WB);
+        couchdb.clearDB(db_track_own);
 
         Track track_WB = generateTrack();
-        Track track_Normal = generateDifferentTrack();
+        Track track_Normal = generateDifferentTrack("Normal");
+        Track track_Own = generateDifferentTrack("OWN");
+
 
         long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_track_WB);
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
+        long initialNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_track_own);
 
         cdbWriteBuffer.storeTrack(track_WB);
         couchDbHelper.storeTrack(track_Normal);
+        cdbOwn.storeTrack(track_Own);
 
         long newNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_track_WB);
         long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
+        long newNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_track_own);
 
         assertEquals(initialNumberOfDocuments_WB + 1, newNumberOfDocuments_WB);
         assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+        assertEquals(initialNumberOfDocuments_own + 1, newNumberOfDocuments_own);
 
         List<Track> readTracks_WB = cdbWriteBuffer.readTracks();
         List<Track> readTracks_Normal = couchDbHelper.readTracks();
+        List<Track> readTracks_own = cdbOwn.readTracks();
 
         assertTrue(readTracks_Normal.contains(track_Normal));
         assertFalse(readTracks_Normal.contains(track_WB));
+        assertFalse(readTracks_Normal.contains(track_Own));
+
         assertTrue(readTracks_WB.contains(track_WB));
         assertFalse(readTracks_WB.contains(track_Normal));
+        assertFalse(readTracks_WB.contains(track_Own));
+
+        assertTrue(readTracks_own.contains(track_Own));
+        assertFalse(readTracks_own.contains(track_WB));
+        assertFalse(readTracks_own.contains(track_Normal));
 
         cdbWriteBuffer.deleteTrack(track_WB.getFirebaseID());
         couchDbHelper.deleteTrack(track_WB.getFirebaseID());
+        cdbOwn.deleteTrack(track_Own.getFirebaseID());
     }
 
 
@@ -603,10 +649,10 @@ public class CouchDbHelperTest {
         return track;
     }
 
-    private Track generateDifferentTrack(){
+    private Track generateDifferentTrack(String name){
         Track track = generateTrack();
         track.setDistance_km(100);
-        track.setName("Lieblingstour");
+        track.setName(name);
         track.setDescription("Das ist schön. Das ist wunderschön!");
         return track;
     }
