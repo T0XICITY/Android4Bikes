@@ -300,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openTrackList() {
         currentFragment = fragTrackList;
-        //hideBottomBar();
+        hideBottomBar();
         showToolbar();
         topAppBar.setTitle(R.string.title_tracks);
         updateFragment();
@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     // https://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
-    private void hideSoftKeyboard() {
+    public void hideSoftKeyboard() {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (getCurrentFocus() != null)
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
