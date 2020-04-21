@@ -3,6 +3,8 @@ package de.thu.tpro.android4bikes.util;
 import java.util.UUID;
 
 public class UUIDGenerator {
+    //compare:
+    //https://www.baeldung.com/java-uuid
     public static String generateUUID() {
         String uuid_string = null;
         try {
