@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.concurrent.CountDownLatch;
 
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.commands.Command;
 import de.thu.tpro.android4bikes.data.commands.SearchForHazardAlertsWithPostalCodeInLocalDB;
 import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostalCodeInFireStore;
@@ -529,8 +530,17 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         //Afterwards: Save combination of track and profile in Map!!!!
         //...
 
+        tracks.forEach(entry -> {
+            map_track_profile.put(entry,createAnonProfile());
+        });
+
         setChanged();
         notifyObservers(map_track_profile);
+    }
+
+    private Profile createAnonProfile() {
+        List<Achievement> list = new ArrayList<>();
+        return new Profile("Android","Biker","-1",0x2e8b57,0,list);
     }
 
 

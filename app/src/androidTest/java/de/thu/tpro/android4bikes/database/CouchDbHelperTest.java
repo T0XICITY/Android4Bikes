@@ -30,12 +30,16 @@ import static org.junit.Assert.assertTrue;
 public class CouchDbHelperTest {
     private static CouchDB couchdb;
     private static CouchDBHelper couchDbHelper;
+    private static CouchDBHelper cdbWriteBuffer;
+    private static CouchDBHelper cdbOwn;
 
     @BeforeClass
     public static void setUp() throws Exception {
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         couchDbHelper = new CouchDBHelper();
         couchdb = CouchDB.getInstance();
+        cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+        cdbOwn = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
     }
 
     /**
@@ -50,30 +54,30 @@ public class CouchDbHelperTest {
     @Test
     public void storeBikeRack() {
         //Get database:
-        Database db_bikeRack = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+        Database db_bikeRack_normal = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
 
         //get count of initially stored documents:
-        long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_bikeRack);
+        long initialNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
 
         //create new BikeRack
-        BikeRack bikeRack_THU = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU_normal = this.generateTHUBikeRack();
 
         //store BikeRack in local database
-        couchDbHelper.storeBikeRack(bikeRack_THU);
+        couchDbHelper.storeBikeRack(bikeRack_THU_normal);
 
         //read new amount of stored documents
-        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_bikeRack);
+        long newNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
 
         //after storing the bike rack there must be one bike rack more
-        assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+        assertEquals(initialNumberOfDocuments_normal + 1, newNumberOfDocuments_normal);
 
         //read the just stored bike rack (THUBikeRack)
-        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks();
+        List<BikeRack> bikeRacks_with_postcode_89075_normal = couchDbHelper.readBikeRacks();
 
         //the just stored bike rack must be in the list of the read bike racks
-        assertTrue(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
+        assertTrue(bikeRacks_with_postcode_89075_normal.contains(bikeRack_THU_normal));
 
-        couchDbHelper.deleteBikeRack(bikeRack_THU.getFirebaseID());
+        couchDbHelper.deleteBikeRack(bikeRack_THU_normal.getFirebaseID());
     }
 
     /**
@@ -445,39 +449,17 @@ public class CouchDbHelperTest {
     @Test
     public void addUtilisation(){
         Database db_position = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
-
         couchdb.clearDB(db_position);
-
         Position position;
-
         double k = 0;
-
         for (int i = 0; i < 99; i++) {
-
             position = new Position(50.999999 + k, 10.999999 + k);
-
             k = k + 0.000001;
-
             couchDbHelper.addToUtilization(position);
-
         }
-
-
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_position);
-
-        assertEquals(49,initialNumberOfDocuments);
-
-        position = new Position(50.999999 + k, 10.999999 + k);
-
-        couchDbHelper.addToUtilization(position);
-        try {
-            Thread.sleep(15000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_position);
-
-        assertEquals(0,newNumberOfDocuments);
+        assertEquals(99,initialNumberOfDocuments);
+        couchdb.clearDB(db_position);
     }
 
     @Test
@@ -505,9 +487,9 @@ public class CouchDbHelperTest {
 
     @Test
     public void storeTrackWriteBuffer(){
-        CouchDBHelper cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-
         Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
+
+        couchdb.clearDB(db_track);
 
         Track track = generateTrack();
 
@@ -527,42 +509,201 @@ public class CouchDbHelperTest {
     }
 
     @Test
-    public void trackTestInterference(){
-        CouchDBHelper cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+    public void storeTrackOwn(){
+        Database db_track_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
 
+        couchdb.clearDB(db_track_own);
+
+        Track track_Own = generateTrack();
+
+        long initialNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_track_own);
+
+        cdbOwn.storeTrack(track_Own);
+
+        long newNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_track_own);
+
+        assertEquals(initialNumberOfDocuments_own + 1, newNumberOfDocuments_own);
+
+        List<Track> readTracks_own = cdbOwn.readTracks();
+
+        assertTrue(readTracks_own.contains(track_Own));
+
+        cdbOwn.deleteTrack(track_Own.getFirebaseID());
+    }
+
+    @Test
+    public void trackTestInterference(){
         Database db_track_WB = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
         Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+        Database db_track_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
 
         couchdb.clearDB(db_track);
         couchdb.clearDB(db_track_WB);
+        couchdb.clearDB(db_track_own);
 
         Track track_WB = generateTrack();
-        Track track_Normal = generateDifferentTrack();
+        Track track_Normal = generateDifferentTrack("Normal");
+        Track track_Own = generateDifferentTrack("OWN");
 
         long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_track_WB);
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
+        long initialNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_track_own);
 
         cdbWriteBuffer.storeTrack(track_WB);
         couchDbHelper.storeTrack(track_Normal);
+        cdbOwn.storeTrack(track_Own);
 
         long newNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_track_WB);
         long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
+        long newNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_track_own);
 
         assertEquals(initialNumberOfDocuments_WB + 1, newNumberOfDocuments_WB);
         assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+        assertEquals(initialNumberOfDocuments_own + 1, newNumberOfDocuments_own);
 
         List<Track> readTracks_WB = cdbWriteBuffer.readTracks();
         List<Track> readTracks_Normal = couchDbHelper.readTracks();
+        List<Track> readTracks_own = cdbOwn.readTracks();
 
         assertTrue(readTracks_Normal.contains(track_Normal));
         assertFalse(readTracks_Normal.contains(track_WB));
+        assertFalse(readTracks_Normal.contains(track_Own));
+
         assertTrue(readTracks_WB.contains(track_WB));
         assertFalse(readTracks_WB.contains(track_Normal));
+        assertFalse(readTracks_WB.contains(track_Own));
+
+        assertTrue(readTracks_own.contains(track_Own));
+        assertFalse(readTracks_own.contains(track_WB));
+        assertFalse(readTracks_own.contains(track_Normal));
 
         cdbWriteBuffer.deleteTrack(track_WB.getFirebaseID());
         couchDbHelper.deleteTrack(track_WB.getFirebaseID());
+        cdbOwn.deleteTrack(track_Own.getFirebaseID());
     }
 
+    @Test
+    public void storeBikeRackWriteBuffer() {
+        //Get database:
+        Database db_bikeRack_WB = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
+
+        couchdb.clearDB(db_bikeRack_WB);
+
+        //get count of initially stored documents:
+        long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_bikeRack_WB);
+
+        //create new BikeRack
+        BikeRack bikeRack_THU_WB = this.generateTHUBikeRack();
+
+        //store BikeRack in local database
+        cdbWriteBuffer.storeBikeRack(bikeRack_THU_WB);
+
+        //read new amount of stored documents
+        long newNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_bikeRack_WB);
+
+        //after storing the bike rack there must be one bike rack more
+        assertEquals(initialNumberOfDocuments_WB + 1, newNumberOfDocuments_WB);
+
+        //read the just stored bike rack (THUBikeRack)
+        List<BikeRack> bikeRacks_with_postcode_89075_WB = cdbWriteBuffer.readBikeRacks();
+
+        //the just stored bike rack must be in the list of the read bike racks
+        assertTrue(bikeRacks_with_postcode_89075_WB.contains(bikeRack_THU_WB));
+
+        cdbWriteBuffer.deleteBikeRack(bikeRack_THU_WB.getFirebaseID());
+    }
+
+    @Test
+    public void storeBikeRackOwn() {
+        //Get database:
+        Database db_bikeRack_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_BIKERACK);
+
+        couchdb.clearDB(db_bikeRack_own);
+
+        //get count of initially stored documents:
+        long initialNumberOfDocuments_OWN = couchdb.getNumberOfStoredDocuments(db_bikeRack_own);
+
+        //create new BikeRack
+        BikeRack bikeRack_THU_OWN = this.generateTHUBikeRack();
+
+        //store BikeRack in local database
+        cdbOwn.storeBikeRack(bikeRack_THU_OWN);
+
+        //read new amount of stored documents
+        long newNumberOfDocuments_OWN = couchdb.getNumberOfStoredDocuments(db_bikeRack_own);
+
+        //after storing the bike rack there must be one bike rack more
+        assertEquals(initialNumberOfDocuments_OWN + 1, newNumberOfDocuments_OWN);
+
+        //read the just stored bike rack (THUBikeRack)
+        List<BikeRack> bikeRacks_with_postcode_89075_OWN = cdbOwn.readBikeRacks();
+
+        //the just stored bike rack must be in the list of the read bike racks
+        assertTrue(bikeRacks_with_postcode_89075_OWN.contains(bikeRack_THU_OWN));
+
+        cdbOwn.deleteBikeRack(bikeRack_THU_OWN.getFirebaseID());
+    }
+
+    @Test
+    public void testBikeRackInterference(){
+        //Get database:
+        Database db_bikeRack_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_BIKERACK);
+        Database db_bikeRack_WB = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
+        Database db_bikeRack_normal = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+
+        couchdb.clearDB(db_bikeRack_own);
+        couchdb.clearDB(db_bikeRack_WB);
+        couchdb.clearDB(db_bikeRack_normal);
+
+        //get count of initially stored documents:
+        long initialNumberOfDocuments_OWN = couchdb.getNumberOfStoredDocuments(db_bikeRack_own);
+        long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_bikeRack_WB);
+        long initialNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
+
+        //create new BikeRack
+        BikeRack bikeRack_THU_OWN = this.generateTHUBikeRack();
+        bikeRack_THU_OWN.setName("own");
+        BikeRack bikeRack_THU_WB = this.generateTHUBikeRack();
+        bikeRack_THU_WB.setName("WB");
+        BikeRack bikeRack_THU_normal = this.generateTHUBikeRack();
+
+        //store BikeRack in local database
+        cdbOwn.storeBikeRack(bikeRack_THU_OWN);
+        cdbWriteBuffer.storeBikeRack(bikeRack_THU_WB);
+        couchDbHelper.storeBikeRack(bikeRack_THU_normal);
+
+        //read new amount of stored documents
+        long newNumberOfDocuments_OWN = couchdb.getNumberOfStoredDocuments(db_bikeRack_own);
+        long newNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_bikeRack_WB);
+        long newNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
+
+        //after storing the bike rack there must be one bike rack more
+        assertEquals(initialNumberOfDocuments_OWN + 1, newNumberOfDocuments_OWN);
+        assertEquals(initialNumberOfDocuments_WB + 1, newNumberOfDocuments_WB);
+        assertEquals(initialNumberOfDocuments_normal + 1, newNumberOfDocuments_normal);
+
+        //read the just stored bike rack (THUBikeRack)
+        List<BikeRack> bikeRacks_with_postcode_89075_OWN = cdbOwn.readBikeRacks();
+        List<BikeRack> bikeRacks_with_postcode_89075_WB = cdbWriteBuffer.readBikeRacks();
+        List<BikeRack> bikeRacks_with_postcode_89075_normal = couchDbHelper.readBikeRacks();
+
+        //the just stored bike rack must be in the list of the read bike racks
+        assertTrue(bikeRacks_with_postcode_89075_OWN.contains(bikeRack_THU_OWN));
+        assertFalse(bikeRacks_with_postcode_89075_OWN.contains(bikeRack_THU_WB));
+        assertFalse(bikeRacks_with_postcode_89075_OWN.contains(bikeRack_THU_normal));
+
+        assertTrue(bikeRacks_with_postcode_89075_normal.contains(bikeRack_THU_normal));
+        assertFalse(bikeRacks_with_postcode_89075_normal.contains(bikeRack_THU_WB));
+        assertFalse(bikeRacks_with_postcode_89075_normal.contains(bikeRack_THU_OWN));
+
+        assertTrue(bikeRacks_with_postcode_89075_WB.contains(bikeRack_THU_WB));
+        assertFalse(bikeRacks_with_postcode_89075_WB.contains(bikeRack_THU_OWN));
+        assertFalse(bikeRacks_with_postcode_89075_WB.contains(bikeRack_THU_normal));
+
+        cdbOwn.deleteBikeRack(bikeRack_THU_OWN.getFirebaseID());
+        cdbWriteBuffer.deleteBikeRack(bikeRack_THU_WB.getFirebaseID());
+        couchDbHelper.deleteBikeRack(bikeRack_THU_normal.getFirebaseID());
+    }
 
     /**
      * generates a new instance of the class BikeRack for test purposes
@@ -603,10 +744,10 @@ public class CouchDbHelperTest {
         return track;
     }
 
-    private Track generateDifferentTrack(){
+    private Track generateDifferentTrack(String name){
         Track track = generateTrack();
         track.setDistance_km(100);
-        track.setName("Lieblingstour");
+        track.setName(name);
         track.setDescription("Das ist schön. Das ist wunderschön!");
         return track;
     }
