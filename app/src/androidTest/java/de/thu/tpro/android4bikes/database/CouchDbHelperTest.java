@@ -7,19 +7,16 @@ import com.couchbase.lite.Database;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -60,7 +57,7 @@ public class CouchDbHelperTest {
         long initialNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
 
         //create new BikeRack
-        BikeRack bikeRack_THU_normal = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU_normal = TestObjectsGenerator.generateTHUBikeRack();
 
         //store BikeRack in local database
         couchDbHelper.storeBikeRack(bikeRack_THU_normal);
@@ -106,7 +103,7 @@ public class CouchDbHelperTest {
         assertEquals(0, initialNumberOfDouments);
 
         //create new BikeRack
-        BikeRack bikeRack_THU = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU = TestObjectsGenerator.generateTHUBikeRack();
 
         //store BikeRack in local database
         couchDbHelper.storeBikeRack(bikeRack_THU);
@@ -144,7 +141,7 @@ public class CouchDbHelperTest {
         couchdb.clearDB(db_bikeRack);
 
         //generate new BikeRack
-        BikeRack bikeRack_THU = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU = TestObjectsGenerator.generateTHUBikeRack();
 
         //store bikeRack in local DB
         couchDbHelper.storeBikeRack(bikeRack_THU);
@@ -178,7 +175,7 @@ public class CouchDbHelperTest {
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_hazardAlerts);
 
         //create new BikeRack
-        HazardAlert hazardAlert_thu = this.generateHazardAlert();
+        HazardAlert hazardAlert_thu = TestObjectsGenerator.generateHazardAlert();
 
         //store BikeRack in local database
         couchDbHelper.storeHazardAlerts(hazardAlert_thu);
@@ -224,7 +221,7 @@ public class CouchDbHelperTest {
         assertEquals(0, initialNumberOfDouments);
 
         //create new BikeRack
-        HazardAlert hazardAlert_THU = this.generateHazardAlert();
+        HazardAlert hazardAlert_THU = TestObjectsGenerator.generateHazardAlert();
 
         //store BikeRack in local database
         couchDbHelper.storeHazardAlerts(hazardAlert_THU);
@@ -263,7 +260,7 @@ public class CouchDbHelperTest {
         couchdb.clearDB(db_hazardAlerts);
 
         //generate new  hazard alert
-        HazardAlert hazardAlert_THU = this.generateHazardAlert();
+        HazardAlert hazardAlert_THU = TestObjectsGenerator.generateHazardAlert();
 
         //store  hazard alert in local DB
         couchDbHelper.storeHazardAlerts(hazardAlert_THU);
@@ -285,7 +282,7 @@ public class CouchDbHelperTest {
     public void storeProfile(){
         Database db_profile = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
 
-        Profile profile = createProfile();
+        Profile profile = TestObjectsGenerator.createProfile();
 
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_profile);
 
@@ -308,7 +305,7 @@ public class CouchDbHelperTest {
 
         couchdb.clearDB(db_profile);
 
-        Profile profile = createProfile();
+        Profile profile = TestObjectsGenerator.createProfile();
 
         couchDbHelper.storeProfile(profile);
 
@@ -325,9 +322,9 @@ public class CouchDbHelperTest {
 
         couchdb.clearDB(db_profile);
 
-        Profile profile = createProfile();
+        Profile profile = TestObjectsGenerator.createProfile();
 
-        Profile profileUpdate = createDifferentProfile();
+        Profile profileUpdate = TestObjectsGenerator.createDifferentProfile();
 
         couchDbHelper.storeProfile(profile);
 
@@ -360,7 +357,7 @@ public class CouchDbHelperTest {
 
         assertEquals(0, initialNumberOfDocuments);
 
-        Profile profile = createProfile();
+        Profile profile = TestObjectsGenerator.createProfile();
 
         couchDbHelper.storeProfile(profile);
 
@@ -381,7 +378,7 @@ public class CouchDbHelperTest {
     public void storeTrack(){
         Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
 
-        Track track = generateTrack();
+        Track track = TestObjectsGenerator.generateTrack();
 
         String postcode = "89075";
 
@@ -406,7 +403,7 @@ public class CouchDbHelperTest {
 
         couchdb.clearDB(db_track);
 
-        Track track = generateTrack();
+        Track track = TestObjectsGenerator.generateTrack();
 
         couchDbHelper.storeTrack(track);
 
@@ -427,7 +424,7 @@ public class CouchDbHelperTest {
 
         assertEquals(0, initialNumberOfDocuments);
 
-        Track track = generateTrack();
+        Track track = TestObjectsGenerator.generateTrack();
 
         String postcode = "89075";
 
@@ -491,7 +488,7 @@ public class CouchDbHelperTest {
 
         couchdb.clearDB(db_track);
 
-        Track track = generateTrack();
+        Track track = TestObjectsGenerator.generateTrack();
 
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
 
@@ -514,7 +511,7 @@ public class CouchDbHelperTest {
 
         couchdb.clearDB(db_track_own);
 
-        Track track_Own = generateTrack();
+        Track track_Own = TestObjectsGenerator.generateTrack();
 
         long initialNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_track_own);
 
@@ -541,9 +538,9 @@ public class CouchDbHelperTest {
         couchdb.clearDB(db_track_WB);
         couchdb.clearDB(db_track_own);
 
-        Track track_WB = generateTrack();
-        Track track_Normal = generateDifferentTrack("Normal");
-        Track track_Own = generateDifferentTrack("OWN");
+        Track track_WB = TestObjectsGenerator.generateTrack();
+        Track track_Normal = TestObjectsGenerator.generateDifferentTrack("Normal");
+        Track track_Own = TestObjectsGenerator.generateDifferentTrack("OWN");
 
         long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_track_WB);
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
@@ -593,7 +590,7 @@ public class CouchDbHelperTest {
         long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_bikeRack_WB);
 
         //create new BikeRack
-        BikeRack bikeRack_THU_WB = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU_WB = TestObjectsGenerator.generateTHUBikeRack();
 
         //store BikeRack in local database
         cdbWriteBuffer.storeBikeRack(bikeRack_THU_WB);
@@ -624,7 +621,7 @@ public class CouchDbHelperTest {
         long initialNumberOfDocuments_OWN = couchdb.getNumberOfStoredDocuments(db_bikeRack_own);
 
         //create new BikeRack
-        BikeRack bikeRack_THU_OWN = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU_OWN = TestObjectsGenerator.generateTHUBikeRack();
 
         //store BikeRack in local database
         cdbOwn.storeBikeRack(bikeRack_THU_OWN);
@@ -661,11 +658,11 @@ public class CouchDbHelperTest {
         long initialNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
 
         //create new BikeRack
-        BikeRack bikeRack_THU_OWN = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU_OWN = TestObjectsGenerator.generateTHUBikeRack();
         bikeRack_THU_OWN.setName("own");
-        BikeRack bikeRack_THU_WB = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU_WB = TestObjectsGenerator.generateTHUBikeRack();
         bikeRack_THU_WB.setName("WB");
-        BikeRack bikeRack_THU_normal = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU_normal = TestObjectsGenerator.generateTHUBikeRack();
 
         //store BikeRack in local database
         cdbOwn.storeBikeRack(bikeRack_THU_OWN);
@@ -703,75 +700,6 @@ public class CouchDbHelperTest {
         cdbOwn.deleteBikeRack(bikeRack_THU_OWN.getFirebaseID());
         cdbWriteBuffer.deleteBikeRack(bikeRack_THU_WB.getFirebaseID());
         couchDbHelper.deleteBikeRack(bikeRack_THU_normal.getFirebaseID());
-    }
-
-    /**
-     * generates a new instance of the class BikeRack for test purposes
-     *
-     * @return instance of a bike rack
-     */
-    private BikeRack generateTHUBikeRack() {
-        //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
-        return bikeRack_THU;
-    }
-
-    /**
-     * generates a new instance of the class HazardAlert for test purposes
-     *
-     * @return instance of a hazard alert
-     */
-    private HazardAlert generateHazardAlert() {
-        HazardAlert hazardAlert_thu = new HazardAlert(
-                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, "12345", true
-        );
-        return hazardAlert_thu;
-    }
-
-    /**
-     * generates a new instance of the class Track for test purposes
-     * @return instance of a track
-     * */
-    private Track generateTrack(){
-        List<Position> positions = new ArrayList<>();
-        positions.add(new Position(48.408880, 9.997507));
-        Track track = new Track("nullacht15",new Rating(),"Heimweg","Das ist meine super tolle Strecke",
-                "siebenundvierzig11",1585773516,25,
-                positions,new ArrayList<>(),true);
-        return track;
-    }
-
-    private Track generateDifferentTrack(String name){
-        Track track = generateTrack();
-        track.setDistance_km(100);
-        track.setName(name);
-        track.setDescription("Das ist schön. Das ist wunderschön!");
-        return track;
-    }
-
-    /**
-     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.Profile} for test purposes
-     * */
-    private Profile createProfile() {
-        List<Achievement> achievements = new ArrayList<>();
-        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
-        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
-
-        return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
-    }
-
-    /**
-     * generates a new different instance of the class {@link de.thu.tpro.android4bikes.data.model.Profile} for test purposes
-     * */
-    private Profile createDifferentProfile() {
-        List<Achievement> achievements = new ArrayList<>();
-        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
-        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
-
-        return new Profile("Kostas", "Kostidis", "00x15dxxx", 666, 1000, achievements);
     }
 
 }

@@ -89,7 +89,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     @Override
     public void storeProfileToFireStoreAndLocalDB(Profile profile) {
         //TODO Review and Testing
-
         try {
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map map_profile = gson.fromJson(jsonObject_profile.toString(), Map.class);
