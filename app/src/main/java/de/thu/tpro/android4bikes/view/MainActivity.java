@@ -124,9 +124,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
                 openRoadsideAssistance();
                 break;
-            case R.id.menu_hazard:
-                Log.d(LOG_TAG, "Clicked menu_hazard!");
-                break;
             case R.id.menu_setting:
                 Log.d(LOG_TAG, "Clicked menu_setting!");
                 openSettings();
