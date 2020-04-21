@@ -541,6 +541,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     @Override
     public void deleteProfile(Profile profile) {
         this.deleteProfile(profile.getGoogleID());
+        Log.d("HalloWelt", "Deleted profile sucessfully ");
     }
 
     @Override

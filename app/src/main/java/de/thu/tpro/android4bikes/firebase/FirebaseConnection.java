@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.concurrent.CountDownLatch;
 
 import de.thu.tpro.android4bikes.data.commands.Command;
 import de.thu.tpro.android4bikes.data.commands.SearchForHazardAlertsWithPostalCodeInLocalDB;
@@ -52,6 +53,11 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private GeoFencing geoFencingBikeracks;
     private GeoFencing geoFencingTracks;
 
+    //Buffer
+    private CouchDBHelper writeBuffer;
+    private CouchDBHelper deleteBuffer;
+
+
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         localDatabaseHelper = new CouchDBHelper();
@@ -59,6 +65,10 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         geoFencingHazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
         geoFencingBikeracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
         geoFencingTracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
+
+        //WriteBuffer und DeleteBuffer
+        writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+        deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
     }
 
     public static FirebaseConnection getInstance() {
@@ -76,6 +86,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     @Override
     public void storeProfileToFireStoreAndLocalDB(Profile profile) {
         //TODO Review and Testing
+
         try {
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map map_profile = gson.fromJson(jsonObject_profile.toString(), Map.class);
@@ -489,7 +500,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "Utilization updated");
-                        notify();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -522,8 +532,49 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     }
 
     @Override
-    public void storeProfileToFireStore(Profile p) {
+    public void storeProfileToFireStore(Profile profile) {
+        //may be final
+        CountDownLatch countDownLatch = new CountDownLatch(1);
 
+        try {
+            JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
+            Map map_profile = gson.fromJson(jsonObject_profile.toString(), Map.class);
+            db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
+                    .document(profile.getGoogleID()) //set the id of a given document
+                    .set(map_profile) //set-Method: Will create or overwrite document if it is existing
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
+
+                            writeBuffer.deleteProfile(profile);
+
+
+                            //onSuccess():
+                            countDownLatch.countDown();
+                            Log.d("HalloWelt", "Decremented Countdown-Letch-Success");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding Profile " + profile.getFamilyName(), e);
+
+                            //onSuccess():
+                            countDownLatch.countDown();
+                            Log.d("HalloWelt", "Decremented Countdown-Letch-Failure");
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            countDownLatch.await();
+            Log.d("HalloWelt", "Await is over");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public enum ConstantsFirebase {
