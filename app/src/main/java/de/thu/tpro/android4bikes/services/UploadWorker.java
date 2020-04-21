@@ -7,8 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.couchbase.lite.Database;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,18 +14,23 @@ import java.util.List;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.database.CouchDB;
-import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
-import de.thu.tpro.android4bikes.database.WriteBuffer;
+import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 
 
 public class UploadWorker extends Worker {
 
+    private CouchDBHelper writeBuffer;
+    private CouchDBHelper deleteBuffer;
+
     public UploadWorker(
             @NonNull Context context,
             @NonNull WorkerParameters params) {
         super(context, params);
+
+        //get access to buffers:
+        writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+        deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
     }
 
     /**
@@ -40,23 +43,19 @@ public class UploadWorker extends Worker {
         //Result.success(): Task has benn finished successfully
         //Result.failure(): Task failed
         //Result.retry(): Task should be retried
-        CouchDB couchDB = CouchDB.getInstance();
-        Database db = couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
 
-        Log.d("HalloWelt", "Anz Profile WriteBuffer Initial: " + couchDB.getNumberOfStoredDocuments(db));
+        Profile buffered_profile_to_store = readProfileWriteBuffer();
+        if (buffered_profile_to_store != null) {
+            FirebaseConnection.getInstance().storeProfileToFireStore(buffered_profile_to_store);
+        }
 
-        WriteBuffer writeBuffer = CouchWriteBuffer.getInstance();
-        Profile p = createProfile();
-        writeBuffer.storeProfile(p);
-
-
-        Log.d("HalloWelt", "Anz Profile WriteBuffer vor FireStore: " + couchDB.getNumberOfStoredDocuments(db));
-
-        FirebaseConnection.getInstance().storeProfileToFireStore(p);
+        Profile buffered_profile_to_delete = readProfileDeleteBuffer();
+        if (buffered_profile_to_delete != null) {
+            FirebaseConnection.getInstance().deleteProfileFromFireStore(buffered_profile_to_delete);
+        }
 
 
-        Log.d("HalloWelt", "Nach dem FireStore-Aufruf");
-        Log.d("HalloWelt", "Anz Profile WriteBuffer nach FireStore: " + couchDB.getNumberOfStoredDocuments(db));
+
 
         return Result.success();
     }
@@ -70,6 +69,26 @@ public class UploadWorker extends Worker {
         achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
 
         return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+    }
+
+    /**
+     * read current version of the own profile that should be uploaded to FireStore
+     *
+     * @return current version of own profile or null
+     */
+    private Profile readProfileWriteBuffer() {
+        Profile buffered_profile = writeBuffer.readMyOwnProfile();
+        return buffered_profile;
+    }
+
+    /**
+     * read current version of the own profile that should be uploaded to FireStore
+     *
+     * @return current version of own profile or null
+     */
+    private Profile readProfileDeleteBuffer() {
+        Profile buffered_profile = deleteBuffer.readMyOwnProfile();
+        return buffered_profile;
     }
 
 }

@@ -56,6 +56,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     //Buffer
     private CouchDBHelper writeBuffer;
     private CouchDBHelper deleteBuffer;
+    private CouchDBHelper ownDataDB;
 
 
     private FirebaseConnection() {
@@ -69,6 +70,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         //WriteBuffer und DeleteBuffer
         writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
         deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
+        ownDataDB = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
     }
 
     public static FirebaseConnection getInstance() {
@@ -531,6 +533,8 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         notifyObservers(map_track_profile);
     }
 
+
+    //Methods for buffering################################################################################
     @Override
     public void storeProfileToFireStore(Profile profile) {
         //may be final
@@ -547,8 +551,10 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         public void onSuccess(Void aVoid) {
                             Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
 
+                            //Delete profile from the WriteBuffer:
                             writeBuffer.deleteProfile(profile);
-
+                            //update and creation:
+                            ownDataDB.updateMyOwnProfile(profile);
 
                             //onSuccess():
                             countDownLatch.countDown();
@@ -576,6 +582,47 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void deleteProfileFromFireStore(Profile profile) {
+        //may be final
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(profile.getGoogleID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Profile successfully deleted!");
+
+                        //Delete profile from delete buffer
+                        deleteBuffer.deleteProfile(profile);
+
+                        //Delete profile from ownDataDB
+                        ownDataDB.deleteProfile(profile);
+
+                        //should always be last operation
+                        countDownLatch.countDown();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting Profile", e);
+
+                        //onSuccess():
+                        countDownLatch.countDown();
+                    }
+                });
+
+        try {
+            countDownLatch.await();
+            Log.d("HalloWelt", "Await is over");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    //Methods for buffering################################################################################
 
     public enum ConstantsFirebase {
         COLLECTION_PROFILES("profiles"),
