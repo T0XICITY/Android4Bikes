@@ -27,9 +27,9 @@ import com.mapbox.api.matching.v5.MapboxMapMatching;
 import com.mapbox.api.matching.v5.models.MapMatchingResponse;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -39,12 +39,15 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.services.android.navigation.ui.v5.NavigationView;
 import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions;
 import com.mapbox.services.android.navigation.ui.v5.OnNavigationReadyCallback;
+import com.mapbox.services.android.navigation.ui.v5.camera.NavigationCamera;
+import com.mapbox.services.android.navigation.ui.v5.listeners.NavigationListener;
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation;
 import com.mapbox.services.android.navigation.v5.navigation.RouteRefresh;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -89,7 +92,7 @@ public class NavigationActivity extends AppCompatActivity implements Permissions
 
     @Override
     public void onNavigationReady(boolean isRunning) {
-        navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(Style.DARK);
+        navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"));
         generateCustomRoute(PositionProvider.getDummyPosition2elements());
 
     }
@@ -109,13 +112,29 @@ public class NavigationActivity extends AppCompatActivity implements Permissions
                     navigationView.startNavigation(NavigationViewOptions.builder()
                             .directionsRoute(currentRoute)
                             .locationEngine(locationEngine)
-                            //.bannerInstructionsListener(instructions -> instructions)
-                            //.progressChangeListener((location, routeProgress) -> Log.d("HELLO",
-                            //"Location: "+location.getLatitude()+" "+location.getLongitude()
-                            //+"Progress: "+routeProgress.distanceRemaining()))
-                            //.shouldSimulateRoute(true)
+                            .navigationListener(new NavigationListener() {
+                                @Override
+                                public void onCancelNavigation() {
+                                    Log.d("HELLO", "OK, switch back to INFO MDOE");
+                                    navigationView.stopNavigation();
+                                }
+
+                                @Override
+                                public void onNavigationFinished() {
+                                    Log.d("HELLO", "OK, switch back to INFO MDOE");
+                                    navigationView.stopNavigation();
+
+                                }
+
+                                @Override
+                                public void onNavigationRunning() {
+
+                                }
+                            })
+                            .shouldSimulateRoute(true)
                             .build());
 
+                    navigationView.retrieveNavigationMapboxMap().updateCameraTrackingMode(NavigationCamera.NAVIGATION_TRACKING_MODE_GPS);
 
                 } else {
                     Log.d("HELLO", "Error current-route null ");
@@ -124,12 +143,12 @@ public class NavigationActivity extends AppCompatActivity implements Permissions
         });
     }
 
-    private void flytoStart(LatLng startpoint) {
-        navigationView.retrieveNavigationMapboxMap().retrieveMap().animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                .target(startpoint)
-                .zoom(15)
-                .bearing(0)
-                .build()), 3000);
+    private void showRoute(LatLng start, LatLng end) {
+        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                .include(start) // Northeast
+                .include(end) // Southwest
+                .build();
+        navigationView.retrieveNavigationMapboxMap().retrieveMap().easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 50), 5000);
     }
 
     //Custom Route
@@ -139,9 +158,11 @@ public class NavigationActivity extends AppCompatActivity implements Permissions
                 .coordinates(convertPositionListToPointList(finegrainedPositions))
                 .steps(true)
                 .tidy(true)
+                .voiceUnits(DirectionsCriteria.IMPERIAL)
                 .voiceInstructions(true)
                 .bannerInstructions(true)
-                .profile(DirectionsCriteria.PROFILE_DRIVING)
+                .language(Locale.GERMAN)
+                .profile(DirectionsCriteria.PROFILE_CYCLING)
                 .build()
                 .enqueueCall(new Callback<MapMatchingResponse>() {
 
@@ -149,16 +170,14 @@ public class NavigationActivity extends AppCompatActivity implements Permissions
                     public void onResponse(Call<MapMatchingResponse> call, Response<MapMatchingResponse> response) {
                         if (response.isSuccessful()) {
                             currentRoute = response.body().matchings().get(0).toDirectionRoute();
-                            //navigation.startNavigation(route);
-                            // Draw the route on the map
-                            //navigationMapRoute = new NavigationMapRoute(null, navigationView.getRootView().findViewById(R.), mapboxMap, R.style.NavigationMapRoute);
+
                             Log.d("HELLO", String.valueOf(currentRoute.distance()));
                             if (currentRoute != null) {
                                 Log.d("HELLO", "Route initialized");
                             }
                             //Draw Route on Map
                             navigationView.drawRoute(currentRoute);
-                            flytoStart(finegrainedPositions.get(0).toMapboxLocation());
+                            showRoute(finegrainedPositions.get(0).toMapboxLocation(), finegrainedPositions.get(finegrainedPositions.size() - 1).toMapboxLocation());
                             navFab.setVisibility(View.VISIBLE);
                         } else {
                             Log.d("HELLO", "Response empty");
@@ -199,12 +218,12 @@ public class NavigationActivity extends AppCompatActivity implements Permissions
             navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().setLocationComponentEnabled(true);
 
             // Set the component's camera mode
-            navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS);
+            navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().setCameraMode(CameraMode.TRACKING);
 
             // Set the component's render mode
             navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().setRenderMode(RenderMode.GPS);
 
-            navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().zoomWhileTracking(15, 3000, new MapboxMap.CancelableCallback() {
+            navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().zoomWhileTracking(8, 3000, new MapboxMap.CancelableCallback() {
                 @Override
                 public void onCancel() {
                 }
@@ -279,6 +298,52 @@ public class NavigationActivity extends AppCompatActivity implements Permissions
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        navigationView.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        navigationView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        navigationView.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        navigationView.onStop();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        navigationView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback);
+        }
+        navigationView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        navigationView.onLowMemory();
+    }
+
     private static class LocationChangeListeningActivityLocationCallback
             implements LocationEngineCallback<LocationEngineResult> {
 
@@ -325,6 +390,8 @@ public class NavigationActivity extends AppCompatActivity implements Permissions
                         Toast.LENGTH_SHORT).show();
             }
         }
+
+
     }
 
 
