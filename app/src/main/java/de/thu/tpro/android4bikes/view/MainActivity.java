@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String TAG = "CUSTOM_MARKER";
 
     private BottomAppBar bottomBar;
-    FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5; //TODO: Should this be like this ? not private?
+    FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5; //TODO: Should this be like this ? not private? strange identifier names
     private MaterialToolbar topAppBar;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
