@@ -625,8 +625,8 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
 
     @Override
     public void storeTrackInFireStore(Track track) {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
         try {
+            CountDownLatch countDownLatch = new CountDownLatch(1);
             JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
             Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
             PositionCompressor positionCompressor = new PositionCompressor();
@@ -665,14 +665,9 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         }
                     });
             Log.d("HalloWelt", "Ende " + TimeBase.getCurrentUnixTimeStamp());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
             countDownLatch.await();
-            Log.d("HalloWelt", "Await is over");
-        } catch (InterruptedException e) {
+            Log.d("HalloWelt", "Await is over!");
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
