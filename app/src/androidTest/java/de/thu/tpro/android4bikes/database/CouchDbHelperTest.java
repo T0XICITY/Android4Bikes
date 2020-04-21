@@ -449,39 +449,17 @@ public class CouchDbHelperTest {
     @Test
     public void addUtilisation(){
         Database db_position = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
-
         couchdb.clearDB(db_position);
-
         Position position;
-
         double k = 0;
-
         for (int i = 0; i < 99; i++) {
-
             position = new Position(50.999999 + k, 10.999999 + k);
-
             k = k + 0.000001;
-
             couchDbHelper.addToUtilization(position);
-
         }
-
-
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_position);
-
-        assertEquals(49,initialNumberOfDocuments);
-
-        position = new Position(50.999999 + k, 10.999999 + k);
-
-        couchDbHelper.addToUtilization(position);
-        try {
-            Thread.sleep(15000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_position);
-
-        assertEquals(0,newNumberOfDocuments);
+        assertEquals(99,initialNumberOfDocuments);
+        couchdb.clearDB(db_position);
     }
 
     @Test

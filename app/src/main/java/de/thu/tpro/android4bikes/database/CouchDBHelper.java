@@ -306,11 +306,11 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             Map result = gson.fromJson(json_position.toString(), Map.class);
             MutableDocument md_position = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_position, md_position);
-            if (couchDB.getNumberOfStoredDocuments(db_position) >= 50) {
+            /*if (couchDB.getNumberOfStoredDocuments(db_position) >= 50) {
                 List<Position> positions = this.getAllPositions();
                 FirebaseConnection.getInstance().storeUtilizationToFireStore(positions);
                 this.resetUtilization();
-            }
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }
