@@ -681,6 +681,44 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     public void deleteTrackFromFireStore(Track t) {
 
     }
+
+    @Override
+    public void storeBikeRackInFireStore(BikeRack bikeRack) {
+        try{
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            JSONObject jsonObject_bikeRack = new JSONObject(gson.toJson(bikeRack));
+            Map map_bikeRack = gson.fromJson(jsonObject_bikeRack.toString(), Map.class);
+            db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
+                    .add(map_bikeRack) //generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            String firebaseID = documentReference.getId();
+                            Log.d(TAG, "Bikerack with Location "
+                                    + bikeRack.getPosition().getLatitude()
+                                    + ","
+                                    + bikeRack.getPosition().getLongitude()
+                                    + " submitted successfully");
+                            geoFencingBikeracks.registerDocument(documentReference.getId(), bikeRack.getPosition().getGeoPoint());
+                            ownDataDB.storeBikeRack(bikeRack);
+                            cdb_writeBuffer.deleteBikeRack(bikeRack);
+                            countDownLatch.countDown();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error submitting BikeRack", e);
+                            countDownLatch.countDown();
+                        }
+                    });
+            Log.d("HalloWelt", "Ende " + TimeBase.getCurrentUnixTimeStamp());
+            countDownLatch.await();
+            Log.d("HalloWelt", "Await is over!");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
     //Methods for buffering################################################################################
 
     public enum ConstantsFirebase {

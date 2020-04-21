@@ -13,6 +13,7 @@ import java.util.List;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
+import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
@@ -70,8 +71,18 @@ public class UploadWorker extends Worker {
         }
         //Synchronize track#########################################################################
 
+
+        //Synchronize bikerack######################################################################
+        List<BikeRack> list_bikeracks_to_store = readBikeRack();
+        for (BikeRack b : list_bikeracks_to_store){
+            FirebaseConnection.getInstance().storeBikeRackInFireStore(b);
+        }
+        //Synchronize bikerack######################################################################
+
+
         return Result.success();
     }
+
 
     /**
      * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.Profile} for test purposes
@@ -82,6 +93,16 @@ public class UploadWorker extends Worker {
         achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
 
         return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+    }
+
+    /**
+     * read BikeRacks that need to be synchronized with the FireStore
+     *
+     * @return all BikeRacks to synchronize with the FireStore
+     */
+    private List<BikeRack> readBikeRack() {
+        List<BikeRack> bikeRacks = writeBuffer.readBikeRacks();
+        return bikeRacks;
     }
 
     /**
