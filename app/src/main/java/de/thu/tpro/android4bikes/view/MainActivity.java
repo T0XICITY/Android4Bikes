@@ -64,15 +64,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String TAG = "CUSTOM_MARKER";
 
     private BottomAppBar bottomBar;
-    FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5;
+    FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5; //TODO: Should this be like this ? not private?
     private MaterialToolbar topAppBar;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragDriving, fragInfo, fragAssistance, fragTrackList, fragProfile,
-            fragSettings, currentFragment;
+    private Fragment fragDriving, fragInfo, fragAssistance, fragTrackList, fragProfile, fragSettings, currentFragment;
     private ImageView imageView;
 
     private boolean toolbarHidden;
@@ -83,12 +82,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         GlobalContext.setContext(this.getApplicationContext());
         //dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_Dialog);
-
-        /*
-        Database database = DatabaseConnection.getInstance();
-        database.getLastPosition();
-        database.readTracks("89610");
-        */
 
         initFragments();
         initNavigationDrawer();
@@ -101,30 +94,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
-        /*model_profile = new ViewModelProvider(this).get(ViewModelProfile.class);
-        model_profile.getMyProfile().observe(this, myCurrProfile -> {
-            // Update the UI
-            toastShortInMiddle(myCurrProfile.toString());
-        });
-
-        ViewModelWeather model_weather = new ViewModelProvider(this).get(ViewModelWeather.class);
-        model_weather.getCurrentWeather().observe(this, newWeather ->{
-            if(newWeather != null){
-                toastShortInMiddle(newWeather.toString());
-            }
-        });
-
-        ViewModelWeatherWarning model_warning = new ViewModelProvider(this).get(ViewModelWeatherWarning.class);
-        model_warning.getWeatherWarnings().observe(this,newWarnings->{
-            if (newWarnings != null){
-                Iterator<DWDwarning> iter = newWarnings.iterator();
-                if (iter.hasNext()){
-                    toastShortInMiddle(iter.next().toString());
-                }
-            }
-        });
-
-        ViewModelTrack model_track = new ViewModelProvider(this).get(ViewModelTrack.class);*/
         observeInternet();
         scheduleUploadTask();
 
