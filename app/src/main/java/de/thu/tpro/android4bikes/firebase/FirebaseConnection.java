@@ -632,6 +632,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     public void storeTrackInFireStore(Track track) {
         try {
             CountDownLatch countDownLatch = new CountDownLatch(1);
+
             JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
             Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
             PositionCompressor positionCompressor = new PositionCompressor();
@@ -661,12 +662,15 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
 
                             //update buffer
                             cdb_writeBuffer.deleteTrack(track);
+
+                            countDownLatch.countDown();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.w(TAG, "Error submitting BikeRack", e);
+                            countDownLatch.countDown();
                         }
                     });
             Log.d("HalloWelt", "Ende " + TimeBase.getCurrentUnixTimeStamp());
@@ -678,7 +682,38 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     }
 
     @Override
-    public void deleteTrackFromFireStore(Track t) {
+    public void deleteTrackFromFireStore(Track track) {
+        try {
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
+                    .document(track.getFirebaseID())
+                    .delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Track successfully deleted!");
+
+                            //delete track from own db
+                            ownDataDB.deleteTrack(track.getFirebaseID());
+
+                            //delete Track from delete buffer
+                            cdb_deleteBuffer.deleteTrack(track.getFirebaseID());
+
+                            countDownLatch.countDown();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error deleting Track", e);
+
+                            countDownLatch.countDown();
+                        }
+                    });
+            countDownLatch.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
     //Methods for buffering################################################################################
