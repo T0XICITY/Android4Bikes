@@ -9,6 +9,9 @@ import androidx.work.WorkerParameters;
 
 import java.util.Date;
 
+import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+
 
 public class UploadWorker extends Worker {
 
@@ -28,6 +31,8 @@ public class UploadWorker extends Worker {
         //Result.success(): Task has benn finished successfully
         //Result.failure(): Task failed
         //Result.retry(): Task should be retried
+        Profile p = null;
+        FirebaseConnection.getInstance().storeProfileToFireStore(p);
 
 
         return Result.success();

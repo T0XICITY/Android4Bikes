@@ -39,4 +39,6 @@ public interface FireStoreDatabase {
     void storeUtilizationToFireStore(List<Position> utilization);
 
     void readProfilesBasedOnTracks(List<Track> o);
+
+    void storeProfileToFireStore(Profile p);
 }

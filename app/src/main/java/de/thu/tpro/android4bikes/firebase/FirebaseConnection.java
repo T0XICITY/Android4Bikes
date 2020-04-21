@@ -489,6 +489,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "Utilization updated");
+                        notify();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -518,6 +519,11 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
 
         setChanged();
         notifyObservers(map_track_profile);
+    }
+
+    @Override
+    public void storeProfileToFireStore(Profile p) {
+
     }
 
     public enum ConstantsFirebase {
