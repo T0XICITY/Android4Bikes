@@ -489,7 +489,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, "Utilization updated");
-                        notify();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
