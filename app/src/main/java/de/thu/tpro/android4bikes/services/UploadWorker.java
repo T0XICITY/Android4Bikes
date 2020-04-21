@@ -14,6 +14,7 @@ import java.util.List;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
@@ -79,10 +80,15 @@ public class UploadWorker extends Worker {
         }
         //Synchronize bikerack######################################################################
 
+        //HazardAlert###############################################################################
+        List<HazardAlert> list_hazardalerts_to_store = readHazardAlertsWriteBuffer();
+        for (HazardAlert h : list_hazardalerts_to_store) {
+            FirebaseConnection.getInstance().storeHazardAlertInFireStore(h);
+        }
+        //##########################################################################################
 
         return Result.success();
     }
-
 
     /**
      * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.Profile} for test purposes
@@ -104,6 +110,17 @@ public class UploadWorker extends Worker {
         List<BikeRack> bikeRacks = writeBuffer.readBikeRacks();
         return bikeRacks;
     }
+
+    /**
+     * read HazardAlerts that need to be synchronized with the FireStore
+     *
+     * @return all HazardAlerts to synchronize with the FireStore
+     */
+    private List<HazardAlert> readHazardAlertsWriteBuffer() {
+        List<HazardAlert> hazardAlerts = writeBuffer.readHazardAlerts();
+        return hazardAlerts;
+    }
+
 
     /**
      * read current version of the own profile that should be uploaded to FireStore

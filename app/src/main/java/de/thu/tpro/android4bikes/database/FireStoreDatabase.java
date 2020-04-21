@@ -49,4 +49,6 @@ public interface FireStoreDatabase {
     void deleteTrackFromFireStore(Track t);
 
     void storeBikeRackInFireStore(BikeRack b);
+
+    void storeHazardAlertInFireStore(HazardAlert h);
 }
