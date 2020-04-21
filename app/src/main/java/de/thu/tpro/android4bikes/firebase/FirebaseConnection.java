@@ -665,7 +665,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             Log.d(TAG, "Track " + track.getName() + " added successfully " + TimeBase.getCurrentUnixTimeStamp());
                             geoFencingTracks.registerDocument(documentReference.getId(), track.getFineGrainedPositions().get(0).getGeoPoint());
 
-
                             //track to store by own user:
                             ownDataDB.storeTrack(track);
 
@@ -682,7 +681,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             countDownLatch.countDown();
                         }
                     });
-            Log.d("HalloWelt", "Ende " + TimeBase.getCurrentUnixTimeStamp());
             countDownLatch.await();
             Log.d("HalloWelt", "Await is over!");
         } catch (Exception e) {
