@@ -16,6 +16,7 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -55,11 +58,10 @@ public class FragmentShowProfile extends Fragment {
     private TextInputEditText nameEdit;
     private TextInputEditText emailEdit;
     private ImageView imageViewCircle;
-    private ImageView imageViewProfileNavi;
+    private MaterialCardView materialCardView;
 
     private Button delete;
     private Button dialogColorPicker;
-    private Canvas canvas;
     private ImageView iv_a1, iv_a2, iv_a3, iv_a4, iv_a5, iv_a6, iv_a7, iv_a8, iv_a9;
 
     /**
@@ -87,15 +89,18 @@ public class FragmentShowProfile extends Fragment {
         //Name & Email
         nameEdit = (TextInputEditText) view.findViewById(R.id.edit_Name_text);
         emailEdit = (TextInputEditText) view.findViewById(R.id.edit_Email_text);
-        String nameUser = "Max Mustermann";
+
+
         nameEdit.setText("Max Mustermann");
+        nameEdit.setTextColor(Color.GRAY); // Text auf Graustellen
         emailEdit.setText("max.mustermann@gmail.com");
+        emailEdit.setTextColor(Color.GRAY);     //Text auf Graustellen
 
         // Delete Button & ImageView vor Profile
         delete = (Button) view.findViewById(R.id.buttonDelete);
         imageViewCircle = (ImageView) view.findViewById(R.id.imageView_Circle);
         imageViewCircle.setImageBitmap(textToBitmap("M"));
-
+        materialCardView = (MaterialCardView) view.findViewById(R.id.mater_card);
         //ColorPicker
         dialogColorPicker = (Button) view.findViewById(R.id.button_ChangeProfileView);
 
@@ -187,8 +192,6 @@ public class FragmentShowProfile extends Fragment {
         });
 
 
-
-
         //If you press the Cancel-Button
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -204,21 +207,21 @@ public class FragmentShowProfile extends Fragment {
     // Color Picker
     public void openColorPicker() {
         final ColorPicker colorPicker = new ColorPicker(getActivity());
-        final ArrayList<String>[] colors = new ArrayList[]{new ArrayList<>()};
-        colors[0].add("#82B926");
-        colors[0].add("#a276eb");
-        colors[0].add("#6a3ab2");
-        colors[0].add("#666666");
-        colors[0].add("#FFFF00");
-        colors[0].add("#3C8D2F");
-        colors[0].add("#FA9F00");
-        colors[0].add("#FF0000");
-        colors[0].add("#000088");
-        colors[0].add("#ffc0cb");
+        ArrayList<String> colors = new ArrayList<>();
+        colors.add("#82B926");
+        colors.add("#a276eb");
+        colors.add("#6a3ab2");
+        colors.add("#666666");
+        colors.add("#FFFF00");
+        colors.add("#3C8D2F");
+        colors.add("#FA9F00");
+        colors.add("#FF0000");
+        colors.add("#000088");
+        colors.add("#ffc0cb");
 
         colorPicker
                 .setDefaultColorButton(Color.parseColor("#f84c44"))
-                .setColors(colors[0])
+                .setColors(colors)
                 .setColumns(5)
                 .setRoundColorButton(true)
                 .setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
@@ -226,14 +229,13 @@ public class FragmentShowProfile extends Fragment {
 
                     @Override
                     public void onChooseColor(int position, int color) {
-                        Log.d("positionHallo:", "posi:" + position);
+                        Log.d("positionHallo:", "posi:" + color);
+                        //  materialCardView.setCardBackgroundColor(color);
+                        imageViewCircle.setBackgroundColor(color);
 
-                        // will be fired only when OK button was tapped
-                        imageViewCircle.setBackgroundColor(color);          //Profile
 
-                        // imageViewCircle.setColorFilter(color); -> ändert Initialenfarbe
+                        //imageViewCircle.setColorFilter(color); //-> ändert Initialenfarbe
                     }
-
                     @Override
                     public void onCancel() {
                         // remains empty
@@ -259,8 +261,8 @@ public class FragmentShowProfile extends Fragment {
         paint.setTextAlign(Paint.Align.LEFT);
 
         float baseline = -paint.ascent();
-        int width = (int) (paint.measureText(text) + 13f);
-        int height = (int) (baseline + paint.descent() + 13f);
+        int width = (int) (paint.measureText(text) + 14f);
+        int height = (int) (baseline + paint.descent() + 15f);
         Bitmap imageB = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(imageB);
         canvas.drawText(text, 0, baseline, paint);
@@ -271,7 +273,7 @@ public class FragmentShowProfile extends Fragment {
     public void openAchievements(String title, String message) {
         DialogAchievements da = new DialogAchievements();
         da.setText(title, message);
-        da.show(getParentFragmentManager(), "Open Achievemnts");
+        da.show(getParentFragmentManager(), "Open Achievements");
     }
 
 
