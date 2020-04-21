@@ -73,7 +73,6 @@ public class UploadWorker extends Worker {
         }
         //Synchronize track#########################################################################
 
-
         //Synchronize bikerack######################################################################
         List<BikeRack> list_bikeracks_to_store = readBikeRack();
         for (BikeRack b : list_bikeracks_to_store){
@@ -81,12 +80,13 @@ public class UploadWorker extends Worker {
         }
         //Synchronize bikerack######################################################################
 
-        //Synchronize Utilisation######################################################################
+        //Synchronize Utilisation###################################################################
         List<Position> list_positions_to_store = readUtilisation();
         if (list_bikeracks_to_store.size() >= 50){
             FirebaseConnection.getInstance().storeUtilizationToFireStore(list_positions_to_store);
         }
-        //Synchronize Utilisation######################################################################
+        //Synchronize Utilisation###################################################################
+
         //HazardAlert###############################################################################
         List<HazardAlert> list_hazardalerts_to_store = readHazardAlertsWriteBuffer();
         for (HazardAlert h : list_hazardalerts_to_store) {
