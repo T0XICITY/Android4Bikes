@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_header"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="160dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackgroundBorderless"
     android:gravity="bottom"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Light">
 
     <ImageView
         android:id="@+id/imageView_profile"
@@ -29,8 +35,10 @@
     <TextView
         android:id="@+id/tvMail"
         android:paddingLeft="8dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="max.mustermann@gmail.com" />
+        android:text="max.mustermann@gmail.com"
+        android:maxLines="1"
+        android:ellipsize="end"/>
 
 </LinearLayout>

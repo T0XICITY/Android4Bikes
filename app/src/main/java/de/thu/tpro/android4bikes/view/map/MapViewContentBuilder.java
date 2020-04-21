@@ -66,8 +66,8 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
                 if (location != null) {
                     currentLocation = location;
 
-                    Toast.makeText(parent.getApplicationContext(), currentLocation.getLatitude() +
-                            " " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(parent.getApplicationContext(), currentLocation.getLatitude() +
+                     //       " " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
                     mapFragment = (SupportMapFragment) container
                             .getChildFragmentManager()
                             .findFragmentById(R.id.map);
@@ -91,8 +91,8 @@ public class MapViewContentBuilder implements OnMapReadyCallback {
                 if (location != null) {
                     currentLocation = location;
 
-                    Toast.makeText(parent.getApplicationContext(), currentLocation.getLatitude() +
-                            " " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(parent.getApplicationContext(), currentLocation.getLatitude() +
+                    //        " " + currentLocation.getLongitude(), Toast.LENGTH_SHORT).show();
 
                 }
             }
