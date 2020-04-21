@@ -33,6 +33,13 @@ public class PositionProvider {
         return geoPositions_radius_50km;
     }
 
+    public static List<Position> getDummyPosition2elements() {
+        List<Position> positions = new ArrayList<>();
+        positions.add(new Position(48.284788, 9.738969));
+        positions.add(new Position(48.283439, 9.743743));
+        positions.add(new Position(48.275015, 9.764406));
+        return positions;
+    }
     public static List<Position> getDummyPosition90elements() {
         List<Position> positions = new ArrayList<>();
         positions.add(new Position(48.30141, 9.842189));
