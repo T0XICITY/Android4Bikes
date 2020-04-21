@@ -54,30 +54,30 @@ public class CouchDbHelperTest {
     @Test
     public void storeBikeRack() {
         //Get database:
-        Database db_bikeRack = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+        Database db_bikeRack_normal = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
 
         //get count of initially stored documents:
-        long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_bikeRack);
+        long initialNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
 
         //create new BikeRack
-        BikeRack bikeRack_THU = this.generateTHUBikeRack();
+        BikeRack bikeRack_THU_normal = this.generateTHUBikeRack();
 
         //store BikeRack in local database
-        couchDbHelper.storeBikeRack(bikeRack_THU);
+        couchDbHelper.storeBikeRack(bikeRack_THU_normal);
 
         //read new amount of stored documents
-        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_bikeRack);
+        long newNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
 
         //after storing the bike rack there must be one bike rack more
-        assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+        assertEquals(initialNumberOfDocuments_normal + 1, newNumberOfDocuments_normal);
 
         //read the just stored bike rack (THUBikeRack)
-        List<BikeRack> bikeRacks_with_postcode_89075 = couchDbHelper.readBikeRacks();
+        List<BikeRack> bikeRacks_with_postcode_89075_normal = couchDbHelper.readBikeRacks();
 
         //the just stored bike rack must be in the list of the read bike racks
-        assertTrue(bikeRacks_with_postcode_89075.contains(bikeRack_THU));
+        assertTrue(bikeRacks_with_postcode_89075_normal.contains(bikeRack_THU_normal));
 
-        couchDbHelper.deleteBikeRack(bikeRack_THU.getFirebaseID());
+        couchDbHelper.deleteBikeRack(bikeRack_THU_normal.getFirebaseID());
     }
 
     /**
@@ -559,7 +559,6 @@ public class CouchDbHelperTest {
         Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
         Database db_track_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
 
-
         couchdb.clearDB(db_track);
         couchdb.clearDB(db_track_WB);
         couchdb.clearDB(db_track_own);
@@ -567,7 +566,6 @@ public class CouchDbHelperTest {
         Track track_WB = generateTrack();
         Track track_Normal = generateDifferentTrack("Normal");
         Track track_Own = generateDifferentTrack("OWN");
-
 
         long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_track_WB);
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
@@ -606,6 +604,128 @@ public class CouchDbHelperTest {
         cdbOwn.deleteTrack(track_Own.getFirebaseID());
     }
 
+    @Test
+    public void storeBikeRackWriteBuffer() {
+        //Get database:
+        Database db_bikeRack_WB = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
+
+        couchdb.clearDB(db_bikeRack_WB);
+
+        //get count of initially stored documents:
+        long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_bikeRack_WB);
+
+        //create new BikeRack
+        BikeRack bikeRack_THU_WB = this.generateTHUBikeRack();
+
+        //store BikeRack in local database
+        cdbWriteBuffer.storeBikeRack(bikeRack_THU_WB);
+
+        //read new amount of stored documents
+        long newNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_bikeRack_WB);
+
+        //after storing the bike rack there must be one bike rack more
+        assertEquals(initialNumberOfDocuments_WB + 1, newNumberOfDocuments_WB);
+
+        //read the just stored bike rack (THUBikeRack)
+        List<BikeRack> bikeRacks_with_postcode_89075_WB = cdbWriteBuffer.readBikeRacks();
+
+        //the just stored bike rack must be in the list of the read bike racks
+        assertTrue(bikeRacks_with_postcode_89075_WB.contains(bikeRack_THU_WB));
+
+        cdbWriteBuffer.deleteBikeRack(bikeRack_THU_WB.getFirebaseID());
+    }
+
+    @Test
+    public void storeBikeRackOwn() {
+        //Get database:
+        Database db_bikeRack_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_BIKERACK);
+
+        couchdb.clearDB(db_bikeRack_own);
+
+        //get count of initially stored documents:
+        long initialNumberOfDocuments_OWN = couchdb.getNumberOfStoredDocuments(db_bikeRack_own);
+
+        //create new BikeRack
+        BikeRack bikeRack_THU_OWN = this.generateTHUBikeRack();
+
+        //store BikeRack in local database
+        cdbOwn.storeBikeRack(bikeRack_THU_OWN);
+
+        //read new amount of stored documents
+        long newNumberOfDocuments_OWN = couchdb.getNumberOfStoredDocuments(db_bikeRack_own);
+
+        //after storing the bike rack there must be one bike rack more
+        assertEquals(initialNumberOfDocuments_OWN + 1, newNumberOfDocuments_OWN);
+
+        //read the just stored bike rack (THUBikeRack)
+        List<BikeRack> bikeRacks_with_postcode_89075_OWN = cdbOwn.readBikeRacks();
+
+        //the just stored bike rack must be in the list of the read bike racks
+        assertTrue(bikeRacks_with_postcode_89075_OWN.contains(bikeRack_THU_OWN));
+
+        cdbOwn.deleteBikeRack(bikeRack_THU_OWN.getFirebaseID());
+    }
+
+    @Test
+    public void testBikeRackInterference(){
+        //Get database:
+        Database db_bikeRack_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_BIKERACK);
+        Database db_bikeRack_WB = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
+        Database db_bikeRack_normal = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
+
+        couchdb.clearDB(db_bikeRack_own);
+        couchdb.clearDB(db_bikeRack_WB);
+        couchdb.clearDB(db_bikeRack_normal);
+
+        //get count of initially stored documents:
+        long initialNumberOfDocuments_OWN = couchdb.getNumberOfStoredDocuments(db_bikeRack_own);
+        long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_bikeRack_WB);
+        long initialNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
+
+        //create new BikeRack
+        BikeRack bikeRack_THU_OWN = this.generateTHUBikeRack();
+        bikeRack_THU_OWN.setName("own");
+        BikeRack bikeRack_THU_WB = this.generateTHUBikeRack();
+        bikeRack_THU_WB.setName("WB");
+        BikeRack bikeRack_THU_normal = this.generateTHUBikeRack();
+
+        //store BikeRack in local database
+        cdbOwn.storeBikeRack(bikeRack_THU_OWN);
+        cdbWriteBuffer.storeBikeRack(bikeRack_THU_WB);
+        couchDbHelper.storeBikeRack(bikeRack_THU_normal);
+
+        //read new amount of stored documents
+        long newNumberOfDocuments_OWN = couchdb.getNumberOfStoredDocuments(db_bikeRack_own);
+        long newNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_bikeRack_WB);
+        long newNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_bikeRack_normal);
+
+        //after storing the bike rack there must be one bike rack more
+        assertEquals(initialNumberOfDocuments_OWN + 1, newNumberOfDocuments_OWN);
+        assertEquals(initialNumberOfDocuments_WB + 1, newNumberOfDocuments_WB);
+        assertEquals(initialNumberOfDocuments_normal + 1, newNumberOfDocuments_normal);
+
+        //read the just stored bike rack (THUBikeRack)
+        List<BikeRack> bikeRacks_with_postcode_89075_OWN = cdbOwn.readBikeRacks();
+        List<BikeRack> bikeRacks_with_postcode_89075_WB = cdbWriteBuffer.readBikeRacks();
+        List<BikeRack> bikeRacks_with_postcode_89075_normal = couchDbHelper.readBikeRacks();
+
+        //the just stored bike rack must be in the list of the read bike racks
+        assertTrue(bikeRacks_with_postcode_89075_OWN.contains(bikeRack_THU_OWN));
+        assertFalse(bikeRacks_with_postcode_89075_OWN.contains(bikeRack_THU_WB));
+        assertFalse(bikeRacks_with_postcode_89075_OWN.contains(bikeRack_THU_normal));
+
+        assertTrue(bikeRacks_with_postcode_89075_normal.contains(bikeRack_THU_normal));
+        assertFalse(bikeRacks_with_postcode_89075_normal.contains(bikeRack_THU_WB));
+        assertFalse(bikeRacks_with_postcode_89075_normal.contains(bikeRack_THU_OWN));
+
+        assertTrue(bikeRacks_with_postcode_89075_WB.contains(bikeRack_THU_WB));
+        assertFalse(bikeRacks_with_postcode_89075_WB.contains(bikeRack_THU_OWN));
+        assertFalse(bikeRacks_with_postcode_89075_WB.contains(bikeRack_THU_normal));
+
+        cdbOwn.deleteBikeRack(bikeRack_THU_OWN.getFirebaseID());
+        cdbWriteBuffer.deleteBikeRack(bikeRack_THU_WB.getFirebaseID());
+        couchDbHelper.deleteBikeRack(bikeRack_THU_normal.getFirebaseID());
+    }
 
     /**
      * generates a new instance of the class BikeRack for test purposes
