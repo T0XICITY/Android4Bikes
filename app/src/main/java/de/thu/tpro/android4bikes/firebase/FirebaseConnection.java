@@ -490,26 +490,35 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
      */
     @Override
     public void storeUtilizationToFireStore(List<Position> utilization) {
-        //TODO Review and Testing
-        Map<String, Object> map = new HashMap<>();
-        for (int i = 0; i < utilization.size(); i++) {
-            map.put(Integer.toString(i), utilization.get(i));
+        try{
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            //TODO Review and Testing
+            Map<String, Object> map = new HashMap<>();
+            for (int i = 0; i < utilization.size(); i++) {
+                map.put(Integer.toString(i), utilization.get(i));
+            }
+            db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
+                    .add(map)//generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "Utilization updated");
+                            cdb_writeBuffer.resetUtilization();
+                            countDownLatch.countDown();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding Utilization", e);
+                            countDownLatch.countDown();
+                        }
+                    });
+            countDownLatch.await();
+            Log.d("HalloWelt","Await is over");
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
-                .add(map)//generate id automatically
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "Utilization updated");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding Utilization", e);
-                    }
-                });
     }
 
     /**
@@ -655,7 +664,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             Log.d(TAG, "Track " + track.getName() + " added successfully " + TimeBase.getCurrentUnixTimeStamp());
                             geoFencingTracks.registerDocument(documentReference.getId(), track.getFineGrainedPositions().get(0).getGeoPoint());
 
-
                             //track to store by own user:
                             ownDataDB.storeTrack(track);
 
@@ -672,7 +680,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             countDownLatch.countDown();
                         }
                     });
-            Log.d("HalloWelt", "Ende " + TimeBase.getCurrentUnixTimeStamp());
             countDownLatch.await();
             Log.d("HalloWelt", "Await is over!");
         } catch (Exception e) {

@@ -445,7 +445,7 @@ public class CouchDbHelperTest {
 
     @Test
     public void addUtilisation(){
-        Database db_position = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
+        Database db_position = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
         couchdb.clearDB(db_position);
         Position position;
         double k = 0;
@@ -461,7 +461,7 @@ public class CouchDbHelperTest {
 
     @Test
     public void resetUtilisation(){
-        Database db_position = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
+        Database db_position = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
 
         couchdb.clearDB(db_position);
 

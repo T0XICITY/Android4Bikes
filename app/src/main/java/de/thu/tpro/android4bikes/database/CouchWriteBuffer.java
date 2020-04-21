@@ -28,6 +28,7 @@ public class CouchWriteBuffer implements WriteBuffer {
 
     @Override
     public void storeProfile(Profile profile) {
+        localDBWriteBuffer.deleteProfile(profile);
         localDBWriteBuffer.storeProfile(profile);
         //Im Hintergrund:
         // Workmanager führt folgendes aus, wenn die Umstände passen:

@@ -14,6 +14,7 @@ import java.util.List;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
@@ -23,8 +24,8 @@ import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 
 public class UploadWorker extends Worker {
 
-    private CouchDBHelper writeBuffer;
-    private CouchDBHelper deleteBuffer;
+    private CouchDBHelper cdb_writeBuffer;
+    private CouchDBHelper cdb_deleteBuffer;
 
     public UploadWorker(
             @NonNull Context context,
@@ -32,8 +33,8 @@ public class UploadWorker extends Worker {
         super(context, params);
 
         //get access to buffers:
-        writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-        deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
+        cdb_writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+        cdb_deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
     }
 
     /**
@@ -72,13 +73,19 @@ public class UploadWorker extends Worker {
         }
         //Synchronize track#########################################################################
 
-
         //Synchronize bikerack######################################################################
         List<BikeRack> list_bikeracks_to_store = readBikeRack();
         for (BikeRack b : list_bikeracks_to_store){
             FirebaseConnection.getInstance().storeBikeRackInFireStore(b);
         }
         //Synchronize bikerack######################################################################
+
+        //Synchronize Utilisation###################################################################
+        List<Position> list_positions_to_store = readUtilisation();
+        if (list_bikeracks_to_store.size() >= 50){
+            FirebaseConnection.getInstance().storeUtilizationToFireStore(list_positions_to_store);
+        }
+        //Synchronize Utilisation###################################################################
 
         //HazardAlert###############################################################################
         List<HazardAlert> list_hazardalerts_to_store = readHazardAlertsWriteBuffer();
@@ -88,6 +95,11 @@ public class UploadWorker extends Worker {
         //##########################################################################################
 
         return Result.success();
+    }
+
+    private List<Position> readUtilisation() {
+        List<Position> positions = cdb_writeBuffer.getAllPositions();
+        return positions;
     }
 
     /**
@@ -107,7 +119,7 @@ public class UploadWorker extends Worker {
      * @return all BikeRacks to synchronize with the FireStore
      */
     private List<BikeRack> readBikeRack() {
-        List<BikeRack> bikeRacks = writeBuffer.readBikeRacks();
+        List<BikeRack> bikeRacks = cdb_writeBuffer.readBikeRacks();
         return bikeRacks;
     }
 
@@ -117,7 +129,7 @@ public class UploadWorker extends Worker {
      * @return all HazardAlerts to synchronize with the FireStore
      */
     private List<HazardAlert> readHazardAlertsWriteBuffer() {
-        List<HazardAlert> hazardAlerts = writeBuffer.readHazardAlerts();
+        List<HazardAlert> hazardAlerts = cdb_writeBuffer.readHazardAlerts();
         return hazardAlerts;
     }
 
@@ -128,7 +140,7 @@ public class UploadWorker extends Worker {
      * @return current version of own profile or null
      */
     private Profile readProfileWriteBuffer() {
-        Profile buffered_profile = writeBuffer.readMyOwnProfile();
+        Profile buffered_profile = cdb_writeBuffer.readMyOwnProfile();
         return buffered_profile;
     }
 
@@ -138,7 +150,7 @@ public class UploadWorker extends Worker {
      * @return current version of own profile or null
      */
     private Profile readProfileDeleteBuffer() {
-        Profile buffered_profile = deleteBuffer.readMyOwnProfile();
+        Profile buffered_profile = cdb_deleteBuffer.readMyOwnProfile();
         return buffered_profile;
     }
 
@@ -148,7 +160,7 @@ public class UploadWorker extends Worker {
      * @return all tracks to synchronize with the FireStore
      */
     private List<Track> readTrackWriteBuffer() {
-        List<Track> list_buffered_tracks = writeBuffer.readTracks();
+        List<Track> list_buffered_tracks = cdb_writeBuffer.readTracks();
         return list_buffered_tracks;
     }
 
@@ -159,7 +171,7 @@ public class UploadWorker extends Worker {
      * @return all tracks to synchronize with the FireStore
      */
     private List<Track> readTrackDeleteBuffer() {
-        List<Track> list_buffered_tracks = deleteBuffer.readTracks();
+        List<Track> list_buffered_tracks = cdb_deleteBuffer.readTracks();
         return list_buffered_tracks;
     }
 
