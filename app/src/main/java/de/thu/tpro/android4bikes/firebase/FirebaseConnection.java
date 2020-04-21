@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.concurrent.CountDownLatch;
 
 import de.thu.tpro.android4bikes.data.commands.Command;
 import de.thu.tpro.android4bikes.data.commands.SearchForHazardAlertsWithPostalCodeInLocalDB;
@@ -52,6 +53,12 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private GeoFencing geoFencingBikeracks;
     private GeoFencing geoFencingTracks;
 
+    //Buffer
+    private CouchDBHelper cdb_writeBuffer;
+    private CouchDBHelper cdb_deleteBuffer;
+    private CouchDBHelper ownDataDB;
+
+
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         localDatabaseHelper = new CouchDBHelper();
@@ -59,6 +66,11 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         geoFencingHazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
         geoFencingBikeracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
         geoFencingTracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
+
+        //WriteBuffer und DeleteBuffer
+        cdb_writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+        cdb_deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
+        ownDataDB = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
     }
 
     public static FirebaseConnection getInstance() {
@@ -76,6 +88,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     @Override
     public void storeProfileToFireStoreAndLocalDB(Profile profile) {
         //TODO Review and Testing
+
         try {
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map map_profile = gson.fromJson(jsonObject_profile.toString(), Map.class);
@@ -520,10 +533,155 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         notifyObservers(map_track_profile);
     }
 
+
+    //Methods for buffering################################################################################
     @Override
-    public void storeProfileToFireStore(Profile p) {
+    public void storeProfileToFireStore(Profile profile) {
+        //may be final
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        try {
+            JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
+            Map map_profile = gson.fromJson(jsonObject_profile.toString(), Map.class);
+            db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
+                    .document(profile.getGoogleID()) //set the id of a given document
+                    .set(map_profile) //set-Method: Will create or overwrite document if it is existing
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
+
+                            //Delete profile from the WriteBuffer:
+                            cdb_writeBuffer.deleteProfile(profile);
+                            //update and creation:
+                            ownDataDB.updateMyOwnProfile(profile);
+
+                            //onSuccess():
+                            countDownLatch.countDown();
+                            Log.d("HalloWelt", "Decremented Countdown-Letch-Success");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding Profile " + profile.getFamilyName(), e);
+
+                            //onSuccess():
+                            countDownLatch.countDown();
+                            Log.d("HalloWelt", "Decremented Countdown-Letch-Failure");
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            countDownLatch.await();
+            Log.d("HalloWelt", "Await is over");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deleteProfileFromFireStore(Profile profile) {
+        //may be final
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(profile.getGoogleID())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "Profile successfully deleted!");
+
+                        //Delete profile from delete buffer
+                        cdb_deleteBuffer.deleteProfile(profile);
+
+                        //Delete profile from ownDataDB
+                        ownDataDB.deleteProfile(profile);
+
+                        //should always be last operation
+                        countDownLatch.countDown();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting Profile", e);
+
+                        //onSuccess():
+                        countDownLatch.countDown();
+                    }
+                });
+
+        try {
+            countDownLatch.await();
+            Log.d("HalloWelt", "Await is over");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void storeTrackInFireStore(Track track) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        try {
+            JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
+            Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
+            PositionCompressor positionCompressor = new PositionCompressor();
+
+            //compress fineGrainedPositions
+            byte[] compressedPositions = positionCompressor.compressPositions(track.getFineGrainedPositions());
+
+            //BLOB
+            Blob blob_trackpositions_compressed = Blob.fromBytes(compressedPositions);
+
+            //replace fineGrainedPositions by compressed version
+            map_track.put(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString(), blob_trackpositions_compressed);
+
+            db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
+                    .add(map_track) //generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            String firebaseID = documentReference.getId();
+                            track.setFirebaseID(firebaseID);
+                            Log.d(TAG, "Track " + track.getName() + " added successfully " + TimeBase.getCurrentUnixTimeStamp());
+                            geoFencingTracks.registerDocument(documentReference.getId(), track.getFineGrainedPositions().get(0).getGeoPoint());
+
+
+                            //track to store by own user:
+                            ownDataDB.storeTrack(track);
+
+                            //update buffer
+                            cdb_writeBuffer.deleteTrack(track);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error submitting BikeRack", e);
+                        }
+                    });
+            Log.d("HalloWelt", "Ende " + TimeBase.getCurrentUnixTimeStamp());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            countDownLatch.await();
+            Log.d("HalloWelt", "Await is over");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deleteTrackFromFireStore(Track t) {
 
     }
+    //Methods for buffering################################################################################
 
     public enum ConstantsFirebase {
         COLLECTION_PROFILES("profiles"),

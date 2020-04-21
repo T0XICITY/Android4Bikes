@@ -41,4 +41,10 @@ public interface FireStoreDatabase {
     void readProfilesBasedOnTracks(List<Track> o);
 
     void storeProfileToFireStore(Profile p);
+
+    void deleteProfileFromFireStore(Profile profile);
+
+    void storeTrackInFireStore(Track t);
+
+    void deleteTrackFromFireStore(Track t);
 }

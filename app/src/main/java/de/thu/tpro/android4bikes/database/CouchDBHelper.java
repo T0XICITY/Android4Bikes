@@ -155,6 +155,11 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     }
 
     @Override
+    public void deleteTrack(Track track) {
+        this.deleteTrack(track.getFirebaseID());
+    }
+
+    @Override
     public void deleteTrack(String fireBaseID) {
         Database db_track = null;
         try {
@@ -469,7 +474,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
      * reads the own profile out of the database
      * @return own profile
      */
-    public void readMyOwnProfile() {
+    public Profile readMyOwnProfile() {
         Profile ownProfile = null;
         try {
             Database db_own_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE);
@@ -500,6 +505,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
         setChanged();
         notifyObservers(ownProfile);
+        return ownProfile;
     }
 
     @Override
@@ -541,6 +547,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     @Override
     public void deleteProfile(Profile profile) {
         this.deleteProfile(profile.getGoogleID());
+        Log.d("HalloWelt", "Deleted profile sucessfully ");
     }
 
     @Override
