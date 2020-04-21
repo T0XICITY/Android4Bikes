@@ -14,6 +14,7 @@ import java.util.List;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
@@ -79,8 +80,19 @@ public class UploadWorker extends Worker {
         }
         //Synchronize bikerack######################################################################
 
+        //Synchronize Utilisation######################################################################
+        List<Position> list_positions_to_store = readUtilisation();
+        if (list_bikeracks_to_store.size() >= 50){
+            FirebaseConnection.getInstance().storeUtilizationToFireStore(list_positions_to_store);
+        }
+        //Synchronize Utilisation######################################################################
 
         return Result.success();
+    }
+
+    private List<Position> readUtilisation() {
+        List<Position> positions = writeBuffer.getAllPositions();
+        return positions;
     }
 
 

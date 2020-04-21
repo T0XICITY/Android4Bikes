@@ -108,7 +108,6 @@ public class CouchDB {
             this.database_achievement = new Database(DatabaseNames.DATABASE_ACHIEVEMENT.toText(), config);
             this.database_bikerack = new Database(DatabaseNames.DATABASE_BIKERACK.toText(), config);
             this.database_hazardalert = new Database(DatabaseNames.DATABASE_HAZARD_ALERT.toText(), config);
-            this.database_position = new Database(DatabaseNames.DATABASE_POSITION.toText(), config);
             this.database_profile = new Database(DatabaseNames.DATABASE_PROFILE.toText(), config);
             this.database_rating = new Database(DatabaseNames.DATABASE_RATING.toText(), config);
             this.database_track = new Database(DatabaseNames.DATABASE_TRACK.toText(), config);
@@ -121,7 +120,6 @@ public class CouchDB {
 
             this.database_ownData_bikerack = new Database(DatabaseNames.DATABASE_OWNDATA_BIKERACK.toText(), config);
             this.database_ownData_hazardalert = new Database(DatabaseNames.DATABASE_OWNDATA_HAZARD_ALERT.toText(), config);
-            this.database_ownData_position = new Database(DatabaseNames.DATABASE_OWNDATA_POSITION.toText(), config);
             this.database_ownData_profile = new Database(DatabaseNames.DATABASE_OWNDATA_PROFILE.toText(), config);
             this.database_ownData_track = new Database(DatabaseNames.DATABASE_OWNDATA_TRACK.toText(), config);
 
@@ -150,9 +148,6 @@ public class CouchDB {
                 break;
             case DATABASE_HAZARD_ALERT:
                 db = database_hazardalert;
-                break;
-            case DATABASE_POSITION:
-                db = database_position;
                 break;
             case DATABASE_PROFILE:
                 db = database_profile;
@@ -183,9 +178,6 @@ public class CouchDB {
                 break;
             case DATABASE_OWNDATA_HAZARD_ALERT:
                 db = database_ownData_hazardalert;
-                break;
-            case DATABASE_OWNDATA_POSITION:
-                db = database_ownData_position;
                 break;
             case DATABASE_OWNDATA_PROFILE:
                 db = database_ownData_profile;
@@ -602,7 +594,6 @@ public class CouchDB {
         DATABASE_ACHIEVEMENT("achievementdb"),
         DATABASE_BIKERACK("bikerackdb"),
         DATABASE_HAZARD_ALERT("hazardalertsdb"),
-        DATABASE_POSITION("positiondb"),
         DATABASE_PROFILE("profiledb"),
         DATABASE_RATING("ratingdb"),
         DATABASE_TRACK("trackdb"),
@@ -613,7 +604,6 @@ public class CouchDB {
         DATABASE_WRITEBUFFER_TRACK("writebuffertrackdb"),
         DATABASE_OWNDATA_BIKERACK("owndatabikerackdb"),
         DATABASE_OWNDATA_HAZARD_ALERT("owndatahazardalertsdb"),
-        DATABASE_OWNDATA_POSITION("owndatapositiondb"),
         DATABASE_OWNDATA_PROFILE("owndataprofiledb"),
         DATABASE_OWNDATA_TRACK("owndatatrackdb"),
         DATABASE_DELETEBUFFER_PROFILE("deletebufferprofiledb"),

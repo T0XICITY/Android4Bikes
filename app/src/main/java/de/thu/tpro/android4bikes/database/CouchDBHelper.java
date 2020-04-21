@@ -296,17 +296,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     public void addToUtilization(Position position) {
         Database db_position = null;
         try {
-            switch (currentMode) {
-                case WRITEBUFFER:
-                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
-                    break;
-                case OWNDATA:
-                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_POSITION);
-                    break;
-                case OFFLINEDATA:
-                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
-                    break;
-            }
+            db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
             JSONObject json_position = new JSONObject(gson.toJson(position));
             Map result = gson.fromJson(json_position.toString(), Map.class);
             MutableDocument md_position = new MutableDocument(result);
@@ -325,17 +315,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     public void resetUtilization() {
         Database utilizationDB = null;
         try {
-            switch (currentMode) {
-                case WRITEBUFFER:
-                    utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
-                    break;
-                case OWNDATA:
-                    utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_POSITION);
-                    break;
-                case OFFLINEDATA:
-                    utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
-                    break;
-            }
+            utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
             couchDB.clearDB(utilizationDB);
         } catch (Exception e) {
             e.printStackTrace();
@@ -655,26 +635,13 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
      *
      * @return list of all positions
      */
-    private List<Position> getAllPositions() {
+    public List<Position> getAllPositions() {
         List<Position> positions = null;
         Database db_position = null;
         String db_name = null;
-
         try {
-            switch (currentMode) {
-                case WRITEBUFFER:
-                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
-                    db_name = DatabaseNames.DATABASE_WRITEBUFFER_POSITION.toText();
-                    break;
-                case OWNDATA:
-                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_POSITION);
-                    db_name = DatabaseNames.DATABASE_OWNDATA_POSITION.toText();
-                    break;
-                case OFFLINEDATA:
-                    db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_POSITION);
-                    db_name = DatabaseNames.DATABASE_POSITION.toText();
-                    break;
-            }
+            db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
+            db_name = DatabaseNames.DATABASE_WRITEBUFFER_POSITION.toText();
             positions = new ArrayList<>();
             ResultSet results = couchDB.readAllDocumentsOfADatabase(db_position);
             for (Result result : results) {
