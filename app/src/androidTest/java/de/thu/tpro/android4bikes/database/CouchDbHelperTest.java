@@ -503,6 +503,66 @@ public class CouchDbHelperTest {
         assertEquals(initialNumberOfDocuments, newNumberOfDocuments);
     }
 
+    @Test
+    public void storeTrackWriteBuffer(){
+        CouchDBHelper cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+
+        Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
+
+        Track track = generateTrack();
+
+        long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
+
+        cdbWriteBuffer.storeTrack(track);
+
+        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
+
+        assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+
+        List<Track> readTracks = cdbWriteBuffer.readTracks();
+
+        assertTrue(readTracks.contains(track));
+
+        cdbWriteBuffer.deleteTrack(track.getFirebaseID());
+    }
+
+    @Test
+    public void trackTestInterference(){
+        CouchDBHelper cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+
+        Database db_track_WB = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
+        Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
+
+        couchdb.clearDB(db_track);
+        couchdb.clearDB(db_track_WB);
+
+        Track track_WB = generateTrack();
+        Track track_Normal = generateDifferentTrack();
+
+        long initialNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_track_WB);
+        long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
+
+        cdbWriteBuffer.storeTrack(track_WB);
+        couchDbHelper.storeTrack(track_Normal);
+
+        long newNumberOfDocuments_WB = couchdb.getNumberOfStoredDocuments(db_track_WB);
+        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_track);
+
+        assertEquals(initialNumberOfDocuments_WB + 1, newNumberOfDocuments_WB);
+        assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+
+        List<Track> readTracks_WB = cdbWriteBuffer.readTracks();
+        List<Track> readTracks_Normal = couchDbHelper.readTracks();
+
+        assertTrue(readTracks_Normal.contains(track_Normal));
+        assertFalse(readTracks_Normal.contains(track_WB));
+        assertTrue(readTracks_WB.contains(track_WB));
+        assertFalse(readTracks_WB.contains(track_Normal));
+
+        cdbWriteBuffer.deleteTrack(track_WB.getFirebaseID());
+        couchDbHelper.deleteTrack(track_WB.getFirebaseID());
+    }
+
 
     /**
      * generates a new instance of the class BikeRack for test purposes
@@ -540,6 +600,14 @@ public class CouchDbHelperTest {
         Track track = new Track("nullacht15",new Rating(),"Heimweg","Das ist meine super tolle Strecke",
                 "siebenundvierzig11",1585773516,25,
                 positions,new ArrayList<>(),true);
+        return track;
+    }
+
+    private Track generateDifferentTrack(){
+        Track track = generateTrack();
+        track.setDistance_km(100);
+        track.setName("Lieblingstour");
+        track.setDescription("Das ist schön. Das ist wunderschön!");
         return track;
     }
 
