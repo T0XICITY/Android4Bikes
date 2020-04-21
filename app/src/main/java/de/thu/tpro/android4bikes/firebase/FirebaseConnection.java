@@ -547,10 +547,10 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     //Methods for buffering################################################################################
     @Override
     public void storeProfileToFireStore(Profile profile) {
-        //may be final
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-
         try {
+            //may be final
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map map_profile = gson.fromJson(jsonObject_profile.toString(), Map.class);
             db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString())
@@ -581,54 +581,49 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                             Log.d("HalloWelt", "Decremented Countdown-Letch-Failure");
                         }
                     });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
             countDownLatch.await();
             Log.d("HalloWelt", "Await is over");
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
     public void deleteProfileFromFireStore(Profile profile) {
-        //may be final
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-
-        db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(profile.getGoogleID())
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "Profile successfully deleted!");
-
-                        //Delete profile from delete buffer
-                        cdb_deleteBuffer.deleteProfile(profile);
-
-                        //Delete profile from ownDataDB
-                        ownDataDB.deleteProfile(profile);
-
-                        //should always be last operation
-                        countDownLatch.countDown();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting Profile", e);
-
-                        //onSuccess():
-                        countDownLatch.countDown();
-                    }
-                });
-
         try {
+            //may be final
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+
+            db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(profile.getGoogleID())
+                    .delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "Profile successfully deleted!");
+
+                            //Delete profile from delete buffer
+                            cdb_deleteBuffer.deleteProfile(profile);
+
+                            //Delete profile from ownDataDB
+                            ownDataDB.deleteProfile(profile);
+
+                            //should always be last operation
+                            countDownLatch.countDown();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error deleting Profile", e);
+
+                            //onSuccess():
+                            countDownLatch.countDown();
+                        }
+                    });
+
             countDownLatch.await();
             Log.d("HalloWelt", "Await is over");
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
