@@ -30,12 +30,16 @@ import static org.junit.Assert.assertTrue;
 public class CouchDbHelperTest {
     private static CouchDB couchdb;
     private static CouchDBHelper couchDbHelper;
+    private static CouchDBHelper cdbWriteBuffer;
+    private static CouchDBHelper cdbOwn;
 
     @BeforeClass
     public static void setUp() throws Exception {
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         couchDbHelper = new CouchDBHelper();
         couchdb = CouchDB.getInstance();
+        cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+        cdbOwn = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
     }
 
     /**
@@ -505,8 +509,6 @@ public class CouchDbHelperTest {
 
     @Test
     public void storeTrackWriteBuffer(){
-        CouchDBHelper cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-
         Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
 
         couchdb.clearDB(db_track);
@@ -530,8 +532,6 @@ public class CouchDbHelperTest {
 
     @Test
     public void storeTrackOwn(){
-        CouchDBHelper cdbOwn = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
-
         Database db_track_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
 
         couchdb.clearDB(db_track_own);
@@ -555,9 +555,6 @@ public class CouchDbHelperTest {
 
     @Test
     public void trackTestInterference(){
-        CouchDBHelper cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-        CouchDBHelper cdbOwn = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
-
         Database db_track_WB = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
         Database db_track = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
         Database db_track_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_TRACK);
