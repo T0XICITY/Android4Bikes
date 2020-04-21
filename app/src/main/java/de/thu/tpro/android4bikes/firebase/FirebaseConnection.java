@@ -763,6 +763,49 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void storeHazardAlertInFireStore(HazardAlert hazardAlert) {
+        try {
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+
+            JSONObject jsonObject_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
+            Map map_hazardAlert = gson.fromJson(jsonObject_hazardAlert.toString(), Map.class);
+            db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
+                    .add(map_hazardAlert) //generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            String firebaseID = documentReference.getId();
+                            Log.d(TAG, "HazardAlert with Location "
+                                    + hazardAlert.getPosition().getLatitude()
+                                    + ","
+                                    + hazardAlert.getPosition().getLongitude()
+                                    + " submitted successfully");
+                            geoFencingHazards.registerDocument(documentReference.getId(), hazardAlert.getPosition().getGeoPoint());
+
+                            //track to store by own user:
+                            ownDataDB.storeHazardAlerts(hazardAlert);
+
+                            //update buffer
+                            cdb_writeBuffer.deleteHazardAlert(hazardAlert);
+
+                            countDownLatch.countDown();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error submitting HazardAlert", e);
+
+                            countDownLatch.countDown();
+                        }
+                    });
+            countDownLatch.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     //Methods for buffering################################################################################
 
     public enum ConstantsFirebase {
