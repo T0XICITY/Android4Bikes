@@ -1,0 +1,56 @@
+{
+   "cod":"200",
+   "message":0,
+   "cnt":1,
+   "list":[
+      {
+         "dt":0,
+         "main":{
+            "temp":0,
+            "feels_like":0,
+            "temp_min":0,
+            "temp_max":0,
+            "pressure":0,
+            "sea_level":0,
+            "grnd_level":0,
+            "humidity":0,
+            "temp_kf":0
+         },
+         "weather":[
+            {
+               "id":500,
+               "main":"Rain",
+               "description":"light rain",
+               "icon":"10d"
+            }
+         ],
+         "clouds":{
+            "all":100
+         },
+         "wind":{
+            "speed":0,
+            "deg":0
+         },
+         "rain":{
+            "3h":0
+         },
+         "sys":{
+            "pod":"d"
+         },
+         "dt_txt":"2020-04-19 12:00:00"
+      }
+   ],
+   "city":{
+      "id":0,
+      "name":"Initial",
+      "coord":{
+         "lat":0,
+         "lon":0
+      },
+      "country":"DE",
+      "population":0,
+      "timezone":0,
+      "sunrise":0,
+      "sunset":0
+   }
+}

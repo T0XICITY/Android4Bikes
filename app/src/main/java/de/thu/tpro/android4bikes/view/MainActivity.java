@@ -1,6 +1,7 @@
 package de.thu.tpro.android4bikes.view;
 
 import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,9 +9,23 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -18,12 +33,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -42,25 +53,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
-    //The App will start with this Fragment shown first
-    private final Fragment STARTFRAGMENT = new FragmentInfoMode();
-    /**
-     * currentFragment is saving the fragment, that is currently shown on the screen
-     */
+
     private BottomAppBar bottomBar;
     FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5;
+    private MaterialToolbar topAppBar;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragDriving, fragInfo, currentFragment;
+    private Fragment fragDriving, fragInfo, fragAssistance, fragTrackList, fragProfile,
+            fragSettings, currentFragment;
     private ImageView imageView;
-    @Override
 
+    private boolean toolbarHidden;
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        GlobalContext.setContext(this.getApplicationContext());
         //dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_Dialog);
 
         /*
@@ -68,8 +80,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         database.getLastPosition();
         database.readTracks("89610");
         */
+
         initFragments();
         initNavigationDrawer();
+        initTopBar();
         initBottomNavigation();
         initFragments();
         initFAB();
@@ -94,9 +108,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                currentFragment = new FragmentShowProfile();
-                updateFragment();
+                openProfile();
                 closeContextMenu();
             }
         });
@@ -112,14 +124,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_emergencyCall:
                 Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
-                currentFragment = new FragmentRoadsideAssistance();
+                openRoadsideAssistance();
                 break;
             case R.id.menu_hazard:
                 Log.d(LOG_TAG, "Clicked menu_hazard!");
                 break;
             case R.id.menu_setting:
                 Log.d(LOG_TAG, "Clicked menu_setting!");
-                currentFragment = new FragmentSettings();
+                openSettings();
                 break;
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
@@ -129,13 +141,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(LOG_TAG, "Default case");
         }
         toggleNavigationDrawer();
-        updateFragment();
         return true;
     }
 
     private void doLogout() {
         FirebaseAuth.getInstance().signOut();
-        Intent intent = new Intent(this,ActivityLogin.class);
+        Intent intent = new Intent(this, ActivityLogin.class);
         startActivity(intent);
     }
 
@@ -151,8 +162,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View view) {
                 Log.d(LOG_TAG, "Clicked menu_tracks!");
-                currentFragment = new FragmentTrackList();
-                updateFragment();
+                openTrackList();
             }
         });
         btn_community.setOnClickListener(new View.OnClickListener() {
@@ -173,12 +183,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View v) {
                 switchInfoDriving();
-                updateFragment();
                 Log.d("Mitte", "Clicked mitte");
             }
         });
     }
-
 
     private void initNavigationDrawer() {
         dLayout = findViewById(R.id.drawerLayout);
@@ -228,9 +236,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             showTrackFeedback();
             bottomBar.performShow();
         } else {
-            dLayout.closeDrawers();
-            currentFragment = fragDriving;
-            bottomBar.performHide();
+            openDrivingMode();
         }
     }
 
@@ -260,27 +266,140 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initFragments() {
         fragDriving = new FragmentDrivingMode();
         fragInfo = new FragmentInfoMode();
+        fragAssistance = new FragmentRoadsideAssistance();
+        fragProfile = new FragmentShowProfile();
+        fragTrackList = new FragmentTrackList();
+        fragSettings = new FragmentSettings();
     }
-//https://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android#2592161@Override
-public boolean onKeyDown(int keyCode, KeyEvent event)  {
-    if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-        // return to InfoMode
-        currentFragment = new FragmentInfoMode();
+
+    private void initTopBar() {
+        toolbarHidden = false;
+        topAppBar = findViewById(R.id.topAppBar);
+        // Clicking Navigation Button ("Back Arrow") sends you back to InfoMode
+        topAppBar.setNavigationOnClickListener(view -> openInfoMode());
+        hideToolbar();
+    }
+
+    //https://stackoverflow.com/questions/2592037/is-there-a-default-back-keyon-device-listener-in-android#2592161@Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            // return to InfoMode
+            openInfoMode();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event); //handles other keys
+    }
+
+    private void openInfoMode() {
+        currentFragment = fragInfo;
+        hideSoftKeyboard();
+        hideToolbar();
+        animateFabIconChange();
+
         updateFragment();
-        try{
-            return true;//this line does the rest
-        }
-        catch(IllegalStateException e){
-            e.printStackTrace();
-        }
-        return true;
+        showBottomBar();
+        dLayout.closeDrawers();
     }
-    return super.onKeyDown(keyCode, event); //handles other keys
-}
+
+    private void openDrivingMode() {
+        currentFragment = fragDriving;
+        hideSoftKeyboard();
+        hideToolbar();
+        animateFabIconChange();
+
+        updateFragment();
+        //just the bottom bar should be hidden, not the FAB
+        bottomBar.performHide();
+        dLayout.closeDrawers();
+    }
+
+    private void openRoadsideAssistance() {
+        currentFragment = fragAssistance;
+        hideBottomBar();
+        showToolbar();
+        topAppBar.setTitle(R.string.title_telnumbers);
+        updateFragment();
+    }
+
+    private void openTrackList() {
+        currentFragment = fragTrackList;
+        hideBottomBar();
+        showToolbar();
+        topAppBar.setTitle(R.string.title_tracks);
+        updateFragment();
+    }
+
+    private void openProfile() {
+        currentFragment = fragProfile;
+        hideBottomBar();
+        showToolbar();
+        topAppBar.setTitle(R.string.title_profile);
+        updateFragment();
+    }
+
+    private void openSettings() {
+        currentFragment = fragSettings;
+        hideBottomBar();
+        showToolbar();
+        topAppBar.setTitle(R.string.settings);
+        updateFragment();
+    }
+
+    /*
+     * https://stackoverflow.com/questions/26539623/android-lollipop-toolbar-how-to-hide-show-the-toolbar-while-scrolling
+     */
+    private void hideToolbar() {
+        // only perform animation when currently shown
+        if (toolbarHidden)
+            return;
+
+        toolbarHidden = true;
+        topAppBar.animate().translationY(-topAppBar.getBottom())
+                .setInterpolator(new AccelerateInterpolator())
+                .withEndAction(() -> topAppBar.setVisibility(View.GONE)).start();
+    }
+
+    private void showToolbar() {
+        // only perform animation when Toolbar is shown
+        if (!toolbarHidden)
+            return;
+        toolbarHidden = false;
+        topAppBar.setVisibility(View.VISIBLE);
+        topAppBar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
+    }
+
+    private void hideBottomBar() {
+        fab.hide();
+        bottomBar.performHide();
+    }
+
+    private void showBottomBar() {
+        fab.show();
+        bottomBar.performShow();
+    }
+
+    // https://stackoverflow.com/questions/4165414/how-to-hide-soft-keyboard-on-android-after-clicking-outside-edittext
+    public void hideSoftKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (getCurrentFocus() != null)
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    }
+
+    private void animateFabIconChange() {
+        // shrink X to middle
+        fab.animate().scaleX(0).withEndAction(() -> {
+            // change icon
+            if (currentFragment.equals(fragInfo))
+                fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_bike));
+            else
+                fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_information));
+            // grow back to original X
+            fab.animate().scaleX(1).start();
+        }).start();
+    }
 
     @Override
     public void onClick(View view) {
 
     }
-
 }
