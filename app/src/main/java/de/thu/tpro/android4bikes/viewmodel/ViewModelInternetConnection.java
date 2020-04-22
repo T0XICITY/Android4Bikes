@@ -35,6 +35,8 @@ public class ViewModelInternetConnection extends ViewModel implements InternetOb
         //trigger broadcastreceiver
         this.broadcastReceiver_mobile_wifi = BroadcastReceiverInternetConnection.getInstance();
         this.broadcastReceiver_mobile_wifi.updateConnectedFlags();
+
+        this.broadcastReceiver_mobile_wifi.addObserver(this);
     }
 
     public LiveData<Boolean> getConnectedToWifi() {
