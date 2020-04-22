@@ -109,10 +109,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
-        observeInternet();
+        //observeInternet();
         scheduleUploadTask();
 
-        testWorkManager();
+        //testWorkManager();
     }
 
     private void testWorkManager() {
@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void observeInternet() {
         ViewModelInternetConnection model_internet = new ViewModelProvider(this).get(ViewModelInternetConnection.class);
-        model_internet.startObserving();
         model_internet.getConnectedToWifi().observe(this, connectedToWifi -> {
             toastShortInMiddle("Wifi connection state: " + connectedToWifi);
             Log.d("HalloWelt2", "Wifi connection state: " + connectedToWifi);
@@ -134,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toastShortInMiddle("Mobile connection state: " + connectedToMobile);
             Log.d("HalloWelt2", "Mobile connection state: " + connectedToMobile);
         });
-
+        model_internet.startObserving();
     }
 
     /**
