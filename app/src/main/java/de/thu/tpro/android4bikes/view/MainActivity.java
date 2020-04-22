@@ -119,6 +119,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //testWorkManager();
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        onCreate(savedInstanceState);
+    }
+
     private void testWorkManager() {
         WriteBuffer writeBuffer = CouchWriteBuffer.getInstance();
         for (int i = 0; i < 51; i++) {
