@@ -40,6 +40,16 @@
 
     <!-- Feedback Dialog -->
     <string name="feedback_desc">Description</string>
+    <string name="submit">Submit</string>
+    <string name="submit_hazard">Select Hazard</string>
+    <string name="discard">Discard</string>
+
+    <!-- Rack Dialog -->
+    <string name="rack_name">Rack name</string>
+    <string name="rack_capacity">Capacity</string>
+    <string name="ebike">E-bike charging station</string>
+    <string name="covered">Covered</string>
+    
 
     <!-- Roadside Assistance Strings -->
     <string-array name="roadside_assistance_list">
@@ -91,6 +101,27 @@
     <string-array name="distance_unit">
         <item>Kilometer</item>
         <item>Meilen</item>
+    </string-array>
+
+    <string-array name="marker">
+        <item>Rack</item>
+        <item>Hazard</item>
+    </string-array>
+
+    <string-array name="hazards">
+        <item>Damaged road</item>,
+        <item>Icy road</item>
+        <item>Slippery road</item>
+        <item>Roadkill</item>
+        <item>Rockfall</item>
+        <item>General</item>
+    </string-array>
+
+    <string-array name="rack_size">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+        <item>Gigantic</item>
     </string-array>
 
 </resources>

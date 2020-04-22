@@ -10,13 +10,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -62,8 +59,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragDriving, fragInfo, fragAssistance, fragTrackList, fragProfile,
+    private Fragment fragAssistance, fragTrackList, fragProfile,
             fragSettings, currentFragment;
+    private FragmentInfoMode fragInfo;
+    private FragmentDrivingMode fragDriving;
     private ImageView imageView;
 
     private boolean toolbarHidden;
@@ -118,9 +117,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(MenuItem menu) {
         switch (menu.getItemId()) {
-            case R.id.menu_community:
-                Log.d(LOG_TAG, "Clicked menu_community!");
+            case R.id.menu_submit:
+                Log.d(LOG_TAG, "Clicked menu_submit!");
                 //currentFragment = new SecondFragment();
+                fragInfo.submitMarker();
                 break;
             case R.id.menu_emergencyCall:
                 Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
@@ -232,15 +232,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
-            currentFragment = fragInfo;
-            showTrackFeedback();
-            bottomBar.performShow();
+            openInfoMode();
         } else {
             openDrivingMode();
         }
     }
 
-    private void showTrackFeedback() {
+    /**
+     * Show Dialog to give feedback after finishing your ride
+     */
+    //TODO: delete after Testing
+    private void showTrackFeedbackOld() {
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
         dialogBuilder.setTitle("Store your Track!");
         dialogBuilder.setView(R.layout.dialog_track_feedback);
@@ -254,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dialogBuilder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(findViewById(R.id.fragment_container), "Dont store ", 1000).setAnchorView(bottomBar).show();
+                Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
             }
         });
         dialogBuilder.show();
@@ -295,8 +297,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         hideSoftKeyboard();
         hideToolbar();
         animateFabIconChange();
-
         updateFragment();
+        showTrackFeedbackOld();
         showBottomBar();
         dLayout.closeDrawers();
     }
