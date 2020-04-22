@@ -50,7 +50,10 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_tracks"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="true"
+            android:clickable="true"
+            android:scrollbars="vertical"/>
     </LinearLayout>
 </LinearLayout>
