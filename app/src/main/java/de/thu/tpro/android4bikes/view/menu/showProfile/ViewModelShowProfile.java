@@ -3,6 +3,7 @@ package de.thu.tpro.android4bikes.view.menu.showProfile;
 import android.app.AppComponentFactory;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.fragment.app.DialogFragment;
 
 import java.text.DateFormat;
@@ -27,9 +29,6 @@ import de.thu.tpro.android4bikes.R;
 
 
 public class ViewModelShowProfile {
-
-
-
 
 
 }
