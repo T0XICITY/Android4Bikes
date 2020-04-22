@@ -681,4 +681,13 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         });
         rack_builder.show();
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback);
+        }
+    }
 }
