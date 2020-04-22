@@ -12,6 +12,7 @@ import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
@@ -518,9 +519,9 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         try {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             //TODO Review and Testing
-            Map<String, Object> map = new HashMap<>();
+            Map<String, GeoPoint> map = new HashMap<>();
             for (int i = 0; i < utilization.size(); i++) {
-                map.put(Integer.toString(i), utilization.get(i));
+                map.put(Integer.toString(i), utilization.get(i).getGeoPoint());
             }
             db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
                     .add(map)//generate id automatically
