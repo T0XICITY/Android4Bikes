@@ -42,7 +42,7 @@ public class HazardAlertMarker {
                     .position(latLng)
                     .title("title")
                     .snippet(snippet)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_green));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_material_poi));
             marker = markerIR;
         }
 
@@ -52,7 +52,7 @@ public class HazardAlertMarker {
                     .position(latLng)
                     .title("title")
                     .snippet(snippet)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_purple));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_material_poi));
             marker = markerDR;
         }
 
@@ -62,7 +62,7 @@ public class HazardAlertMarker {
                     .position(latLng)
                     .title(title)
                     .snippet(snippet)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_blue));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_material_poi));
             marker = markerSR;
 
         }
@@ -73,7 +73,7 @@ public class HazardAlertMarker {
                     .position(latLng)
                     .title(title)
                     .snippet(snippet)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_black));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_material_poi));
             marker = markerRK;
 
         }
@@ -84,7 +84,7 @@ public class HazardAlertMarker {
                     .position(latLng)
                     .title(title)
                     .snippet(snippet)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_place_red));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_material_poi));
             marker = markerRF;
         }
         return marker;

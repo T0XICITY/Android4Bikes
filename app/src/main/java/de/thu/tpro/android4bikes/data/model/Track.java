@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
+import de.thu.tpro.android4bikes.util.UUIDGenerator;
 
 public class Track {
     @Expose
@@ -29,7 +30,7 @@ public class Track {
     private long creationDate_unixtimestamp;
     @Expose
     @SerializedName("distance_km")
-    private int distance_km;
+    private int distance_km; //TODO:!!!!!!!!!! -> Double
     @Expose
     @SerializedName("fineGrainedPositions")
     private List<Position> fineGrainedPositions;
@@ -78,6 +79,25 @@ public class Track {
         if (isComplete) {
             this.postcode = GeoLocationHelper.convertPositionToPostcode(fineGrainedPositions.get(0));
         }
+    }
+
+    public Track(String author_googleID, Rating rating, String name, String description, long creationDate_unixtimestamp, int distance_km, List<Position> fineGrainedPositions, List<HazardAlert> hazardAlerts, String postcode, boolean isComplete) {
+        this.author_googleID = author_googleID;
+        this.rating = rating;
+        this.name = name;
+        this.description = description;
+        this.creationDate_unixtimestamp = creationDate_unixtimestamp;
+        this.distance_km = distance_km;
+        this.fineGrainedPositions = fineGrainedPositions;
+        this.hazardAlerts = hazardAlerts;
+        this.postcode = postcode;
+        this.isComplete = isComplete;
+
+        if (isComplete) {
+            this.postcode = GeoLocationHelper.convertPositionToPostcode(fineGrainedPositions.get(0));
+        }
+
+        this.firebaseID = UUIDGenerator.generateUUID();
     }
 
     public List<Position> getFineGrainedPositions() {

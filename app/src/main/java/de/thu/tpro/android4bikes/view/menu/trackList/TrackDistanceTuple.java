@@ -89,6 +89,6 @@ public class TrackDistanceTuple implements Comparable<TrackDistanceTuple> {
         RANGE,
         QUALITY,
         DIFFICULTY,
-        FUNFACTOR;
+        FUNFACTOR
     }
 }
