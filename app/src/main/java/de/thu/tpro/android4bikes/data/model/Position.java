@@ -90,6 +90,10 @@ public class Position {
         return new LatLng(latitude, longitude);
     }
 
+    public com.mapbox.mapboxsdk.geometry.LatLng toMapboxLocation(){
+        return new com.mapbox.mapboxsdk.geometry.LatLng(latitude,longitude);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
