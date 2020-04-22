@@ -36,6 +36,7 @@ public class PositionCompressor {
      */
     private static byte[] decompress(byte[] data) throws IOException, DataFormatException {
         //compare: https://dzone.com/articles/how-compress-and-uncompress
+        //Last access: 04.04.2020
         Inflater inflater = new Inflater();
         inflater.setInput(data);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
@@ -162,6 +163,7 @@ public class PositionCompressor {
      */
     private byte[] serialize(Object obj) throws IOException {
         //compare: https://stackoverflow.com/questions/3736058/java-object-to-byte-and-byte-to-object-converter-for-tokyo-cabinet/3736091
+        //Last access: 04.04.2020
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream os = new ObjectOutputStream(out);
         os.writeObject(obj);
@@ -178,6 +180,7 @@ public class PositionCompressor {
      */
     private Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
         //compare: https://stackoverflow.com/questions/3736058/java-object-to-byte-and-byte-to-object-converter-for-tokyo-cabinet/3736091
+        //Last access: 04.04.2020
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(in);
         return is.readObject();
@@ -190,8 +193,9 @@ public class PositionCompressor {
      * @return compressed array of bytes (byte[])
      * @throws IOException
      */
-    private byte[] compress(byte[] data) throws IOException { //(ZLIB-Library zur Kompression genutzt)
+    private byte[] compress(byte[] data) throws IOException { //uses ZLIB-Library: https://en.wikipedia.org/wiki/Zlib
         //compare: https://dzone.com/articles/how-compress-and-uncompress
+        //Last access: 04.04.2020
         Deflater deflater = new Deflater();
         deflater.setInput(data);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);

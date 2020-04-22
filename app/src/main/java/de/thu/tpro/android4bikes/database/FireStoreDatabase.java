@@ -37,4 +37,18 @@ public interface FireStoreDatabase {
 
     //Heatmap
     void storeUtilizationToFireStore(List<Position> utilization);
+
+    void readProfilesBasedOnTracks(List<Track> o);
+
+    void storeProfileToFireStore(Profile p);
+
+    void deleteProfileFromFireStore(Profile profile);
+
+    void storeTrackInFireStore(Track t);
+
+    void deleteTrackFromFireStore(Track t);
+
+    void storeBikeRackInFireStore(BikeRack b);
+
+    void storeHazardAlertInFireStore(HazardAlert h);
 }
