@@ -14,8 +14,8 @@ import java.util.List;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
-import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
@@ -51,12 +51,12 @@ public class UploadWorker extends Worker {
         //Synchronize profile#######################################################################
         Profile buffered_profile_to_store = readProfileWriteBuffer();
         if (buffered_profile_to_store != null) {
-            FirebaseConnection.getInstance().storeProfileToFireStore(buffered_profile_to_store);
+            FirebaseConnection.getInstance().storeBufferedProfileToFireStore(buffered_profile_to_store);
         }
 
         Profile buffered_profile_to_delete = readProfileDeleteBuffer();
         if (buffered_profile_to_delete != null) {
-            FirebaseConnection.getInstance().deleteProfileFromFireStore(buffered_profile_to_delete);
+            FirebaseConnection.getInstance().deleteBufferedProfileFromFireStore(buffered_profile_to_delete);
         }
         //Synchronize profile#######################################################################
 
@@ -64,33 +64,33 @@ public class UploadWorker extends Worker {
         //Synchronize track#########################################################################
         List<Track> list_tracks_to_store = readTrackWriteBuffer();
         for (Track t : list_tracks_to_store) {
-            FirebaseConnection.getInstance().storeTrackInFireStore(t);
+            FirebaseConnection.getInstance().storeBufferedTrackInFireStore(t);
         }
 
         List<Track> list_tracks_to_delete = readTrackDeleteBuffer();
         for (Track t : list_tracks_to_delete) {
-            FirebaseConnection.getInstance().deleteTrackFromFireStore(t);
+            FirebaseConnection.getInstance().deleteBufferedTrackFromFireStore(t);
         }
         //Synchronize track#########################################################################
 
         //Synchronize bikerack######################################################################
         List<BikeRack> list_bikeracks_to_store = readBikeRack();
         for (BikeRack b : list_bikeracks_to_store){
-            FirebaseConnection.getInstance().storeBikeRackInFireStore(b);
+            FirebaseConnection.getInstance().storeBufferedBikeRackInFireStore(b);
         }
         //Synchronize bikerack######################################################################
 
         //Synchronize Utilisation###################################################################
         List<Position> list_positions_to_store = readUtilisation();
         if (list_bikeracks_to_store.size() >= 50){
-            FirebaseConnection.getInstance().storeUtilizationToFireStore(list_positions_to_store);
+            FirebaseConnection.getInstance().storeBufferedUtilizationToFireStore(list_positions_to_store);
         }
         //Synchronize Utilisation###################################################################
 
         //HazardAlert###############################################################################
         List<HazardAlert> list_hazardalerts_to_store = readHazardAlertsWriteBuffer();
         for (HazardAlert h : list_hazardalerts_to_store) {
-            FirebaseConnection.getInstance().storeHazardAlertInFireStore(h);
+            FirebaseConnection.getInstance().storeBufferedHazardAlertInFireStore(h);
         }
         //##########################################################################################
 
