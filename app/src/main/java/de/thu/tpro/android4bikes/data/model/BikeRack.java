@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Objects;
 
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
+import de.thu.tpro.android4bikes.util.UUIDGenerator;
 
 public class BikeRack {
     @Expose
@@ -95,6 +96,26 @@ public class BikeRack {
                 this.capacity = ConstantsCapacity.GIGANTIC;
                 break;
         }
+    }
+
+    /**
+     * Constructor generating automatically a UUID as FireBaseID.
+     *
+     * @param position
+     * @param name
+     * @param capacity
+     * @param hasBikeCharging
+     * @param isExistent
+     * @param isCovered
+     */
+    public BikeRack(Position position, String name, ConstantsCapacity capacity, boolean hasBikeCharging, boolean isExistent, boolean isCovered) {
+        this.position = position;
+        this.name = name;
+        this.capacity = capacity;
+        this.hasBikeCharging = hasBikeCharging;
+        this.isExistent = isExistent;
+        this.isCovered = isCovered;
+        this.firebaseID = UUIDGenerator.generateUUID();
     }
 
     public String getFirebaseID() {

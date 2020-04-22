@@ -81,7 +81,20 @@ public class Track {
         }
     }
 
-    public Track(String author_googleID, Rating rating, String name, String description, long creationDate_unixtimestamp, int distance_km, List<Position> fineGrainedPositions, List<HazardAlert> hazardAlerts, String postcode, boolean isComplete) {
+    /**
+     * Constructor generating automatically a UUID as FireBaseID.
+     *
+     * @param author_googleID
+     * @param rating
+     * @param name
+     * @param description
+     * @param creationDate_unixtimestamp
+     * @param distance_km
+     * @param fineGrainedPositions
+     * @param hazardAlerts
+     * @param isComplete
+     */
+    public Track(String author_googleID, Rating rating, String name, String description, long creationDate_unixtimestamp, int distance_km, List<Position> fineGrainedPositions, List<HazardAlert> hazardAlerts, boolean isComplete) {
         this.author_googleID = author_googleID;
         this.rating = rating;
         this.name = name;
@@ -90,7 +103,6 @@ public class Track {
         this.distance_km = distance_km;
         this.fineGrainedPositions = fineGrainedPositions;
         this.hazardAlerts = hazardAlerts;
-        this.postcode = postcode;
         this.isComplete = isComplete;
 
         if (isComplete) {

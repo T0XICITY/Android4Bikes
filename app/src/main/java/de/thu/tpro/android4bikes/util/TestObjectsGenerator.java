@@ -37,7 +37,7 @@ public class TestObjectsGenerator {
      */
     public static HazardAlert generateHazardAlert() {
         HazardAlert hazardAlert_thu = new HazardAlert(
-                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, "12345", true
+                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, true
         );
         return hazardAlert_thu;
     }
@@ -50,8 +50,7 @@ public class TestObjectsGenerator {
     public static Track generateTrack() {
         List<Position> positions = new ArrayList<>();
         positions.add(new Position(48.408880, 9.997507));
-        Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke",
-                "siebenundvierzig11", 1585773516, 25,
+        Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke", 1585773516, 25,
                 positions, new ArrayList<>(), true);
         return track;
     }

@@ -36,24 +36,16 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
-import de.thu.tpro.android4bikes.data.model.BikeRack;
-import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
-import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.data.model.Rating;
-import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
 import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -112,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //observeInternet();
         scheduleUploadTask();
 
-        //testWorkManager();
+        testWorkManager();
     }
 
     private void testWorkManager() {
@@ -120,7 +112,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         for (int i = 0; i < 51; i++) {
             writeBuffer.addToUtilization(new Position(40.000+i/200.0,9+i/200.0));
         }
-        writeBuffer.storeTrack(generateTrack());
+        writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());
+        writeBuffer.submitBikeRack(TestObjectsGenerator.generateTHUBikeRack());
+        writeBuffer.submitHazardAlerts(TestObjectsGenerator.generateHazardAlert());
     }
 
     public void observeInternet() {
@@ -455,63 +449,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onClick(View view) {
 
-    }
-    //################################ T E S T I N G ###############################################
-    /**
-     * generates a new instance of the class BikeRack for test purposes
-     *
-     * @return instance of a bike rack
-     */
-    private BikeRack generateTHUBikeRack() {
-        //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
-        return bikeRack_THU;
-    }
-
-    /**
-     * generates a new instance of the class HazardAlert for test purposes
-     *
-     * @return instance of a hazard alert
-     */
-    private HazardAlert generateHazardAlert() {
-        HazardAlert hazardAlert_thu = new HazardAlert(
-                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, "12345", true
-        );
-        return hazardAlert_thu;
-    }
-
-    /**
-     * generates a new instance of the class Track for test purposes
-     * @return instance of a track
-     * */
-    private Track generateTrack(){
-        List<Position> positions = new ArrayList<>();
-        positions.add(new Position(48.408880, 9.997507));
-        Track track = new Track("nullacht15",new Rating(),"Heimweg","Das ist meine super tolle Strecke",
-                "siebenundvierzig11",1585773516,25,
-                positions,new ArrayList<>(),true);
-        return track;
-    }
-
-    private Track generateDifferentTrack(String name){
-        Track track = generateTrack();
-        track.setDistance_km(100);
-        track.setName(name);
-        track.setDescription("Das ist schön. Das ist wunderschön!");
-        return track;
-    }
-
-    /**
-     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.Profile} for test purposes
-     * */
-    private Profile createProfile() {
-        List<Achievement> achievements = new ArrayList<>();
-        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
-        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
-
-        return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
     }
 }
