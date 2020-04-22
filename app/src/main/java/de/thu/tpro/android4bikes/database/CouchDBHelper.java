@@ -106,6 +106,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        setChanged();
+        notifyObservers(readTracks());
     }
 
     //TODO: Remove return values (not necessary!!) and adjust unit tests
@@ -253,6 +255,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        setChanged();
+        notifyObservers(hazardAlerts);
         return hazardAlerts;
     }
 
