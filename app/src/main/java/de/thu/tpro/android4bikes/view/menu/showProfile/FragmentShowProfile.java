@@ -59,10 +59,10 @@ public class FragmentShowProfile extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
-        mtV = (TextInputEditText) view.findViewById(R.id.birthday_edit);
-        mBtn = (TextInputEditText) view.findViewById(R.id.birthday_edit);
-        cancel = (Button) view.findViewById(R.id.buttonCancel);
-        googleAccount = (Button) view.findViewById(R.id.buttonForGoogle);
+        mtV = view.findViewById(R.id.birthday_edit);
+        mBtn = view.findViewById(R.id.birthday_edit);
+        cancel = view.findViewById(R.id.buttonCancel);
+        googleAccount = view.findViewById(R.id.buttonForGoogle);
         return view;
     }
 

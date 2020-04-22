@@ -26,11 +26,11 @@ public class ViewModelRoadsideAssistance {
     };
 
     private final Integer[] callImage = {
-            R.drawable.ic_emergency_call,
-            R.drawable.ic_emergency_call,
-            R.drawable.ic_emergency_call,
-            R.drawable.ic_emergency_call,
-            R.drawable.ic_emergency_call
+            R.drawable.ic_material_phone,
+            R.drawable.ic_material_phone,
+            R.drawable.ic_material_phone,
+            R.drawable.ic_material_phone,
+            R.drawable.ic_material_phone
     };
 
 

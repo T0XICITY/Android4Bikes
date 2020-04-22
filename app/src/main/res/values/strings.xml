@@ -90,4 +90,16 @@
         <item>Meilen</item>
     </string-array>
 
+    <string name="access_token" translatable="false">pk.eyJ1IjoiYW5kNGJpa2VzIiwiYSI6ImNrOTN5NThqNjAwZTUzZm15c21rdGc3a24ifQ.do688uZrW5rG-Hl82GjTng</string>
+
+    <string name="user_location_permission_explanation">This app needs location permissions to show its functionality.</string>
+    <string name="user_location_permission_not_granted">You didn\'t grant location permissions.</string>
+    <string name="new_location">Location\nlat:%s long:%s</string>
+    <string name="was_in_tunnel" />
+    <string name="was_navigation_stopped" />
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
 </resources>
