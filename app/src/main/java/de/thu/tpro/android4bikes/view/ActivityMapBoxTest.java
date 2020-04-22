@@ -1,20 +1,18 @@
-package de.thu.tpro.android4bikes.view.info;
+package de.thu.tpro.android4bikes.view;
 
 import android.annotation.SuppressLint;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
@@ -24,9 +22,13 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.mapbox.api.matching.v5.MapboxMapMatching;
+import com.mapbox.api.matching.v5.models.MapMatchingResponse;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -37,10 +39,8 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.maps.SupportMapFragment;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
@@ -48,7 +48,10 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -63,9 +66,10 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
 import de.thu.tpro.android4bikes.util.GlobalContext;
-import de.thu.tpro.android4bikes.view.MainActivity;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-import static android.os.Looper.getMainLooper;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
@@ -75,6 +79,8 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
@@ -82,93 +88,61 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 
+/**
+ * Use the Mapbox Core Library to receive updates when the device changes location.
+ */
+public class ActivityMapBoxTest extends AppCompatActivity implements
+        OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
 
-public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener {
-
-    private static final String LOG_TAG = "FragmentInfoMode";
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
-    private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
-    private static final String TAG = "DirectionsActivity";
-    MainActivity parent;
-    SymbolOptions marker;
-    private SupportMapFragment mapFragment;
-    private LocationChangeListeningActivityLocationCallback callback = new LocationChangeListeningActivityLocationCallback(this);
     private MapboxMap mapboxMap;
     private MapView mapView;
+    private static final String TAG = "DirectionsActivity";
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
     private LocationComponent locationComponent;
+    private LocationChangeListeningActivityLocationCallback callback = new LocationChangeListeningActivityLocationCallback(this);
     private LatLng lastPos;
+    FloatingActionButton navFab;
     // variables for calculating and drawing a route
     private DirectionsRoute currentRoute;
     private NavigationMapRoute navigationMapRoute;
-
+    SymbolOptions marker;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GlobalContext.setContext(this.getApplicationContext());
 
+        // Mapbox access token is configured here. This needs to be called either in your application
+        // object or in the same activity which contains the mapview.
+        Mapbox.getInstance(this, getString(R.string.access_token));
 
-        return inflater.inflate(R.layout.fragment_info_mode, container, false);
+        // This contains the MapView in XML and needs to be called after the access token is configured.
+        setContentView(R.layout.activity_map_box_test);
+
+        mapView = findViewById(R.id.mapView);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(this);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        //we need the parent Activity to init our map
-        parent = (MainActivity) this.getActivity();
-        GlobalContext.setContext(parent.getApplicationContext());
-        initMap(savedInstanceState);
-    }
-
-    private void initMap(Bundle savedInstanceState) {
-        Mapbox.getInstance(parent, parent.getString(R.string.access_token));
-        if (savedInstanceState == null) {
-
-            // TODO replace with useful stuff
-            MapboxMapOptions mapOptions = MapboxMapOptions.createFromAttributes(parent, null);
-            mapOptions.camera(new CameraPosition.Builder()
-                    .target(new LatLng(48.4046, 9.9815))
-                    .zoom(15)
-                    .build()
-            );
-            mapFragment = SupportMapFragment.newInstance(mapOptions);
-
-            final FragmentTransaction transaction = parent.getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.map_container_info, mapFragment, MAPFRAGMENT_TAG);
-            transaction.commit();
-
-
-        } else {
-            mapFragment = (SupportMapFragment) parent.getSupportFragmentManager()
-                    .findFragmentByTag(MAPFRAGMENT_TAG);
-
-        }
-
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this::onMapReady);
-        }
-
-    }
-
-    @Override
-    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
 
         mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck93ydsyn2ovs1js95kx1nu4u"),
                 style -> {
                     enableLocationComponent(style);
 
-                    HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markerPool = new HashMap<>();
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.mapbox_marker_icon_default));
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL, parent.getDrawable(R.drawable.mapbox_marker_icon_default));
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.mapbox_marker_icon_default));
+                    HashMap<MapBoxSymbols, Drawable> markerPool = new HashMap<>();
+                    markerPool.put(MapBoxSymbols.BIKERACK, getDrawable(R.drawable.mapbox_marker_icon_default));
+                    markerPool.put(MapBoxSymbols.HAZARDALERT_GENERAL, getDrawable(R.drawable.mapbox_marker_icon_default));
+                    markerPool.put(MapBoxSymbols.TRACK, getDrawable(R.drawable.mapbox_marker_icon_default));
                     initMarkerSymbols(mapboxMap, markerPool);
                     //generateCustomRoute(generateTrack().getFineGrainedPositions());
                     initPosFab();
+                    initNavFab();
                     ArrayList<BikeRack> bikeRacks = new ArrayList<>();
                     for (int i = 0; i < 15; i++) {
                         bikeRacks.add(generateTHUBikeRack(i));
@@ -177,13 +151,182 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //addHazardAlertOverlay();
                     //addTrackOverlay();
 
-                    //new LoadGeoJson(FragmentInfoMode.this).execute();
+
+                    mapboxMap.addOnMapClickListener(ActivityMapBoxTest.this);
+
+                    //new LoadGeoJson(ActivityMapBoxTest.this).execute();
                 });
     }
 
+    //Custom Route
+    private void generateCustomRoute(List<Position> finegrainedPositions) {
+        MapboxMapMatching.builder()
+                .accessToken(getString(R.string.access_token))
+                .coordinates(convertPositionListToPointList(finegrainedPositions))
+                //.steps(false)
+                //.voiceInstructions(true)
+                //.bannerInstructions(true)
+                //.profile(DirectionsCriteria.PROFILE_DRIVING)
+                .build()
+                .enqueueCall(new Callback<MapMatchingResponse>() {
+
+                    @Override
+                    public void onResponse(Call<MapMatchingResponse> call, Response<MapMatchingResponse> response) {
+                        if (response.isSuccessful()) {
+                            currentRoute = response.body().matchings().get(0).toDirectionRoute();
+                            //navigation.startNavigation(route);
+                            // Draw the route on the map
+                            navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
+                            Log.d("HELLO", String.valueOf(currentRoute.distance()));
+                            navigationMapRoute.addRoute(currentRoute);
+                        } else {
+                            Log.d("HELLO", "Response empty");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MapMatchingResponse> call, Throwable throwable) {
+
+                    }
+                });
+    }
+
+    private List<Point> convertPositionListToPointList(List<Position> finegrainedPositions) {
+        List<Point> points = new ArrayList<>();
+        finegrainedPositions.forEach(position -> points.add(Point.fromLngLat(position.getLongitude(), position.getLatitude())));
+        return points;
+    }
+    //Navigation Stuff---------------------------------------------------
+    @SuppressWarnings({"MissingPermission"})
+    @Override
+    public boolean onMapClick(@NonNull LatLng point) {
+        mapboxMap.getStyle(new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
+                Point destinationPoint = Point.fromLngLat(point.getLongitude(), point.getLatitude());
+                addDestinationIconSymbolLayer(style, destinationPoint);
+                Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
+                        locationComponent.getLastKnownLocation().getLatitude());
+
+                GeoJsonSource source = style.getSourceAs("destination-source-id");
+                if (source != null) {
+                    source.setGeoJson(Feature.fromGeometry(destinationPoint));
+                }
+
+                getRoute(originPoint, destinationPoint);
+            }
+        });
+
+        return true;
+    }
+    private void getRoute(Point origin, Point destination) {
+        NavigationRoute.builder(this)
+                .accessToken(Mapbox.getAccessToken())
+                .origin(origin)
+                .destination(destination)
+                .build()
+                .getRoute(new Callback<DirectionsResponse>() {
+                    @Override
+                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                        // You can get the generic HTTP info about the response
+                        Log.d(TAG, "Response code: " + response.code());
+                        if (response.body() == null) {
+                            Log.e(TAG, "No routes found, make sure you set the right user and access token.");
+                            return;
+                        } else if (response.body().routes().size() < 1) {
+                            Log.e(TAG, "No routes found");
+                            return;
+                        }
+
+                        currentRoute = response.body().routes().get(0);
+
+                        // Draw the route on the map
+                        if (navigationMapRoute != null) {
+                            navigationMapRoute.removeRoute();
+                        } else {
+                            navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
+                        }
+                        navigationMapRoute.addRoute(currentRoute);
+                    }
+
+                    @Override
+                    public void onFailure(Call<DirectionsResponse> call, Throwable throwable) {
+                        Log.e(TAG, "Error: " + throwable.getMessage());
+                    }
+                });
+    }
+    private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle, Point destination) {
+        loadedMapStyle.addImage("destination-icon-id",
+                BitmapFactory.decodeResource(this.getResources(), R.drawable.mapbox_marker_icon_default));
+
+        marker = createMarker(destination.latitude(),destination.longitude(), MapBoxSymbols.BIKERACK);
+        Source source = new GeoJsonSource("THUBikerack", Feature.fromGeometry(marker.getGeometry()));
+        loadedMapStyle.addSource(source);
+        SymbolLayer destinationSymbolLayer = new SymbolLayer("destination-symbol-layer-id", source.getId());
+        destinationSymbolLayer.withProperties(
+                iconImage(ActivityMapBoxTest.MapBoxSymbols.BIKERACK.toString()),
+                iconAllowOverlap(true),
+                iconIgnorePlacement(true)
+        );
+        loadedMapStyle.addLayer(destinationSymbolLayer);
+    }
+
+    //Draw Line Stuff----------------------------------------------------
+
+    /*private void drawLines(@NonNull FeatureCollection featureCollection) {
+        if (mapboxMap != null) {
+            mapboxMap.getStyle(style -> {
+                if (featureCollection.features() != null) {
+                    if (featureCollection.features().size() > 0) {
+                        style.addSource(new GeoJsonSource("line-source", featureCollection));
+
+                        style.addLayer(new LineLayer("linelayer", "line-source")
+                                .withProperties(PropertyFactory.lineCap(Property.LINE_CAP_SQUARE),
+                                        PropertyFactory.lineJoin(Property.LINE_JOIN_MITER),
+                                        PropertyFactory.lineOpacity(.7f),
+                                        PropertyFactory.lineWidth(7f),
+                                        PropertyFactory.lineColor(Color.parseColor("#00ff00"))));
+                    }
+                }
+            });
+        }
+    }
+
+    private static class LoadGeoJson extends AsyncTask<Void, Void, FeatureCollection> {
+        private WeakReference<ActivityMapBoxTest> weakReference;
+        LoadGeoJson(ActivityMapBoxTest activity) {
+            this.weakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected FeatureCollection doInBackground(Void... voids) {
+            try {
+                ActivityMapBoxTest activity = weakReference.get();
+                if (activity != null) {
+                    List<Point> routeCoordinates = new ArrayList<>();
+                    PositionProvider.getDummyPosition().forEach(position -> routeCoordinates.add(Point.fromLngLat(position.getLongitude(),position.getLatitude())));
+                    return FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(LineString.fromLngLats(routeCoordinates))});
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(@Nullable FeatureCollection featureCollection) {
+            super.onPostExecute(featureCollection);
+            ActivityMapBoxTest activity = weakReference.get();
+            if (activity != null && featureCollection != null) {
+                activity.drawLines(featureCollection);
+            }
+        }
+    }*/
+    //Marker Stuff (clustered and unclustered)---------------------------
+
+
     /**
      * Create Markers from Track List
-     *
      * @param loadedMapStyle
      * @param tracks
      */
@@ -191,7 +334,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (Track track : tracks) {
-            SymbolOptions marker = createMarker(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
+            SymbolOptions marker = createMarker(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude(), MapBoxSymbols.TRACK);
             list_feature.add(Feature.fromGeometry(marker.getGeometry()));
         }
         //Create FeatureCollection from Feature List
@@ -205,7 +348,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     /**
      * Create Markers from BikeRack List
-     *
      * @param loadedMapStyle
      * @param bikeRacks
      */
@@ -213,7 +355,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (BikeRack bikeRack : bikeRacks) {
-            SymbolOptions marker = createMarker(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.BIKERACK);
+            SymbolOptions marker = createMarker(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude(), MapBoxSymbols.BIKERACK);
             list_feature.add(Feature.fromGeometry(marker.getGeometry()));
         }
         //Create FeatureCollection from Feature List
@@ -227,7 +369,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     /**
      * Create markers from HazardAlert list
-     *
      * @param loadedMapStyle
      * @param hazardAlerts
      */
@@ -236,7 +377,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (HazardAlert hazardAlert : hazardAlerts) {
-            SymbolOptions marker = createMarker(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL);
+            SymbolOptions marker = createMarker(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude(), MapBoxSymbols.HAZARDALERT_GENERAL);
             list_feature.add(Feature.fromGeometry(marker.getGeometry()));
         }
         //Create FeatureCollection from Feature List
@@ -270,7 +411,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
 
         unclustered.setProperties(
-                iconImage(FragmentInfoMode.MapBoxSymbols.BIKERACK.toString())/*,
+                iconImage(MapBoxSymbols.BIKERACK.toString())/*,
                 iconSize(
                         division(
                                 get("mag"), literal(4.0f)
@@ -298,9 +439,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
         // Each point range gets a different fill color.
         int[][] layers = new int[][]{
-                new int[]{150, ContextCompat.getColor(parent, R.color.mapbox_blue)},
-                new int[]{20, ContextCompat.getColor(parent, R.color.mapbox_blue)},
-                new int[]{0, ContextCompat.getColor(parent, R.color.mapbox_blue)}
+                new int[]{150, ContextCompat.getColor(this, R.color.mapbox_blue)},
+                new int[]{20, ContextCompat.getColor(this, R.color.mapbox_blue)},
+                new int[]{0, ContextCompat.getColor(this, R.color.mapbox_blue)}
         };
 
         for (int i = 0; i < layers.length; i++) {
@@ -339,21 +480,20 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     }
 
     //Location Stuff--------------------------------------------------------------
-
     /**
      * Initialize the Maps SDK's LocationComponent
      */
     @SuppressWarnings({"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(parent)) {
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
 
             // Get an instance of the component
             locationComponent = mapboxMap.getLocationComponent();
 
             // Set the LocationComponent activation options
             LocationComponentActivationOptions locationComponentActivationOptions =
-                    LocationComponentActivationOptions.builder(parent, loadedMapStyle)
+                    LocationComponentActivationOptions.builder(this, loadedMapStyle)
                             .useDefaultLocationEngine(false)
                             .build();
 
@@ -382,7 +522,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             initLocationEngine();
         } else {
             permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(parent);
+            permissionsManager.requestLocationPermissions(this);
         }
     }
 
@@ -391,7 +531,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      */
     @SuppressLint("MissingPermission")
     private void initLocationEngine() {
-        locationEngine = LocationEngineProvider.getBestLocationEngine(parent);
+        locationEngine = LocationEngineProvider.getBestLocationEngine(this);
 
         LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
                 .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
@@ -409,7 +549,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     @Override
     public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(parent, R.string.user_location_permission_explanation,
+        Toast.makeText(this, R.string.user_location_permission_explanation,
                 Toast.LENGTH_LONG).show();
     }
 
@@ -423,13 +563,107 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 }
             });
         } else {
-            Toast.makeText(parent, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
+        }
+    }
+    //----------------------------------------------------------
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mapView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mapView.onStop();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mapView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback);
+        }
+        mapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
+    }
+
+    private static class LocationChangeListeningActivityLocationCallback
+            implements LocationEngineCallback<LocationEngineResult> {
+
+        private final WeakReference<ActivityMapBoxTest> activityWeakReference;
+
+        LocationChangeListeningActivityLocationCallback(ActivityMapBoxTest activity) {
+            this.activityWeakReference = new WeakReference<>(activity);
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location has changed.
+         *
+         * @param result the LocationEngineResult object which has the last known location within it.
+         */
+        @Override
+        public void onSuccess(LocationEngineResult result) {
+            ActivityMapBoxTest activity = activityWeakReference.get();
+
+            if (activity != null) {
+                Location location = result.getLastLocation();
+
+                if (location == null) {
+                    return;
+                }
+
+                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
+                // Pass the new location to the Maps SDK's LocationComponent
+                if (activity.mapboxMap != null && result.getLastLocation() != null) {
+                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
+                }
+            }
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
+         *
+         * @param exception the exception message
+         */
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+            ActivityMapBoxTest activity = activityWeakReference.get();
+            if (activity != null) {
+                Toast.makeText(activity, exception.getLocalizedMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     //Helper Methods------------------------------------------------------
     private void initPosFab() {
-        FloatingActionButton FAB = parent.findViewById(R.id.fab_pos);
+        FloatingActionButton FAB = findViewById(R.id.fab_pos);
         FAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -442,7 +676,26 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         });
     }
 
-    private void initMarkerSymbols(MapboxMap mapboxMap, HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markers) {
+    private void initNavFab() {
+        navFab = findViewById(R.id.start_nav);
+        navFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean simulateRoute = true;
+                if (currentRoute != null) {
+                    Log.d("HELLO", String.valueOf(currentRoute.distance()));
+                    NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                            .directionsRoute(currentRoute)
+                            .shouldSimulateRoute(simulateRoute)
+                            .build();
+                    // Call this method with Context from within an Activity
+                    NavigationLauncher.startNavigation(ActivityMapBoxTest.this, options);
+                }
+            }
+        });
+    }
+
+    private void initMarkerSymbols(MapboxMap mapboxMap, HashMap<MapBoxSymbols, Drawable> markers) {
         //Check if marker HashMap is empty
         if (!markers.isEmpty()) {
             //Register Symbols in Mapbox
@@ -450,7 +703,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
+    private SymbolOptions createMarker(double latitude, double longitude, MapBoxSymbols type) {
         /*if(mCurrLocationMarker!=null){
             mCurrLocationMarker.setPosition(latLng);
         }else{
@@ -514,54 +767,4 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             return type;
         }
     }
-
-    private static class LocationChangeListeningActivityLocationCallback
-            implements LocationEngineCallback<LocationEngineResult> {
-
-        private final WeakReference<FragmentInfoMode> activityWeakReference;
-
-        LocationChangeListeningActivityLocationCallback(FragmentInfoMode activity) {
-            this.activityWeakReference = new WeakReference<>(activity);
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location has changed.
-         *
-         * @param result the LocationEngineResult object which has the last known location within it.
-         */
-        @Override
-        public void onSuccess(LocationEngineResult result) {
-            FragmentInfoMode activity = activityWeakReference.get();
-
-            if (activity != null) {
-                Location location = result.getLastLocation();
-
-                if (location == null) {
-                    return;
-                }
-
-                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
-                // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.mapboxMap != null && result.getLastLocation() != null) {
-                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
-                }
-            }
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
-         *
-         * @param exception the exception message
-         */
-        @Override
-        public void onFailure(@NonNull Exception exception) {
-            FragmentInfoMode activity = activityWeakReference.get();
-            if (activity != null) {
-                Toast.makeText(activity.parent, exception.getLocalizedMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-
 }
