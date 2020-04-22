@@ -41,7 +41,8 @@
             android:clickable="true"
             android:focusable="true"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_emergency_call"/>
+            android:src="@drawable/ic_material_phone"
+            android:tint="@color/Green800Light"/>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

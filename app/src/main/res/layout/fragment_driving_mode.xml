@@ -84,7 +84,7 @@
                     android:scaleType="centerCrop"
                     android:scaleX="0.75"
                     android:scaleY="0.75"
-                    android:src="@drawable/weather" />
+                    android:src="@drawable/ic_material_cog" />
 
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
