@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="Title"
             app:navigationIcon="@drawable/ic_material_arrowleft"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorPrimaryDark"
             app:titleTextColor="@color/TextWhite"
             android:visibility="visible"/>
 

@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public float lastSpeed;
 
     private BottomAppBar bottomBar;
-    FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5; //TODO: Should this be like this ? not private? strange identifier names
+    private FloatingActionButton fab;
     private MaterialToolbar topAppBar;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
