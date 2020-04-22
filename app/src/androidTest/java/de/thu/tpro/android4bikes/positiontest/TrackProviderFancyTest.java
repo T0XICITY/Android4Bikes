@@ -16,6 +16,6 @@ public class TrackProviderFancyTest {
         Track track = TrackProvider.getDummyTrack();
         assertNotNull(track);
         assertNotNull(track.getFineGrainedPositions());
-        assertEquals(181,track.getFineGrainedPositions().size());
+        assertEquals(179,track.getFineGrainedPositions().size());
     }
 }

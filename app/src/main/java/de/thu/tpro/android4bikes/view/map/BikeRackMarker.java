@@ -38,7 +38,7 @@ public class BikeRackMarker {
                 .position(latLng)
                 .title(title)
                 .snippet(snippet)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bicycle_rack));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_material_poi));
 
         return markerBR;
     }

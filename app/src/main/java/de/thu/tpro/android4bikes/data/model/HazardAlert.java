@@ -28,6 +28,10 @@ public class HazardAlert {
     @Expose
     @SerializedName("firebaseID")
     private String firebaseID;
+    @Expose
+    @SerializedName("isExistent")
+    private boolean isExistent;
+
 
     /**
      * no-arg Constructor needed for Firebase auto-cast
@@ -36,8 +40,9 @@ public class HazardAlert {
 
     }
 
-    public HazardAlert(HazardType type, Position position, long expiryTimestamp, int distanceOfInterest, String firebaseID) {
+    public HazardAlert(HazardType type, Position position, long expiryTimestamp, int distanceOfInterest, String firebaseID, boolean isExistent) {
         this.type = type;
+        this.isExistent = isExistent;
         this.position = position;
         this.expiryTimestamp = expiryTimestamp;
         this.distanceOfInterest = distanceOfInterest;
@@ -97,22 +102,31 @@ public class HazardAlert {
         this.expiryTimestamp = expiryTimestamp;
     }
 
+    public boolean isExistent() {
+        return isExistent;
+    }
+
+    public void setExistent(boolean existent) {
+        isExistent = existent;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof HazardAlert)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         HazardAlert that = (HazardAlert) o;
-        return getExpiryTimestamp() == that.getExpiryTimestamp() &&
-                getDistanceOfInterest() == that.getDistanceOfInterest() &&
-                getType() == that.getType() &&
-                getPosition().equals(that.getPosition()) &&
-                getPostcode().equals(that.getPostcode()) &&
-                getFirebaseID().equals(that.getFirebaseID());
+        return expiryTimestamp == that.expiryTimestamp &&
+                distanceOfInterest == that.distanceOfInterest &&
+                isExistent == that.isExistent &&
+                type == that.type &&
+                Objects.equals(position, that.position) &&
+                Objects.equals(postcode, that.postcode) &&
+                Objects.equals(firebaseID, that.firebaseID);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getType(), getPosition(), getPostcode(), getExpiryTimestamp(), getDistanceOfInterest(), getFirebaseID());
+        return Objects.hash(type, position, postcode, expiryTimestamp, distanceOfInterest, firebaseID, isExistent);
     }
 
     @Override
@@ -124,6 +138,7 @@ public class HazardAlert {
                 ", expiryTimestamp=" + expiryTimestamp +
                 ", distanceOfInterest=" + distanceOfInterest +
                 ", firebaseID='" + firebaseID + '\'' +
+                ", isExistent=" + isExistent +
                 '}';
     }
 
