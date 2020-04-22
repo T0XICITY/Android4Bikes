@@ -35,6 +35,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -74,6 +75,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewModelOwnProfile model_profile;
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
+    public LatLng lastPos;
+    public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
+    public float lastSpeed;
 
     private BottomAppBar bottomBar;
     FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5; //TODO: Should this be like this ? not private? strange identifier names
