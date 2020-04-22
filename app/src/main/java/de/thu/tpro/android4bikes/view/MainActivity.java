@@ -101,15 +101,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
-        //observeInternet();
-        scheduleUploadTask();
 
         testWorkManager();
+
+        //observeInternet();
+        scheduleUploadTask();
     }
 
     private void testWorkManager() {
         WriteBuffer writeBuffer = CouchWriteBuffer.getInstance();
-        for (int i = 0; i < 51; i++) {
+        for (int i = 0; i < 55; i++) {
             writeBuffer.addToUtilization(new Position(40.000+i/200.0,9+i/200.0));
         }
         writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());

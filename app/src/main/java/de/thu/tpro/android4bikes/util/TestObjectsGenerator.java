@@ -23,8 +23,7 @@ public class TestObjectsGenerator {
      */
     public static BikeRack generateTHUBikeRack() {
         //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+        BikeRack bikeRack_THU = new BikeRack(new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
         return bikeRack_THU;
