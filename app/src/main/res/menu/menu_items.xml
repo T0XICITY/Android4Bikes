@@ -8,19 +8,14 @@
             android:title="Submit a..."
             app:showAsAction="always" />
         <item
-            android:id="@+id/menu_hazard"
-            android:icon="@drawable/ic_hazard_test"
-            android:title="@string/title_hazard"
-            app:showAsAction="always" />
-        <item
-            android:id="@+id/menu_assistance"
-            android:icon="@drawable/ic_help_test"
-            android:title="@string/title_assistance"
-            app:showAsAction="always" />
-        <item
             android:id="@+id/menu_emergencyCall"
-            android:icon="@drawable/ic_emergency_test"
+            android:icon="@drawable/ic_material_phone"
             android:title="@string/title_telnumbers"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/menu_profil"
+            android:icon="@drawable/ic_material_person"
+            android:title="@string/title_profile"
             app:showAsAction="always" />
     </group>
     <group android:id="@+id/group_settings">

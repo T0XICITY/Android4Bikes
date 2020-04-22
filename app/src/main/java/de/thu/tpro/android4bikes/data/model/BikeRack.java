@@ -15,7 +15,6 @@ public class BikeRack {
     @SerializedName("position")
     private Position position;
     @Expose
-
     @SerializedName("postcode")
     private String postcode;
     @Expose

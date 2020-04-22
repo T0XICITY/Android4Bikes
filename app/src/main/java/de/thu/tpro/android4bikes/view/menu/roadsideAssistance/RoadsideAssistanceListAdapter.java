@@ -82,7 +82,7 @@ public class RoadsideAssistanceListAdapter extends RecyclerView.Adapter<Roadside
 
     //called when dialog is finished
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResult) {
+                                           String[] permissions, int[] grantResult) {
         if (requestCode == REQUEST_PHONE_CALL) {
             if (grantResult.length > 0 && grantResult[0] == PackageManager.PERMISSION_GRANTED) {
                 parent.startActivity(intent);

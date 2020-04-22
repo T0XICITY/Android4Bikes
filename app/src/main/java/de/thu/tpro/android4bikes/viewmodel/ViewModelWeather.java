@@ -57,7 +57,6 @@ public class ViewModelWeather extends ViewModel implements Observer {
         String jsonString;
         try {
             InputStream is = context.getAssets().open(fileName);
-
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

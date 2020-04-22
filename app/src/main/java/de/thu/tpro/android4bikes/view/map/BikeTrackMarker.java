@@ -38,7 +38,7 @@ public class BikeTrackMarker {
                 .position(latLng)
                 .title(HazardAlert.HazardType.ROCKFALL.toString())
                 .snippet(snippet)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bike_track));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_material_poi));
         return markerRF;
     }
 

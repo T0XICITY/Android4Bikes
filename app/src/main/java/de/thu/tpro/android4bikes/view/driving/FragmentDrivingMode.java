@@ -8,7 +8,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +30,6 @@ import java.util.List;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.services.GpsLocation;
-import de.thu.tpro.android4bikes.view.map.MapViewContentBuilder;
 
 public class FragmentDrivingMode extends Fragment implements LocationListener {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
@@ -79,8 +77,9 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        populateMap();
 
+        //MapViewContentBuilder builder = MapViewContentBuilder.getInstance(this,savedInstanceState);
+        //builder.insertMap(R.id.map_container_driving);
 
     }
 
@@ -128,19 +127,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener {
      */
     private int calculateSize(int base, double factor) {
         return (int) Math.rint(base * factor);
-    }
-
-    /**
-     * Init Map content with MapViewContentBuilder
-     */
-    private void populateMap() {
-        Log.d(LOG_TAG, "Init Map called");
-        //to adjust the Map Controls position TODO: define offset programmatically. Problem height = wrap_content return 0
-        int verticalOffest = 0;
-        Log.d(LOG_TAG, verticalOffest + "");
-        MapViewContentBuilder builder = new MapViewContentBuilder(getActivity());
-        builder.setVerticalOffset(verticalOffest).fetchLastLocation(this).build();
-
     }
 
 

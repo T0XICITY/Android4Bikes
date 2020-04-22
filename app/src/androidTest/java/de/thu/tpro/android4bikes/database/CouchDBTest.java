@@ -34,7 +34,6 @@ public class CouchDBTest {
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_ACHIEVEMENT));
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK));
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT));
-        couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_POSITION));
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE));
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_RATING));
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK));
@@ -47,7 +46,6 @@ public class CouchDBTest {
         assertNotEquals(null, couchdb.getDatabaseFromName(DatabaseNames.DATABASE_ACHIEVEMENT));
         assertNotEquals(null, couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK));
         assertNotEquals(null, couchdb.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT));
-        assertNotEquals(null, couchdb.getDatabaseFromName(DatabaseNames.DATABASE_POSITION));
         assertNotEquals(null, couchdb.getDatabaseFromName(DatabaseNames.DATABASE_RATING));
         assertNotEquals(null, couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK));
     }
