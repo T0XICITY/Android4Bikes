@@ -1,7 +1,10 @@
 package de.thu.tpro.android4bikes.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
@@ -81,5 +84,53 @@ public class TestObjectsGenerator {
         achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
 
         return new Profile("Kostas", "Kostidis", "00x15dxxx", 666, 1000, achievements);
+    }
+
+    public static Map<Track, Profile> initialize_map_track_profile() {
+        List<Track> list_track = initTracklistDummy();
+
+        Map<Track, Profile> map_track_profile = new HashMap<>();
+
+        list_track.forEach(entry -> {
+            map_track_profile.put(entry, createAnonProfile());
+        });
+        return map_track_profile;
+    }
+
+    public static Profile createAnonProfile() {
+        List<Achievement> list = new ArrayList<>();
+        return new Profile("Android", "Biker", "-1", 0x2e8b57, 0, list);
+    }
+
+    public static List<Track> initTracklistDummy() {
+        List<Track> list_tracks = new ArrayList<Track>();
+
+        //test liste TODO: Backend anbinden
+        list_tracks = Arrays.asList(new Track(), new Track(), new Track());
+
+        list_tracks.get(0).setRating(new Rating(1, 1, 1, null));
+        list_tracks.get(1).setRating(new Rating(3, 3, 3, null));
+        list_tracks.get(2).setRating(new Rating(5, 5, 5, null));
+
+        list_tracks.get(0).setName("Mega Harte Tour");
+        list_tracks.get(1).setName("Mega Harte Tour 2: Electric Boogaloo");
+        list_tracks.get(2).setName("Mega Harte Tour 3: Götterdämmerung");
+
+        list_tracks.get(0).setDistance_km(15);
+        list_tracks.get(1).setDistance_km(30);
+        list_tracks.get(2).setDistance_km(7);
+
+        list_tracks.get(0).setFineGrainedPositions(Arrays.asList(new Position(48.4049, 9.9949)));
+        list_tracks.get(1).setFineGrainedPositions(Arrays.asList(new Position(48.1773, 9.9730)));
+        list_tracks.get(2).setFineGrainedPositions(Arrays.asList(new Position(48.3909, 10.0015)));
+
+        list_tracks.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
+        list_tracks.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
+        list_tracks.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
+
+        list_tracks.get(0).setPostcode("89073");
+        list_tracks.get(1).setPostcode("88477");
+        list_tracks.get(2).setPostcode("89231");
+        return list_tracks;
     }
 }
