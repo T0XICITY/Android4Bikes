@@ -35,8 +35,8 @@ public class PositionProvider {
 
     public static List<Position> getDummyPosition2elements() {
         List<Position> positions = new ArrayList<>();
-        positions.add(new Position(48.284788, 9.738969));
-        positions.add(new Position(48.275015, 9.764406));
+        positions.add(new Position(48.30141, 9.842189));
+        positions.add(new Position(48.30467, 9.849303));
         return positions;
     }
     public static List<Position> getDummyPosition90elements() {
