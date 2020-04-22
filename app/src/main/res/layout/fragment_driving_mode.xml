@@ -69,14 +69,16 @@
                     android:text="Ø 77 Km/h"
                     android:textAlignment="center" />
             </LinearLayout>
-
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView_Infoicon"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:scaleX="0.75"
                 android:scaleY="0.75"
+                app:cardBackgroundColor="@color/colorPrimary"
                 app:cardCornerRadius="150dp"
+                app:cardElevation="2dp"
+                app:cardUseCompatPadding="false"
                 tools:ignore="MissingConstraints">
 
                 <ImageView
@@ -86,8 +88,8 @@
                     android:scaleX="0.75"
                     android:scaleY="0.75"
                     android:src="@drawable/weather" />
-
             </androidx.cardview.widget.CardView>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
