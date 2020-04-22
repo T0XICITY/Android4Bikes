@@ -9,13 +9,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -30,6 +27,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -51,6 +49,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
+    public LatLng lastPos;
+    public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
+    public float lastSpeed;
 
     private BottomAppBar bottomBar;
     FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5;
