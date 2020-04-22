@@ -38,12 +38,36 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_tracklength"
+                android:id="@+id/tv_track_length"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/distance"
                 android:textSize="14sp"
                 android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/track_name" />
+
+            <EditText
+                android:id="@+id/tv_track_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -53,7 +77,7 @@
             android:layout_marginRight="20dp">
 
             <TextView
-                android:id="@+id/tv_feedback_roadQuality"
+                android:id="@+id/tv_submit_roadQuality"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -63,7 +87,7 @@
                 android:textColor="?android:attr/textColorSecondary" />
 
             <RatingBar
-                android:id="@+id/rb_feedback_roadquality"
+                android:id="@+id/rb_submit_roadquality"
                 style="?android:attr/ratingBarStyleIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -80,7 +104,7 @@
             android:layout_marginRight="20dp">
 
             <TextView
-                android:id="@+id/tv_feedback_difficulty"
+                android:id="@+id/tv_submit_difficulty"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -90,7 +114,7 @@
                 android:textColor="?android:attr/textColorSecondary" />
 
             <RatingBar
-                android:id="@+id/rb_feedback_difficulty"
+                android:id="@+id/rb_submitk_difficulty"
                 style="?android:attr/ratingBarStyleIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -107,7 +131,7 @@
             android:layout_marginRight="20dp">
 
             <TextView
-                android:id="@+id/tv_feedback_fun"
+                android:id="@+id/tv_submit_fun"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -117,7 +141,7 @@
                 android:textColor="?android:attr/textColorSecondary" />
 
             <RatingBar
-                android:id="@+id/rb_feedback_fun"
+                android:id="@+id/rb_submit_fun"
                 style="?android:attr/ratingBarStyleIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -138,7 +162,7 @@
             android:textColor="?android:attr/textColorSecondary" />
 
         <EditText
-            android:id="@+id/tv_desc"
+            android:id="@+id/tv_submit_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"

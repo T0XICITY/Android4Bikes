@@ -405,7 +405,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     public void showTrackFeedback() {
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
         dialogBuilder.setTitle("Store your Track!");
-        dialogBuilder.setView(R.layout.dialog_track_feedback);
+        dialogBuilder.setView(R.layout.dialog_feedback_track);
         dialogBuilder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {

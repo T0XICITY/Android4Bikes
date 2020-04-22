@@ -1,7 +1,7 @@
 package de.thu.tpro.android4bikes.view;
 
-import android.content.DialogInterface;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,18 +18,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -44,6 +32,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
@@ -313,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
             openInfoMode();
+            submitTrack();
         } else {
             openDrivingMode();
         }
@@ -322,10 +322,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Show Dialog to give feedback after finishing your ride
      */
     //TODO: delete after Testing
-    private void showTrackFeedbackOld() {
+    private void submitTrack() {
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
         dialogBuilder.setTitle("Store your Track!");
-        dialogBuilder.setView(R.layout.dialog_track_feedback);
+        dialogBuilder.setView(R.layout.dialog_feedback_track);
         dialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -378,7 +378,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         hideToolbar();
         animateFabIconChange();
         updateFragment();
-        showTrackFeedbackOld();
         showBottomBar();
         dLayout.closeDrawers();
     }
