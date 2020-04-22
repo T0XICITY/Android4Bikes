@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -100,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setContentView(R.layout.activity_main);
         GlobalContext.setContext(this.getApplicationContext());
-        //dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_Dialog);
 
         initFragments();
         initNavigationDrawer();
@@ -189,6 +189,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        checkFirebaseAuth();
+    }
+
     //Choose selected Fragment
     @Override
     public boolean onNavigationItemSelected(MenuItem menu) {
@@ -263,9 +269,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initNavigationDrawer() {
         dLayout = findViewById(R.id.drawerLayout);
+        //find width of screen and divide by 2
+        int width = getResources().getDisplayMetrics().widthPixels/2;
         Log.d("FragmentInfoMode", dLayout.toString());
         dLayout.closeDrawer(GravityCompat.END);
         drawer = findViewById(R.id.navigationDrawer);
+        //set the drawer width to the half of the screen
+        ViewGroup.LayoutParams params = drawer.getLayoutParams();
+        params.width = width;
+        drawer.setLayoutParams(params);
         drawer.setNavigationItemSelectedListener(this);
     }
 
@@ -277,12 +289,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
-/*
-    private void showTracksDialog() {
-        dialog.setView(R.layout.fragment_track_list);
-        dialog.create().show();
-    }
-*/
 
     /**
      * Creates a Snackbar to test the floating action button
