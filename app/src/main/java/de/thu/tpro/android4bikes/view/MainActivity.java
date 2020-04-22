@@ -9,13 +9,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -69,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        checkFirebaseAuth();
+
         setContentView(R.layout.activity_main);
         GlobalContext.setContext(this.getApplicationContext());
         //dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_Dialog);
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
-                doLogout();
+                goToLoginActivity();
                 break;
             default:
                 Log.d(LOG_TAG, "Default case");
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void doLogout() {
+    private void goToLoginActivity() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, ActivityLogin.class);
         startActivity(intent);
@@ -217,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Replaces the displayed fragment with the {@link #currentFragment}
      */
     private void updateFragment() {
+        checkFirebaseAuth();
         fragTransaction = getSupportFragmentManager().beginTransaction();
         fragTransaction.replace(R.id.fragment_container, currentFragment);
         fragTransaction.commit();
@@ -369,6 +370,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // grow back to original X
             fab.animate().scaleX(1).start();
         }).start();
+    }
+
+    private void checkFirebaseAuth() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            goToLoginActivity();
+        }
     }
 
     @Override
