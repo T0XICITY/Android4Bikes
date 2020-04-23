@@ -8,7 +8,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -16,10 +15,10 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +27,6 @@ import java.util.concurrent.CountDownLatch;
 
 import de.thu.tpro.android4bikes.data.commands.Command;
 import de.thu.tpro.android4bikes.data.commands.SearchForHazardAlertsWithPostalCodeInLocalDB;
-import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostalCodeInFireStore;
-import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostcodeInLocalDB;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -42,7 +39,6 @@ import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.util.TimeBase;
-import de.thu.tpro.android4bikes.util.compression.PositionCompressor;
 
 
 public class FirebaseConnection extends Observable implements FireStoreDatabase {
@@ -181,7 +177,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
 
     }
 
-    /**
+    /*/**
      * submits a BikeRack to the FireStore
      * which gets validated by the Cloudfunction
      * to generate an Official Bikerack
@@ -189,7 +185,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
      *
      * @param bikeRack bikeRack to store.
      */
-    @Override
+    /*@Override
     public void submitBikeRackToFireStore(BikeRack bikeRack) {
         try{
             JSONObject jsonObject_bikeRack = new JSONObject(gson.toJson(bikeRack));
@@ -218,15 +214,15 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         }catch (Exception e){
             e.printStackTrace();
         }
-    }
+    }*/
 
-    /**
+    /*/**
      * reads all official BikeRacks associated to a certain postcode
      * and stores them in the local database
      *
      * @param postcode postcode as a string
      */
-    @Override
+    /*@Override
     public void readBikeRacksFromFireStoreAndStoreItToLocalDB(String postcode) {
         try {
         db.collection(ConstantsFirebase.COLLECTION_OFFICIAL_BIKERACKS.toString())
@@ -253,16 +249,15 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    /**
+    /*/**
      * stores a Track and FineGrainedPosition first in the FireStore and after that in the local database
      *
      * @param track                track to store
      */
-    @Override
+    /*@Override
     public void storeTrackToFireStoreAndLocalDB(Track track) {
-        //TODO Review and Testing
 
         /*
         Document to store on FireStore:
@@ -271,7 +266,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
             "position": [89, -120, 77, ...] <- Compressed
         }
          */
-        try {
+        /*try {
             JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
             Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
             PositionCompressor positionCompressor = new PositionCompressor();
@@ -304,16 +299,17 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
+
+    /*
     /**
      * reads a Track with CoarseGrainedInformation from the FireStore and saves it in the local database
      *
      * @param postcode trackID as a String
      */
-    @Override
+    /*@Override
     public void readTracksFromFireStoreAndStoreItToLocalDB(String postcode) {
-        //TODO Review and Testing
         db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
                 .whereEqualTo(Track.ConstantsTrack.POSTCODE.toString(), postcode)
                 .get()
@@ -378,7 +374,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         }
                     }
                 });
-    }
+    }*/
 
     /**
      * deletes a Track from the FireStore and after that in the local database
@@ -637,17 +633,10 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
             CountDownLatch countDownLatch = new CountDownLatch(1);
 
             JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
+            jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
+            String json_Route = track.getRoute().toJson();
             Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
-            PositionCompressor positionCompressor = new PositionCompressor();
-
-            //compress fineGrainedPositions
-            byte[] compressedPositions = positionCompressor.compressPositions(track.getFineGrainedPositions());
-
-            //BLOB
-            Blob blob_trackpositions_compressed = Blob.fromBytes(compressedPositions);
-
-            //replace fineGrainedPositions by compressed version
-            map_track.put(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString(), blob_trackpositions_compressed);
+            map_track.put(Track.ConstantsTrack.ROUTE.toString(),json_Route);
 
             //-> bei Erfolg
             db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
@@ -655,7 +644,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     .set(map_track) //generate id automatically
                     .addOnSuccessListener(documentReference -> {
                         Log.d(TAG, "Track " + track.getName() + " added successfully " + TimeBase.getCurrentUnixTimeStamp());
-                        geoFencingTracks.registerDocument(track.getFirebaseID(), track.getFineGrainedPositions().get(0).getGeoPoint());
+                        geoFencingTracks.registerDocument(track.getFirebaseID(), track.getStartPosition().getGeoPoint());
 
                         //track to store by own user:
                         ownDataDB.storeTrack(track);
@@ -802,25 +791,14 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         if (task.getResult().size() > 0) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 try {
-                                    PositionCompressor positionCompressor = new PositionCompressor();
-                                    Blob blob_compressedPositions = document.getBlob(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString());
-                                    byte[] compressedPositions = blob_compressedPositions.toBytes();
-                                    List<Position> fineGrainedPositions = positionCompressor.decompressPositions(compressedPositions);
                                     Map<String, Object> map_track = document.getData();
-                                    JSONHelper<Track> jsonHelper_Track = new JSONHelper(Track.class);
-                                    JSONHelper<Position> jsonHelper_Position = new JSONHelper(Position.class);
-                                    ArrayList<Map<String, Object>> arraylist_of_map_string_Object_positions = new ArrayList<>();
-                                    JSONObject jsonObject_position = null;
-                                    Map map_position = null;
-                                    for (Position pos : fineGrainedPositions) {
-                                        jsonObject_position = jsonHelper_Position.convertObjectToJSONObject(pos);
-                                        map_position = gson.fromJson(jsonObject_position.toString(), Map.class);
-                                        arraylist_of_map_string_Object_positions.add(map_position);
-                                    }
-                                    map_track.put(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString(), arraylist_of_map_string_Object_positions);
                                     JSONObject jsonObject_track = new JSONObject(map_track);
-                                    Track track = jsonHelper_Track.convertJSONObjectToObject(jsonObject_track);
-                                    track.setFineGrainedPositions(fineGrainedPositions);
+                                    String jsonString_Route = jsonObject_track.getString(Track.ConstantsTrack.ROUTE.toString());
+                                    DirectionsRoute route = DirectionsRoute.fromJson(jsonString_Route);
+                                    jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
+                                    JSONHelper<Track> helper = new JSONHelper<>(Track.class);
+                                    Track track = helper.convertJSONObjectToObject(jsonObject_track);
+                                    track.setRoute(route);
                                     ownDataDB.storeTrack(track);
                                 } catch (Exception e) {
                                     e.printStackTrace();

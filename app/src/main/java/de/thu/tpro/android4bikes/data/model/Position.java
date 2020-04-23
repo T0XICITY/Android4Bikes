@@ -3,6 +3,7 @@ package de.thu.tpro.android4bikes.data.model;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.mapbox.geojson.Point;
 
 import java.util.Objects;
 
@@ -89,6 +90,10 @@ public class Position {
 
     public com.mapbox.mapboxsdk.geometry.LatLng toMapboxLocation(){
         return new com.mapbox.mapboxsdk.geometry.LatLng(latitude,longitude);
+    }
+
+    public Point getAsPoint(){
+        return Point.fromLngLat(longitude,latitude);
     }
 
     @Override

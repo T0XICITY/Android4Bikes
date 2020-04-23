@@ -412,16 +412,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         trackList.get(1).setDistance_km(30);
         trackList.get(2).setDistance_km(7);
 
-        trackList.get(0).setFineGrainedPositions(Arrays.asList(new Position(48.4049,9.9949)));
-        trackList.get(1).setFineGrainedPositions(Arrays.asList(new Position(48.1773, 9.9730)));
-        trackList.get(2).setFineGrainedPositions(Arrays.asList(new Position(48.3909, 10.0015)));
-
         trackList.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
         trackList.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
         trackList.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
-
-        trackList.get(0).setPostcode("89073");
-        trackList.get(1).setPostcode("88477");
-        trackList.get(2).setPostcode("89231");
     }
 }

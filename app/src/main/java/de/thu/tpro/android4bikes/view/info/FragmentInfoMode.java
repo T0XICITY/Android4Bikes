@@ -199,7 +199,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (Track track : tracks) {
-            SymbolOptions marker = createMarker(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
+            SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
             list_feature.add(Feature.fromGeometry(marker.getGeometry()));
         }
         //Create FeatureCollection from Feature List
@@ -567,28 +567,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //create new BikeRack
         BikeRack bikeRack_THU = new BikeRack(
                 "pfo4eIrvzrI0m363KF0K", new Position(48.408880 + i / 7000.0, 9.997507 + i / 7000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
-        return bikeRack_THU;
-    }
-
-    /**
-     * generates a new instance of the class Track for test purposes
-     *
-     * @return instance of a track
-     */
-    private Track generateTrack() {
-
-        Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke",
-                "siebenundvierzig11", 1585773516, 25,
-                PositionProvider.getDummyPosition90elements(), new ArrayList<>(), true);
-        return track;
-    }
-
-    private BikeRack generateTHUBikeRack() {
-        //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
         return bikeRack_THU;

@@ -19,16 +19,16 @@ public interface FireStoreDatabase {
     void deleteProfileFromFireStoreAndLocalDB(String googleID);
 
     //BikeRacks
-    void submitBikeRackToFireStore(BikeRack bikeRack);
+    //void submitBikeRackToFireStore(BikeRack bikeRack);
 
-    void readBikeRacksFromFireStoreAndStoreItToLocalDB(String postcode);
+    //void readBikeRacksFromFireStoreAndStoreItToLocalDB(String postcode);
 
     //Tracks
-    void storeTrackToFireStoreAndLocalDB(Track track);
+    //void storeTrackToFireStoreAndLocalDB(Track track);
 
     void deleteTrackFromFireStoreAndLocalDB(String fireBaseID);
 
-    void readTracksFromFireStoreAndStoreItToLocalDB(String fireBaseID);
+    //void readTracksFromFireStoreAndStoreItToLocalDB(String fireBaseID);
 
     //HazardAlerts
     void submitHazardAlertToFireStore(HazardAlert hazardAlert);

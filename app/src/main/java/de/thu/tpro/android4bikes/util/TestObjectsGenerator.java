@@ -49,8 +49,9 @@ public class TestObjectsGenerator {
     public static Track generateTrack() {
         List<Position> positions = new ArrayList<>();
         positions.add(new Position(48.408880, 9.997507));
+        positions.add(new Position(48.408980, 9.997807));
         Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke", 1585773516, 25,
-                positions, new ArrayList<>(), true);
+                null, new ArrayList<>(), positions.get(0),positions.get(1),true);
         return track;
     }
 
@@ -118,17 +119,10 @@ public class TestObjectsGenerator {
         list_tracks.get(1).setDistance_km(30);
         list_tracks.get(2).setDistance_km(7);
 
-        list_tracks.get(0).setFineGrainedPositions(Arrays.asList(new Position(48.4049, 9.9949)));
-        list_tracks.get(1).setFineGrainedPositions(Arrays.asList(new Position(48.1773, 9.9730)));
-        list_tracks.get(2).setFineGrainedPositions(Arrays.asList(new Position(48.3909, 10.0015)));
-
         list_tracks.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
         list_tracks.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
         list_tracks.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
 
-        list_tracks.get(0).setPostcode("89073");
-        list_tracks.get(1).setPostcode("88477");
-        list_tracks.get(2).setPostcode("89231");
         return list_tracks;
     }
 }
