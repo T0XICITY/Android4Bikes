@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void submitTrack() {
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
         dialogBuilder.setTitle("Store your Track!");
-        dialogBuilder.setView(R.layout.dialog_feedback_track);
+        dialogBuilder.setView(R.layout.dialog_track_submit);
         dialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
