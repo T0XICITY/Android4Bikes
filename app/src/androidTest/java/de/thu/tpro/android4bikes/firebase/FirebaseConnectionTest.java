@@ -3,6 +3,7 @@ package de.thu.tpro.android4bikes.firebase;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.couchbase.lite.Database;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -43,6 +44,7 @@ import static org.junit.Assert.assertTrue;
 public class FirebaseConnectionTest {
     private static FirebaseConnection firebaseConnection;
     private static CouchDBHelper couchDBHelper;
+    private static CouchDBHelper cdbOwnHelper;
     private static CouchDB couchDB;
     private static CountDownLatch authSignal = null;
     private static FirebaseAuth auth;
@@ -52,6 +54,7 @@ public class FirebaseConnectionTest {
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         firebaseConnection = FirebaseConnection.getInstance();
         couchDBHelper = new CouchDBHelper();
+        cdbOwnHelper = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
         couchDB = CouchDB.getInstance();
         authSignal = new CountDownLatch(1);
         auth = FirebaseAuth.getInstance();
@@ -64,6 +67,23 @@ public class FirebaseConnectionTest {
                 }
             });
 
+    }
+
+    @Test
+    public void testOwnTracks(){
+        Database own_tracks = couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_OWNDATA_TRACK);
+        couchDB.clearDB(own_tracks);
+
+        firebaseConnection.readAllOwnTracksAndStoreItToOwnDB("nullacht17");
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        List<Track> tracks = cdbOwnHelper.readTracks();
+        assertEquals(2, tracks.size());
     }
 
     @Test
