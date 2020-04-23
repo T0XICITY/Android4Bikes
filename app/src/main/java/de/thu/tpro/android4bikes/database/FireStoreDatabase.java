@@ -51,4 +51,8 @@ public interface FireStoreDatabase {
     void storeBufferedBikeRackInFireStore(BikeRack b);
 
     void storeBufferedHazardAlertInFireStore(HazardAlert h);
+
+    //#################################################################
+    void readAllOwnTracksAndStoreItToOwnDB(String firebaseID);
+
 }

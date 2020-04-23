@@ -42,7 +42,7 @@ import de.thu.tpro.android4bikes.view.MainActivity;
  * This fragment contains the view elements and logic regarding tracks
  */
 public class FragmentTrackList extends Fragment implements SearchView.OnQueryTextListener,
-        LocationListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
+        LocationListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
     private static final String LOG_TAG = "FragmentCreateTrack";
 
     private TrackListDataBinder dataBinder;
@@ -93,8 +93,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         searchView.setOnQueryTextListener(this);
 
         // make all views != searchView clear focus from the searchview when touched
-        recyclerView.setOnTouchListener(this::onTouch);
-        tv_trackList.setOnTouchListener(this::onTouch);
+        recyclerView.setOnClickListener(this::onClick);
+        tv_trackList.setOnClickListener(this::onClick);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(RecyclerView.VERTICAL);
@@ -389,14 +389,11 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     }
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
+    public void onClick(View view) {
         if (view != searchView) {
             searchView.clearFocus();
-            return true;
         }
-        return false;
     }
-
 
     // TODO: delete after backend is connected to view
     private void initTracklistDummy() {
