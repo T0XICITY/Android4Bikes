@@ -1,6 +1,7 @@
 package de.thu.tpro.android4bikes.view;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,20 +19,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -43,6 +33,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
@@ -88,7 +89,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragDriving, fragInfo, fragAssistance, fragTrackList, fragProfile, fragSettings, currentFragment;
+    private Fragment fragAssistance, fragTrackList, fragProfile,
+            fragSettings, currentFragment;
+    private FragmentInfoMode fragInfo;
+    private FragmentDrivingMode fragDriving;
     private ImageView imageView;
 
     private boolean toolbarHidden;
@@ -206,8 +210,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(MenuItem menu) {
         switch (menu.getItemId()) {
             case R.id.menu_submit:
-                Log.d(LOG_TAG, "Clicked menu_community!");
+                Log.d(LOG_TAG, "Clicked menu_submit!");
                 //currentFragment = new SecondFragment();
+                fragInfo.submitMarker();
                 break;
             case R.id.menu_emergencyCall:
                 Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
@@ -319,9 +324,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
             openInfoMode();
+            submitTrack();
         } else {
             openDrivingMode();
         }
+    }
+
+    /**
+     * Show Dialog to give feedback after finishing your ride
+     */
+    //TODO: delete after Testing
+    private void submitTrack() {
+        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
+        dialogBuilder.setTitle("Store your Track!");
+        dialogBuilder.setView(R.layout.dialog_track_submit);
+        dialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Snackbar.make(findViewById(R.id.fragment_container), "Store into Firestore", 1000).setAnchorView(bottomBar).show();
+            }
+        });
+
+        dialogBuilder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
+            }
+        });
+        dialogBuilder.show();
     }
 
     /**
@@ -359,7 +389,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         hideSoftKeyboard();
         hideToolbar();
         animateFabIconChange();
-
         updateFragment();
         showBottomBar();
         dLayout.closeDrawers();
