@@ -1,5 +1,7 @@
 package de.thu.tpro.android4bikes.util;
 
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,10 +50,11 @@ public class TestObjectsGenerator {
      */
     public static Track generateTrack() {
         List<Position> positions = new ArrayList<>();
-        positions.add(new Position(48.408880, 9.997507));
-        positions.add(new Position(48.408980, 9.997807));
+        DirectionsRoute dr = null;
+        positions.add(new Position(48.408880, 9.997507,1587652587));
+        positions.add(new Position(48.408980, 9.997807,1587652597));
         Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke", 1585773516, 25,
-                null, new ArrayList<>(), positions.get(0),positions.get(1),true);
+                dr, new ArrayList<>(), positions.get(0),positions.get(1),true);
         return track;
     }
 

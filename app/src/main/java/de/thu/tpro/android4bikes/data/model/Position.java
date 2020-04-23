@@ -40,6 +40,12 @@ public class Position {
         this.latitude = latitude;
     }
 
+    public Position(double longitude, double latitude, long timestamp) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.timestamp = timestamp;
+    }
+
     /**
      * returns whether the stored positioning data is valid
      *
@@ -90,6 +96,14 @@ public class Position {
 
     public com.mapbox.mapboxsdk.geometry.LatLng toMapboxLocation(){
         return new com.mapbox.mapboxsdk.geometry.LatLng(latitude,longitude);
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Point getAsPoint(){

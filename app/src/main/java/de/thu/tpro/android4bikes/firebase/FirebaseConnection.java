@@ -634,7 +634,12 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
 
             JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
             jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
-            String json_Route = track.getRoute().toJson();
+            String json_Route;
+            if (track.getRoute() != null){
+                json_Route = track.getRoute().toJson();
+            }else {
+                json_Route = null;
+            }
             Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
             map_track.put(Track.ConstantsTrack.ROUTE.toString(),json_Route);
 
