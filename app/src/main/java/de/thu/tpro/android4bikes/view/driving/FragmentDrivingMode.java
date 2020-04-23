@@ -15,7 +15,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -99,7 +101,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
     boolean isMenuOpen = false;
     Float translationY = 100f;
     GpsLocation location;
-    private FloatingActionButton fab, fab1, fab2, fab3;
+    private FloatingActionButton fab_weather;
     private Date time;
     private List<Position> hazardAlert = new ArrayList<>();
     FloatingActionButton navFab;
@@ -116,7 +118,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
     //private List<Position> bikeRacks = new ArrayList<>();
     //private List<Position> bikeTracks = new ArrayList<>();
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -125,6 +126,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
         txtSpeedUnit = viewDrivingMode.findViewById(R.id.txtSpeedUnit);
         txtAvgSpeed = viewDrivingMode.findViewById(R.id.txtAverageSpeed);
         infoIcon = viewDrivingMode.findViewById(R.id.cardView_Infoicon);
+        fab_weather = viewDrivingMode.findViewById(R.id.weatherFAB);
 
         vmWeather = new ViewModelWeather();
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
@@ -148,12 +150,12 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
         GlobalContext.setContext(parent.getApplicationContext());
 
         initNavigation(view, savedInstanceState);
-
     }
 
     @Override
     public void onChanged(OpenWeatherObject weatherObject) {
         // TODO handle weather change
+        vmWeather.getCurrentWeather().getValue().getForecastList().get(0).getWeather().get(0).getIcon();
     }
 
     private void initNavigation(View view, Bundle savedInstanceState) {
@@ -168,7 +170,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
         parent.navigationView.onCreate(savedInstanceState);
         parent.navigationView.initialize(this::onNavigationReady);
     }
-
 
     @Override
     public void onNavigationReady(boolean isRunning) {
