@@ -46,19 +46,22 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import petrov.kristiyan.colorpicker.ColorPicker;
 
 
 public class FragmentShowProfile extends Fragment {
 
+    private ViewModelOwnProfile vmProfile;
+
     private TextInputEditText nameEdit;
     private TextInputEditText emailEdit;
     private ImageView imageViewCircle;
-    private MaterialCardView materialCardView;
 
     private Button delete;
     private Button dialogColorPicker;
@@ -86,21 +89,25 @@ public class FragmentShowProfile extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
 
+        vmProfile = new ViewModelOwnProfile();
+        Profile myProfile = vmProfile.getMyProfile().getValue();
+
         //Name & Email
         nameEdit = (TextInputEditText) view.findViewById(R.id.edit_Name_text);
         emailEdit = (TextInputEditText) view.findViewById(R.id.edit_Email_text);
 
+        String fullName = String.format("%s %s", myProfile.getFirstName(), myProfile.getFamilyName());
+        nameEdit.setText(fullName);
+        nameEdit.setTextColor(Color.GRAY); // Text auf grau stellen
 
-        nameEdit.setText("Max Mustermann");
-        nameEdit.setTextColor(Color.GRAY); // Text auf Graustellen
-        emailEdit.setText("max.mustermann@gmail.com");
-        emailEdit.setTextColor(Color.GRAY);     //Text auf Graustellen
+        // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
+        emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        emailEdit.setTextColor(Color.GRAY);     //Text auf grau stellen
 
         // Delete Button & ImageView vor Profile
         delete = (Button) view.findViewById(R.id.buttonDelete);
         imageViewCircle = (ImageView) view.findViewById(R.id.imageView_Circle);
         imageViewCircle.setImageBitmap(textToBitmap("M"));
-        materialCardView = (MaterialCardView) view.findViewById(R.id.mater_card);
         //ColorPicker
         dialogColorPicker = (Button) view.findViewById(R.id.button_ChangeProfileView);
 

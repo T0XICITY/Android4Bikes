@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
@@ -66,17 +67,20 @@ import java.util.Locale;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.os.Looper.getMainLooper;
 
-public class FragmentDrivingMode extends Fragment implements LocationListener, PermissionsListener, OnNavigationReadyCallback {
+public class FragmentDrivingMode extends Fragment implements LocationListener, PermissionsListener,
+        OnNavigationReadyCallback, Observer<OpenWeatherObject> {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
@@ -85,7 +89,10 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
     TextView txtAvgSpeed;
     TextView txtSpeedUnit;
     //TODO Delete after testing
+
     private ViewModelDrivingMode viewModel;
+    private ViewModelWeather vmWeather;
+
     private View viewDrivingMode;
     private CardView infoIcon;
     OvershootInterpolator interpolator;
@@ -119,6 +126,8 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
         txtAvgSpeed = viewDrivingMode.findViewById(R.id.txtAverageSpeed);
         infoIcon = viewDrivingMode.findViewById(R.id.cardView_Infoicon);
 
+        vmWeather = new ViewModelWeather();
+        vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
 
         initCardView();
 
@@ -140,6 +149,11 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
 
         initNavigation(view, savedInstanceState);
 
+    }
+
+    @Override
+    public void onChanged(OpenWeatherObject weatherObject) {
+        // TODO handle weather change
     }
 
     private void initNavigation(View view, Bundle savedInstanceState) {
