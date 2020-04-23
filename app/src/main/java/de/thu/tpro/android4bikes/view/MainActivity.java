@@ -229,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void goToLoginActivity() {
         FirebaseAuth.getInstance().signOut();
+        //todo: Delete user from local db
         Intent intent = new Intent(this, ActivityLogin.class);
         startActivity(intent);
     }
