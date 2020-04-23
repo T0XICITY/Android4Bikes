@@ -82,7 +82,7 @@ public class UploadWorker extends Worker {
 
         //Synchronize Utilisation###################################################################
         List<Position> list_positions_to_store = readUtilisation();
-        if (list_bikeracks_to_store.size() >= 50){
+        if (list_positions_to_store.size() >= 50) {
             FirebaseConnection.getInstance().storeBufferedUtilizationToFireStore(list_positions_to_store);
         }
         //Synchronize Utilisation###################################################################

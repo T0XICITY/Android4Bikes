@@ -105,11 +105,13 @@ public class CouchDBTest {
         Database db_buffer_tracks = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
         Database db_buffer_bikeRacks = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
         Database db_buffer_profile = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
+        Database db_positions_buffer = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
 
         couchdb.clearDB(db_buffer_hazardAlerts);
         couchdb.clearDB(db_buffer_tracks);
         couchdb.clearDB(db_buffer_bikeRacks);
         couchdb.clearDB(db_buffer_profile);
+        couchdb.clearDB(db_positions_buffer);
     }
 
     @Test
