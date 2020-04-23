@@ -14,6 +14,7 @@ import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,6 +34,7 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
 
 /**
@@ -98,9 +100,19 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
                     db_track = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_TRACK);
                     break;
             }
-            JSONObject json_track = new JSONObject(gson.toJson(track));
-            Map result = gson.fromJson(json_track.toString(), Map.class);
-            MutableDocument mutableDocument_track = new MutableDocument(result);
+
+            JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
+            jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
+            String json_Route;
+            if (track.getRoute() != null){
+                json_Route = track.getRoute().toJson();
+            }else {
+                json_Route = null;
+            }
+            Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
+            map_track.put(Track.ConstantsTrack.ROUTE.toString(),json_Route);
+
+            MutableDocument mutableDocument_track = new MutableDocument(map_track);
             couchDB.saveMutableDocumentToDatabase(db_track, mutableDocument_track);
 
         } catch (Exception e) {
@@ -139,12 +151,28 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             Query query = QueryBuilder.select(SelectResult.all())
                     .from(DataSource.database(db_track));
             ResultSet results = couchDB.queryDatabase(query);
-            JSONObject jsonObject_result = null;
-            Track track_result = null;
             for (Result result : results) {
-                jsonObject_result = new JSONObject(result.toMap());
-                track_result = gson.fromJson(jsonObject_result.get(db_name).toString(), Track.class);
-                tracks.add(track_result);
+                Map<String, Object> map_track = result.toMap();
+                JSONObject jsonObject_track = new JSONObject(map_track);
+                jsonObject_track = (JSONObject) jsonObject_track.get(db_name);
+                String jsonString_Route;
+                try{
+                    jsonString_Route = jsonObject_track.getString(Track.ConstantsTrack.ROUTE.toString());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    jsonString_Route = null;
+                }
+                DirectionsRoute route;
+                if (jsonString_Route != null){
+                    route = DirectionsRoute.fromJson(jsonString_Route);
+                    jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
+                }else {
+                    route = null;
+                }
+                JSONHelper<Track> helper = new JSONHelper<>(Track.class);
+                Track track = helper.convertJSONObjectToObject(jsonObject_track);
+                track.setRoute(route);
+                tracks.add(track);
             }
         } catch (Exception e) {
             e.printStackTrace();
