@@ -8,10 +8,21 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -23,7 +34,6 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -34,7 +44,6 @@ import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
-import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -47,19 +56,12 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
-import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -69,6 +71,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
 
 import static android.os.Looper.getMainLooper;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
@@ -91,34 +94,31 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener {
 
     private static final String LOG_TAG = "FragmentInfoMode";
-    private View viewInfo;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
-    ViewGroup container;
-    //MapViewContentBuilder builder;
-    int chosenMarkerId;
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private static final String TAG = "DirectionsActivity";
-    MainActivity parent;
-    SymbolOptions marker;
+
+    private ViewModelBikerack vmBikeRack;
+
+    private MainActivity parent;
+    private View viewInfo;
     private SupportMapFragment mapFragment;
     private LocationChangeListeningActivityLocationCallback callback = new LocationChangeListeningActivityLocationCallback(this);
     private MapboxMap mapboxMap;
-    private MapView mapView;
     private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
     private LocationComponent locationComponent;
     private LatLng lastPos;
-    // variables for calculating and drawing a route
-    private DirectionsRoute currentRoute;
-    private NavigationMapRoute navigationMapRoute;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         viewInfo = inflater.inflate(R.layout.fragment_info_mode, container, false);
+        vmBikeRack = new ViewModelBikerack();
+
         return viewInfo;
     }
 
@@ -432,7 +432,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             public void onClick(DialogInterface dialogInterface, int i) {
                 switch (i) {
                     case 0:
-                        submitt_rack();
+                        submit_rack();
                         break;
                     case 1:
                         submit_hazard();
@@ -658,27 +658,34 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private void submitt_rack() {
+    private void submit_rack() {
         //showRackMap();
         MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_rack, null);
+
+        TextView tvRackName = dialogView.findViewById(R.id.tv_rack_name);
+        Spinner spCapacity = dialogView.findViewById(R.id.sp_capacity);
+        CheckBox cbEBike = dialogView.findViewById(R.id.chBx_ebike);
+        CheckBox cbCovered = dialogView.findViewById(R.id.chBx_covered);
+
         rack_builder.setTitle("Submit rack");
-        rack_builder.setView(R.layout.dialog_rack);
-        rack_builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+        rack_builder.setView(dialogView);
+        rack_builder.setPositiveButton(R.string.submit, (dialogInterface, i) -> {
+            BikeRack newRack = new BikeRack();
 
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //TODO store Rack
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into FireStore", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
+            newRack.setName(tvRackName.getText().toString());
+            newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
+                    spCapacity.getSelectedItem().toString().toUpperCase())
+            );
+            newRack.setHasBikeCharging(cbEBike.isChecked());
+            newRack.setCovered(cbCovered.isChecked());
+
+            Log.d(LOG_TAG, newRack.toString());
+            vmBikeRack.submitBikeRack(newRack);
         });
 
-        rack_builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //TODO discard Rack
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Don't store", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
+        // do nothing on cancel
+        rack_builder.setNegativeButton(R.string.cancel, null);
         rack_builder.show();
     }
 

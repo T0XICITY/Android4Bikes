@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        GlobalContext.setContext(this.getApplicationContext());
         checkFirebaseAuth();
 
         // init View Models
@@ -115,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vmOwnTracks = new ViewModelOwnTracks();
 
         setContentView(R.layout.activity_main);
-        GlobalContext.setContext(this.getApplicationContext());
 
         initFragments();
         initNavigationDrawer();
