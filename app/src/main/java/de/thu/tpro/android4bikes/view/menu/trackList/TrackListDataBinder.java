@@ -33,13 +33,10 @@ public class TrackListDataBinder {
     private TrackDistanceTuple.SortBy checkedSortBy;
     private boolean sortAscending;
 
-    //TODO: Backend anbinden
-    public TrackListDataBinder(Resources res, List<Track> trackList) {
+    public TrackListDataBinder(Resources res) {
         this.res = res;
         trackDistanceList = new ArrayList<>();
-        for (Track track : trackList) {
-            trackDistanceList.add(new TrackDistanceTuple(track));
-        }
+
         // init default filter values
         this.filter_range = 0;
         this.filter_quality = 0;
@@ -48,6 +45,13 @@ public class TrackListDataBinder {
 
         // init default sorting
         applySortingRules(TrackDistanceTuple.SortBy.RANGE, true);
+
+    }
+    public TrackListDataBinder(Resources res, List<Track> trackList) {
+        this(res);
+        for (Track track : trackList) {
+            trackDistanceList.add(new TrackDistanceTuple(track));
+        }
     }
 
     /**
@@ -55,6 +59,15 @@ public class TrackListDataBinder {
      */
     public List<TrackDistanceTuple> getTrackDistanceList() {
         return trackDistanceList;
+    }
+
+    /**
+     * adds a track to the data binder
+     * @param track
+     */
+    public void addTrack(Track track) {
+        trackDistanceList.add(new TrackDistanceTuple(track));
+        calculateDistance(trackDistanceList.size()-1);
     }
 
     /**

@@ -75,9 +75,7 @@ public class ViewModelOwnTracks extends ViewModel implements Observer {
      *
      * @param track
      */
-    public void submitTrack(Track track) {
-        writeBuffer.storeTrack(track);
-    }
+    public void submitTrack(Track track) {writeBuffer.storeTrack(track);}
 
     /**
      * increment number of outstanding operations

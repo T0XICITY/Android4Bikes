@@ -22,28 +22,35 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
 /**
  * @author Stefanie
  * This fragment contains the view elements and logic regarding tracks
  */
 public class FragmentTrackList extends Fragment implements SearchView.OnQueryTextListener,
-        LocationListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
+        LocationListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener, Observer<Map<Track, Profile>> {
     private static final String LOG_TAG = "FragmentCreateTrack";
+
+    private ViewModelTrack viewModelTrack;
 
     private TrackListDataBinder dataBinder;
     private RecyclerView recyclerView;
@@ -67,8 +74,6 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     private RadioGroup rg_sortTracks;
     private RadioGroup rg_orderTracks;
 
-    //TODO: delete when backend is connected to view
-    private List<Track> trackList;
 
 
     @Nullable
@@ -76,9 +81,18 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        initTracklistDummy();
+        dataBinder = new TrackListDataBinder(getResources());
 
-        dataBinder = new TrackListDataBinder(getResources(), trackList);
+        Track dummy = new Track();
+        dummy.setName("DummyDummyDumm");
+        dummy.setDescription("DummDumm");
+        dummy.setDistance_km(999);
+
+
+        viewModelTrack = new ViewModelTrack();
+        viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+        viewModelTrack.submitTrack(dummy);
+
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
         tv_trackList = view.findViewById(R.id.tv_totalTracksList);
@@ -136,7 +150,12 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         return true;
     }
 
-    private void insertInformation() {
+    @Override
+    public void onChanged(Map<Track, Profile> trackProfileMap) {
+        for (Track t : trackProfileMap.keySet()) {
+            dataBinder.addTrack(t);
+        }
+        adapter.replaceData(dataBinder.getTrackDistanceList());
     }
 
     // ------- LocationListener Methods --------
@@ -395,36 +414,5 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
             return true;
         }
         return false;
-    }
-
-
-    // TODO: delete after backend is connected to view
-    private void initTracklistDummy() {
-        //test liste TODO: Backend anbinden
-        trackList = Arrays.asList(new Track(), new Track(), new Track());
-
-        trackList.get(0).setRating(new Rating(1, 1, 1, null));
-        trackList.get(1).setRating(new Rating(3, 3, 3, null));
-        trackList.get(2).setRating(new Rating(5, 5, 5, null));
-
-        trackList.get(0).setName("Mega Harte Tour");
-        trackList.get(1).setName("Mega Harte Tour 2: Electric Boogaloo");
-        trackList.get(2).setName("Mega Harte Tour 3: Götterdämmerung");
-
-        trackList.get(0).setDistance_km(15);
-        trackList.get(1).setDistance_km(30);
-        trackList.get(2).setDistance_km(7);
-
-        trackList.get(0).setFineGrainedPositions(Arrays.asList(new Position(48.4049,9.9949)));
-        trackList.get(1).setFineGrainedPositions(Arrays.asList(new Position(48.1773, 9.9730)));
-        trackList.get(2).setFineGrainedPositions(Arrays.asList(new Position(48.3909, 10.0015)));
-
-        trackList.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
-        trackList.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
-        trackList.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
-
-        trackList.get(0).setPostcode("89073");
-        trackList.get(1).setPostcode("88477");
-        trackList.get(2).setPostcode("89231");
     }
 }
