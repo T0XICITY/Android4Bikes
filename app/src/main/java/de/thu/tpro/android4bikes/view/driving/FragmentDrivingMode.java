@@ -154,8 +154,40 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
 
     @Override
     public void onChanged(OpenWeatherObject weatherObject) {
-        // TODO handle weather change
-        vmWeather.getCurrentWeather().getValue().getForecastList().get(0).getWeather().get(0).getIcon();
+        String weatherIconName = vmWeather.getCurrentWeather().getValue().getForecastList().get(0)
+                .getWeather().get(0).getIcon().substring(0,2);
+
+        Log.d(LOG_TAG, "Weather: "+weatherIconName+", "+weatherObject.getCity().getName());
+
+        int weatherDrawableId = 0;
+        switch (weatherIconName) {
+            case "01": // sunny
+                weatherDrawableId = R.drawable.weather_clear_sky;
+                break;
+            case "02":
+                weatherDrawableId = R.drawable.weather_few_clouds;
+                break;
+            case "03":
+                weatherDrawableId = R.drawable.weather_scattered_clouds;
+                break;
+            case "04":
+                weatherDrawableId = R.drawable.weather_broken_cloud;
+                break;
+            case "09":
+            case "10":
+                weatherDrawableId = R.drawable.weather_rain;
+                break;
+            case "11":
+                weatherDrawableId = R.drawable.weather_thunderstom;
+                break;
+            case "13":
+                weatherDrawableId = R.drawable.weather_snow;
+                break;
+            case "50":
+                weatherDrawableId = R.drawable.weather_mist;
+                break;
+        }
+        fab_weather.setImageDrawable(getResources().getDrawable(weatherDrawableId, parent.getTheme()));
     }
 
     private void initNavigation(View view, Bundle savedInstanceState) {
