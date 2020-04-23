@@ -1,7 +1,12 @@
 package de.thu.tpro.android4bikes.util;
 
+import android.content.Context;
+
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,12 +55,28 @@ public class TestObjectsGenerator {
      */
     public static Track generateTrack() {
         List<Position> positions = new ArrayList<>();
-        DirectionsRoute dr = null;
+        DirectionsRoute dr = DirectionsRoute.fromJson(getJsonFromAssets(GlobalContext.getContext(),"testDirections.json"));
         positions.add(new Position(48.408880, 9.997507,1587652587));
         positions.add(new Position(48.408980, 9.997807,1587652597));
         Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke", 1585773516, 25,
                 dr, new ArrayList<>(), positions.get(0),positions.get(1),true);
         return track;
+    }
+
+    private static String getJsonFromAssets(Context context, String fileName) {
+        String jsonString;
+        try {
+            InputStream is = context.getAssets().open(fileName);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            jsonString = new String(buffer, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return jsonString;
     }
 
     public static Track generateDifferentTrack(String name) {
