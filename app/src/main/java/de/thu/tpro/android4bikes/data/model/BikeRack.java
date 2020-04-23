@@ -16,9 +16,6 @@ public class BikeRack {
     @SerializedName("position")
     private Position position;
     @Expose
-    @SerializedName("postcode")
-    private String postcode;
-    @Expose
     @SerializedName("name")
     private String name;
     @Expose
@@ -59,7 +56,6 @@ public class BikeRack {
         this.hasBikeCharging = hasBikeCharging;
         this.isExistent = isExistent;
         this.isCovered = isCovered;
-        this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
     }
 
     /**
@@ -134,13 +130,6 @@ public class BikeRack {
         this.name = name;
     }
 
-    public String getPostcode() {
-        return postcode;
-    }
-
-    public void setPostcode(String postcode) {
-        this.postcode = postcode;
-    }
 
     public Position getPosition() {
         return position;
@@ -148,7 +137,6 @@ public class BikeRack {
 
     public void setPosition(Position position) {
         this.position = position;
-        this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
     }
 
     public boolean hasBikeCharging() {
@@ -192,7 +180,6 @@ public class BikeRack {
         return "BikeRack{" +
                 "firebaseID='" + firebaseID + '\'' +
                 ", position=" + position +
-                ", postcode='" + postcode + '\'' +
                 ", name='" + name + '\'' +
                 ", capacity=" + capacity +
                 ", hasBikeCharging=" + hasBikeCharging +
@@ -211,14 +198,13 @@ public class BikeRack {
                 isCovered() == bikeRack.isCovered() &&
                 getFirebaseID().equals(bikeRack.getFirebaseID()) &&
                 getPosition().equals(bikeRack.getPosition()) &&
-                getPostcode().equals(bikeRack.getPostcode()) &&
                 getName().equals(bikeRack.getName()) &&
                 getCapacity() == bikeRack.getCapacity();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getFirebaseID(), getPosition(), getPostcode(), getName(), getCapacity(), isHasBikeCharging(), isExistent(), isCovered());
+        return Objects.hash(getFirebaseID(), getPosition(), getName(), getCapacity(), isHasBikeCharging(), isExistent(), isCovered());
     }
 
     public enum ConstantsBikeRack {
