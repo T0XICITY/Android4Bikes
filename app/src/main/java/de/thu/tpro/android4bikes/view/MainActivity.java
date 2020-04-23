@@ -17,7 +17,21 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -33,17 +47,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
@@ -66,6 +69,7 @@ import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -74,9 +78,12 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
  * This activity acts as a container for all fragments
  */
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , View.OnClickListener{
-    private ViewModelOwnProfile model_profile;
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
+
+    private ViewModelOwnProfile vmOwnProfile;
+    private ViewModelOwnTracks vmOwnTracks;
+
     public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
     public float lastSpeed;
@@ -102,6 +109,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
 
         checkFirebaseAuth();
+
+        // init View Models
+        vmOwnProfile = new ViewModelOwnProfile();
+        vmOwnTracks = new ViewModelOwnTracks();
 
         setContentView(R.layout.activity_main);
         GlobalContext.setContext(this.getApplicationContext());
@@ -336,21 +347,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //TODO: delete after Testing
     private void submitTrack() {
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_submit, null);
+
+        TextView tvTrackName = dialogView.findViewById(R.id.tv_track_name);
+        TextView tvDescription = dialogView.findViewById(R.id.tv_submit_desc);
+        RatingBar rbSubmitRoadQuality = dialogView.findViewById(R.id.rb_submit_roadquality);
+        RatingBar rbSubmitDifficulty = dialogView.findViewById(R.id.rb_submitk_difficulty);
+        RatingBar rbSubmitFun = dialogView.findViewById(R.id.rb_submit_fun);
+
         dialogBuilder.setTitle("Store your Track!");
-        dialogBuilder.setView(R.layout.dialog_track_submit);
-        dialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(findViewById(R.id.fragment_container), "Store into Firestore", 1000).setAnchorView(bottomBar).show();
-            }
+        dialogBuilder.setView(dialogView);
+
+        dialogBuilder.setPositiveButton("Submit", (dialogInterface, i) -> {
+            Track newTrack = new Track();
+            newTrack.setName(tvTrackName.getText().toString());
+            newTrack.setDescription(tvDescription.getText().toString());
+
+            Rating newRating = new Rating();
+            newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
+            newRating.setDifficulty(rbSubmitDifficulty.getProgress());
+            newRating.setFun(rbSubmitFun.getProgress());
+            newTrack.setRating(newRating);
+
+            // TODO get fine grained positions
+
+            newTrack.setAuthor_googleID(vmOwnProfile.getMyProfile().getValue().getGoogleID());
+
+            vmOwnTracks.submitTrack(newTrack);
         });
 
-        dialogBuilder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
-            }
-        });
+        dialogBuilder.setNegativeButton("Discard", null); // do nothing on Cancel
+
         dialogBuilder.show();
     }
 
