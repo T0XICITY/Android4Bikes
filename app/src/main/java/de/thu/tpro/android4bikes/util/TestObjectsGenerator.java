@@ -119,6 +119,10 @@ public class TestObjectsGenerator {
         list_tracks.get(1).setDistance_km(30);
         list_tracks.get(2).setDistance_km(7);
 
+        list_tracks.get(0).setStartPosition(new Position(40,9));
+        list_tracks.get(1).setStartPosition(new Position(45,8));
+        list_tracks.get(2).setStartPosition(new Position(48,7));
+
         list_tracks.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
         list_tracks.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
         list_tracks.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
