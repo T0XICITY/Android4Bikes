@@ -16,9 +16,6 @@ public class HazardAlert {
     @SerializedName("position")
     private Position position;
     @Expose
-    @SerializedName("postcode")
-    private String postcode;
-    @Expose
     @SerializedName("expiryTimestamp")
     private long expiryTimestamp;
     @Expose
@@ -46,7 +43,6 @@ public class HazardAlert {
         this.expiryTimestamp = expiryTimestamp;
         this.distanceOfInterest = distanceOfInterest;
         this.firebaseID = firebaseID;
-        this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
     }
 
     /**
@@ -81,14 +77,6 @@ public class HazardAlert {
 
     public void setDistanceOfInterest(int distanceOfInterest) {
         this.distanceOfInterest = distanceOfInterest;
-    }
-
-    public String getPostcode() {
-        return postcode;
-    }
-
-    public void setPostcode(String postcode) {
-        this.postcode = postcode;
     }
 
     public Position getPosition() {
@@ -137,13 +125,12 @@ public class HazardAlert {
                 isExistent == that.isExistent &&
                 type == that.type &&
                 Objects.equals(position, that.position) &&
-                Objects.equals(postcode, that.postcode) &&
                 Objects.equals(firebaseID, that.firebaseID);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, position, postcode, expiryTimestamp, distanceOfInterest, firebaseID, isExistent);
+        return Objects.hash(type, position, expiryTimestamp, distanceOfInterest, firebaseID, isExistent);
     }
 
     @Override
@@ -151,7 +138,6 @@ public class HazardAlert {
         return "HazardAlert{" +
                 "type=" + type +
                 ", position=" + position +
-                ", postcode='" + postcode + '\'' +
                 ", expiryTimestamp=" + expiryTimestamp +
                 ", distanceOfInterest=" + distanceOfInterest +
                 ", firebaseID='" + firebaseID + '\'' +
