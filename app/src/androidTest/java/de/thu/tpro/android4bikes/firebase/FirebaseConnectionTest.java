@@ -74,7 +74,9 @@ public class FirebaseConnectionTest {
         Database own_tracks = couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_OWNDATA_TRACK);
         couchDB.clearDB(own_tracks);
 
-        firebaseConnection.readAllOwnTracksAndStoreItToOwnDB("nullacht17");
+        firebaseConnection.storeBufferedTrackInFireStore(TestObjectsGenerator.generateTrack());
+
+        firebaseConnection.readAllOwnTracksAndStoreItToOwnDB("nullacht15");
 
         try {
             Thread.sleep(5000);
