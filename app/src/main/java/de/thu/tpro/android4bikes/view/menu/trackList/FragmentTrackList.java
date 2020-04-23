@@ -40,6 +40,7 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
 /**
@@ -47,7 +48,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
  * This fragment contains the view elements and logic regarding tracks
  */
 public class FragmentTrackList extends Fragment implements SearchView.OnQueryTextListener,
-        LocationListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener, Observer<Map<Track, Profile>> {
+        LocationListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, Observer<Map<Track, Profile>> {
     private static final String LOG_TAG = "FragmentCreateTrack";
 
     private ViewModelTrack viewModelTrack;
@@ -74,7 +75,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     private RadioGroup rg_sortTracks;
     private RadioGroup rg_orderTracks;
 
-
+    Track dummy;
 
     @Nullable
     @Override
@@ -83,15 +84,15 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
 
         dataBinder = new TrackListDataBinder(getResources());
 
-        Track dummy = new Track();
+        dummy = new Track();
         dummy.setName("DummyDummyDumm");
         dummy.setDescription("DummDumm");
         dummy.setDistance_km(999);
 
-
         viewModelTrack = new ViewModelTrack();
-        viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
         viewModelTrack.submitTrack(dummy);
+
+        viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
 
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
@@ -107,8 +108,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         searchView.setOnQueryTextListener(this);
 
         // make all views != searchView clear focus from the searchview when touched
-        recyclerView.setOnTouchListener(this::onTouch);
-        tv_trackList.setOnTouchListener(this::onTouch);
+        recyclerView.setOnClickListener(this::onClick);
+        tv_trackList.setOnClickListener(this::onClick);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(RecyclerView.VERTICAL);
@@ -408,11 +409,9 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     }
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
+    public void onClick(View view) {
         if (view != searchView) {
             searchView.clearFocus();
-            return true;
         }
-        return false;
     }
 }
