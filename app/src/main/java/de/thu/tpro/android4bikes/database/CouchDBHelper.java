@@ -189,6 +189,11 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /*
+        todo: Should we notify here?
+        setChanged();
+        notifyObservers(readTracks());
+        * */
     }
 
     @Override
@@ -214,6 +219,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //todo: Notify with just one alert or all?
+        setChanged();
+        notifyObservers(hazardAlert);
     }
 
     @Override
@@ -289,6 +297,11 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /*
+        todo: Should we notify here?
+        setChanged();
+        notifyObservers(readHazardAlerts());
+        * */
     }
 
     @Override
@@ -298,18 +311,12 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void addToUtilization(Position position) {
-        Database db_position = null;
         try {
-            db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
+            Database db_position = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
             JSONObject json_position = new JSONObject(gson.toJson(position));
             Map result = gson.fromJson(json_position.toString(), Map.class);
             MutableDocument md_position = new MutableDocument(result);
             couchDB.saveMutableDocumentToDatabase(db_position, md_position);
-            /*if (couchDB.getNumberOfStoredDocuments(db_position) >= 50) {
-                List<Position> positions = this.getAllPositions();
-                FirebaseConnection.getInstance().storeUtilizationToFireStore(positions);
-                this.resetUtilization();
-            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -317,9 +324,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
     @Override
     public void resetUtilization() {
-        Database utilizationDB = null;
         try {
-            utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
+            Database utilizationDB = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
             couchDB.clearDB(utilizationDB);
         } catch (Exception e) {
             e.printStackTrace();
@@ -340,6 +346,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
                 case OFFLINEDATA:
                     db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
                     break;
+                    //todo: Is the implementatioon of deletebuffer not needed here?
             }
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
@@ -348,6 +355,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        setChanged();
+        notifyObservers(profile);
     }
 
     @Override
@@ -373,6 +382,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /*Profile profile = null; //todo: Conversion from map to profile
+        setChanged();
+        notifyObservers(profile);*/
     }
 
     @Override
@@ -380,7 +392,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         Profile profile = null;
         Database db_profile = null;
         String db_name = null;
-
         try {
             switch (currentMode) {
                 case DELETEBUFFER:
@@ -426,6 +437,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        setChanged();
+        notifyObservers(profile);
         return profile;
     }
 
@@ -439,12 +452,16 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        setChanged();
+        notifyObservers(profile);
     }
 
 
     public void updateMyOwnProfile(Profile profile) {
         deleteMyOwnProfile();
         storeMyOwnProfile(profile);
+        setChanged();
+        notifyObservers(profile);
     }
 
     /**
@@ -452,6 +469,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
      */
     public void deleteMyOwnProfile() {
         couchDB.clearDB(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE));
+        //todo: notify here?
     }
 
     /**
@@ -496,6 +514,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     public void updateProfile(Profile profile) {
         deleteProfile(profile.getGoogleID());
         storeProfile(profile);
+        setChanged();
+        notifyObservers(profile);
     }
 
     @Override
@@ -526,6 +546,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //todo: notify here?
     }
 
     @Override
@@ -557,6 +578,8 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        setChanged();
+        notifyObservers(bikeRack); //todo: or whole list?
     }
 
     @Override
@@ -632,6 +655,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //todo: should we notify here?
     }
 
     /**
@@ -685,6 +709,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }catch (Exception e){
             e.printStackTrace();
         }
+        /* todo: conversion from map to bikerack or do we return all bikeracks with read?
+        BikeRack b;
+        setChanged();
+        notifyObservers(b);*/
     }
 
     @Override
@@ -707,6 +735,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /* todo: conversion from map to hazardalert or do we return all hazardalerts with read?
+        HazarAlert haz;
+        setChanged();
+        notifyObservers(haz);*/
     }
 
     /**
@@ -774,5 +806,4 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             return name;
         }
     }
-
 }

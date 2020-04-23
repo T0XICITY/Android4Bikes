@@ -790,6 +790,50 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void readAllOwnTracksAndStoreItToOwnDB(String firebaseID) {
+        //TODO Review and Testing
+        db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
+                .whereEqualTo(Track.ConstantsTrack.AUTHOR_GOOGLEID.toString(), firebaseID)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().size() > 0) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                try {
+                                    PositionCompressor positionCompressor = new PositionCompressor();
+                                    Blob blob_compressedPositions = document.getBlob(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString());
+                                    byte[] compressedPositions = blob_compressedPositions.toBytes();
+                                    List<Position> fineGrainedPositions = positionCompressor.decompressPositions(compressedPositions);
+                                    Map<String, Object> map_track = document.getData();
+                                    JSONHelper<Track> jsonHelper_Track = new JSONHelper(Track.class);
+                                    JSONHelper<Position> jsonHelper_Position = new JSONHelper(Position.class);
+                                    ArrayList<Map<String, Object>> arraylist_of_map_string_Object_positions = new ArrayList<>();
+                                    JSONObject jsonObject_position = null;
+                                    Map map_position = null;
+                                    for (Position pos : fineGrainedPositions) {
+                                        jsonObject_position = jsonHelper_Position.convertObjectToJSONObject(pos);
+                                        map_position = gson.fromJson(jsonObject_position.toString(), Map.class);
+                                        arraylist_of_map_string_Object_positions.add(map_position);
+                                    }
+                                    map_track.put(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString(), arraylist_of_map_string_Object_positions);
+                                    JSONObject jsonObject_track = new JSONObject(map_track);
+                                    Track track = jsonHelper_Track.convertJSONObjectToObject(jsonObject_track);
+                                    track.setFineGrainedPositions(fineGrainedPositions);
+                                    ownDataDB.storeTrack(track);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            Log.d(TAG, "No such Track");
+                        }
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+                });
+    }
     //Methods for buffering################################################################################
 
     public enum ConstantsFirebase {
