@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="Title"
             app:navigationIcon="@drawable/ic_material_arrowleft"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorPrimaryDark"
             app:titleTextColor="@color/TextWhite"
             android:visibility="visible"/>
 
@@ -38,7 +38,7 @@
 
             <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navigationDrawer"
-                android:layout_width="190dp"
+                android:layout_width="200dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="end"
                 app:headerLayout="@layout/navigation_header"
