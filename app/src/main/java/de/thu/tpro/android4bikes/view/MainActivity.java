@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private ViewModelOwnProfile vmOwnProfile;
     private ViewModelOwnTracks vmOwnTracks;
-    private ViewModelOwnProfile vmProfile;
 
     public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
@@ -119,9 +118,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         checkFirebaseAuth();
 
         // init View Models
-        vmOwnProfile = new ViewModelOwnProfile();
-        vmOwnTracks = new ViewModelOwnTracks();
-        vmProfile = new ViewModelOwnProfile();
+        ViewModelProvider provider = new ViewModelProvider(this);
+        vmOwnProfile = provider.get(ViewModelOwnProfile.class);
+        vmOwnTracks = provider.get(ViewModelOwnTracks.class);
 
         setContentView(R.layout.activity_main);
 

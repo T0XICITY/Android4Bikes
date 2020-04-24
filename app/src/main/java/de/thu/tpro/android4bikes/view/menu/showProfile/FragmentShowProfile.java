@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,7 +32,6 @@ import petrov.kristiyan.colorpicker.ColorPicker;
 public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
     private ViewModelOwnProfile vmProfile;
-    Profile myProfile;
 
     private TextInputEditText nameEdit;
     private TextInputEditText emailEdit;
@@ -61,18 +61,21 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
 
-        vmProfile = new ViewModelOwnProfile();
+        vmProfile = new ViewModelProvider(this).get(ViewModelOwnProfile.class);
         vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this::onChanged);
 
         //Name & Email
         nameEdit = (TextInputEditText) view.findViewById(R.id.edit_Name_text);
         emailEdit = (TextInputEditText) view.findViewById(R.id.edit_Email_text);
 
+        // if there's an existing profile
+        Profile currentProfile = vmProfile.getMyProfile().getValue();
+        if (currentProfile != null)
+            onChanged(currentProfile);
 
-        nameEdit.setTextColor(Color.GRAY); // Text auf grau stellen
-
-
-        emailEdit.setTextColor(Color.GRAY);     //Text auf grau stellen
+        // Text auf grau stellen
+        nameEdit.setTextColor(Color.GRAY);
+        emailEdit.setTextColor(Color.GRAY);
 
         // Delete Button & ImageView vor Profile
         delete = (Button) view.findViewById(R.id.buttonDelete);

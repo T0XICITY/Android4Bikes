@@ -23,6 +23,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -84,14 +85,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
 
         dataBinder = new TrackListDataBinder(getResources());
 
-        dummy = new Track();
-        dummy.setName("DummyDummyDumm");
-        dummy.setDescription("DummDumm");
-        dummy.setDistance_km(999);
 
-        viewModelTrack = new ViewModelTrack();
-        viewModelTrack.submitTrack(dummy);
-
+        viewModelTrack = new ViewModelProvider(this).get(ViewModelTrack.class);
         viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
 
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
@@ -297,6 +292,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
             adapter.replaceData(dataBinder.sortTrackDistanceList());
         });
         builder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+            submitDummyTrack();
             // Nothing to do - cancel is handled automatically
         });
 
@@ -413,5 +409,14 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         if (view != searchView) {
             searchView.clearFocus();
         }
+    }
+
+    // TODO delete after testing
+    private void submitDummyTrack() {
+        dummy = new Track();
+        dummy.setName("DummyDummyDumm");
+        dummy.setDescription("DummDumm");
+        dummy.setDistance_km(999);
+        viewModelTrack.submitTrack(dummy);
     }
 }

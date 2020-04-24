@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -117,7 +118,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         super.onCreate(savedInstanceState);
 
         viewInfo = inflater.inflate(R.layout.fragment_info_mode, container, false);
-        vmBikeRack = new ViewModelBikerack();
+        vmBikeRack = new ViewModelProvider(this).get(ViewModelBikerack.class);
 
         return viewInfo;
     }

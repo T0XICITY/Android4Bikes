@@ -31,6 +31,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.location.LocationEngine;
@@ -128,7 +129,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
         infoIcon = viewDrivingMode.findViewById(R.id.cardView_Infoicon);
         fab_weather = viewDrivingMode.findViewById(R.id.weatherFAB);
 
-        vmWeather = new ViewModelWeather();
+        vmWeather = new ViewModelProvider(this).get(ViewModelWeather.class);
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
 
         initCardView();
