@@ -537,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
                 Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
                 Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
-                Log.d("HalloWelt","Debug Buffer: Profile :"+cdb.readMyOwnProfile());
+                Log.d("HalloWelt","Debug OWN Profile :"+cdb.readMyOwnProfile());
                 try {
                     Thread.sleep(5000);
                 }catch (InterruptedException e){

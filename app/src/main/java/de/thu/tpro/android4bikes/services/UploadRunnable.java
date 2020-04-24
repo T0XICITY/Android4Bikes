@@ -19,11 +19,13 @@ import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 public class UploadRunnable implements Runnable {
     private CouchDBHelper cdb_writeBuffer;
     private CouchDBHelper cdb_deleteBuffer;
+    private CouchDBHelper cdb_ownData;
 
     public UploadRunnable() {
         //get access to buffers:
         cdb_writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
         cdb_deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
+        cdb_ownData = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
     }
 
     private List<Position> readUtilisation() {
@@ -58,7 +60,7 @@ public class UploadRunnable implements Runnable {
      * @return current version of own profile or null
      */
     private Profile readProfileWriteBuffer() {
-        Profile buffered_profile = cdb_writeBuffer.readMyOwnProfile();
+        Profile buffered_profile = cdb_writeBuffer.readProfile(cdb_ownData.readMyOwnProfile().getGoogleID());
         return buffered_profile;
     }
 
@@ -68,7 +70,7 @@ public class UploadRunnable implements Runnable {
      * @return current version of own profile or null
      */
     private Profile readProfileDeleteBuffer() {
-        Profile buffered_profile = cdb_deleteBuffer.readMyOwnProfile();
+        Profile buffered_profile = cdb_deleteBuffer.readProfile(cdb_ownData.readMyOwnProfile().getGoogleID());
         return buffered_profile;
     }
 
