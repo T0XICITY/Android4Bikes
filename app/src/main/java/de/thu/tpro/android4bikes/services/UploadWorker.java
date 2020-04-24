@@ -24,6 +24,7 @@ public class UploadWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        //todo:FirebaseAuth.getInstance().getCurrentUser() == null Check if there is a user signed in 
         processor.startRunnable(new UploadRunnable());
         return Result.success();
     }
