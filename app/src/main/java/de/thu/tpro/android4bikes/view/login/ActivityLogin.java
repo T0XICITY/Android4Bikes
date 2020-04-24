@@ -28,7 +28,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
-import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 
 /**
  * Firebase Authentication:
@@ -139,6 +138,7 @@ public class ActivityLogin extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            task.getResult().getAdditionalUserInfo().isNewUser();
                             // Sign in success, update UI with the signed-in user's information
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);

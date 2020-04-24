@@ -1,5 +1,6 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,7 +27,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineRequest;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,6 +58,7 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
@@ -77,10 +81,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewModelOwnProfile model_profile;
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
-    public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
-    public float lastSpeed;
-
+    private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
+    private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private BottomAppBar bottomBar;
     private FloatingActionButton fab;
     private MaterialToolbar topAppBar;
@@ -94,17 +97,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private ImageView imageView;
+    public LocationEngine locationEngine;
+    public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
 
     private boolean toolbarHidden;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        GlobalContext.setContext(this.getApplicationContext());
         checkFirebaseAuth();
 
         setContentView(R.layout.activity_main);
-        GlobalContext.setContext(this.getApplicationContext());
+        //dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_Dialog);
 
         initFragments();
         initNavigationDrawer();
@@ -119,10 +124,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //observeInternet();
         scheduleUploadTask();
-
+        //init Location Engine
+        this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
         //testWorkManager();
     }
 
+    /**
+     * Set up the LocationEngine and the parameters for querying the device's location
+     */
+    @SuppressLint("MissingPermission")
+    public void initLocationEngine() {
+        locationEngine = LocationEngineProvider.getBestLocationEngine(this);
+
+        LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+                .setFastestInterval(DEFAULT_MAX_WAIT_TIME)
+                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                .build();
+
+        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
+        locationEngine.getLastLocation(callback);
+    }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -558,5 +579,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
 
         return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback);
+        }
     }
 }
