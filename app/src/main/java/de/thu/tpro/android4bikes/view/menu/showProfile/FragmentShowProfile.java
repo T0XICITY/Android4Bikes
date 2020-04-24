@@ -1,63 +1,37 @@
 package de.thu.tpro.android4bikes.view.menu.showProfile;
 
-import android.app.DatePickerDialog;
-import android.app.FragmentManager;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ImageFormat;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.app.DialogFragment;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 
-import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.util.GlobalContext;
-import de.thu.tpro.android4bikes.view.MainActivity;
-import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
-import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import petrov.kristiyan.colorpicker.ColorPicker;
 
 
-public class FragmentShowProfile extends Fragment {
+public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
     private ViewModelOwnProfile vmProfile;
+    Profile myProfile;
 
     private TextInputEditText nameEdit;
     private TextInputEditText emailEdit;
@@ -75,13 +49,11 @@ public class FragmentShowProfile extends Fragment {
      * <p>
      * TODO -> Implement Track & Achievments
      *
-     *
      * @param inflater
      * @param container
      * @param savedInstanceState
      * @return
      */
-
 
 
     @Nullable
@@ -90,18 +62,16 @@ public class FragmentShowProfile extends Fragment {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
 
         vmProfile = new ViewModelOwnProfile();
-        Profile myProfile = vmProfile.getMyProfile().getValue();
+        vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this::onChanged);
 
         //Name & Email
         nameEdit = (TextInputEditText) view.findViewById(R.id.edit_Name_text);
         emailEdit = (TextInputEditText) view.findViewById(R.id.edit_Email_text);
 
-        String fullName = String.format("%s %s", myProfile.getFirstName(), myProfile.getFamilyName());
-        nameEdit.setText(fullName);
+
         nameEdit.setTextColor(Color.GRAY); // Text auf grau stellen
 
-        // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
-        emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
         emailEdit.setTextColor(Color.GRAY);     //Text auf grau stellen
 
         // Delete Button & ImageView vor Profile
@@ -243,6 +213,7 @@ public class FragmentShowProfile extends Fragment {
 
                         //imageViewCircle.setColorFilter(color); //-> ändert Initialenfarbe
                     }
+
                     @Override
                     public void onCancel() {
                         // remains empty
@@ -284,30 +255,14 @@ public class FragmentShowProfile extends Fragment {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @Override
+    public void onChanged(Profile profile) {
+        Log.d("PROFILE", "" + profile);
+        if (profile!=null) {
+            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
+            nameEdit.setText(fullName);
+            // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
+            emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        }
+    }
 }
