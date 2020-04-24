@@ -24,7 +24,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.auth.User;
 
 import java.util.ArrayList;
 
@@ -32,10 +31,8 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
-import de.thu.tpro.android4bikes.database.WriteBuffer;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
-import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 
 /**
  * Firebase Authentication:
@@ -150,13 +147,15 @@ public class ActivityLogin extends AppCompatActivity {
                             //todo!!!
                             CouchDBHelper cdb = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
                             if(task.getResult().getAdditionalUserInfo().isNewUser()){
+                                //create new user on firestore
                                 FirebaseUser user = task.getResult().getUser();
                                 Profile profile = new Profile(user.getDisplayName(),"",user.getUid(),0xADD8E6,0,new ArrayList<>());
                                 cdb.storeProfile(profile);
-                                //CouchWriteBuffer.getInstance().storeProfile(profile);
+                                CouchWriteBuffer.getInstance().storeProfile(profile);
                             }else {
-
+                                //load existing user from collection in firestore
                             }
+
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                         } else {

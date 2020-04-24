@@ -13,17 +13,14 @@ import com.google.firebase.firestore.GeoPoint;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
-import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
@@ -32,9 +29,7 @@ import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests if the communication between {@link com.google.firebase.firestore.FirebaseFirestore} and the application
@@ -143,7 +138,7 @@ public class FirebaseConnectionTest {
 
         //wait a few seconds because of the asynchronous process of storing data to FireBase
         try {
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
