@@ -1,26 +1,26 @@
 package de.thu.tpro.android4bikes.view.info;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.mapbox.android.core.location.LocationEngine;
-import com.mapbox.android.core.location.LocationEngineCallback;
-import com.mapbox.android.core.location.LocationEngineProvider;
-import com.mapbox.android.core.location.LocationEngineRequest;
-import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -49,28 +49,19 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
-import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.positiontest.PositionProvider;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 
-import static android.os.Looper.getMainLooper;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
@@ -103,11 +94,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     MainActivity parent;
     SymbolOptions marker;
     private SupportMapFragment mapFragment;
-    private LocationChangeListeningActivityLocationCallback callback = new LocationChangeListeningActivityLocationCallback(this);
     private MapboxMap mapboxMap;
     private MapView mapView;
     private PermissionsManager permissionsManager;
-    private LocationEngine locationEngine;
     private LocationComponent locationComponent;
     private LatLng lastPos;
     // variables for calculating and drawing a route
@@ -199,7 +188,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (Track track : tracks) {
-            SymbolOptions marker = createMarker(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
+            SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
             list_feature.add(Feature.fromGeometry(marker.getGeometry()));
         }
         //Create FeatureCollection from Feature List
@@ -365,7 +354,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             // Set the LocationComponent activation options
             LocationComponentActivationOptions locationComponentActivationOptions =
                     LocationComponentActivationOptions.builder(parent, loadedMapStyle)
-                            .useDefaultLocationEngine(false)
+                            .useDefaultLocationEngine(true)
                             .build();
 
             // Activate with the LocationComponentActivationOptions object
@@ -389,8 +378,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 public void onFinish() {
                 }
             });
-
-            initLocationEngine();
+            parent.initLocationEngine();
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(parent);
@@ -487,17 +475,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         dia_hazardBuilder.show();
     }
 
-    @SuppressLint("MissingPermission")
-    private void initLocationEngine() {
-        locationEngine = LocationEngineProvider.getBestLocationEngine(parent);
-
-        LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
-                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-                .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build();
-
-        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
-        locationEngine.getLastLocation(callback);
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -537,11 +514,13 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                         enableLocationComponent(style);
                     }
                 });
+                if (PositionTracker.getLastPosition() != null) {
                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
                         .target(lastPos)
                         .zoom(15)
                         .bearing(0)
                         .build()), 3000);
+                    }
             }
         });
     }
@@ -581,28 +560,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         return bikeRack_THU;
     }
 
-    /**
-     * generates a new instance of the class Track for test purposes
-     *
-     * @return instance of a track
-     */
-    private Track generateTrack() {
-
-        Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke",
-                "siebenundvierzig11", 1585773516, 25,
-                PositionProvider.getDummyPosition90elements(), new ArrayList<>(), true);
-        return track;
-    }
-
-    private BikeRack generateTHUBikeRack() {
-        //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
-        return bikeRack_THU;
-    }
-
     private enum MapBoxSymbols {
         BIKERACK("BIKERACK"),
         HAZARDALERT_GENERAL("HAZARDALERT_GENERAL"),
@@ -616,54 +573,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
         public String toString() {
             return type;
-        }
-    }
-
-    private static class LocationChangeListeningActivityLocationCallback
-            implements LocationEngineCallback<LocationEngineResult> {
-
-        private final WeakReference<FragmentInfoMode> activityWeakReference;
-
-        LocationChangeListeningActivityLocationCallback(FragmentInfoMode activity) {
-            this.activityWeakReference = new WeakReference<>(activity);
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location has changed.
-         *
-         * @param result the LocationEngineResult object which has the last known location within it.
-         */
-        @Override
-        public void onSuccess(LocationEngineResult result) {
-            FragmentInfoMode activity = activityWeakReference.get();
-
-            if (activity != null) {
-                Location location = result.getLastLocation();
-
-                if (location == null) {
-                    return;
-                }
-
-                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
-                // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.mapboxMap != null && result.getLastLocation() != null) {
-                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
-                }
-            }
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
-         *
-         * @param exception the exception message
-         */
-        @Override
-        public void onFailure(@NonNull Exception exception) {
-            FragmentInfoMode activity = activityWeakReference.get();
-            if (activity != null) {
-                Toast.makeText(activity.parent, exception.getLocalizedMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
         }
     }
 
@@ -694,9 +603,5 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Prevent leaks
-        if (locationEngine != null) {
-            locationEngine.removeLocationUpdates(callback);
-        }
     }
 }

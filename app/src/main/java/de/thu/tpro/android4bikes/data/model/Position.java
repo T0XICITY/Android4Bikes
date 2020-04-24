@@ -1,10 +1,9 @@
 package de.thu.tpro.android4bikes.data.model;
 
-
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.mapbox.geojson.Point;
 
 import java.util.Objects;
 
@@ -18,6 +17,9 @@ public class Position {
     @Expose
     @SerializedName("latitude")
     private double latitude;
+    @Expose
+    @SerializedName("timestamp")
+    private long timestamp;
 
     /**
      * no-arg Constructor needed for Firebase auto-cast
@@ -36,6 +38,12 @@ public class Position {
     public Position(double latitude, double longitude) {
         this.longitude = longitude;
         this.latitude = latitude;
+    }
+
+    public Position(double longitude, double latitude, long timestamp) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.timestamp = timestamp;
     }
 
     /**
@@ -86,26 +94,35 @@ public class Position {
         return new GeoPoint(latitude, longitude);
     }
 
-    public LatLng getLatLng() {
-        return new LatLng(latitude, longitude);
-    }
-
     public com.mapbox.mapboxsdk.geometry.LatLng toMapboxLocation(){
         return new com.mapbox.mapboxsdk.geometry.LatLng(latitude,longitude);
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Point getAsPoint(){
+        return Point.fromLngLat(longitude,latitude);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Position)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Position position = (Position) o;
-        return Double.compare(position.getLongitude(), getLongitude()) == 0 &&
-                Double.compare(position.getLatitude(), getLatitude()) == 0;
+        return Double.compare(position.longitude, longitude) == 0 &&
+                Double.compare(position.latitude, latitude) == 0 &&
+                timestamp == position.timestamp;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getLongitude(), getLatitude());
+        return Objects.hash(longitude, latitude, timestamp);
     }
 
     @Override
@@ -113,14 +130,15 @@ public class Position {
         return "Position{" +
                 "longitude=" + longitude +
                 ", latitude=" + latitude +
+                ", timestamp=" + timestamp +
                 '}';
     }
 
     public enum ConstantsPosition {
         LATITUDE("latitude"),
         LONGITUDE("longitude"),
+        TIMESTAMP("timestamp"),
         POSITION("position");
-
 
         private String type;
 
