@@ -96,11 +96,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GlobalContext.setContext(this.getApplicationContext());
 
         checkFirebaseAuth();
 
         setContentView(R.layout.activity_main);
-        GlobalContext.setContext(this.getApplicationContext());
 
         debugWriteBuffer();
 
