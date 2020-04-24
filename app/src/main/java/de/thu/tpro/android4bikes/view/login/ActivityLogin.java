@@ -31,6 +31,8 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
+import de.thu.tpro.android4bikes.database.WriteBuffer;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 
@@ -153,6 +155,7 @@ public class ActivityLogin extends AppCompatActivity {
                                 cdb.storeProfile(profile);
                                 CouchWriteBuffer.getInstance().storeProfile(profile);
                             }else {
+                                //Profile profile = FirebaseConnection.getInstance().readOwnProfile();
                                 //load existing user from collection in firestore
                             }
 
