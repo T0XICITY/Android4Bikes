@@ -1,5 +1,6 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -35,7 +36,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineRequest;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -53,6 +56,7 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
@@ -75,9 +79,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewModelOwnProfile model_profile;
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
-    public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
-    public float lastSpeed;
 
     private BottomAppBar bottomBar;
     FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5; //TODO: Should this be like this ? not private? strange identifier names
@@ -89,17 +91,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentTransaction fragTransaction;
     private Fragment fragDriving, fragInfo, fragAssistance, fragTrackList, fragProfile, fragSettings, currentFragment;
     private ImageView imageView;
+    public LocationEngine locationEngine;
+    public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
 
     private boolean toolbarHidden;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        GlobalContext.setContext(this.getApplicationContext());
         checkFirebaseAuth();
 
         setContentView(R.layout.activity_main);
-        GlobalContext.setContext(this.getApplicationContext());
         //dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_Dialog);
 
         initFragments();
@@ -115,8 +118,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //observeInternet();
         scheduleUploadTask();
-
+        //init Location Engine
+        this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
         //testWorkManager();
+    }
+
+    /**
+     * Set up the LocationEngine and the parameters for querying the device's location
+     */
+    @SuppressLint("MissingPermission")
+    public void initLocationEngine() {
+        locationEngine = LocationEngineProvider.getBestLocationEngine(this);
+
+        LocationEngineRequest request = new LocationEngineRequest.Builder(100)
+                .setFastestInterval(100)
+                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                .build();
+
+        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
+        locationEngine.getLastLocation(callback);
     }
 
     private void testWorkManager() {
@@ -517,5 +537,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
 
         return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback);
+        }
     }
 }

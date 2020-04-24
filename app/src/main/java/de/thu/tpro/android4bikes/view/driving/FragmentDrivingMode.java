@@ -1,18 +1,12 @@
 package de.thu.tpro.android4bikes.view.driving;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,15 +20,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mapbox.android.core.location.LocationEngine;
-import com.mapbox.android.core.location.LocationEngineCallback;
-import com.mapbox.android.core.location.LocationEngineProvider;
-import com.mapbox.android.core.location.LocationEngineRequest;
-import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.DirectionsCriteria;
@@ -68,15 +56,14 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
 import de.thu.tpro.android4bikes.services.GpsLocation;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static android.os.Looper.getMainLooper;
-
-public class FragmentDrivingMode extends Fragment implements LocationListener, PermissionsListener, OnNavigationReadyCallback {
+public class FragmentDrivingMode extends Fragment implements PermissionsListener, OnNavigationReadyCallback {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
@@ -99,13 +86,10 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
     MainActivity parent;
     private PermissionsManager permissionsManager;
     private LocationComponent locationComponent;
-    private FragmentDrivingMode.LocationChangeListeningActivityLocationCallback callback = new FragmentDrivingMode.LocationChangeListeningActivityLocationCallback((MainActivity) this.getActivity());
     // Navigation related variables
-    private LocationEngine locationEngine;
     private RouteRefresh routeRefresh;
     private boolean isRefreshing = false;
     private DirectionsRoute currentRoute;
-    private LatLng lastPos;
     //private List<Position> bikeRacks = new ArrayList<>();
     //private List<Position> bikeTracks = new ArrayList<>();
 
@@ -122,7 +106,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
 
         initCardView();
 
-        locationPermissions();
+        //locationPermissions();
         viewModel = ViewModelDrivingMode.getInstance();
         txtCurrentSpeed.setText(viewModel.updateSpeed(null) + "");
         txtAvgSpeed.setText(viewModel.updateAverageSpeed(0) + "");
@@ -197,7 +181,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
 
                     parent.navigationView.startNavigation(NavigationViewOptions.builder()
                             .directionsRoute(currentRoute)
-                            .locationEngine(locationEngine)
+                            .locationEngine(parent.locationEngine)
                             .navigationListener(new NavigationListener() {
                                 @Override
                                 public void onCancelNavigation() {
@@ -214,12 +198,12 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
 
                                 @Override
                                 public void onNavigationRunning() {
-                                    Log.d("HELLO", String.valueOf(parent.lastSpeed));
+                                    Log.d("HELLO", String.valueOf(PositionTracker.getLastSpeed()));
                                     //fab.setImageBitmap(textAsBitmap("OK", 40, Color.WHITE));
 
                                 }
                             })
-                            .shouldSimulateRoute(true)
+                            //.shouldSimulateRoute(true)
                             .build());
 
                     parent.navigationView.retrieveNavigationMapboxMap().updateCameraTrackingMode(NavigationCamera.NAVIGATION_TRACKING_MODE_GPS);
@@ -246,6 +230,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
                 .coordinates(convertPositionListToPointList(finegrainedPositions))
                 .steps(true)
                 .tidy(true)
+                //.waypointIndices(0,finegrainedPositions.size()-1)
                 .voiceUnits(DirectionsCriteria.METRIC)
                 .voiceInstructions(true)
                 .bannerInstructions(true)
@@ -305,7 +290,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
             // Set the LocationComponent activation options
             LocationComponentActivationOptions locationComponentActivationOptions =
                     LocationComponentActivationOptions.builder(parent, loadedMapStyle)
-                            .useDefaultLocationEngine(false)
+                            .useDefaultLocationEngine(true)
                             .build();
 
             // Activate with the LocationComponentActivationOptions object
@@ -329,8 +314,9 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
                 public void onFinish() {
                 }
             });
-
-            initLocationEngine();
+            if (parent.locationEngine == null) {
+                parent.initLocationEngine();
+            }
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(parent);
@@ -338,22 +324,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
     }
 
     //Location Stuff--------------------------------------------------------------
-
-    /**
-     * Set up the LocationEngine and the parameters for querying the device's location
-     */
-    @SuppressLint("MissingPermission")
-    private void initLocationEngine() {
-        locationEngine = LocationEngineProvider.getBestLocationEngine(parent);
-
-        LocationEngineRequest request = new LocationEngineRequest.Builder(750)
-                .setFastestInterval(750)
-                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-                .build();
-
-        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
-        locationEngine.getLastLocation(callback);
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -414,10 +384,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Prevent leaks
-        if (locationEngine != null) {
-            locationEngine.removeLocationUpdates(callback);
-        }
         parent.navigationView.onDestroy();
     }
 
@@ -439,57 +405,6 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
             MapboxNavigation navigation = weakNavigation.get();
             navigation.stopNavigation();
         }
-    }
-
-    private static class LocationChangeListeningActivityLocationCallback
-            implements LocationEngineCallback<LocationEngineResult> {
-
-        private final WeakReference<MainActivity> activityWeakReference;
-
-        LocationChangeListeningActivityLocationCallback(MainActivity activity) {
-            this.activityWeakReference = new WeakReference<>(activity);
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location has changed.
-         *
-         * @param result the LocationEngineResult object which has the last known location within it.
-         */
-        @Override
-        public void onSuccess(LocationEngineResult result) {
-            MainActivity activity = activityWeakReference.get();
-
-            if (activity != null) {
-                Location location = result.getLastLocation();
-
-                if (location == null) {
-                    return;
-                }
-
-                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
-                activity.lastSpeed = location.getSpeed();
-                // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.navigationView.retrieveNavigationMapboxMap().retrieveMap() != null && result.getLastLocation() != null) {
-                    activity.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().forceLocationUpdate(result.getLastLocation());
-                }
-            }
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
-         *
-         * @param exception the exception message
-         */
-        @Override
-        public void onFailure(@NonNull Exception exception) {
-            MainActivity activity = activityWeakReference.get();
-            if (activity != null) {
-                Toast.makeText(activity, exception.getLocalizedMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-
-
     }
 
     /**
@@ -539,7 +454,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
     }
 
 
-    //TODO: handle permission in a central class
+    /*//TODO: handle permission in a central class
     private void locationPermissions() {
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -548,11 +463,12 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
             return;
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, this);
-    }
+    }*/
 
-
+    /*
     @Override
     public void onLocationChanged(Location location) {
+
         GpsLocation myLocation = new GpsLocation(location);
         int currentSpeed = viewModel.updateSpeed(myLocation);
         txtCurrentSpeed.setText(currentSpeed + "");
@@ -572,7 +488,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
     @Override
     public void onProviderDisabled(String s) {
 
-    }
+    }*/
 
 
 }
