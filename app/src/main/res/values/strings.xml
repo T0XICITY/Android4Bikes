@@ -131,6 +131,8 @@
     <string name="new_location">Location\nlat:%s long:%s</string>
     <string name="was_in_tunnel" />
     <string name="was_navigation_stopped" />
+    <string name="gps_title">Enable GPS</string>+
+    <string name="gps_message">Do you want to enable GPS?</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

@@ -122,7 +122,7 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
 
         initCardView();
 
-        locationPermissions();
+        //locationPermissions();
         viewModel = ViewModelDrivingMode.getInstance();
         txtCurrentSpeed.setText(viewModel.updateSpeed(null) + "");
         txtAvgSpeed.setText(viewModel.updateAverageSpeed(0) + "");
@@ -301,6 +301,9 @@ public class FragmentDrivingMode extends Fragment implements LocationListener, P
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(parent)) {
+
+            //Check if GPS is enabled on device
+            parent.checkLocationEnabled();
 
             // Set the LocationComponent activation options
             LocationComponentActivationOptions locationComponentActivationOptions =

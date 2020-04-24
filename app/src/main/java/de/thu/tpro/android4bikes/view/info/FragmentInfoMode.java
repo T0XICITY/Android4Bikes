@@ -356,6 +356,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(parent)) {
 
+            //Check if GPS is enabled on device
+            parent.checkLocationEnabled();
+
             // Get an instance of the component
             locationComponent = mapboxMap.getLocationComponent();
 
@@ -528,6 +531,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         FAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        enableLocationComponent(style);
+                    }
+                });
                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
                         .target(lastPos)
                         .zoom(15)

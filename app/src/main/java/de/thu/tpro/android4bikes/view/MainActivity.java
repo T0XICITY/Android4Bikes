@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -15,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -33,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -558,5 +562,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
 
         return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+    }
+
+    public void checkLocationEnabled() {
+        LocationManager locManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        if(!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog gpsDialog = new MaterialAlertDialogBuilder(this)
+                    .setTitle(getResources().getString(R.string.gps_title))
+                    .setMessage(getResources().getString(R.string.user_location_permission_explanation)
+                        +"\n"+ getResources().getString(R.string.gps_message))
+                    .setPositiveButton("Yes", null)
+                    .setNegativeButton("No", null)
+                    .create();
+            gpsDialog.show();
+            gpsDialog.setCanceledOnTouchOutside(false);
+            Button btnPos = gpsDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            btnPos.setOnClickListener(view -> {
+                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                gpsDialog.dismiss();
+            });
+
+            Button btnNeg = gpsDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            btnNeg.setOnClickListener(view -> gpsDialog.dismiss());
+        }
     }
 }
