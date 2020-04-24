@@ -15,7 +15,6 @@ public class TrackProviderFancyTest {
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         Track track = TrackProvider.getDummyTrack();
         assertNotNull(track);
-        assertNotNull(track.getFineGrainedPositions());
-        assertEquals(179,track.getFineGrainedPositions().size());
+        assertNotNull(track.getStartPosition());
     }
 }

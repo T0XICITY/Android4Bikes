@@ -58,7 +58,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> 
                 (double) currentTrack.getDistance_km())
         );
         // TODO replace postcode with actual location name (-> waiting for backend)
-        holder.tv_trackLocation.setText(currentTrack.getPostcode());
+        holder.tv_trackLocation.setText("TODO");
 
 
         // Only display distance when available

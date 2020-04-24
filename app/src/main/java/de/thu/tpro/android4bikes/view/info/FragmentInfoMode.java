@@ -188,7 +188,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (Track track : tracks) {
-            SymbolOptions marker = createMarker(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
+            SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
             list_feature.add(Feature.fromGeometry(marker.getGeometry()));
         }
         //Create FeatureCollection from Feature List

@@ -127,7 +127,7 @@ public class TrackListDataBinder {
 
         TrackDistanceTuple currentTuple = trackDistanceList.get(trackListIndex);
 
-        Position startPosition = currentTuple.getTrack().getFineGrainedPositions().get(0);
+        Position startPosition = currentTuple.getTrack().getStartPosition();
         Location trackLocation = new Location("");
 
         trackLocation.setLatitude(startPosition.getLatitude());

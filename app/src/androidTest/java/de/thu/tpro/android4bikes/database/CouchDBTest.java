@@ -100,6 +100,21 @@ public class CouchDBTest {
     }
 
     @Test
+    public void clearBuffer() {
+        Database db_buffer_hazardAlerts = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_HAZARD_ALERT);
+        Database db_buffer_tracks = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_TRACK);
+        Database db_buffer_bikeRacks = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_BIKERACK);
+        Database db_buffer_profile = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
+        Database db_positions_buffer = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
+
+        couchdb.clearDB(db_buffer_hazardAlerts);
+        couchdb.clearDB(db_buffer_tracks);
+        couchdb.clearDB(db_buffer_bikeRacks);
+        couchdb.clearDB(db_buffer_profile);
+        couchdb.clearDB(db_positions_buffer);
+    }
+
+    @Test
     public void queryDatabaseForRegularExpression() {
         Database database_bikeRacks = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_BIKERACK);
         couchdb.clearDB(database_bikeRacks);

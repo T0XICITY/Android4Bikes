@@ -8,28 +8,25 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.Blob;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.concurrent.CountDownLatch;
 
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.commands.Command;
 import de.thu.tpro.android4bikes.data.commands.SearchForHazardAlertsWithPostalCodeInLocalDB;
-import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostalCodeInFireStore;
-import de.thu.tpro.android4bikes.data.commands.SearchForTracksWithPostcodeInLocalDB;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -40,8 +37,8 @@ import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.JSONHelper;
+import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.util.TimeBase;
-import de.thu.tpro.android4bikes.util.compression.PositionCompressor;
 
 
 public class FirebaseConnection extends Observable implements FireStoreDatabase {
@@ -180,7 +177,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
 
     }
 
-    /**
+    /*/**
      * submits a BikeRack to the FireStore
      * which gets validated by the Cloudfunction
      * to generate an Official Bikerack
@@ -188,24 +185,25 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
      *
      * @param bikeRack bikeRack to store.
      */
-    @Override
+    /*@Override
     public void submitBikeRackToFireStore(BikeRack bikeRack) {
         try{
             JSONObject jsonObject_bikeRack = new JSONObject(gson.toJson(bikeRack));
             Map map_bikeRack = gson.fromJson(jsonObject_bikeRack.toString(), Map.class);
+            //-> bei Erfolg
             db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
-                    .add(map_bikeRack) //generate id automatically
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            String firebaseID = documentReference.getId();
-                            Log.d(TAG, "Bikerack with Location "
-                                    + bikeRack.getPosition().getLatitude()
-                                    + ","
-                                    + bikeRack.getPosition().getLongitude()
-                                    + " submitted successfully");
-                            geoFencingBikeracks.registerDocument(documentReference.getId(), bikeRack.getPosition().getGeoPoint());
-                        }
+                    .document(bikeRack.getFirebaseID()) //set locally generated UUID
+                    .set(map_bikeRack) //generate id automatically
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d(TAG, "Bikerack with Location "
+                                + bikeRack.getPosition().getLatitude()
+                                + ","
+                                + bikeRack.getPosition().getLongitude()
+                                + " submitted successfully");
+                        geoFencingBikeracks.registerDocument(bikeRack.getFirebaseID(), bikeRack.getPosition().getGeoPoint());
+
+                        //store own bike rack in local db
+
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -216,15 +214,15 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         }catch (Exception e){
             e.printStackTrace();
         }
-    }
+    }*/
 
-    /**
+    /*/**
      * reads all official BikeRacks associated to a certain postcode
      * and stores them in the local database
      *
      * @param postcode postcode as a string
      */
-    @Override
+    /*@Override
     public void readBikeRacksFromFireStoreAndStoreItToLocalDB(String postcode) {
         try {
         db.collection(ConstantsFirebase.COLLECTION_OFFICIAL_BIKERACKS.toString())
@@ -251,16 +249,15 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
-    /**
+    /*/**
      * stores a Track and FineGrainedPosition first in the FireStore and after that in the local database
      *
      * @param track                track to store
      */
-    @Override
+    /*@Override
     public void storeTrackToFireStoreAndLocalDB(Track track) {
-        //TODO Review and Testing
 
         /*
         Document to store on FireStore:
@@ -269,7 +266,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
             "position": [89, -120, 77, ...] <- Compressed
         }
          */
-        try {
+        /*try {
             JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
             Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
             PositionCompressor positionCompressor = new PositionCompressor();
@@ -283,17 +280,14 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
             //replace fineGrainedPositions by compressed version
             map_track.put(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString(), blob_trackpositions_compressed);
 
+            //-> bei Erfolg
             db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
-                    .add(map_track) //generate id automatically
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            String firebaseID = documentReference.getId();
-                            track.setFirebaseID(firebaseID);
-                            Log.d(TAG, "Track " + track.getName() + " added successfully "+ TimeBase.getCurrentUnixTimeStamp());
-                            geoFencingTracks.registerDocument(documentReference.getId(), track.getFineGrainedPositions().get(0).getGeoPoint());
-                            localDatabaseHelper.storeTrack(track);
-                        }
+                    .document(track.getFirebaseID())
+                    .set(map_track) //generate id automatically
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d(TAG, "Track " + track.getName() + " added successfully " + TimeBase.getCurrentUnixTimeStamp());
+                        geoFencingTracks.registerDocument(track.getFirebaseID(), track.getFineGrainedPositions().get(0).getGeoPoint());
+                        localDatabaseHelper.storeTrack(track);
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -305,16 +299,17 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
+
+    /*
     /**
      * reads a Track with CoarseGrainedInformation from the FireStore and saves it in the local database
      *
      * @param postcode trackID as a String
      */
-    @Override
+    /*@Override
     public void readTracksFromFireStoreAndStoreItToLocalDB(String postcode) {
-        //TODO Review and Testing
         db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
                 .whereEqualTo(Track.ConstantsTrack.POSTCODE.toString(), postcode)
                 .get()
@@ -379,7 +374,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         }
                     }
                 });
-    }
+    }*/
 
     /**
      * deletes a Track from the FireStore and after that in the local database
@@ -421,19 +416,17 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         try{
             JSONObject jsonObject_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
             Map map_hazardAlert = gson.fromJson(jsonObject_hazardAlert.toString(), Map.class);
+            //-> bei Erfolg
             db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
-                    .add(map_hazardAlert) //generate id automatically
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            String firebaseID = documentReference.getId();
-                            Log.d(TAG, "HazardAlert with Location "
-                                    + hazardAlert.getPosition().getLatitude()
-                                    + ","
-                                    + hazardAlert.getPosition().getLongitude()
-                                    + " submitted successfully");
-                            geoFencingHazards.registerDocument(documentReference.getId(), hazardAlert.getPosition().getGeoPoint());
-                        }
+                    .document(hazardAlert.getFirebaseID())
+                    .set(map_hazardAlert) //generate id automatically
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d(TAG, "HazardAlert with Location "
+                                + hazardAlert.getPosition().getLatitude()
+                                + ","
+                                + hazardAlert.getPosition().getLongitude()
+                                + " submitted successfully");
+                        geoFencingHazards.registerDocument(hazardAlert.getFirebaseID(), hazardAlert.getPosition().getGeoPoint());
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -483,43 +476,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                 });
     }
 
-    /**
-     * saves position data to Firebase in order to contribute to Utilization Heat mapping
-     *
-     * @param utilization List with position data
-     */
-    @Override
-    public void storeUtilizationToFireStore(List<Position> utilization) {
-        try{
-            CountDownLatch countDownLatch = new CountDownLatch(1);
-            //TODO Review and Testing
-            Map<String, Object> map = new HashMap<>();
-            for (int i = 0; i < utilization.size(); i++) {
-                map.put(Integer.toString(i), utilization.get(i));
-            }
-            db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
-                    .add(map)//generate id automatically
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            Log.d(TAG, "Utilization updated");
-                            cdb_writeBuffer.resetUtilization();
-                            countDownLatch.countDown();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error adding Utilization", e);
-                            countDownLatch.countDown();
-                        }
-                    });
-            countDownLatch.await();
-            Log.d("HalloWelt","Await is over");
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
     /**
      * TODO
@@ -539,22 +495,57 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         //...
 
         tracks.forEach(entry -> {
-            map_track_profile.put(entry,createAnonProfile());
+            map_track_profile.put(entry, TestObjectsGenerator.createAnonProfile());
         });
 
         setChanged();
         notifyObservers(map_track_profile);
     }
 
-    private Profile createAnonProfile() {
-        List<Achievement> list = new ArrayList<>();
-        return new Profile("Android","Biker","-1",0x2e8b57,0,list);
+
+    //Methods for buffering################################################################################
+
+    /**
+     * saves position data to Firebase in order to contribute to Utilization Heat mapping
+     *
+     * @param utilization List with position data
+     */
+    @Override
+    public void storeBufferedUtilizationToFireStore(List<Position> utilization) {
+        try {
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            //TODO Review and Testing
+            Map<String, GeoPoint> map = new HashMap<>();
+            for (int i = 0; i < utilization.size(); i++) {
+                map.put(Integer.toString(i), utilization.get(i).getGeoPoint());
+            }
+            db.collection(ConstantsFirebase.COLLECTION_UTILIZATION.toString())
+                    .add(map)//generate id automatically
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "Utilization updated");
+                            cdb_writeBuffer.resetUtilization();
+                            countDownLatch.countDown();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding Utilization", e);
+                            countDownLatch.countDown();
+                        }
+                    });
+            countDownLatch.await();
+            Log.d("HalloWelt", "Await is over");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
-    //Methods for buffering################################################################################
     @Override
-    public void storeProfileToFireStore(Profile profile) {
+    public void storeBufferedProfileToFireStore(Profile profile) {
         try {
             //may be final
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -567,7 +558,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
+                            Log.d(TAG, "Profile " + profile.getFirstName() + " added successfully");
 
                             //Delete profile from the WriteBuffer:
                             cdb_writeBuffer.deleteProfile(profile);
@@ -597,7 +588,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     }
 
     @Override
-    public void deleteProfileFromFireStore(Profile profile) {
+    public void deleteBufferedProfileFromFireStore(Profile profile) {
         try {
             //may be final
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -637,41 +628,36 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     }
 
     @Override
-    public void storeTrackInFireStore(Track track) {
+    public void storeBufferedTrackInFireStore(Track track) {
         try {
             CountDownLatch countDownLatch = new CountDownLatch(1);
 
             JSONObject jsonObject_track = new JSONObject(gson.toJson(track));
+            jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
+            String json_Route;
+            if (track.getRoute() != null){
+                json_Route = track.getRoute().toJson();
+            }else {
+                json_Route = null;
+            }
             Map map_track = gson.fromJson(jsonObject_track.toString(), Map.class);
-            PositionCompressor positionCompressor = new PositionCompressor();
+            map_track.put(Track.ConstantsTrack.ROUTE.toString(),json_Route);
 
-            //compress fineGrainedPositions
-            byte[] compressedPositions = positionCompressor.compressPositions(track.getFineGrainedPositions());
-
-            //BLOB
-            Blob blob_trackpositions_compressed = Blob.fromBytes(compressedPositions);
-
-            //replace fineGrainedPositions by compressed version
-            map_track.put(Track.ConstantsTrack.FINEGRAINEDPOSITIONS.toString(), blob_trackpositions_compressed);
-
+            //-> bei Erfolg
             db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
-                    .add(map_track) //generate id automatically
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            String firebaseID = documentReference.getId();
-                            track.setFirebaseID(firebaseID);
-                            Log.d(TAG, "Track " + track.getName() + " added successfully " + TimeBase.getCurrentUnixTimeStamp());
-                            geoFencingTracks.registerDocument(documentReference.getId(), track.getFineGrainedPositions().get(0).getGeoPoint());
+                    .document(track.getFirebaseID())
+                    .set(map_track) //generate id automatically
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d(TAG, "Track " + track.getName() + " added successfully " + TimeBase.getCurrentUnixTimeStamp());
+                        geoFencingTracks.registerDocument(track.getFirebaseID(), track.getStartPosition().getGeoPoint());
 
-                            //track to store by own user:
-                            ownDataDB.storeTrack(track);
+                        //track to store by own user:
+                        ownDataDB.storeTrack(track);
 
-                            //update buffer
-                            cdb_writeBuffer.deleteTrack(track);
+                        //update buffer
+                        cdb_writeBuffer.deleteTrack(track);
 
-                            countDownLatch.countDown();
-                        }
+                        countDownLatch.countDown();
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -688,7 +674,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     }
 
     @Override
-    public void deleteTrackFromFireStore(Track track) {
+    public void deleteBufferedTrackFromFireStore(Track track) {
         try {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
@@ -720,31 +706,28 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
-    public void storeBikeRackInFireStore(BikeRack bikeRack) {
+    public void storeBufferedBikeRackInFireStore(BikeRack bikeRack) {
         try{
             CountDownLatch countDownLatch = new CountDownLatch(1);
             JSONObject jsonObject_bikeRack = new JSONObject(gson.toJson(bikeRack));
             Map map_bikeRack = gson.fromJson(jsonObject_bikeRack.toString(), Map.class);
+            //-> bei Erfolg
             db.collection(ConstantsFirebase.COLLECTION_BIKERACKS.toString())
-                    .add(map_bikeRack) //generate id automatically
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            String firebaseID = documentReference.getId();
-                            Log.d(TAG, "Bikerack with Location "
-                                    + bikeRack.getPosition().getLatitude()
-                                    + ","
-                                    + bikeRack.getPosition().getLongitude()
-                                    + " submitted successfully");
-                            geoFencingBikeracks.registerDocument(documentReference.getId(), bikeRack.getPosition().getGeoPoint());
-                            ownDataDB.storeBikeRack(bikeRack);
-                            cdb_writeBuffer.deleteBikeRack(bikeRack);
-                            countDownLatch.countDown();
-                        }
+                    .document(bikeRack.getFirebaseID())
+                    .set(map_bikeRack) //generate id automatically
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d(TAG, "Bikerack with Location "
+                                + bikeRack.getPosition().getLatitude()
+                                + ","
+                                + bikeRack.getPosition().getLongitude()
+                                + " submitted successfully");
+                        geoFencingBikeracks.registerDocument(bikeRack.getFirebaseID(), bikeRack.getPosition().getGeoPoint());
+                        ownDataDB.storeBikeRack(bikeRack);
+                        cdb_writeBuffer.deleteBikeRack(bikeRack);
+                        countDownLatch.countDown();
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -762,33 +745,31 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     }
 
     @Override
-    public void storeHazardAlertInFireStore(HazardAlert hazardAlert) {
+    public void storeBufferedHazardAlertInFireStore(HazardAlert hazardAlert) {
         try {
             CountDownLatch countDownLatch = new CountDownLatch(1);
 
             JSONObject jsonObject_hazardAlert = new JSONObject(gson.toJson(hazardAlert));
             Map map_hazardAlert = gson.fromJson(jsonObject_hazardAlert.toString(), Map.class);
+            //-> bei Erfolg
             db.collection(ConstantsFirebase.COLLECTION_HAZARDS.toString())
-                    .add(map_hazardAlert) //generate id automatically
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() { //-> bei Erfolg
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            String firebaseID = documentReference.getId();
-                            Log.d(TAG, "HazardAlert with Location "
-                                    + hazardAlert.getPosition().getLatitude()
-                                    + ","
-                                    + hazardAlert.getPosition().getLongitude()
-                                    + " submitted successfully");
-                            geoFencingHazards.registerDocument(documentReference.getId(), hazardAlert.getPosition().getGeoPoint());
+                    .document(hazardAlert.getFirebaseID())
+                    .set(map_hazardAlert) //generate id automatically
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d(TAG, "HazardAlert with Location "
+                                + hazardAlert.getPosition().getLatitude()
+                                + ","
+                                + hazardAlert.getPosition().getLongitude()
+                                + " submitted successfully");
+                        geoFencingHazards.registerDocument(hazardAlert.getFirebaseID(), hazardAlert.getPosition().getGeoPoint());
 
-                            //track to store by own user:
-                            ownDataDB.storeHazardAlerts(hazardAlert);
+                        //track to store by own user:
+                        ownDataDB.storeHazardAlerts(hazardAlert);
 
-                            //update buffer
-                            cdb_writeBuffer.deleteHazardAlert(hazardAlert);
+                        //update buffer
+                        cdb_writeBuffer.deleteHazardAlert(hazardAlert);
 
-                            countDownLatch.countDown();
-                        }
+                        countDownLatch.countDown();
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -802,6 +783,58 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void readAllOwnTracksAndStoreItToOwnDB(String firebaseID) {
+        //TODO Review and Testing
+        db.collection(ConstantsFirebase.COLLECTION_TRACKS.toString())
+                .whereEqualTo(Track.ConstantsTrack.AUTHOR_GOOGLEID.toString(), firebaseID)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult().size() > 0) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                try {
+                                    Map<String, Object> map_track = document.getData();
+                                    JSONObject jsonObject_track = new JSONObject(map_track);
+                                    String jsonString_Route = jsonObject_track.getString(Track.ConstantsTrack.ROUTE.toString());
+                                    DirectionsRoute route = DirectionsRoute.fromJson(jsonString_Route);
+                                    jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
+                                    JSONHelper<Track> helper = new JSONHelper<>(Track.class);
+                                    Track track = helper.convertJSONObjectToObject(jsonObject_track);
+                                    track.setRoute(route);
+                                    ownDataDB.storeTrack(track);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            Log.d(TAG, "No such Track");
+                        }
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+                });
+    }
+
+    public void readOwnProfileFromFireStoreAndStoreItToOwnDB(String uID) {
+        DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(uID);
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    Map map_result = document.getData();
+                    ownDataDB.storeProfile(map_result);
+                } else {
+                    Log.e(TAG, "No such Profile");
+                    //TODO Exception Document not found
+                }
+            } else {
+                Log.e(TAG, "get failed with ", task.getException());
+                //TODO Exception no Connection
+            }
+        });
     }
     //Methods for buffering################################################################################
 
