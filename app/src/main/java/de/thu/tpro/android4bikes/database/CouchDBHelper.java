@@ -33,7 +33,6 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
 
@@ -118,6 +117,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         setChanged();
         notifyObservers(readTracks());
     }
@@ -177,10 +177,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        //Notify observers about the success of the read operation
-        setChanged();
-        notifyObservers(tracks);
         return tracks;
     }
 
@@ -217,11 +213,11 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*
-        todo: Should we notify here?
+
+        //notify ViewModel when deletion has been performed
         setChanged();
         notifyObservers(readTracks());
-        * */
+
     }
 
     @Override
@@ -247,9 +243,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //todo: Notify with just one alert or all?
+
         setChanged();
-        notifyObservers(hazardAlert);
+        notifyObservers(readHazardAlerts());
     }
 
     @Override
@@ -291,8 +287,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        setChanged();
-        notifyObservers(hazardAlerts);
+
         return hazardAlerts;
     }
 
@@ -325,11 +320,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*
-        todo: Should we notify here?
+
         setChanged();
         notifyObservers(readHazardAlerts());
-        * */
     }
 
     @Override
@@ -383,6 +376,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         setChanged();
         notifyObservers(profile);
     }
@@ -410,9 +404,37 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*Profile profile = null; //todo: Conversion from map to profile
+
+
+        Profile profile = convertMapProfileToProfile(map_profile); //todo: Conversion from map to profile
         setChanged();
-        notifyObservers(profile);*/
+        notifyObservers(profile);
+    }
+
+    private Profile convertMapProfileToProfile(Map map_profile) {
+        Profile profile = null;
+        try {
+            JSONObject jsonObject_profile = null;
+            JSONArray jsonArray_achievement = null;
+
+            jsonObject_profile = new JSONObject(map_profile);
+
+            jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+            List<Achievement> list_achievements = new ArrayList<>();
+
+            for (int i = 0; i < jsonArray_achievement.length(); ++i) {
+                JSONObject jsonObject_achievement = jsonArray_achievement.getJSONObject(i);
+                Achievement achievement = gson_achievement.fromJson(jsonObject_achievement.toString(), Achievement.class);
+                list_achievements.add(achievement);
+            }
+
+            jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
+            profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
+            profile.setAchievements(list_achievements);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return profile;
     }
 
     @Override
@@ -447,26 +469,18 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             JSONArray jsonArray_achievement = null;
             for (Result result : results) {
                 Map map_result = result.toMap();
-                jsonObject_profile = new JSONObject(map_result);
-                jsonObject_profile = (JSONObject) jsonObject_profile.get(db_name);
-
-                jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
-                List<Achievement> list_achievements = new ArrayList<>();
-
-                for (int i = 0; i < jsonArray_achievement.length(); ++i) {
-                    JSONObject jsonObject_achievement = jsonArray_achievement.getJSONObject(i);
-                    Achievement achievement = gson_achievement.fromJson(jsonObject_achievement.toString(), Achievement.class);
-                    list_achievements.add(achievement);
-                }
-                jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
-                profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
-                profile.setAchievements(list_achievements);
+                profile = convertMapProfileToProfile(map_result);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        setChanged();
-        notifyObservers(profile);
+
+        //TODD: Only update if the data is correct:
+        if (profile != null) {
+            setChanged();
+            notifyObservers(profile);
+        }
+
         return profile;
     }
 
@@ -574,7 +588,11 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //todo: notify here?
+
+        if (googleID != null) {
+            setChanged();
+            notifyObservers(googleID);
+        }
     }
 
     @Override

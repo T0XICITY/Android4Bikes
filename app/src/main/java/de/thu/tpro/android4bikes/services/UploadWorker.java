@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import de.thu.tpro.android4bikes.util.Processor;
 
 
@@ -24,8 +26,10 @@ public class UploadWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        //todo:FirebaseAuth.getInstance().getCurrentUser() == null Check if there is a user signed in 
-        processor.startRunnable(new UploadRunnable());
+        //Check if there is a user signed in
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            processor.startRunnable(new UploadRunnable());
+        }
         return Result.success();
     }
 }
