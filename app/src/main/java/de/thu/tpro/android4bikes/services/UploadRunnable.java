@@ -32,17 +32,6 @@ public class UploadRunnable implements Runnable {
     }
 
     /**
-     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.Profile} for test purposes
-     */
-    private Profile createProfile() {
-        List<Achievement> achievements = new ArrayList<>();
-        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
-        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
-
-        return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
-    }
-
-    /**
      * read BikeRacks that need to be synchronized with the FireStore
      *
      * @return all BikeRacks to synchronize with the FireStore

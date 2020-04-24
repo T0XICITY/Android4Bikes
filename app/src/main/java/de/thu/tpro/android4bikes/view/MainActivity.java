@@ -122,13 +122,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
+        //testWorkManager();
         //observeInternet();
         scheduleUploadTask();
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
-        //testWorkManager();
-        //observeInternet();
-        //scheduleUploadTask();
     }
 
     /**

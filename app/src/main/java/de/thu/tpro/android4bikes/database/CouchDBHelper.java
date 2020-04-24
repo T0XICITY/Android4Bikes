@@ -627,6 +627,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             for (Result result : results) {
                 couchDB.deleteDocumentByID(db_profile, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
             }
+            Log.d("HalloWelt", "Deleted profile sucessfully from "+currentMode.toText());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -644,7 +645,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     @Override
     public void deleteProfile(Profile profile) {
         this.deleteProfile(profile.getGoogleID());
-        Log.d("HalloWelt", "Deleted profile sucessfully ");
     }
 
     @Override

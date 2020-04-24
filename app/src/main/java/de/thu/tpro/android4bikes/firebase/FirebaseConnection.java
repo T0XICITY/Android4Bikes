@@ -558,7 +558,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
+                            Log.d(TAG, "Profile " + profile.getFirstName() + " added successfully");
 
                             //Delete profile from the WriteBuffer:
                             cdb_writeBuffer.deleteProfile(profile);
