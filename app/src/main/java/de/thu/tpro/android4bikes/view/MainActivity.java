@@ -27,6 +27,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
@@ -41,6 +42,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -77,12 +80,13 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , View.OnClickListener, Observer<Profile> {
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
 
     private ViewModelOwnProfile vmOwnProfile;
     private ViewModelOwnTracks vmOwnTracks;
+    private ViewModelOwnProfile vmProfile;
 
     public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
@@ -101,6 +105,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private ImageView imageView;
+    private TextView tv_headerName;
+    private TextView tv_headerMail;
+
 
     private boolean toolbarHidden;
 
@@ -114,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // init View Models
         vmOwnProfile = new ViewModelOwnProfile();
         vmOwnTracks = new ViewModelOwnTracks();
+        vmProfile = new ViewModelOwnProfile();
 
         setContentView(R.layout.activity_main);
 
@@ -244,6 +252,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    @Override
+    public void onChanged(Profile profile) {
+        Log.d("PROFILE Main", "" + profile);
+        if (profile!=null) {
+            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
+            tv_headerName.setText(fullName);
+            // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
+            tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        }
+    }
+
     private void goToLoginActivity() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, ActivityLogin.class);
@@ -291,6 +310,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initNavigationDrawer() {
         dLayout = findViewById(R.id.drawerLayout);
+        tv_headerName = findViewById(R.id.tvName);
+        tv_headerMail = findViewById(R.id.tvMail);
         //find width of screen and divide by 2
         int width = getResources().getDisplayMetrics().widthPixels/2;
         Log.d("FragmentInfoMode", dLayout.toString());
