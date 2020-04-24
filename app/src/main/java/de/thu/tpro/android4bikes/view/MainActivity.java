@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
     public float lastSpeed;
-
     private BottomAppBar bottomBar;
     private FloatingActionButton fab;
     private MaterialToolbar topAppBar;
@@ -87,8 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragAssistance, fragTrackList, fragProfile,
-            fragSettings, currentFragment;
+    private Fragment fragAssistance, fragTrackList, fragProfile, fragSettings, currentFragment;
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private ImageView imageView;
