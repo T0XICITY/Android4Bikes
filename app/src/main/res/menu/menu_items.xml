@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:id="@+id/group_main">
         <item
-            android:id="@+id/menu_community"
-            android:icon="@drawable/ic_material_marker_plus"
+            android:id="@+id/menu_submit"
+            android:icon="@drawable/ic_community_test"
             android:title="Submit a..."
             app:showAsAction="always" />
         <item
