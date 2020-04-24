@@ -472,6 +472,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         dia_hazardBuilder.show();
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
