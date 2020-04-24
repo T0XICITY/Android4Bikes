@@ -80,7 +80,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
-
+    private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
+    private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private BottomAppBar bottomBar;
     FloatingActionButton fab, fab1, fab2, fab3, fab4, fab5; //TODO: Should this be like this ? not private? strange identifier names
     private MaterialToolbar topAppBar;
@@ -130,8 +131,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void initLocationEngine() {
         locationEngine = LocationEngineProvider.getBestLocationEngine(this);
 
-        LocationEngineRequest request = new LocationEngineRequest.Builder(100)
-                .setFastestInterval(100)
+        LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+                .setFastestInterval(DEFAULT_MAX_WAIT_TIME)
                 .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
                 .build();
 
