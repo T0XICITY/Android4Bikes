@@ -118,8 +118,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             e.printStackTrace();
         }
 
-        setChanged();
-        notifyObservers(readTracks());
+        if (track != null) {
+            readTracks();
+        }
     }
 
     //TODO: Remove return values (not necessary!!) and adjust unit tests
@@ -177,6 +178,12 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        if (tracks != null) {
+            setChanged();
+            notifyObservers(tracks);
+        }
+
         return tracks;
     }
 
@@ -215,9 +222,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
 
         //notify ViewModel when deletion has been performed
-        setChanged();
-        notifyObservers(readTracks());
-
+        if (fireBaseID != null) {
+            readTracks();
+        }
     }
 
     @Override
@@ -244,8 +251,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             e.printStackTrace();
         }
 
-        setChanged();
-        notifyObservers(readHazardAlerts());
+        if (hazardAlert != null) {
+            readHazardAlerts();
+        }
     }
 
     @Override
@@ -269,23 +277,22 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
                     break;
             }
             hazardAlerts = new ArrayList<>();
-            JSONObject jsonObject_result = null;
             HazardAlert hazardAlert = null;
             Query query = QueryBuilder.select(SelectResult.all())
                     .from(DataSource.database(db_hazardAlert));
 
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
-                //convert result to jsonObject-string
-                jsonObject_result = new JSONObject(result.toMap());
-                //result document -> "db_haradAlert":{ <object> }
-                //because the necessary object in nested, we have to access it by getting it:
-                jsonObject_result = (JSONObject) jsonObject_result.get(db_name);
-                hazardAlert = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
+                hazardAlert = convertMapHazardAlertToHazardAlert(result.toMap(), db_name);
                 hazardAlerts.add(hazardAlert);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        if (hazardAlerts != null) {
+            setChanged();
+            notifyObservers(hazardAlerts);
         }
 
         return hazardAlerts;
@@ -321,8 +328,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             e.printStackTrace();
         }
 
-        setChanged();
-        notifyObservers(readHazardAlerts());
+        if (fireBaseID != null) {
+            readHazardAlerts();
+        }
     }
 
     @Override
@@ -367,7 +375,9 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
                 case OFFLINEDATA:
                     db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
                     break;
-                    //todo: Is the implementatioon of deletebuffer not needed here?
+                case DELETEBUFFER:
+                    db_profile = couchDB.getDatabaseFromName(DatabaseNames.DATABASE_DELETEBUFFER_PROFILE);
+                    break;
             }
             JSONObject jsonObject_profile = new JSONObject(gson.toJson(profile));
             Map result = gson.fromJson(jsonObject_profile.toString(), Map.class);
@@ -377,8 +387,13 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             e.printStackTrace();
         }
 
-        setChanged();
-        notifyObservers(profile);
+        if (profile != null) {
+            if (currentMode == DBMode.OWNDATA) {
+                readMyOwnProfile();
+            } else {
+                readProfile(profile.getGoogleID());
+            }
+        }
     }
 
     @Override
@@ -406,18 +421,33 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
 
 
-        Profile profile = convertMapProfileToProfile(map_profile); //todo: Conversion from map to profile
-        setChanged();
-        notifyObservers(profile);
+        Profile profile = convertMapProfileToProfile(map_profile, null); //todo: Conversion from map to profile
+
+        if (profile != null) {
+            if (currentMode == DBMode.OWNDATA) {
+                readMyOwnProfile();
+            } else {
+                readProfile(profile.getGoogleID());
+            }
+        }
     }
 
-    private Profile convertMapProfileToProfile(Map map_profile) {
+    /**
+     * @param map_profile map representing a profile.
+     * @param db_name     required for query results that are delivered by the local db. Otherwise null as value is ok.
+     * @return
+     */
+    private Profile convertMapProfileToProfile(Map map_profile, String db_name) {
         Profile profile = null;
         try {
             JSONObject jsonObject_profile = null;
             JSONArray jsonArray_achievement = null;
 
             jsonObject_profile = new JSONObject(map_profile);
+
+            if (db_name != null) {
+                jsonObject_profile = (JSONObject) jsonObject_profile.get(db_name);
+            }
 
             jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
             List<Achievement> list_achievements = new ArrayList<>();
@@ -465,17 +495,15 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
                     .from(DataSource.database(db_profile))
                     .where(Expression.property(Profile.ConstantsProfile.GOOGLEID.toString()).equalTo(Expression.string(firebaseAccountID)));
             ResultSet results = couchDB.queryDatabase(query);
-            JSONObject jsonObject_profile = null;
-            JSONArray jsonArray_achievement = null;
+
             for (Result result : results) {
                 Map map_result = result.toMap();
-                profile = convertMapProfileToProfile(map_result);
+                profile = convertMapProfileToProfile(map_result, db_name);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        //TODD: Only update if the data is correct:
         if (profile != null) {
             setChanged();
             notifyObservers(profile);
@@ -494,16 +522,20 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        setChanged();
-        notifyObservers(profile);
+
+        if (profile != null) {
+            readMyOwnProfile();
+        }
     }
 
 
     public void updateMyOwnProfile(Profile profile) {
         deleteMyOwnProfile();
         storeMyOwnProfile(profile);
-        setChanged();
-        notifyObservers(profile);
+
+        if (profile != null) {
+            readMyOwnProfile();
+        }
     }
 
     /**
@@ -511,7 +543,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
      */
     public void deleteMyOwnProfile() {
         couchDB.clearDB(couchDB.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE));
-        //todo: notify here?
+        readMyOwnProfile();
     }
 
     /**
@@ -547,8 +579,12 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        setChanged();
-        notifyObservers(ownProfile);
+
+        if (ownProfile != null) {
+            setChanged();
+            notifyObservers(ownProfile);
+        }
+
         return ownProfile;
     }
 
@@ -556,8 +592,14 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     public void updateProfile(Profile profile) {
         deleteProfile(profile.getGoogleID());
         storeProfile(profile);
-        setChanged();
-        notifyObservers(profile);
+
+        if (profile != null) {
+            if (currentMode == DBMode.OWNDATA) {
+                readMyOwnProfile();
+            } else {
+                readProfile(profile.getGoogleID());
+            }
+        }
     }
 
     @Override
@@ -589,9 +631,13 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             e.printStackTrace();
         }
 
+
         if (googleID != null) {
-            setChanged();
-            notifyObservers(googleID);
+            if (currentMode == DBMode.OWNDATA) {
+                readMyOwnProfile();
+            } else {
+                readProfile(googleID);
+            }
         }
     }
 
@@ -624,8 +670,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        setChanged();
-        notifyObservers(bikeRack); //todo: or whole list?
+
+        if (bikeRack != null) {
+            readBikeRacks();
+        }
     }
 
     @Override
@@ -649,16 +697,13 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
                     break;
             }
             bikeRacks = new ArrayList<>();
-            JSONObject jsonObject_result = null;
             BikeRack bikeRack = null;
             Query query = QueryBuilder.select(SelectResult.all())
                     .from(DataSource.database(db_bikerack));
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
                 //convert result to jsonObject-string
-                jsonObject_result = new JSONObject(result.toMap());
-                jsonObject_result = (JSONObject) jsonObject_result.get(db_name);
-                bikeRack = gson.fromJson(jsonObject_result.toString(), BikeRack.class);
+                bikeRack = convertMapBikeRackToBikeRack(result.toMap(), db_name);
                 bikeRacks.add(bikeRack);
             }
         } catch (Exception e) {
@@ -666,8 +711,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
 
         //notify all observers (e.g. ViewModelTrack)
-        setChanged();
-        notifyObservers(bikeRacks);
+        if (bikeRacks != null) {
+            setChanged();
+            notifyObservers(bikeRacks);
+        }
 
         return bikeRacks;
     }
@@ -701,7 +748,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //todo: should we notify here?
+
+        if (fireBaseID != null) {
+            readBikeRacks();
+        }
     }
 
     /**
@@ -755,10 +805,11 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }catch (Exception e){
             e.printStackTrace();
         }
-        /* todo: conversion from map to bikerack or do we return all bikeracks with read?
-        BikeRack b;
-        setChanged();
-        notifyObservers(b);*/
+
+        BikeRack bikeRack = convertMapBikeRackToBikeRack(map_bikeRack, null);
+        if (bikeRack != null) {
+            readBikeRacks();
+        }
     }
 
     @Override
@@ -781,10 +832,45 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /* todo: conversion from map to hazardalert or do we return all hazardalerts with read?
-        HazarAlert haz;
-        setChanged();
-        notifyObservers(haz);*/
+
+        HazardAlert hazardAlert = convertMapHazardAlertToHazardAlert(map_hazardAlert, null);
+        if (hazardAlert != null) {
+            readHazardAlerts();
+        }
+    }
+
+    private BikeRack convertMapBikeRackToBikeRack(Map map_bikeRack, String db_name) {
+        BikeRack bikeRack = null;
+        try {
+            JSONObject jsonObject_result = null;
+            jsonObject_result = new JSONObject(map_bikeRack);
+            if (db_name != null) {
+                jsonObject_result = (JSONObject) jsonObject_result.get(db_name);
+            }
+            bikeRack = gson.fromJson(jsonObject_result.toString(), BikeRack.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bikeRack;
+    }
+
+    private HazardAlert convertMapHazardAlertToHazardAlert(Map map_hazardAlert, String db_name) {
+        HazardAlert hazardAlert = null;
+        try {
+            JSONObject jsonObject_result = null;
+            //convert result to jsonObject-string
+            jsonObject_result = new JSONObject(map_hazardAlert);
+            //result document -> "db_haradAlert":{ <object> }
+            //because the necessary object in nested, we have to access it by getting it:
+            if (db_name != null) {
+                jsonObject_result = (JSONObject) jsonObject_result.get(db_name);
+            }
+            hazardAlert = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return hazardAlert;
     }
 
     /**
