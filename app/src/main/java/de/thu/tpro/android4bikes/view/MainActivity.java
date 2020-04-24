@@ -29,6 +29,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -43,11 +44,16 @@ import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
 import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
@@ -97,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setContentView(R.layout.activity_main);
         GlobalContext.setContext(this.getApplicationContext());
+
+        debugWriteBuffer();
 
         initFragments();
         initNavigationDrawer();
@@ -495,5 +503,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onClick(View view) {
 
+    }
+
+    private void debugWriteBuffer(){
+        Processor.getInstance().startRunnable(()->{
+            CouchDBHelper cdb = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+            while (true){
+                List<HazardAlert> haz = cdb.readHazardAlerts();
+                List<BikeRack> br = cdb.readBikeRacks();
+                List<Track> tr = cdb.readTracks();
+                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
+                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
+                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
+                //Log.d("HalloWelt","Debug Buffer: Profile :"+cdb.readMyOwnProfile());
+                try {
+                    Thread.sleep(5000);
+                }catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }
