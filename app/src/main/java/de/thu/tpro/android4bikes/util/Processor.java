@@ -24,6 +24,7 @@ public class Processor {
         executorService.execute(runnable);
     }
 
+    //TODO: Review
     public Timer scheduleTask(Runnable runnable, long delay, long period) {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -41,6 +42,7 @@ public class Processor {
      * @param timer associated timer
      */
     public void cancelTimerTask(Timer timer) {
+        //TODO: Review
         timer.cancel();
         timer.purge();
     }

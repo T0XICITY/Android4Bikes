@@ -8,6 +8,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 
 import static de.thu.tpro.android4bikes.database.CouchDBHelper.DBMode;
 
+//TODO: Review code regarding OwnDB!
 public class CouchWriteBuffer implements WriteBuffer {
     private static CouchWriteBuffer instance;
     private CouchDBHelper localDBWriteBuffer;
