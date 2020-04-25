@@ -5,9 +5,12 @@ import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import de.thu.tpro.android4bikes.services.UploadRunnable;
+
 public class Processor {
     private static Processor instance;
     private ExecutorService executorService;
+    private Timer timer_uploadTask;
 
     private Processor() {
         executorService = Executors.newFixedThreadPool(8);
@@ -34,6 +37,17 @@ public class Processor {
             }
         }, delay, period);
         return timer;
+    }
+
+    public void scheduleUploadTask() {
+        timer_uploadTask = scheduleTask(new UploadRunnable(), 10, 1000);
+    }
+
+    public void stopUploadTask() {
+        if (timer_uploadTask != null) {
+            cancelTimerTask(timer_uploadTask);
+            timer_uploadTask = null;
+        }
     }
 
     /**

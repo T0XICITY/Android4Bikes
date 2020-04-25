@@ -50,7 +50,6 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
 import de.thu.tpro.android4bikes.services.PositionTracker;
-import de.thu.tpro.android4bikes.services.UploadRunnable;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
@@ -176,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * schedules UploadRunnable by using a TimerTask.
      */
     public void scheduleUploadTaskWithTaskSchedule() {
-        Processor.getInstance().scheduleTask(new UploadRunnable(), 10, 1000);
+        Processor.getInstance().scheduleUploadTask();
     }
 
     private void toastShortInMiddle(String text){

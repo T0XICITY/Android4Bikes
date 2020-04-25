@@ -5,6 +5,8 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.util.Processor;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 
 import static de.thu.tpro.android4bikes.database.CouchDBHelper.DBMode;
 
@@ -90,5 +92,19 @@ public class CouchWriteBuffer implements WriteBuffer {
     public void addToUtilization(Position position) {
         localDBWriteBuffer.addToUtilization(position);
         // nur auf firestore schreiben, wenn >= 50 datensätze
+    }
+
+    public void triggerUpdateWithWorkManager() {
+        //TODO: Review -> is interference possible?
+        //TODO: insert in code
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
+        WorkManagerHelper.scheduleUploadTaskWithWorkManager();
+    }
+
+    public void triggerUpdateTimerTask() {
+        //TODO: Review -> is interference possible?
+        //TODO: insert in code
+        Processor.getInstance().stopUploadTask();
+        Processor.getInstance().scheduleUploadTask();
     }
 }
