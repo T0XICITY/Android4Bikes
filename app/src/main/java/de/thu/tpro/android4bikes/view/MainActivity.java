@@ -1,5 +1,6 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,7 +39,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineRequest;
 
 import java.util.Date;
 import java.util.List;
@@ -52,6 +55,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
@@ -76,9 +80,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewModelOwnProfile model_profile;
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
-    public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
-    public float lastSpeed;
+    private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
+    private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private BottomAppBar bottomBar;
     private FloatingActionButton fab;
     private MaterialToolbar topAppBar;
@@ -91,6 +95,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private ImageView imageView;
+    public LocationEngine locationEngine;
+    public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
 
     private boolean toolbarHidden;
 
@@ -118,9 +124,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //testWorkManager();
         //observeInternet();
-        //scheduleUploadTask();
+        scheduleUploadTask();
+        //init Location Engine
+        this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
+
     }
 
+    /**
+     * Set up the LocationEngine and the parameters for querying the device's location
+     */
+    @SuppressLint("MissingPermission")
+    public void initLocationEngine() {
+        locationEngine = LocationEngineProvider.getBestLocationEngine(this);
+
+        LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+                .setFastestInterval(DEFAULT_MAX_WAIT_TIME)
+                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                .build();
+
+        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
+        locationEngine.getLastLocation(callback);
+    }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -513,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
                 Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
                 Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
-                Log.d("HalloWelt","Debug Buffer: Profile :"+cdb.readMyOwnProfile());
+                Log.d("HalloWelt","Debug OWN Profile :"+cdb.readMyOwnProfile());
                 try {
                     Thread.sleep(5000);
                 }catch (InterruptedException e){
@@ -521,5 +545,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback);
+        }
     }
 }

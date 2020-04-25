@@ -69,9 +69,14 @@ public class FirebaseConnectionTest {
         Database own_tracks = couchDB.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_OWNDATA_TRACK);
         couchDB.clearDB(own_tracks);
 
-        firebaseConnection.storeBufferedTrackInFireStore(TestObjectsGenerator.generateTrack());
+        Track t = TestObjectsGenerator.generateTrack();
+        t.setFirebaseID("nullacht17");
 
-        firebaseConnection.readAllOwnTracksAndStoreItToOwnDB("nullacht15");
+        firebaseConnection.deleteTrackFromFireStoreAndLocalDB("nullacht17");
+
+        firebaseConnection.storeBufferedTrackInFireStore(t);
+
+        firebaseConnection.readAllOwnTracksAndStoreItToOwnDB("nullacht17");
 
         try {
             Thread.sleep(5000);
@@ -80,7 +85,7 @@ public class FirebaseConnectionTest {
         }
 
         List<Track> tracks = cdbOwnHelper.readTracks();
-        //assertEquals(2, tracks.size());
+        assertEquals(1, tracks.size());
     }
 
     @Test

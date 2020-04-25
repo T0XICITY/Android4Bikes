@@ -558,7 +558,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "Profile " + profile.getFamilyName() + " added successfully");
+                            Log.d(TAG, "Profile " + profile.getFirstName() + " added successfully");
 
                             //Delete profile from the WriteBuffer:
                             cdb_writeBuffer.deleteProfile(profile);
@@ -816,6 +816,25 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         Log.d(TAG, "get failed with ", task.getException());
                     }
                 });
+    }
+
+    public void readOwnProfileFromFireStoreAndStoreItToOwnDB(String uID) {
+        DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(uID);
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    Map map_result = document.getData();
+                    ownDataDB.storeProfile(map_result);
+                } else {
+                    Log.e(TAG, "No such Profile");
+                    //TODO Exception Document not found
+                }
+            } else {
+                Log.e(TAG, "get failed with ", task.getException());
+                //TODO Exception no Connection
+            }
+        });
     }
     //Methods for buffering################################################################################
 
