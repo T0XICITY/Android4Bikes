@@ -56,6 +56,7 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
 import de.thu.tpro.android4bikes.services.PositionTracker;
+import de.thu.tpro.android4bikes.services.UploadRunnable;
 import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
@@ -124,7 +125,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //testWorkManager();
         //observeInternet();
-        scheduleUploadTask();
+
+        scheduleUploadTaskWithWorkManager();
+        //scheduleUploadTaskWithTaskSchedule();
+
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
 
@@ -177,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * Defines a task that uploads not synchronized data.
      */
-    public void scheduleUploadTask() {
+    public void scheduleUploadTaskWithWorkManager() {
 
         Log.d("HalloWelt", "Started at: " + new Date());
 
@@ -195,6 +199,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //schedule task
         WorkManager.getInstance(GlobalContext.getContext())
                 .enqueue(saveRequest);
+    }
+
+    /**
+     * schedules UploadRunnable by using a TimerTask.
+     */
+    public void scheduleUploadTaskWithTaskSchedule() {
+        Processor.getInstance().scheduleTask(new UploadRunnable(), 10, 1000);
     }
 
     private void toastShortInMiddle(String text){

@@ -1,5 +1,7 @@
 package de.thu.tpro.android4bikes.util;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,6 +22,16 @@ public class Processor {
 
     public void startRunnable(Runnable runnable) {
         executorService.execute(runnable);
+    }
+
+    public void scheduleTask(Runnable runnable, long delay, long period) {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                new Thread(runnable).start();
+            }
+        }, delay, period);
     }
 
     public void shutdown() {
