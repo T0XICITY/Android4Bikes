@@ -24,7 +24,7 @@ public class Processor {
         executorService.execute(runnable);
     }
 
-    public void scheduleTask(Runnable runnable, long delay, long period) {
+    public Timer scheduleTask(Runnable runnable, long delay, long period) {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -32,6 +32,17 @@ public class Processor {
                 new Thread(runnable).start();
             }
         }, delay, period);
+        return timer;
+    }
+
+    /**
+     * stop scheduled TimerTask
+     *
+     * @param timer associated timer
+     */
+    public void cancelTimerTask(Timer timer) {
+        timer.cancel();
+        timer.purge();
     }
 
     public void shutdown() {

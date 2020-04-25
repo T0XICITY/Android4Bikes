@@ -27,10 +27,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -43,9 +39,7 @@ import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
 
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -57,10 +51,10 @@ import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.services.UploadRunnable;
-import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -126,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //testWorkManager();
         //observeInternet();
 
-        scheduleUploadTaskWithWorkManager();
+        WorkManagerHelper.scheduleUploadTaskWithWorkManager();
         //scheduleUploadTaskWithTaskSchedule();
 
         //init Location Engine
@@ -176,29 +170,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d("HalloWelt2", "Mobile connection state: " + connectedToMobile);
         });
         model_internet.startObserving();
-    }
-
-    /**
-     * Defines a task that uploads not synchronized data.
-     */
-    public void scheduleUploadTaskWithWorkManager() {
-
-        Log.d("HalloWelt", "Started at: " + new Date());
-
-        //constraints regarding when a task should be scheduled
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-        //Define the request: How often should the task be scheduled
-        PeriodicWorkRequest saveRequest =
-                new PeriodicWorkRequest.Builder(UploadWorker.class, 15, TimeUnit.MINUTES)
-                        .setConstraints(constraints)
-                        .build();
-
-        //schedule task
-        WorkManager.getInstance(GlobalContext.getContext())
-                .enqueue(saveRequest);
     }
 
     /**
