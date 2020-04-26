@@ -2,7 +2,6 @@ package de.thu.tpro.android4bikes.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -42,11 +41,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +54,8 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
@@ -81,7 +82,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , View.OnClickListener, Observer<Profile> {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile> {
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
 
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         locationEngine.requestLocationUpdates(request, callback, getMainLooper());
         locationEngine.getLastLocation(callback);
     }
+
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -171,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void testWorkManager() {
         WriteBuffer writeBuffer = CouchWriteBuffer.getInstance();
         for (int i = 0; i < 55; i++) {
-            writeBuffer.addToUtilization(new Position(40.000+i/200.0,9+i/200.0));
+            writeBuffer.addToUtilization(new Position(40.000 + i / 200.0, 9 + i / 200.0));
         }
         writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());
         writeBuffer.submitBikeRack(TestObjectsGenerator.generateTHUBikeRack());
@@ -214,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .enqueue(saveRequest);
     }
 
-    private void toastShortInMiddle(String text){
+    private void toastShortInMiddle(String text) {
         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.getView().setBackgroundColor(Color.parseColor("#90ee90"));
@@ -277,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onChanged(Profile profile) {
         Log.d("PROFILE Main", "" + profile);
-        if (profile!=null) {
+        if (profile != null) {
             String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
             tv_headerName.setText(fullName);
             // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
@@ -336,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tv_headerName = findViewById(R.id.tvName);
         tv_headerMail = findViewById(R.id.tvMail);
         //find width of screen and divide by 2
-        int width = getResources().getDisplayMetrics().widthPixels/2;
+        int width = getResources().getDisplayMetrics().widthPixels / 2;
         Log.d("FragmentInfoMode", dLayout.toString());
         dLayout.closeDrawer(GravityCompat.END);
         drawer = findViewById(R.id.navigationDrawer);
@@ -573,20 +575,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void debugWriteBuffer(){
-        Processor.getInstance().startRunnable(()->{
+    private void debugWriteBuffer() {
+        Processor.getInstance().startRunnable(() -> {
             CouchDBHelper cdb = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-            while (true){
+            while (true) {
                 List<HazardAlert> haz = cdb.readHazardAlerts();
                 List<BikeRack> br = cdb.readBikeRacks();
                 List<Track> tr = cdb.readTracks();
-                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
-                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
-                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
-                Log.d("HalloWelt","Debug Buffer: Profile :"+cdb.readMyOwnProfile());
+                Log.d("HalloWelt", "Debug Buffer: Tracks (" + tr.size() + "):" + tr.toString());
+                Log.d("HalloWelt", "Debug Buffer: BikeRacks (" + br.size() + "):" + br.toString());
+                Log.d("HalloWelt", "Debug Buffer: Hazards (" + haz.size() + "):" + haz.toString());
+                Log.d("HalloWelt", "Debug Buffer: Profile :" + cdb.readMyOwnProfile());
                 try {
                     Thread.sleep(5000);
-                }catch (InterruptedException e){
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }

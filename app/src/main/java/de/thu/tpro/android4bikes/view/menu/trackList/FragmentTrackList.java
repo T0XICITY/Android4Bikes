@@ -41,6 +41,7 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
@@ -53,6 +54,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     private static final String LOG_TAG = "FragmentCreateTrack";
 
     private ViewModelTrack viewModelTrack;
+    private ViewModelOwnTracks viewModelOwnTrack;
 
     private TrackListDataBinder dataBinder;
     private RecyclerView recyclerView;
@@ -88,6 +90,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
 
         viewModelTrack = new ViewModelProvider(this).get(ViewModelTrack.class);
         viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+        viewModelOwnTrack = new ViewModelProvider(this).get(ViewModelOwnTracks.class);
+        viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
 
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
@@ -417,6 +421,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         dummy.setName("DummyDummyDumm");
         dummy.setDescription("DummDumm");
         dummy.setDistance_km(999);
+        Log.d("TRACK SUBMIT",""+dummy);
         viewModelTrack.submitTrack(dummy);
+        viewModelOwnTrack.submitTrack(dummy);
     }
 }
