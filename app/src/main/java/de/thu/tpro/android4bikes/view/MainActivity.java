@@ -391,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Show Dialog to give feedback after finishing your ride
      */
     //TODO: delete after Testing
-    private void submitTrack() {
+        private void submitTrack() {
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_submit, null);
 

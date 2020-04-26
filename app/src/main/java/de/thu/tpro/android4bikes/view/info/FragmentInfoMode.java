@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -64,6 +65,9 @@ import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelHazardAlert;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnHazardAlerts;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
@@ -91,6 +95,8 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private static final String TAG = "DirectionsActivity";
 
     private ViewModelBikerack vmBikeRack;
+    private ViewModelOwnHazardAlerts vmOwnHazards;
+    private ViewModelHazardAlert vmHazards;
 
     private MainActivity parent;
     private View viewInfo;
@@ -104,9 +110,17 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         viewInfo = inflater.inflate(R.layout.fragment_info_mode, container, false);
-        vmBikeRack = new ViewModelProvider(this).get(ViewModelBikerack.class);
+
+        // init ViewModels
+        ViewModelProvider provider = new ViewModelProvider(this);
+        vmBikeRack = provider.get(ViewModelBikerack.class);
+        vmHazards = provider.get(ViewModelHazardAlert.class);
+        vmOwnHazards = provider.get(ViewModelOwnHazardAlerts.class);
+
+        // attach Listeners to ViewModels
+        vmHazards.getHazardAlerts().observe(getViewLifecycleOwner(), this::onChangedHazardAlerts);
+        vmBikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
 
         return viewInfo;
     }
@@ -118,7 +132,28 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //we need the parent Activity to init our map
         parent = (MainActivity) this.getActivity();
         GlobalContext.setContext(parent.getApplicationContext());
+
         initMap(savedInstanceState);
+    }
+
+    /**
+     * Fake Observer to be called, when ViewModelHazardAlerts has changed (called by Lambda expression)
+     * @param hazardList
+     */
+    private void onChangedHazardAlerts(List<HazardAlert> hazardList) {
+        // TODO display HazardAlert as Marker
+        String snackText = String.format("%d new Hazard Alerts found!", hazardList.size());
+        Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
+    }
+
+    /**
+     * Fake Observer to be called, when ViewModelBikeRack has changed (called by Lambda expression)
+     * @param bikeRackList
+     */
+    private void onChangedBikeRacks(List<BikeRack> bikeRackList) {
+        // TODO display BikeRack as Marker
+        String snackText = String.format("%d new Bike Racks found!", bikeRackList.size());
+        Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -415,19 +450,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
         dialogBuilder.setTitle(R.string.submit);
         String[] s = getResources().getStringArray(R.array.marker);
-        dialogBuilder.setItems(R.array.marker, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                switch (i) {
-                    case 0:
-                        submit_rack();
-                        break;
-                    case 1:
-                        submit_hazard();
-                        break;
-                    default:
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                }
+        dialogBuilder.setItems(R.array.marker, (dialogInterface, i) -> {
+            switch (i) {
+                case 0:
+                    submit_rack();
+                    break;
+                case 1:
+                    submit_hazard();
+                    break;
+                default:
+                    Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
             }
         });
         dialogBuilder.show();
@@ -436,40 +468,47 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private void submit_hazard() {
         MaterialAlertDialogBuilder dia_hazardBuilder = new MaterialAlertDialogBuilder(getContext());
         dia_hazardBuilder.setTitle(R.string.submit_hazard);
-        dia_hazardBuilder.setItems(R.array.hazards, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                switch (i) {
-                    case 0:
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                        //Damaged Road
-                        break;
-                    case 1:
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Icy road", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                        //Icy road
-                        break;
-                    case 2:
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "slippery road", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                        //slippery road
-                        break;
-                    case 3:
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Roadkill", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                        //Roadkill
-                        break;
-                    case 4:
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Rockfall", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                        //Rockfall
-                        break;
-                    case 5:
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "General", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                        //General
-                        break;
-                    default:
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                }
-            }
+        dia_hazardBuilder.setItems(R.array.hazards, (dialogInterface, i) -> {
+            // create hazard alert from entered info
+            HazardAlert newHazard = new HazardAlert();
+            newHazard.setPosition(PositionTracker.getLastPosition()); // TODO is setPosition() or setGeoPoint() correct?
+            newHazard.setType(HazardAlert.HazardType.getByType(i+1)); // i+1 since we start counting on 1
+
+            // submit hazard alert to ViewModel
+            vmOwnHazards.addOwnHazard(newHazard);
         });
         dia_hazardBuilder.show();
+    }
+
+    private void submit_rack() {
+        //showRackMap();
+        MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_rack, null);
+
+        TextView tvRackName = dialogView.findViewById(R.id.tv_rack_name);
+        Spinner spCapacity = dialogView.findViewById(R.id.sp_capacity);
+        CheckBox cbEBike = dialogView.findViewById(R.id.chBx_ebike);
+        CheckBox cbCovered = dialogView.findViewById(R.id.chBx_covered);
+
+        rack_builder.setTitle("Submit rack");
+        rack_builder.setView(dialogView);
+        rack_builder.setPositiveButton(R.string.submit, (dialogInterface, i) -> {
+            BikeRack newRack = new BikeRack();
+
+            newRack.setName(tvRackName.getText().toString());
+            newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
+                    spCapacity.getSelectedItem().toString().toUpperCase())
+            );
+            newRack.setHasBikeCharging(cbEBike.isChecked());
+            newRack.setCovered(cbCovered.isChecked());
+
+            Log.d(LOG_TAG, newRack.toString());
+            vmBikeRack.submitBikeRack(newRack);
+        });
+
+        // do nothing on cancel
+        rack_builder.setNegativeButton(R.string.cancel, null);
+        rack_builder.show();
     }
 
 
@@ -565,37 +604,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         public String toString() {
             return type;
         }
-    }
-
-    private void submit_rack() {
-        //showRackMap();
-        MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_rack, null);
-
-        TextView tvRackName = dialogView.findViewById(R.id.tv_rack_name);
-        Spinner spCapacity = dialogView.findViewById(R.id.sp_capacity);
-        CheckBox cbEBike = dialogView.findViewById(R.id.chBx_ebike);
-        CheckBox cbCovered = dialogView.findViewById(R.id.chBx_covered);
-
-        rack_builder.setTitle("Submit rack");
-        rack_builder.setView(dialogView);
-        rack_builder.setPositiveButton(R.string.submit, (dialogInterface, i) -> {
-            BikeRack newRack = new BikeRack();
-
-            newRack.setName(tvRackName.getText().toString());
-            newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
-                    spCapacity.getSelectedItem().toString().toUpperCase())
-            );
-            newRack.setHasBikeCharging(cbEBike.isChecked());
-            newRack.setCovered(cbCovered.isChecked());
-
-            Log.d(LOG_TAG, newRack.toString());
-            vmBikeRack.submitBikeRack(newRack);
-        });
-
-        // do nothing on cancel
-        rack_builder.setNegativeButton(R.string.cancel, null);
-        rack_builder.show();
     }
 
     @Override
