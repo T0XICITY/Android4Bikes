@@ -123,7 +123,7 @@ public class ViewModelOwnTracks extends ViewModel implements Observer {
 
                     list_own_tracks.forEach(entry -> map_track_profile.put(entry, profile_own));
 
-                    //Update liveData:
+                    //Update LiveData:
                     this.map_tracks_profile_shown.postValue(map_track_profile);
                 }
             }

@@ -10,6 +10,7 @@ public class UUIDGenerator {
         try {
             UUID uuid = UUID.randomUUID();
             uuid_string = uuid.toString();
+            //add some unique data (MAC-adress, timestamp, random number, email address)
         } catch (Exception e) {
             e.printStackTrace();
         }

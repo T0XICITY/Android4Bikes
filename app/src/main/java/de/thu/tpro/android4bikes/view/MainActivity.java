@@ -1,5 +1,6 @@
 package de.thu.tpro.android4bikes.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -51,18 +52,18 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
-import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.Processor;
+import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -89,8 +90,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
-    public float lastSpeed;
-
+    private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
+    private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private BottomAppBar bottomBar;
     private FloatingActionButton fab;
     private MaterialToolbar topAppBar;
@@ -99,22 +100,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragAssistance, fragTrackList, fragProfile,
-            fragSettings, currentFragment;
+    private Fragment fragAssistance, fragTrackList, fragProfile, fragSettings, currentFragment;
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private ImageView imageView;
     private TextView tv_headerName;
     private TextView tv_headerMail;
 
+    public LocationEngine locationEngine;
+    public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
 
     private boolean toolbarHidden;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         GlobalContext.setContext(this.getApplicationContext());
+
         checkFirebaseAuth();
 
         // init View Models
@@ -123,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vmOwnTracks = provider.get(ViewModelOwnTracks.class);
 
         setContentView(R.layout.activity_main);
+
+        debugWriteBuffer();
 
         initFragments();
         initNavigationDrawer();
@@ -135,12 +139,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
+        //testWorkManager();
         //observeInternet();
         scheduleUploadTask();
+        //init Location Engine
+        this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
 
-        //testWorkManager();
     }
 
+    /**
+     * Set up the LocationEngine and the parameters for querying the device's location
+     */
+    @SuppressLint("MissingPermission")
+    public void initLocationEngine() {
+        locationEngine = LocationEngineProvider.getBestLocationEngine(this);
+
+        LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+                .setFastestInterval(DEFAULT_MAX_WAIT_TIME)
+                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                .build();
+
+        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
+        locationEngine.getLastLocation(callback);
+    }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -149,10 +170,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void testWorkManager() {
         WriteBuffer writeBuffer = CouchWriteBuffer.getInstance();
-        for (int i = 0; i < 51; i++) {
+        for (int i = 0; i < 55; i++) {
             writeBuffer.addToUtilization(new Position(40.000+i/200.0,9+i/200.0));
         }
-        writeBuffer.storeTrack(generateTrack());
+        writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());
+        writeBuffer.submitBikeRack(TestObjectsGenerator.generateTHUBikeRack());
+        writeBuffer.submitHazardAlerts(TestObjectsGenerator.generateHazardAlert());
     }
 
     public void observeInternet() {
@@ -264,6 +287,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void goToLoginActivity() {
         FirebaseAuth.getInstance().signOut();
+        //todo: Delete user from local db
         Intent intent = new Intent(this, ActivityLogin.class);
         startActivity(intent);
     }
@@ -548,62 +572,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onClick(View view) {
 
     }
-    //################################ T E S T I N G ###############################################
-    /**
-     * generates a new instance of the class BikeRack for test purposes
-     *
-     * @return instance of a bike rack
-     */
-    private BikeRack generateTHUBikeRack() {
-        //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
-        return bikeRack_THU;
+
+    private void debugWriteBuffer(){
+        Processor.getInstance().startRunnable(()->{
+            CouchDBHelper cdb = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+            while (true){
+                List<HazardAlert> haz = cdb.readHazardAlerts();
+                List<BikeRack> br = cdb.readBikeRacks();
+                List<Track> tr = cdb.readTracks();
+                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
+                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
+                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
+                Log.d("HalloWelt","Debug Buffer: Profile :"+cdb.readMyOwnProfile());
+                try {
+                    Thread.sleep(5000);
+                }catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
-    /**
-     * generates a new instance of the class HazardAlert for test purposes
-     *
-     * @return instance of a hazard alert
-     */
-    private HazardAlert generateHazardAlert() {
-        HazardAlert hazardAlert_thu = new HazardAlert(
-                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, "12345", true
-        );
-        return hazardAlert_thu;
-    }
-
-    /**
-     * generates a new instance of the class Track for test purposes
-     * @return instance of a track
-     * */
-    private Track generateTrack(){
-        List<Position> positions = new ArrayList<>();
-        positions.add(new Position(48.408880, 9.997507));
-        Track track = new Track("nullacht15",new Rating(),"Heimweg","Das ist meine super tolle Strecke",
-                "siebenundvierzig11",1585773516,25,
-                positions,new ArrayList<>(),true);
-        return track;
-    }
-
-    private Track generateDifferentTrack(String name){
-        Track track = generateTrack();
-        track.setDistance_km(100);
-        track.setName(name);
-        track.setDescription("Das ist schön. Das ist wunderschön!");
-        return track;
-    }
-
-    /**
-     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.Profile} for test purposes
-     * */
-    private Profile createProfile() {
-        List<Achievement> achievements = new ArrayList<>();
-        achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
-        achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
-
-        return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Prevent leaks
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback);
+        }
     }
 }
