@@ -5,10 +5,13 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +24,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.mapbox.android.core.location.LocationEngineCallback;
+import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -49,10 +54,18 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -412,7 +425,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     }
 
     public void submitMarker() {
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
+        /*MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
         dialogBuilder.setTitle(R.string.submit);
         String[] s = getResources().getStringArray(R.array.marker);
         dialogBuilder.setItems(R.array.marker, new DialogInterface.OnClickListener() {
@@ -420,7 +433,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             public void onClick(DialogInterface dialogInterface, int i) {
                 switch (i) {
                     case 0:
-                        submitt_rack();
+                        submit_Rack();
                         break;
                     case 1:
                         submit_hazard();
@@ -430,7 +443,28 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 }
             }
         });
-        dialogBuilder.show();
+        dialogBuilder.show();*/
+        String[] arr_marker = getResources().getStringArray(R.array.marker);
+        AlertDialog markerDialog = new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Submit")
+                .setItems(R.array.marker, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i) {
+                            case 0:
+                                submit_Rack();
+                                break;
+                            case 1:
+                                submit_hazard();
+                                break;
+                            default:
+                                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                        }
+                    }
+                })
+                .create();
+        markerDialog.show();
+        markerDialog.setCanceledOnTouchOutside(false);
     }
 
     private void submit_hazard() {
@@ -567,32 +601,86 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private void submitt_rack() {
-        //showRackMap();
-        MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
-        rack_builder.setTitle("Submit rack");
-        rack_builder.setView(R.layout.dialog_rack);
-        rack_builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+    private static class LocationChangeListeningActivityLocationCallback
+            implements LocationEngineCallback<LocationEngineResult> {
 
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //TODO store Rack
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into FireStore", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
+        private final WeakReference<FragmentInfoMode> activityWeakReference;
 
-        rack_builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //TODO discard Rack
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Don't store", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+        LocationChangeListeningActivityLocationCallback(FragmentInfoMode activity) {
+            this.activityWeakReference = new WeakReference<>(activity);
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location has changed.
+         *
+         * @param result the LocationEngineResult object which has the last known location within it.
+         */
+        @Override
+        public void onSuccess(LocationEngineResult result) {
+            FragmentInfoMode activity = activityWeakReference.get();
+
+            if (activity != null) {
+                Location location = result.getLastLocation();
+
+                if (location == null) {
+                    return;
+                }
+
+                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
+                // Pass the new location to the Maps SDK's LocationComponent
+                if (activity.mapboxMap != null && result.getLastLocation() != null) {
+                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
+                }
             }
-        });
-        rack_builder.show();
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
+         *
+         * @param exception the exception message
+         */
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+            FragmentInfoMode activity = activityWeakReference.get();
+            if (activity != null) {
+                Toast.makeText(activity.parent, exception.getLocalizedMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    public void submit_Rack() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setTitle("Submit rack");
+        builder.setView(R.layout.dialog_rack);
+        builder.setPositiveButton("Submit", null);
+        builder.setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+
+        EditText editRack = dialog.findViewById(R.id.edit_rack_name);
+        Button posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        posBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (editRack.getText().toString().equals("")) {
+                    Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                } else {
+                    Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into Firebase", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                    dialog.dismiss();
+                }
+            }
+        });
     }
 }
