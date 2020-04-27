@@ -19,26 +19,13 @@ public class PositionProvider {
         positions.add(com.mapbox.geojson.Point.fromLngLat(-77.042977809906, 38.89540010700381));
         positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04290270805359, 38.895391756819286));
         positions.add(com.mapbox.geojson.Point.fromLngLat(-77.0427793264389, 38.895391756819286));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04257011413574, 38.89537923154069));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04242527484892, 38.89537088135372));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04230189323425, 38.89537088135372));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04201757907867, 38.895362531165766));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04189419746399, 38.89536670625987));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.041717171669, 38.89537505644734));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04171180725098, 38.89550030914138));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04169571399689, 38.89576751415038));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04171180725098, 38.89592616664882));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04181909561157, 38.89601384287748));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04202830791473, 38.896001317708574));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04229652881622, 38.89600549276512));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04242527484892, 38.89599296759476));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.0427417755127, 38.895984617479954));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04289734363556, 38.895980442422186));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04310655593872, 38.895980442422186));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04325139522551, 38.895980442422186));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04340696334839, 38.895980442422186));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347133636475, 38.89601384287748));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04348742961884, 38.8959011162779));
+
+
+        return positions;
+    }
+
+    public static List<Point> getDummyPosition90elementsUSA2() {
+        List<com.mapbox.geojson.Point> positions = new ArrayList<>();
         positions.add(com.mapbox.geojson.Point.fromLngLat(-77.0434820652008, 38.89572158836101));
         positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347670078278, 38.8955838108147));
         positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347670078278, 38.89542933264189));
@@ -55,35 +42,31 @@ public class PositionProvider {
         positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347670078278, 38.89379685357545));
         positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347670078278, 38.89368412345691));
         positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04346597194672, 38.89356304275993));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347133636475, 38.893408560191695));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04349279403685, 38.893191448987274));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04349279403685, 38.89307454267923));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04349279403685, 38.89294511047088));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347670078278, 38.892782276067265));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347670078278, 38.89255263717129));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347670078278, 38.89240232767372));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347670078278, 38.89224366730341));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04347670078278, 38.89213928528757));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04353034496307, 38.89209335715199));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04373955726624, 38.892101707724315));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04388439655304, 38.892101707724315));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.0440775156021, 38.89209335715199));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04427063465118, 38.89208500657868));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04444766044617, 38.89208500657868));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04469442367554, 38.892105883010096));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04489827156067, 38.892101707724315));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04491972923279, 38.89215181113758));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04491972923279, 38.89239815240535));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04491972923279, 38.8924983587783));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04493045806885, 38.892644492818775));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04491972923279, 38.89277810082123));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04491972923279, 38.89287830665815));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04491972923279, 38.893045316072154));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04491436481476, 38.89316222242831));
-        positions.add(com.mapbox.geojson.Point.fromLngLat(-77.04491436481476, 38.89324572685059));
         return positions;
     }
 
+    public static List<Point> getDummyPositionErste6Punkte() {
+        List<com.mapbox.geojson.Point> positions = new ArrayList<>();
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.976960000, 48.30368000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.927020000, 48.32799000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.906310000, 48.35648000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.901480000, 48.39261000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.874780000, 48.41366000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.842950000, 48.41369000));
+        return positions;
+    }
+
+    public static List<Point> getDummyPositionZweite6Punkte() {
+        List<com.mapbox.geojson.Point> positions = new ArrayList<>();
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.803100000, 48.40639000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.774800000, 48.39905000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.788580000, 48.38155000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.807210000, 48.36648000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.870170000, 48.32913000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.887960000, 48.31604000));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.932250000, 48.30482000));
+        return positions;
+    }
     public static Map<String, GeoPoint> get50kmRadiusPositionstest() {
         /**
          * Points in 50km radius
@@ -110,6 +93,26 @@ public class PositionProvider {
         List<Position> positions = new ArrayList<>();
         positions.add(new Position(48.30141, 9.842189));
         positions.add(new Position(48.30467, 9.849303));
+        return positions;
+    }
+
+    public static List<Point> getMapsTrack1() {
+        List<com.mapbox.geojson.Point> positions = new ArrayList<>();
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.982499, 48.394090));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.984999, 48.395764));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.984645, 48.397509));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.984581, 48.400073));
+
+        return positions;
+    }
+
+    public static List<Point> getMapsTrack2() {
+        List<com.mapbox.geojson.Point> positions = new ArrayList<>();
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.990289, 48.401604));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.994280, 48.402111));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.997377, 48.402521));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(9.999650, 48.402727));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(10.000889, 48.401879));
         return positions;
     }
     public static List<Position> getDummyPosition90elements() {

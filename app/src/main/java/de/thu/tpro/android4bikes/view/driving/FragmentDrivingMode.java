@@ -26,9 +26,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.DirectionsCriteria;
+import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.mapbox.api.directions.v5.models.LegStep;
+import com.mapbox.api.directions.v5.models.RouteLeg;
+import com.mapbox.api.directions.v5.models.RouteOptions;
 import com.mapbox.api.matching.v5.MapboxMapMatching;
 import com.mapbox.api.matching.v5.models.MapMatchingResponse;
+import com.mapbox.geojson.utils.PolylineUtils;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -43,14 +48,15 @@ import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions;
 import com.mapbox.services.android.navigation.ui.v5.OnNavigationReadyCallback;
 import com.mapbox.services.android.navigation.ui.v5.camera.NavigationCamera;
 import com.mapbox.services.android.navigation.ui.v5.listeners.NavigationListener;
+import com.mapbox.services.android.navigation.ui.v5.listeners.RouteListener;
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation;
+import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 import com.mapbox.services.android.navigation.v5.navigation.RouteRefresh;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -89,7 +95,10 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     // Navigation related variables
     private RouteRefresh routeRefresh;
     private boolean isRefreshing = false;
-    private DirectionsRoute currentRoute;
+    private DirectionsRoute route1, route2, reroute, finalroute;
+    private List<Position> positionsRoute1 = convertPointListToPositionList(PositionProvider.getMapsTrack1());
+    private List<Position> positionsRoute2 = convertPointListToPositionList(PositionProvider.getMapsTrack2());
+
     //private List<Position> bikeRacks = new ArrayList<>();
     //private List<Position> bikeTracks = new ArrayList<>();
 
@@ -144,7 +153,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public void onNavigationReady(boolean isRunning) {
         parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"));
         parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-        generateCustomRoute(PositionProvider.getDummyPosition2elements());
+        generateCustomRoute1();
 
     }
 
@@ -172,7 +181,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         navFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean isValidRoute = currentRoute != null;
+                boolean isValidRoute = finalroute != null;
                 if (isValidRoute) {
                     Log.d("HELLO", "Succeessfullllll ");
                     // Hide the start button
@@ -180,7 +189,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
 
                     parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                            .directionsRoute(currentRoute)
+                            .directionsRoute(finalroute)
                             .locationEngine(parent.locationEngine)
                             .navigationListener(new NavigationListener() {
                                 @Override
@@ -200,6 +209,99 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                                 public void onNavigationRunning() {
                                     Log.d("HELLO", String.valueOf(PositionTracker.getLastSpeed()));
                                     //fab.setImageBitmap(textAsBitmap("OK", 40, Color.WHITE));
+
+                                }
+                            })
+                            .routeListener(new RouteListener() {
+                                @Override
+                                public boolean allowRerouteFrom(com.mapbox.geojson.Point offRoutePoint) {
+                                    Log.d("HELLO", "Rerouting");
+                                    // Fetch new route with MapboxMapMatching
+                                    List<com.mapbox.geojson.Point> points = new ArrayList<>();
+                                    points.add(offRoutePoint);
+                                    points.add(com.mapbox.geojson.Point.fromLngLat(positionsRoute1.get(0).getLongitude(), positionsRoute1.get(0).getLatitude()));
+
+                                    NavigationRoute.builder(parent)
+                                            .accessToken(getString(R.string.access_token))
+                                            .origin(points.get(0))
+                                            .destination(points.get(1))
+                                            .addWaypointIndices(0, points.size() - 1)
+                                            .profile(DirectionsCriteria.PROFILE_CYCLING)
+                                            .build()
+                                            .getRoute(new Callback<DirectionsResponse>() {
+                                                @Override
+                                                public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                                                    if (response.isSuccessful()) {
+                                                        Log.d("HELLO", "CODE: " + response.code() + " with Message:\n" + response.message());
+                                                        Log.d("HELLO", "SIZE: " + response.body().routes().size());
+                                                        Log.d("HELLO", "Body Message: " + response.body().message());
+                                                        if (response.body().routes().size() > 0) {
+                                                            reroute = response.body().routes().get(0);
+
+                                                            Log.d("HELLO", String.valueOf(reroute.distance()));
+                                                            if (reroute != null) {
+                                                                Log.d("HELLO", "reroute initialized");
+                                                            }
+                                                            finalroute = appendRoute(reroute, finalroute);
+                                                            parent.navigationView.startNavigation(NavigationViewOptions.builder()
+                                                                    .directionsRoute(finalroute)
+                                                                    .locationEngine(parent.locationEngine)
+                                                                    .navigationListener(new NavigationListener() {
+                                                                        @Override
+                                                                        public void onCancelNavigation() {
+                                                                            Log.d("HELLO", "OK, switch back to INFO MDOE");
+                                                                            parent.navigationView.stopNavigation();
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onNavigationFinished() {
+                                                                            Log.d("HELLO", "OK, switch back to INFO MDOE");
+                                                                            parent.navigationView.stopNavigation();
+
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onNavigationRunning() {
+                                                                            Log.d("HELLO", String.valueOf(PositionTracker.getLastSpeed()));
+                                                                            //fab.setImageBitmap(textAsBitmap("OK", 40, Color.WHITE));
+
+                                                                        }
+                                                                    }).build());
+
+
+                                                        }
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+
+                                                }
+                                            });
+
+
+                                    // Ignore internal routing, allowing MapboxMapMatching call
+                                    Log.d("HELLO", "Reroute ended");
+                                    return false;
+                                }
+
+                                @Override
+                                public void onOffRoute(com.mapbox.geojson.Point offRoutePoint) {
+                                    Log.d("HELLO", "onOffRoute called");
+                                }
+
+                                @Override
+                                public void onRerouteAlong(DirectionsRoute directionsRoute) {
+                                    Log.d("HELLO", "onRerouteAlong called");
+                                }
+
+                                @Override
+                                public void onFailedReroute(String errorMessage) {
+                                    Log.d("HELLO", "onFailedReroute called");
+                                }
+
+                                @Override
+                                public void onArrival() {
 
                                 }
                             })
@@ -224,33 +326,84 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     }
 
     //Custom Route
-    private void generateCustomRoute(List<Position> finegrainedPositions) {
+    private void generateCustomRoute1() {
         MapboxMapMatching.builder()
                 .accessToken(getString(R.string.access_token))
-                .coordinates(convertPositionListToPointList(finegrainedPositions))
+                .coordinates(convertPositionListToPointList(positionsRoute1))
                 .steps(true)
-                .tidy(true)
-                //.waypointIndices(0,finegrainedPositions.size()-1)
-                .voiceUnits(DirectionsCriteria.METRIC)
                 .voiceInstructions(true)
                 .bannerInstructions(true)
-                .language(Locale.GERMAN)
+                .overview(DirectionsCriteria.OVERVIEW_FULL)
                 .profile(DirectionsCriteria.PROFILE_CYCLING)
+                .tidy(true)
+                .geometries(DirectionsCriteria.GEOMETRY_POLYLINE6)
+                .waypointIndices(0, positionsRoute1.size() - 1)
                 .build()
                 .enqueueCall(new Callback<MapMatchingResponse>() {
 
                     @Override
                     public void onResponse(Call<MapMatchingResponse> call, Response<MapMatchingResponse> response) {
                         if (response.isSuccessful()) {
-                            currentRoute = response.body().matchings().get(0).toDirectionRoute();
+                            Log.d("HELLO", "CODE: " + response.code() + " with Message:\n" + response.message());
+                            Log.d("HELLO", "SIZE: " + response.body().matchings().size());
+                            Log.d("HELLO", "Body Message: " + response.body().message());
+                            if (response.body().matchings().size() > 0) {
+                                route1 = response.body().matchings().get(0).toDirectionRoute();
 
-                            Log.d("HELLO", String.valueOf(currentRoute.distance()));
-                            if (currentRoute != null) {
-                                Log.d("HELLO", "Route initialized");
+                                Log.d("HELLO", String.valueOf(route1.distance()));
+                                if (route1 != null) {
+                                    Log.d("HELLO", "Route1 initialized");
+                                }
+                                generateCustomRoute2();
+                                //Draw Route on Map
+                                //parent.navigationView.drawRoute(currentRoute);
+                                //showRoute(finegrainedPositions.get(0).toMapboxLocation(), finegrainedPositions.get(finegrainedPositions.size() - 1).toMapboxLocation());
+                                //navFab.setVisibility(View.VISIBLE);
                             }
+
+                        } else {
+                            Log.d("HELLO", "Response empty");
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<MapMatchingResponse> call, Throwable throwable) {
+
+                    }
+                });
+    }
+
+    private void generateCustomRoute2() {
+        MapboxMapMatching.builder()
+                .accessToken(getString(R.string.access_token))
+                .coordinates(convertPositionListToPointList(positionsRoute2))
+                .steps(true)
+                .geometries(DirectionsCriteria.GEOMETRY_POLYLINE6)
+                .voiceInstructions(true)
+                .overview(DirectionsCriteria.OVERVIEW_FULL)
+                .bannerInstructions(true)
+                .profile(DirectionsCriteria.PROFILE_CYCLING)
+                .tidy(true)
+                .waypointIndices(0, positionsRoute2.size() - 1)
+                .build()
+                .enqueueCall(new Callback<MapMatchingResponse>() {
+
+                    @Override
+                    public void onResponse(Call<MapMatchingResponse> call, Response<MapMatchingResponse> response) {
+                        if (response.isSuccessful()) {
+                            Log.d("HELLO", "CODE: " + response.code() + " with Message:\n" + response.message());
+                            route2 = response.body().matchings().get(0).toDirectionRoute();
+
+                            if (route2 != null) {
+                                Log.d("HELLO", "Route2 initialized");
+                            }
+
+                            finalroute = appendRoute(route1, route2);
                             //Draw Route on Map
-                            parent.navigationView.drawRoute(currentRoute);
-                            showRoute(finegrainedPositions.get(0).toMapboxLocation(), finegrainedPositions.get(finegrainedPositions.size() - 1).toMapboxLocation());
+                            parent.navigationView.drawRoute(finalroute);
+                            showRoute(new LatLng(PositionProvider.getMapsTrack1().get(0).latitude(), PositionProvider.getMapsTrack1().get(0).longitude())
+                                    , new LatLng(PositionProvider.getMapsTrack2().get(PositionProvider.getMapsTrack2().size() - 1).latitude(), PositionProvider.getMapsTrack2().get(PositionProvider.getMapsTrack2().size() - 1).longitude()));
                             navFab.setVisibility(View.VISIBLE);
                         } else {
                             Log.d("HELLO", "Response empty");
@@ -265,9 +418,98 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                 });
     }
 
+    private DirectionsRoute appendRoute(DirectionsRoute route1, DirectionsRoute route2) {
+        DirectionsRoute finalRoute = DirectionsRoute.builder()
+                .distance(route1.distance() + route2.distance())
+                .duration(route1.duration() + route2.duration())
+                .geometry(mergeGeometry(route1.geometry(), route2.geometry()))
+                .weightName(route1.weightName())
+                .legs(mergeLegs(route1.legs(), route2.legs()))
+                .routeOptions(mergeRouteOptions(route1.routeOptions(), route2.routeOptions()))
+                .voiceLanguage(route1.voiceLanguage())
+                .build();
+        return finalRoute;
+    }
+
+    private List<RouteLeg> mergeLegs(List<RouteLeg> routeLegs1, List<RouteLeg> routeLegs2) {
+        List<RouteLeg> finalRouteLegs = new ArrayList<>();
+        //for (int i = 0; i < (routeLegs1.size()+routeLegs2.size()); i++) {
+        RouteLeg routeLeg = RouteLeg.builder()
+                .distance(routeLegs1.get(0).distance() + routeLegs2.get(0).distance())
+                .duration(routeLegs1.get(0).duration() + routeLegs2.get(0).duration())
+                .summary(routeLegs1.get(0).summary() + routeLegs2.get(0).summary())
+                .steps(mergeLegSteps(routeLegs1.get(0).steps(), routeLegs2.get(0).steps()))
+                .build();
+        finalRouteLegs.add(routeLeg);
+        //}
+
+        return finalRouteLegs;
+    }
+
+    private String mergeGeometry(String geometry1, String geometry2) {
+        List<com.mapbox.geojson.Point> finalRoutePoints = new ArrayList<>();
+        //Decode Geometry to List of Points and merge
+        finalRoutePoints.addAll(PolylineUtils.decode(geometry1, 6));
+        finalRoutePoints.addAll(PolylineUtils.decode(geometry2, 6));
+
+        //Endcode List of Points back to Geometry
+        String geometry = PolylineUtils.encode(finalRoutePoints, 6);
+        return geometry;
+    }
+
+    private List<com.mapbox.geojson.Point> mergeCoordinates(List<com.mapbox.geojson.Point> coordinates1, List<com.mapbox.geojson.Point> coordinates2) {
+        List<com.mapbox.geojson.Point> finalCoordinates = new ArrayList<>();
+        finalCoordinates.addAll(coordinates1);
+        finalCoordinates.addAll(coordinates2);
+        return finalCoordinates;
+    }
+
+    private List<LegStep> mergeLegSteps(List<LegStep> legSteps1, List<LegStep> legSteps2) {
+        List<LegStep> finalLegSteps = new ArrayList<>();
+        finalLegSteps.addAll(legSteps1);
+        finalLegSteps.addAll(legSteps2);
+        return finalLegSteps;
+    }
+
+    private RouteOptions mergeRouteOptions(RouteOptions routeOptions1, RouteOptions routeOptions2) {
+        Log.d("HELLO", "Waypoints: " + calculateWaypointindices(routeOptions1.waypointIndices(), routeOptions2.waypointIndices()));
+        RouteOptions routeOptions = RouteOptions.builder()
+                .baseUrl(routeOptions1.baseUrl())
+                .user(routeOptions1.user())
+                .profile(routeOptions1.profile())
+                .coordinates(mergeCoordinates(routeOptions1.coordinates(), routeOptions2.coordinates()))
+                .language(routeOptions1.language())
+                .geometries(routeOptions1.geometries())
+                .steps(routeOptions1.steps())
+                .voiceInstructions(routeOptions1.voiceInstructions())
+                .bannerInstructions(routeOptions1.bannerInstructions())
+                .voiceUnits(routeOptions1.voiceUnits())
+                .accessToken(routeOptions1.accessToken())
+                .requestUuid(routeOptions1.requestUuid())
+                //.waypointIndices("0;8")
+                .waypointIndices(calculateWaypointindices(routeOptions1.waypointIndices(), routeOptions2.waypointIndices()))
+                .build();
+
+        return routeOptions;
+    }
+
+    private String calculateWaypointindices(String waypointindices1, String waypointindices2) {
+        int start = 0;
+        int maxIndiceRoute1 = Integer.parseInt(waypointindices1.substring(waypointindices1.length() - 1));
+        int maxIndiceRoute2 = Integer.parseInt(waypointindices2.substring(waypointindices2.length() - 1));
+        int end = maxIndiceRoute1 + maxIndiceRoute2;
+        return start + ";" + (end + 1);
+    }
+
     private List<com.mapbox.geojson.Point> convertPositionListToPointList(List<Position> finegrainedPositions) {
         List<com.mapbox.geojson.Point> points = new ArrayList<>();
         finegrainedPositions.forEach(position -> points.add(com.mapbox.geojson.Point.fromLngLat(position.getLongitude(), position.getLatitude())));
+        return points;
+    }
+
+    private List<Position> convertPointListToPositionList(List<com.mapbox.geojson.Point> finegrainedPositions) {
+        List<Position> points = new ArrayList<>();
+        finegrainedPositions.forEach(position -> points.add(new Position(position.latitude(), position.longitude())));
         return points;
     }
 
