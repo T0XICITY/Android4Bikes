@@ -138,7 +138,8 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
         /*TrackRecorder trackRecorder = new TrackRecorder();
         trackRecorder.start();
-        trackRecorder.stop();*/
+        //Abfage User input
+        trackRecorder.stop(trackname,...);*/
 
     }
 

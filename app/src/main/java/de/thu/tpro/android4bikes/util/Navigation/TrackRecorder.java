@@ -45,6 +45,7 @@ public class TrackRecorder {
     }
 
     public void stop() {
+
         generateDirectionRouteAndSaveTrackToFirebase(mapmatchingRequests);
         finalroute = null;
     }
@@ -102,12 +103,10 @@ public class TrackRecorder {
                                     //Finished with Track Appending
 
                                     //TODO wait for UI input
+                                    //Trackname
+                                    //Track track = new Track();
 
                                     //Save Track to Firebase
-
-
-                                    //TODO
-                                    // navFab.setVisibility(View.VISIBLE);
                                 }
                             }
 
