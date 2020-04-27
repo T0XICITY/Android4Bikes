@@ -256,8 +256,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 FirebaseAuth.getInstance().signOut();
                 Intent intent = new Intent(this, ActivityLogin.class);
                 startActivity(intent);
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.logoutfailed, Toast.LENGTH_LONG).show();
             }
-
 
         } catch (Exception e) {
             e.printStackTrace();
