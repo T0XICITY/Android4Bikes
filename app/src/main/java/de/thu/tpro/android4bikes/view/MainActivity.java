@@ -47,6 +47,7 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
@@ -240,15 +241,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    /**
+     * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,
+     * it is only stored in the local WriteBuffer. If it is available on the FireStore, all databases
+     * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
+     */
     private void goToLoginActivity() {
         try {
             Profile profile_read = FirebaseConnection.getInstance().readOwnProfileFromFireStore(FirebaseAuth.getInstance().getCurrentUser().getUid());
             Profile profile_own_db = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA).readMyOwnProfile();
 
             if (profile_read != null && profile_read.equals(profile_own_db)) {
+                CouchDB.getInstance().clearAllDatabases();
                 FirebaseAuth.getInstance().signOut();
-
-                //todo: Delete user from local db
                 Intent intent = new Intent(this, ActivityLogin.class);
                 startActivity(intent);
             }
