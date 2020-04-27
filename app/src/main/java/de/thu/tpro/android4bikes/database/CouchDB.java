@@ -67,10 +67,12 @@ public class CouchDB {
      * @return instance of the class 'CouchBaseLiteDBHelper'
      */
     public static CouchDB getInstance() {
-        if (instance == null) {
-            instance = new CouchDB(GlobalContext.getContext());
+        synchronized (GlobalContext.getContext()) {
+            if (instance == null) {
+                instance = new CouchDB(GlobalContext.getContext());
+            }
+            return instance;
         }
-        return instance;
     }
 
     /**
