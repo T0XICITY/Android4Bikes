@@ -247,22 +247,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
      */
     private void goToLoginActivity() {
-        try {
-            Profile profile_read = FirebaseConnection.getInstance().readOwnProfileFromFireStore(FirebaseAuth.getInstance().getCurrentUser().getUid());
-            Profile profile_own_db = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA).readMyOwnProfile();
-
-            if (profile_read != null && profile_read.equals(profile_own_db)) {
-                CouchDB.getInstance().clearAllDatabases();
-                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(this, ActivityLogin.class);
-                startActivity(intent);
-            } else {
-                Toast.makeText(getApplicationContext(), R.string.logoutfailed, Toast.LENGTH_LONG).show();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        FirebaseAuth.getInstance().signOut();
+        //todo: Delete user from local db
+        Intent intent = new Intent(this, ActivityLogin.class);
+        startActivity(intent);
     }
 
 
