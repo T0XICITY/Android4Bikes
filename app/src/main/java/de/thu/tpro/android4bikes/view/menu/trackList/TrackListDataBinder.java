@@ -95,9 +95,9 @@ public class TrackListDataBinder {
             int range = rangeIncrements[filter_range];
 
             if (tuple.getDistanceToUser() <= range
-                    && track.getRating().getRoadquality() >= filter_quality
-                    && track.getRating().getDifficulty() >= filter_difficulty
-                    && track.getRating().getFun() >= filter_funfactor){
+                    && track.getRating().getRoadquality() > filter_quality
+                    && track.getRating().getDifficulty() > filter_difficulty
+                    && track.getRating().getFun() > filter_funfactor){
                 filteredTrackList.add(tuple);
             }
 

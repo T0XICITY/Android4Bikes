@@ -91,7 +91,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/property_RoadQuality" />
+                android:text="@string/property_Difficulty" />
 
             <TextView
                 android:id="@+id/tv_indicator_dificulty"
@@ -125,7 +125,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text="@string/property_RoadQuality" />
+                android:text="@string/property_Funfactor" />
 
             <TextView
                 android:id="@+id/tv_indicator_funfactor"
