@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.JsonElement;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -55,6 +57,7 @@ import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -82,7 +85,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacem
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 
 
-public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
+public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener {
 
     private static final String LOG_TAG = "FragmentInfoMode";
     private View viewInfo;
@@ -171,7 +174,31 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     addBikeRackOverlay(style, bikeRacks, "meineDaten");
                     //addHazardAlertOverlay();
                     //addTrackOverlay();
+                    mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+                        @Override
+                        public boolean onMapClick(@NonNull LatLng point) {
+                            // Convert LatLng coordinates to screen pixel and only query the rendered features.
+                            final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
 
+                            List<Feature> features = mapboxMap.queryRenderedFeatures(pixel);
+
+                            // Get the first feature within the list if one exist
+                            if (features.size() > 0) {
+                                for (Feature feature : features) {
+                                    if (feature.properties() != null) {
+                                        for (Map.Entry<String, JsonElement> entry : feature.properties().entrySet()) {
+                                            // Log all the properties
+                                            if (entry.getKey().equals("ID")) {
+                                                Log.d("HELLO", String.valueOf(entry.getValue()));
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                            return false;
+                        }
+                    });
 
                     /*//Draw Route on Map
                     mapview.drawRoute(route);
@@ -179,18 +206,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //https://docs.mapbox.com/android/java/examples/show-directions-on-a-map/
                     //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
-    }
-
-    @Override
-    public boolean onMapClick(@NonNull LatLng point) {
-        PointF screenPoint = mapboxMap.getProjection().toScreenLocation(point);
-        List<Feature> features = mapboxMap.queryRenderedFeatures(screenPoint, "meineDaten");
-        if (!features.isEmpty()) {
-            Feature selectedFeature = features.get(0);
-            String title = selectedFeature.getStringProperty("ID");
-            Toast.makeText(parent, "You selected " + title, Toast.LENGTH_SHORT).show();
-        }
-        return false;
     }
 
     private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
@@ -572,7 +587,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private BikeRack generateTHUBikeRack(int i) {
         //create new BikeRack
         BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880 + i / 7000.0, 9.997507 + i / 7000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                "pfo4eIrvzrI0m363KF0K" + i, new Position(48.408880 + i / 7000.0, 9.997507 + i / 7000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
         return bikeRack_THU;
