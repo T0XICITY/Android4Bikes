@@ -2,6 +2,7 @@ package de.thu.tpro.android4bikes.view.login;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -148,52 +149,13 @@ public class ActivityLogin extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             task.getResult().getAdditionalUserInfo().isNewUser();
                             // Sign in success, update UI with the signed-in user's information
-                            //todo!!!
-                            CouchDBHelper cdbh_ownDB = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
-                            CouchDBHelper cdbh_writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-
-                            CouchDB db = CouchDB.getInstance();
-                            db.clearDB(db.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_OWNDATA_PROFILE)); // Clear the Profile DB to ensure correct behaviour
-
-                            //is the writeBuffer empty (then new profile is not synchronized yet)?
-                            if (cdbh_writeBuffer.readProfile(cdbh_ownDB.readMyOwnProfile().getGoogleID()) == null) {
-                                if (task.getResult().getAdditionalUserInfo().isNewUser()) {
-                                    //create new user on firestore
-                                    FirebaseUser user = task.getResult().getUser();
-                                    Profile profile = new Profile(user.getDisplayName(), "", user.getUid(), 0xADD8E6, 0, new ArrayList<>());
-                                    Log.d("HalloWelt", "Created new Profile");
-
-                                    //here the internet connection could be lost. Then, the user would be authorized in FireStore
-                                    //but there would be no associated profile in the profile collection. This profile would
-                                    //still remain in the WriteBuffer and in the ownDB. Solution: else part.
-                                    CouchWriteBuffer.getInstance().storeProfile(profile);
-
-                                } else {
-                                    //load existing user from collection in firestore
-                                    Log.d("HalloWelt", "Load existing Profile");
-                                    FirebaseConnection.getInstance().readOwnProfileFromFireStoreAndStoreItToOwnDB(task.getResult().getUser().getUid());
-                                }
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(intent);
-                            } else {
-                                FirebaseAuth.getInstance().getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        //delete own profile from WriteBuffer:
-                                        cdbh_writeBuffer.deleteProfile(cdbh_ownDB.readMyOwnProfile().getGoogleID());
-
-                                        //Restart login activity
-                                        Toast.makeText(getApplicationContext(), R.string.loginfailure, Toast.LENGTH_LONG).show();
-                                        recreate();
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-
-                                    }
-                                });
-                            }
-
+                            CouchDBHelper cdbh = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
+                            FirebaseUser user = task.getResult().getUser();
+                            Profile profile = new Profile(user.getDisplayName(),"",user.getUid(), Color.BLUE,0,new ArrayList<>());
+                            Log.d("HalloWelt","Created new Profile");
+                            cdbh.storeProfile(profile);
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intent);
                         } else {
                             Toast.makeText(ActivityLogin.this, R.string.Activity_Login_Toast_Fail, Toast.LENGTH_SHORT).show();
                         }
