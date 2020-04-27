@@ -31,24 +31,25 @@ public class WorkManagerHelper {
      * Defines a task that uploads not synchronized data.
      */
     public static void scheduleUploadTaskWithWorkManager() {
+        if (uploadRequestID == null) {
+            Log.d("HalloWelt", "Started at: " + new Date());
 
-        Log.d("HalloWelt", "Started at: " + new Date());
+            //constraints regarding when a task should be scheduled
+            Constraints constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build();
 
-        //constraints regarding when a task should be scheduled
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
+            //Define the request: How often should the task be scheduled
+            PeriodicWorkRequest saveRequest =
+                    new PeriodicWorkRequest.Builder(UploadWorker.class, 15, TimeUnit.MINUTES)
+                            .setConstraints(constraints)
+                            .build();
 
-        //Define the request: How often should the task be scheduled
-        PeriodicWorkRequest saveRequest =
-                new PeriodicWorkRequest.Builder(UploadWorker.class, 15, TimeUnit.MINUTES)
-                        .setConstraints(constraints)
-                        .build();
+            uploadRequestID = saveRequest.getId();
 
-        uploadRequestID = saveRequest.getId();
-
-        //schedule task
-        WorkManager.getInstance(GlobalContext.getContext())
-                .enqueue(saveRequest);
+            //schedule task
+            WorkManager.getInstance(GlobalContext.getContext())
+                    .enqueue(saveRequest);
+        }
     }
 }
