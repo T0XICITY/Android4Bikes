@@ -45,10 +45,12 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
@@ -239,10 +241,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void goToLoginActivity() {
-        FirebaseAuth.getInstance().signOut();
-        //todo: Delete user from local db
-        Intent intent = new Intent(this, ActivityLogin.class);
-        startActivity(intent);
+        try {
+            Profile profile_read = FirebaseConnection.getInstance().readOwnProfileFromFireStore(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            Profile profile_own_db = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA).readMyOwnProfile();
+
+            if (profile_read != null && profile_read.equals(profile_own_db)) {
+                FirebaseAuth.getInstance().signOut();
+
+                //todo: Delete user from local db
+                Intent intent = new Intent(this, ActivityLogin.class);
+                startActivity(intent);
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

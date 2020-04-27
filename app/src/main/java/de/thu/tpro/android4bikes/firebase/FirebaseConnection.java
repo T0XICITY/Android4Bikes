@@ -19,6 +19,7 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -816,6 +817,43 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         Log.d(TAG, "get failed with ", task.getException());
                     }
                 });
+    }
+
+    @Override
+    public Profile readOwnProfileFromFireStore(String uid) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ArrayList<Profile> list_profile = new ArrayList<>();
+        list_profile.add(0, null);
+
+        try {
+            DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(uid);
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Map map_result = document.getData();
+
+                        //convert resulting map to profile
+                        Profile myProfile = ownDataDB.convertMapProfileToProfile(map_result, null);
+                        list_profile.add(0, myProfile);
+                        countDownLatch.countDown();
+                    } else {
+                        Log.e(TAG, "No such Profile");
+                        //TODO Exception Document not found
+                        countDownLatch.countDown();
+                    }
+                } else {
+                    Log.e(TAG, "get failed with ", task.getException());
+                    //TODO Exception no Connection
+                    countDownLatch.countDown();
+                }
+            });
+
+            countDownLatch.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list_profile.get(0);
     }
 
     public void readOwnProfileFromFireStoreAndStoreItToOwnDB(String uID) {

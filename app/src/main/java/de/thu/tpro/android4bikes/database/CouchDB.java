@@ -20,6 +20,7 @@ import com.couchbase.lite.Result;
 import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -631,6 +632,23 @@ public class CouchDB {
         synchronized (this) {
             return getDatabaseFromName(database).getDocument(id);
         }
+    }
+
+    /**
+     * reset the content of each existing database
+     */
+    public void clearAllDatabases() {
+        try {
+            for (Field field : this.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                if (field.getType().equals(Database.class)) {
+                    clearDB((Database) field.get(this));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public enum DatabaseNames {

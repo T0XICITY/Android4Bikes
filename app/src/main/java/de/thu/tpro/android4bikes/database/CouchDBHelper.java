@@ -438,7 +438,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
      * @param db_name     required for query results that are delivered by the local db. Otherwise null as value is ok.
      * @return
      */
-    private Profile convertMapProfileToProfile(Map map_profile, String db_name) {
+    public Profile convertMapProfileToProfile(Map map_profile, String db_name) {
         Profile profile = null;
         try {
             JSONObject jsonObject_profile = null;
@@ -873,6 +873,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
         return hazardAlert;
     }
+
 
     /**
      * Generates the JSON representation out of a mutable document
