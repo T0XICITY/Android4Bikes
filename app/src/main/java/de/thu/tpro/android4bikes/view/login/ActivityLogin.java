@@ -147,13 +147,15 @@ public class ActivityLogin extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            task.getResult().getAdditionalUserInfo().isNewUser();
-                            // Sign in success, update UI with the signed-in user's information
-                            CouchDBHelper cdbh = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
-                            FirebaseUser user = task.getResult().getUser();
-                            Profile profile = new Profile(user.getDisplayName(),"",user.getUid(), Color.BLUE,0,new ArrayList<>());
-                            Log.d("HalloWelt","Created new Profile");
-                            cdbh.storeProfile(profile);
+                            //todo
+                            if(task.getResult().getAdditionalUserInfo().isNewUser()){
+                                // Sign in success, update UI with the signed-in user's information
+                                CouchDBHelper cdbh = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
+                                FirebaseUser user = task.getResult().getUser();
+                                Profile profile = new Profile(user.getDisplayName(),"",user.getUid(), Color.BLUE,0,new ArrayList<>());
+                                Log.d("HalloWelt","Created new Profile");
+                                cdbh.storeProfile(profile);
+                            }
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                         } else {
