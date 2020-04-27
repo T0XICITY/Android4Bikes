@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -81,7 +82,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacem
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 
 
-public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener {
+public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener {
 
     private static final String LOG_TAG = "FragmentInfoMode";
     private View viewInfo;
@@ -171,21 +172,31 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //addHazardAlertOverlay();
                     //addTrackOverlay();
 
-                    // Add click listener and change the symbol to a cafe icon on click
 
-                    /*symbolManager.addClickListener(new OnSymbolClickListener() {
-                        @Override
-                        public void onAnnotationClick(Symbol symbol) {
-                            Toast.makeText(parent, "Clicked Symbol", Toast.LENGTH_SHORT).show();
-                            symbolManager.update(symbol);
-                        }
-                    });*/
                     /*//Draw Route on Map
                     mapview.drawRoute(route);
                     showRoute(start,end);*/
                     //https://docs.mapbox.com/android/java/examples/show-directions-on-a-map/
                     //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
+    }
+
+    @Override
+    public boolean onMapClick(@NonNull LatLng point) {
+        PointF screenPoint = mapboxMap.getProjection().toScreenLocation(point);
+        List<Feature> features = mapboxMap.queryRenderedFeatures(screenPoint, "meineDaten");
+        if (!features.isEmpty()) {
+            Feature selectedFeature = features.get(0);
+            String title = selectedFeature.getStringProperty("ID");
+            Toast.makeText(parent, "You selected " + title, Toast.LENGTH_SHORT).show();
+        }
+        return false;
+    }
+
+    private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
+        return new SymbolOptions()
+                .withLatLng(new LatLng(latitude, longitude))
+                .withIconImage(type.toString());
     }
 
     private void showRoute(com.mapbox.geojson.Point start, com.mapbox.geojson.Point end) {
@@ -206,8 +217,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (Track track : tracks) {
+            //getStringProperty
             SymbolOptions marker = createMarker(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
-            list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+            Feature feature = Feature.fromGeometry(marker.getGeometry());
+            feature.addStringProperty("ID", track.getFirebaseID());
+            //TODO add info for Popup
+            list_feature.add(feature);
         }
         //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
@@ -229,7 +244,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Generate Markers from ArrayList
         for (BikeRack bikeRack : bikeRacks) {
             SymbolOptions marker = createMarker(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.BIKERACK);
-            list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+            Feature feature = Feature.fromGeometry(marker.getGeometry());
+            feature.addStringProperty("ID", bikeRack.getFirebaseID());
+            //TODO add info for Popup
+            list_feature.add(feature);
         }
         //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
@@ -252,7 +270,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Generate Markers from ArrayList
         for (HazardAlert hazardAlert : hazardAlerts) {
             SymbolOptions marker = createMarker(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL);
-            list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+            Feature feature = Feature.fromGeometry(marker.getGeometry());
+            feature.addStringProperty("ID", hazardAlert.getFirebaseID());
+            //TODO add info for Popup
+            list_feature.add(feature);
         }
         //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
@@ -540,13 +561,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             //Register Symbols in Mapbox
             markers.forEach((type, icon) -> mapboxMap.getStyle().addImage(type.toString(), icon));
         }
-    }
-
-    private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
-        return new SymbolOptions()
-                //.withData()
-                .withLatLng(new LatLng(latitude, longitude))
-                .withIconImage(type.toString());
     }
 
     /**
