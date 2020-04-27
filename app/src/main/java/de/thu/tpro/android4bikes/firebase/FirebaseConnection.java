@@ -824,7 +824,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ArrayList<Profile> list_profile = new ArrayList<>();
         list_profile.add(0, null);
-
         try {
             DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(uid);
             docRef.get().addOnCompleteListener(task -> {
