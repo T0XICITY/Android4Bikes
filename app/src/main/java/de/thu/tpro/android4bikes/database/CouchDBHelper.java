@@ -780,12 +780,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     }
 
     @Override
-    public Position getLastPosition() {
-        //todo
-        return new Position( 9.836149,48.304486);
-    }
-
-    @Override
     public void storeBikeRack(Map map_bikeRack) {
         Database db_bikerack = null;
         try {
