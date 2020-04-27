@@ -826,12 +826,13 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         list_profile.add(0, null);
         try {
             DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_PROFILES.toString()).document(uid);
+            Log.d("HalloWelt","Entered");
             docRef.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
+                    Log.d("HalloWelt","Success");
                     if (document.exists()) {
                         Map map_result = document.getData();
-
                         //convert resulting map to profile
                         Profile myProfile = ownDataDB.convertMapProfileToProfile(map_result, null);
                         list_profile.add(0, myProfile);
