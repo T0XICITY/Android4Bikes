@@ -30,6 +30,7 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -40,6 +41,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.maps.SupportMapFragment;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
@@ -83,13 +85,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     private static final String LOG_TAG = "FragmentInfoMode";
     private View viewInfo;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
-    ViewGroup container;
-    //MapViewContentBuilder builder;
-    int chosenMarkerId;
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
-    private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
-    private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private static final String TAG = "DirectionsActivity";
     MainActivity parent;
     SymbolOptions marker;
@@ -102,6 +98,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     // variables for calculating and drawing a route
     private DirectionsRoute currentRoute;
     private NavigationMapRoute navigationMapRoute;
+    SymbolManager symbolManager;
 
 
     @Override
@@ -174,8 +171,29 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //addHazardAlertOverlay();
                     //addTrackOverlay();
 
-                    //new LoadGeoJson(FragmentInfoMode.this).execute();
+                    // Add click listener and change the symbol to a cafe icon on click
+
+                    /*symbolManager.addClickListener(new OnSymbolClickListener() {
+                        @Override
+                        public void onAnnotationClick(Symbol symbol) {
+                            Toast.makeText(parent, "Clicked Symbol", Toast.LENGTH_SHORT).show();
+                            symbolManager.update(symbol);
+                        }
+                    });*/
+                    /*//Draw Route on Map
+                    mapview.drawRoute(route);
+                    showRoute(start,end);*/
+                    //https://docs.mapbox.com/android/java/examples/show-directions-on-a-map/
+                    //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
+    }
+
+    private void showRoute(com.mapbox.geojson.Point start, com.mapbox.geojson.Point end) {
+        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                .include(new LatLng(start.latitude(), start.longitude())) // Northeast
+                .include(new LatLng(end.latitude(), end.longitude())) // Southwest
+                .build();
+        mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 50), 5000);
     }
 
     /**
@@ -525,13 +543,8 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     }
 
     private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
-        /*if(mCurrLocationMarker!=null){
-            mCurrLocationMarker.setPosition(latLng);
-        }else{
-            mCurrLocationMarker = map.addMarker(new MarkerOptions()
-                    .position(latLng);
-        }*/
         return new SymbolOptions()
+                //.withData()
                 .withLatLng(new LatLng(latitude, longitude))
                 .withIconImage(type.toString());
     }

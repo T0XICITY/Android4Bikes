@@ -115,6 +115,17 @@ public class PositionProvider {
         positions.add(com.mapbox.geojson.Point.fromLngLat(10.000889, 48.401879));
         return positions;
     }
+
+    public static List<Point> getMapsTrack3() {
+        List<com.mapbox.geojson.Point> positions = new ArrayList<>();
+        positions.add(com.mapbox.geojson.Point.fromLngLat(10.002612, 48.400493));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(10.003617, 48.398575));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(10.004218, 48.397745));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(10.005484, 48.397403));
+        positions.add(com.mapbox.geojson.Point.fromLngLat(10.006857, 48.396577));
+        return positions;
+    }
+
     public static List<Position> getDummyPosition90elements() {
         List<Position> positions = new ArrayList<>();
         positions.add(new Position(48.30141, 9.842189));
