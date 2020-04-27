@@ -3,9 +3,10 @@ package de.thu.tpro.android4bikes.services.weather;
 import java.util.TimerTask;
 
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
-import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 
 public class WeatherTask extends TimerTask {
     private OpenWeatherManager manager;
@@ -20,7 +21,7 @@ public class WeatherTask extends TimerTask {
 
     @Override
     public void run() {
-        Position position = dbHelper.getLastPosition();
+        Position position = PositionTracker.getLastPosition();
         OpenWeatherObject weather = helper.createOpenWeatherObject(position.getLatitude(), position.getLongitude());
         if (weatherObject == null || !weatherObject.toString().equals(weather.toString())) {
             weatherObject = weather;
