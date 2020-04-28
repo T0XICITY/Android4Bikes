@@ -5,9 +5,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
-import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
-import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.UUIDGenerator;
 
 public class HazardAlert {
     @Expose
@@ -16,9 +15,6 @@ public class HazardAlert {
     @Expose
     @SerializedName("position")
     private Position position;
-    @Expose
-    @SerializedName("postcode")
-    private String postcode;
     @Expose
     @SerializedName("expiryTimestamp")
     private long expiryTimestamp;
@@ -47,7 +43,24 @@ public class HazardAlert {
         this.expiryTimestamp = expiryTimestamp;
         this.distanceOfInterest = distanceOfInterest;
         this.firebaseID = firebaseID;
-        this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
+    }
+
+    /**
+     * Constructor generating automatically a UUID as FireBaseID.
+     *
+     * @param type
+     * @param position
+     * @param expiryTimestamp
+     * @param distanceOfInterest
+     * @param isExistent
+     */
+    public HazardAlert(HazardType type, Position position, long expiryTimestamp, int distanceOfInterest, boolean isExistent) {
+        this.type = type;
+        this.position = position;
+        this.expiryTimestamp = expiryTimestamp;
+        this.distanceOfInterest = distanceOfInterest;
+        this.isExistent = isExistent;
+        this.firebaseID = UUIDGenerator.generateUUID();
     }
 
     public String getFirebaseID() {
@@ -64,14 +77,6 @@ public class HazardAlert {
 
     public void setDistanceOfInterest(int distanceOfInterest) {
         this.distanceOfInterest = distanceOfInterest;
-    }
-
-    public String getPostcode() {
-        return postcode;
-    }
-
-    public void setPostcode(String postcode) {
-        this.postcode = postcode;
     }
 
     public Position getPosition() {
@@ -120,13 +125,12 @@ public class HazardAlert {
                 isExistent == that.isExistent &&
                 type == that.type &&
                 Objects.equals(position, that.position) &&
-                Objects.equals(postcode, that.postcode) &&
                 Objects.equals(firebaseID, that.firebaseID);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, position, postcode, expiryTimestamp, distanceOfInterest, firebaseID, isExistent);
+        return Objects.hash(type, position, expiryTimestamp, distanceOfInterest, firebaseID, isExistent);
     }
 
     @Override
@@ -134,7 +138,6 @@ public class HazardAlert {
         return "HazardAlert{" +
                 "type=" + type +
                 ", position=" + position +
-                ", postcode='" + postcode + '\'' +
                 ", expiryTimestamp=" + expiryTimestamp +
                 ", distanceOfInterest=" + distanceOfInterest +
                 ", firebaseID='" + firebaseID + '\'' +

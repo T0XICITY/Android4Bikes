@@ -443,6 +443,7 @@ public class CouchDbHelperTest {
         assertTrue(readTracks.isEmpty());
     }
 
+    /*
     @Test
     public void addUtilisation(){
         Database db_position = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_POSITION);
@@ -457,7 +458,7 @@ public class CouchDbHelperTest {
         long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_position);
         assertEquals(99,initialNumberOfDocuments);
         couchdb.clearDB(db_position);
-    }
+    }*/
 
     @Test
     public void resetUtilisation(){

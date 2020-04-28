@@ -1,5 +1,12 @@
 package de.thu.tpro.android4bikes.util;
 
+import android.content.Context;
+
+import com.mapbox.api.directions.v5.models.DirectionsRoute;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,8 +30,7 @@ public class TestObjectsGenerator {
      */
     public static BikeRack generateTHUBikeRack() {
         //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+        BikeRack bikeRack_THU = new BikeRack(new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
         return bikeRack_THU;
@@ -37,7 +43,7 @@ public class TestObjectsGenerator {
      */
     public static HazardAlert generateHazardAlert() {
         HazardAlert hazardAlert_thu = new HazardAlert(
-                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, "12345", true
+                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, true
         );
         return hazardAlert_thu;
     }
@@ -49,11 +55,28 @@ public class TestObjectsGenerator {
      */
     public static Track generateTrack() {
         List<Position> positions = new ArrayList<>();
-        positions.add(new Position(48.408880, 9.997507));
-        Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke",
-                "siebenundvierzig11", 1585773516, 25,
-                positions, new ArrayList<>(), true);
+        DirectionsRoute dr = DirectionsRoute.fromJson(getJsonFromAssets(GlobalContext.getContext(),"testDirections.json"));
+        positions.add(new Position(48.408880, 9.997507,1587652587));
+        positions.add(new Position(48.408980, 9.997807,1587652597));
+        Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke", 1585773516, 25,
+                dr, new ArrayList<>(), positions.get(0),positions.get(1),true);
         return track;
+    }
+
+    private static String getJsonFromAssets(Context context, String fileName) {
+        String jsonString;
+        try {
+            InputStream is = context.getAssets().open(fileName);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            jsonString = new String(buffer, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return jsonString;
     }
 
     public static Track generateDifferentTrack(String name) {
@@ -120,17 +143,14 @@ public class TestObjectsGenerator {
         list_tracks.get(1).setDistance_km(30);
         list_tracks.get(2).setDistance_km(7);
 
-        list_tracks.get(0).setFineGrainedPositions(Arrays.asList(new Position(48.4049, 9.9949)));
-        list_tracks.get(1).setFineGrainedPositions(Arrays.asList(new Position(48.1773, 9.9730)));
-        list_tracks.get(2).setFineGrainedPositions(Arrays.asList(new Position(48.3909, 10.0015)));
+        list_tracks.get(0).setStartPosition(new Position(40,9));
+        list_tracks.get(1).setStartPosition(new Position(45,8));
+        list_tracks.get(2).setStartPosition(new Position(48,7));
 
         list_tracks.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
         list_tracks.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
         list_tracks.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
 
-        list_tracks.get(0).setPostcode("89073");
-        list_tracks.get(1).setPostcode("88477");
-        list_tracks.get(2).setPostcode("89231");
         return list_tracks;
     }
 }

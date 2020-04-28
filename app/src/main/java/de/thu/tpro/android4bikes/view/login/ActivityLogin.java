@@ -25,10 +25,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.ArrayList;
+
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.database.CouchDB;
+import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
-import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 
 /**
  * Firebase Authentication:
@@ -139,7 +145,25 @@ public class ActivityLogin extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            task.getResult().getAdditionalUserInfo().isNewUser();
                             // Sign in success, update UI with the signed-in user's information
+                            //todo!!!
+                            CouchDBHelper cdbh = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
+                            CouchDB db = CouchDB.getInstance();
+                            db.clearDB(db.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_OWNDATA_PROFILE)); // Clear the Profile DB to ensure correct behaviour
+                            if(task.getResult().getAdditionalUserInfo().isNewUser()){
+                                //create new user on firestore
+                                FirebaseUser user = task.getResult().getUser();
+                                Profile profile = new Profile(user.getDisplayName(),"",user.getUid(),0xADD8E6,0,new ArrayList<>());
+                                Log.d("HalloWelt","Created new Profile");
+                                cdbh.storeProfile(profile);
+                                CouchWriteBuffer.getInstance().storeProfile(profile);
+                            }else {
+                                //load existing user from collection in firestore
+                                Log.d("HalloWelt","Load existing Profile");
+                                FirebaseConnection.getInstance().readOwnProfileFromFireStoreAndStoreItToOwnDB(task.getResult().getUser().getUid());
+                            }
+
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                         } else {

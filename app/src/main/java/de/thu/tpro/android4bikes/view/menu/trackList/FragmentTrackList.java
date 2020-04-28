@@ -42,7 +42,7 @@ import de.thu.tpro.android4bikes.view.MainActivity;
  * This fragment contains the view elements and logic regarding tracks
  */
 public class FragmentTrackList extends Fragment implements SearchView.OnQueryTextListener,
-        LocationListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
+        LocationListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener {
     private static final String LOG_TAG = "FragmentCreateTrack";
 
     private TrackListDataBinder dataBinder;
@@ -93,8 +93,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         searchView.setOnQueryTextListener(this);
 
         // make all views != searchView clear focus from the searchview when touched
-        recyclerView.setOnTouchListener(this::onTouch);
-        tv_trackList.setOnTouchListener(this::onTouch);
+        recyclerView.setOnClickListener(this::onClick);
+        tv_trackList.setOnClickListener(this::onClick);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(RecyclerView.VERTICAL);
@@ -389,14 +389,11 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     }
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
+    public void onClick(View view) {
         if (view != searchView) {
             searchView.clearFocus();
-            return true;
         }
-        return false;
     }
-
 
     // TODO: delete after backend is connected to view
     private void initTracklistDummy() {
@@ -415,16 +412,12 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         trackList.get(1).setDistance_km(30);
         trackList.get(2).setDistance_km(7);
 
-        trackList.get(0).setFineGrainedPositions(Arrays.asList(new Position(48.4049,9.9949)));
-        trackList.get(1).setFineGrainedPositions(Arrays.asList(new Position(48.1773, 9.9730)));
-        trackList.get(2).setFineGrainedPositions(Arrays.asList(new Position(48.3909, 10.0015)));
+        trackList.get(0).setStartPosition(new Position(40,9));
+        trackList.get(1).setStartPosition(new Position(45,8));
+        trackList.get(2).setStartPosition(new Position(48,7));
 
         trackList.get(0).setDescription("Mega Harte Tour, nur für Mega Harte");
         trackList.get(1).setDescription("Fahrradhelm muss dabei sein, ist wirklich hart, die Tour");
         trackList.get(2).setDescription("Schreibe lieber noch dein Testament bevor du diese Mega Harte Tour antrittst");
-
-        trackList.get(0).setPostcode("89073");
-        trackList.get(1).setPostcode("88477");
-        trackList.get(2).setPostcode("89231");
     }
 }

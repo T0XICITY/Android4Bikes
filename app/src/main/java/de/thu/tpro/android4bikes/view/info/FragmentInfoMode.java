@@ -1,9 +1,10 @@
 package de.thu.tpro.android4bikes.view.info;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,16 +13,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mapbox.android.core.location.LocationEngine;
-import com.mapbox.android.core.location.LocationEngineCallback;
-import com.mapbox.android.core.location.LocationEngineProvider;
-import com.mapbox.android.core.location.LocationEngineRequest;
-import com.mapbox.android.core.location.LocationEngineResult;
+import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -50,7 +49,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,13 +57,11 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
-import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.positiontest.PositionProvider;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 
-import static android.os.Looper.getMainLooper;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
@@ -86,7 +82,11 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener {
 
     private static final String LOG_TAG = "FragmentInfoMode";
+    private View viewInfo;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
+    ViewGroup container;
+    //MapViewContentBuilder builder;
+    int chosenMarkerId;
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
     private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
@@ -94,11 +94,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     MainActivity parent;
     SymbolOptions marker;
     private SupportMapFragment mapFragment;
-    private LocationChangeListeningActivityLocationCallback callback = new LocationChangeListeningActivityLocationCallback(this);
     private MapboxMap mapboxMap;
     private MapView mapView;
     private PermissionsManager permissionsManager;
-    private LocationEngine locationEngine;
     private LocationComponent locationComponent;
     private LatLng lastPos;
     // variables for calculating and drawing a route
@@ -109,9 +107,8 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        return inflater.inflate(R.layout.fragment_info_mode, container, false);
+        viewInfo = inflater.inflate(R.layout.fragment_info_mode, container, false);
+        return viewInfo;
     }
 
     @Override
@@ -191,7 +188,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (Track track : tracks) {
-            SymbolOptions marker = createMarker(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
+            SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
             list_feature.add(Feature.fromGeometry(marker.getGeometry()));
         }
         //Create FeatureCollection from Feature List
@@ -354,7 +351,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             // Set the LocationComponent activation options
             LocationComponentActivationOptions locationComponentActivationOptions =
                     LocationComponentActivationOptions.builder(parent, loadedMapStyle)
-                            .useDefaultLocationEngine(false)
+                            .useDefaultLocationEngine(true)
                             .build();
 
             // Activate with the LocationComponentActivationOptions object
@@ -378,8 +375,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 public void onFinish() {
                 }
             });
-
-            initLocationEngine();
+            parent.initLocationEngine();
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(parent);
@@ -389,17 +385,93 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     /**
      * Set up the LocationEngine and the parameters for querying the device's location
      */
-    @SuppressLint("MissingPermission")
-    private void initLocationEngine() {
-        locationEngine = LocationEngineProvider.getBestLocationEngine(parent);
-
-        LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
-                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-                .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME).build();
-
-        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
-        locationEngine.getLastLocation(callback);
+    private boolean isAccessLocationPermissionGranted() {
+        return ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
+
+    public void showTrackFeedback() {
+        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
+        dialogBuilder.setTitle("Store your Track!");
+        dialogBuilder.setView(R.layout.dialog_feedback_track);
+        dialogBuilder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into Firestore", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+            }
+        });
+
+        dialogBuilder.setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Don´t store ", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+            }
+        });
+        dialogBuilder.show();
+    }
+
+    public void submitMarker() {
+        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
+        dialogBuilder.setTitle(R.string.submit);
+        String[] s = getResources().getStringArray(R.array.marker);
+        dialogBuilder.setItems(R.array.marker, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch (i) {
+                    case 0:
+                        submitt_rack();
+                        break;
+                    case 1:
+                        submit_hazard();
+                        break;
+                    default:
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                }
+            }
+        });
+        dialogBuilder.show();
+    }
+
+    private void submit_hazard() {
+        MaterialAlertDialogBuilder dia_hazardBuilder = new MaterialAlertDialogBuilder(getContext());
+        dia_hazardBuilder.setTitle(R.string.submit_hazard);
+        dia_hazardBuilder.setItems(R.array.hazards, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch (i) {
+                    case 0:
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                        //Damaged Road
+                        break;
+                    case 1:
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Icy road", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                        //Icy road
+                        break;
+                    case 2:
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "slippery road", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                        //slippery road
+                        break;
+                    case 3:
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Roadkill", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                        //Roadkill
+                        break;
+                    case 4:
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Rockfall", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                        //Rockfall
+                        break;
+                    case 5:
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "General", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                        //General
+                        break;
+                    default:
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                }
+            }
+        });
+        dia_hazardBuilder.show();
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -433,11 +505,13 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         FAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                        .target(lastPos)
-                        .zoom(15)
-                        .bearing(0)
-                        .build()), 3000);
+                if (PositionTracker.getLastPosition() != null) {
+                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                            .target(PositionTracker.getLastPosition().toMapboxLocation())
+                            .zoom(15)
+                            .bearing(0)
+                            .build()), 3000);
+                }
             }
         });
     }
@@ -477,28 +551,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         return bikeRack_THU;
     }
 
-    /**
-     * generates a new instance of the class Track for test purposes
-     *
-     * @return instance of a track
-     */
-    private Track generateTrack() {
-
-        Track track = new Track("nullacht15", new Rating(), "Heimweg", "Das ist meine super tolle Strecke",
-                "siebenundvierzig11", 1585773516, 25,
-                PositionProvider.getDummyPosition90elements(), new ArrayList<>(), true);
-        return track;
-    }
-
-    private BikeRack generateTHUBikeRack() {
-        //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
-        return bikeRack_THU;
-    }
-
     private enum MapBoxSymbols {
         BIKERACK("BIKERACK"),
         HAZARDALERT_GENERAL("HAZARDALERT_GENERAL"),
@@ -515,62 +567,32 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private static class LocationChangeListeningActivityLocationCallback
-            implements LocationEngineCallback<LocationEngineResult> {
+    private void submitt_rack() {
+        //showRackMap();
+        MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
+        rack_builder.setTitle("Submit rack");
+        rack_builder.setView(R.layout.dialog_rack);
+        rack_builder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
 
-        private final WeakReference<FragmentInfoMode> activityWeakReference;
-
-        LocationChangeListeningActivityLocationCallback(FragmentInfoMode activity) {
-            this.activityWeakReference = new WeakReference<>(activity);
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location has changed.
-         *
-         * @param result the LocationEngineResult object which has the last known location within it.
-         */
-        @Override
-        public void onSuccess(LocationEngineResult result) {
-            FragmentInfoMode activity = activityWeakReference.get();
-
-            if (activity != null) {
-                Location location = result.getLastLocation();
-
-                if (location == null) {
-                    return;
-                }
-
-                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
-                // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.mapboxMap != null && result.getLastLocation() != null) {
-                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
-                }
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //TODO store Rack
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into FireStore", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
             }
-        }
+        });
 
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
-         *
-         * @param exception the exception message
-         */
-        @Override
-        public void onFailure(@NonNull Exception exception) {
-            FragmentInfoMode activity = activityWeakReference.get();
-            if (activity != null) {
-                Toast.makeText(activity.parent, exception.getLocalizedMessage(),
-                        Toast.LENGTH_SHORT).show();
+        rack_builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //TODO discard Rack
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Don't store", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
             }
-        }
+        });
+        rack_builder.show();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Prevent leaks
-        if (locationEngine != null) {
-            locationEngine.removeLocationUpdates(callback);
-        }
     }
-
-
 }
