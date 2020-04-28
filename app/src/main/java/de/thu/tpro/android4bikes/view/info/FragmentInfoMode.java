@@ -22,7 +22,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -67,14 +66,16 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.PositionTracker;
+import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelHazardAlert;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnHazardAlerts;
-import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
@@ -101,7 +102,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     private ViewModelBikerack vmBikeRack;
     private ViewModelOwnHazardAlerts vmOwnHazards;
+    private ViewModelTrack vmTracks;
     private ViewModelHazardAlert vmHazards;
+    private Style style;
 
     private MainActivity parent;
     private View viewInfo;
@@ -126,10 +129,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         vmBikeRack = provider.get(ViewModelBikerack.class);
         vmHazards = provider.get(ViewModelHazardAlert.class);
         vmOwnHazards = provider.get(ViewModelOwnHazardAlerts.class);
-
-        // attach Listeners to ViewModels
-        vmHazards.getHazardAlerts().observe(getViewLifecycleOwner(), this::onChangedHazardAlerts);
-        vmBikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
+        vmTracks = provider.get(ViewModelTrack.class);
 
         return viewInfo;
     }
@@ -142,7 +142,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         parent = (MainActivity) this.getActivity();
         GlobalContext.setContext(parent.getApplicationContext());
 
+        //start with GeoFencing:
+        GeoFencing geoFencing_bikeRacks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
+        GeoFencing geoFencing_hazardAlerts = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        GeoFencing geoFencing_tracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
+
         initMap(savedInstanceState);
+
+
     }
 
     /**
@@ -151,8 +158,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      */
     private void onChangedHazardAlerts(List<HazardAlert> hazardList) {
         // TODO display HazardAlert as Marker
-        String snackText = String.format("%d new Hazard Alerts found!", hazardList.size());
-        Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
+        //String snackText = String.format("%d new Hazard Alerts found!", hazardList.size());
+        //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
+
+        addHazardAlertOverlay(style, hazardList, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
     }
 
     /**
@@ -161,8 +170,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      */
     private void onChangedBikeRacks(List<BikeRack> bikeRackList) {
         // TODO display BikeRack as Marker
-        String snackText = String.format("%d new Bike Racks found!", bikeRackList.size());
-        Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
+        //String snackText = String.format("%d new Bike Racks found!", bikeRackList.size());
+        //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
+
+        addBikeRackOverlay(style, bikeRackList, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -210,13 +221,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     initMarkerSymbols(mapboxMap, markerPool);
                     //generateCustomRoute(generateTrack().getFineGrainedPositions());
                     initPosFab();
-                    ArrayList<BikeRack> bikeRacks = new ArrayList<>();
-                    for (int i = 0; i < 15; i++) {
-                        bikeRacks.add(generateTHUBikeRack(i));
-                    }
-                    addBikeRackOverlay(style, bikeRacks, "meineDaten");
-                    //addHazardAlertOverlay();
-                    //addTrackOverlay();
+
+                    //set class attribute "style" (purpose: adding new markers after update regarding ViewModels)
+                    this.style = style;
+
+                    //register for ViewModels after the map is ready:
+                    vmHazards.getHazardAlerts().observe(getViewLifecycleOwner(), this::onChangedHazardAlerts);
+                    vmBikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
+                    vmTracks.getTracks().observe(getViewLifecycleOwner(), this::onChangedTracks);
+
+
                     mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                         @Override
                         public boolean onMapClick(@NonNull LatLng point) {
@@ -252,6 +266,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 });
     }
 
+    private void onChangedTracks(Map<Track, Profile> trackProfileMap) {
+        List<Track> list_tracks = new ArrayList<>();
+        trackProfileMap.keySet().forEach(entry -> list_tracks.add(entry));
+        addTrackOverlay(style, list_tracks, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString());
+    }
+
     private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
         return new SymbolOptions()
                 .withLatLng(new LatLng(latitude, longitude))
@@ -272,7 +292,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param tracks
      */
-    private void addTrackOverlay(@NonNull Style loadedMapStyle, ArrayList<Track> tracks, String dataSourceID) {
+    private void addTrackOverlay(@NonNull Style loadedMapStyle, List<Track> tracks, String dataSourceID) {
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (Track track : tracks) {
@@ -298,7 +318,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param bikeRacks
      */
-    private void addBikeRackOverlay(@NonNull Style loadedMapStyle, ArrayList<BikeRack> bikeRacks, String dataSourceID) {
+    private void addBikeRackOverlay(@NonNull Style loadedMapStyle, List<BikeRack> bikeRacks, String dataSourceID) {
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (BikeRack bikeRack : bikeRacks) {
@@ -323,7 +343,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param hazardAlerts
      */
-    private void addHazardAlertOverlay(@NonNull Style loadedMapStyle, ArrayList<HazardAlert> hazardAlerts, String dataSourceID) {
+    private void addHazardAlertOverlay(@NonNull Style loadedMapStyle, List<HazardAlert> hazardAlerts, String dataSourceID) {
         // Create Markers from data and set the 'cluster' option to true.
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
