@@ -16,10 +16,13 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -76,7 +79,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     private ViewModelOwnProfile model_profile;
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
@@ -127,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         scheduleUploadTask();
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
-        
+
     }
 
     /**
@@ -145,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         locationEngine.requestLocationUpdates(request, callback, getMainLooper());
         locationEngine.getLastLocation(callback);
     }
+
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -154,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void testWorkManager() {
         WriteBuffer writeBuffer = CouchWriteBuffer.getInstance();
         for (int i = 0; i < 55; i++) {
-            writeBuffer.addToUtilization(new Position(40.000+i/200.0,9+i/200.0));
+            writeBuffer.addToUtilization(new Position(40.000 + i / 200.0, 9 + i / 200.0));
         }
         writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());
         writeBuffer.submitBikeRack(TestObjectsGenerator.generateTHUBikeRack());
@@ -197,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .enqueue(saveRequest);
     }
 
-    private void toastShortInMiddle(String text){
+    private void toastShortInMiddle(String text) {
         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.getView().setBackgroundColor(Color.parseColor("#90ee90"));
@@ -306,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initNavigationDrawer() {
         dLayout = findViewById(R.id.drawerLayout);
         //find width of screen and divide by 2
-        int width = getResources().getDisplayMetrics().widthPixels/2;
+        int width = getResources().getDisplayMetrics().widthPixels / 2;
         Log.d("FragmentInfoMode", dLayout.toString());
         dLayout.closeDrawer(GravityCompat.END);
         drawer = findViewById(R.id.navigationDrawer);
@@ -358,25 +362,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * Show Dialog to give feedback after finishing your ride
      */
-    //TODO: delete after Testing
     private void submitTrack() {
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
-        dialogBuilder.setTitle("Store your Track!");
-        dialogBuilder.setView(R.layout.dialog_track_submit);
-        dialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+        AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
+                .setTitle("Store your Track!")
+                .setView(R.layout.dialog_track_submit)
+                .setPositiveButton(R.string.submit, null)
+                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
+                    }
+                })
+                .create();
+        submitTrackDialog.setCanceledOnTouchOutside(false);
+        submitTrackDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(findViewById(R.id.fragment_container), "Store into Firestore", 1000).setAnchorView(bottomBar).show();
+            public void onShow(DialogInterface dialogInterface) {
+                submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+                submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
             }
         });
+        submitTrackDialog.show();
 
-        dialogBuilder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+        EditText editDesc = findViewById(R.id.tv_submit_desc);
+        Button btnPos = submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        btnPos.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
+            public void onClick(View view) {
+                Snackbar.make(findViewById(R.id.fragment_container), "Store into Firestore", 1000).setAnchorView(bottomBar).show();
+                if (editDesc.getText().toString().trim().equals("")) {
+                    Snackbar.make(findViewById(R.id.map_container_info), "Pleas fill in Description", 1000).setAnchorView(findViewById(R.id.bottomAppBar)).show();
+                }
+                else {
+                    Snackbar.make(findViewById(R.id.map_container_info), "Store into Firebase", 1000).setAnchorView(findViewById(R.id.bottomAppBar)).show();
+                    submitTrackDialog.dismiss();
+                }
+
             }
         });
-        dialogBuilder.show();
     }
 
     /**
@@ -527,20 +550,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void debugWriteBuffer(){
-        Processor.getInstance().startRunnable(()->{
+    private void debugWriteBuffer() {
+        Processor.getInstance().startRunnable(() -> {
             CouchDBHelper cdb = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-            while (true){
+            while (true) {
                 List<HazardAlert> haz = cdb.readHazardAlerts();
                 List<BikeRack> br = cdb.readBikeRacks();
                 List<Track> tr = cdb.readTracks();
-                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
-                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
-                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
-                Log.d("HalloWelt","Debug Buffer: Profile :"+cdb.readMyOwnProfile());
+                Log.d("HalloWelt", "Debug Buffer: Tracks (" + tr.size() + "):" + tr.toString());
+                Log.d("HalloWelt", "Debug Buffer: BikeRacks (" + br.size() + "):" + br.toString());
+                Log.d("HalloWelt", "Debug Buffer: Hazards (" + haz.size() + "):" + haz.toString());
+                Log.d("HalloWelt", "Debug Buffer: Profile :" + cdb.readMyOwnProfile());
                 try {
                     Thread.sleep(5000);
-                }catch (InterruptedException e){
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -59,13 +60,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -425,26 +420,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     }
 
     public void submitMarker() {
-        /*MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
-        dialogBuilder.setTitle(R.string.submit);
-        String[] s = getResources().getStringArray(R.array.marker);
-        dialogBuilder.setItems(R.array.marker, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                switch (i) {
-                    case 0:
-                        submit_Rack();
-                        break;
-                    case 1:
-                        submit_hazard();
-                        break;
-                    default:
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                }
-            }
-        });
-        dialogBuilder.show();*/
-        String[] arr_marker = getResources().getStringArray(R.array.marker);
         AlertDialog markerDialog = new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Submit")
                 .setItems(R.array.marker, new DialogInterface.OnClickListener() {
@@ -455,7 +430,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 submit_Rack();
                                 break;
                             case 1:
-                                submit_hazard();
+                                show_hazard();
                                 break;
                             default:
                                 Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
@@ -467,12 +442,57 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         markerDialog.setCanceledOnTouchOutside(false);
     }
 
-    private void submit_hazard() {
-        MaterialAlertDialogBuilder dia_hazardBuilder = new MaterialAlertDialogBuilder(getContext());
-        dia_hazardBuilder.setTitle(R.string.submit_hazard);
-        dia_hazardBuilder.setItems(R.array.hazards, new DialogInterface.OnClickListener() {
+    private void show_hazard() {
+        AlertDialog hazardDialog = new MaterialAlertDialogBuilder(getContext())
+                .setTitle(R.string.submit_hazard)
+                .setView(R.layout.dialog_hazard)
+                .setPositiveButton(R.string.submit, null)
+                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                    }
+                })
+                .create();
+        hazardDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+            public void onShow(DialogInterface dialogInterface) {
+                hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+                hazardDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+            }
+        });
+        hazardDialog.show();
+        hazardDialog.setCanceledOnTouchOutside(false);
+
+        MapView hazardMap = (MapView) hazardDialog.findViewById(R.id.hazardMap);
+        hazardMap.onCreate(hazardDialog.onSaveInstanceState());
+
+        hazardMap.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMapRack) {
+
+                mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        if (PositionTracker.getLastPosition() != null) {
+                            mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                                    .target(PositionTracker.getLastPosition().toMapboxLocation())
+                                    .zoom(17)
+                                    .bearing(0)
+                                    .build()), 1000);
+                        }
+                    }
+                });
+
+            }
+        });
+
+        Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Spinner spinnerHazard = (Spinner)hazardDialog.findViewById(R.id.sp_hazards);
+        btnPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int i = spinnerHazard.getSelectedItemPosition();
                 switch (i) {
                     case 0:
                         Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
@@ -501,9 +521,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     default:
                         Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
                 }
+                hazardDialog.dismiss();
             }
         });
-        dia_hazardBuilder.show();
+
     }
 
 
@@ -667,14 +688,45 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         });
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+            }
+        });
         dialog.show();
 
+        MapView rackMap = (MapView) dialog.findViewById(R.id.rackMap);
+        rackMap.onCreate(dialog.onSaveInstanceState());
+
+        rackMap.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMapRack) {
+
+                mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        if (PositionTracker.getLastPosition() != null) {
+                            mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                                    .target(PositionTracker.getLastPosition().toMapboxLocation())
+                                    .zoom(17)
+                                    .bearing(0)
+                                    .build()), 1000);
+                        }
+                    }
+                });
+
+            }
+        });
+
         EditText editRack = dialog.findViewById(R.id.edit_rack_name);
-        Button posBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        posBtn.setOnClickListener(new View.OnClickListener() {
+        Button btnPos = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button btnNeg = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        btnPos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (editRack.getText().toString().equals("")) {
+                if (editRack.getText().toString().trim().equals("")) {
                     Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
                 } else {
                     Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into Firebase", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
