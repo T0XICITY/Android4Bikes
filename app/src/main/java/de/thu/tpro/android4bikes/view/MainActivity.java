@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // init View Models
         ViewModelProvider provider = new ViewModelProvider(this);
         vmOwnProfile = provider.get(ViewModelOwnProfile.class);
+        vmOwnProfile.getMyProfile().observe(this,this::onChanged);
         vmOwnTracks = provider.get(ViewModelOwnTracks.class);
 
         setContentView(R.layout.activity_main);
@@ -564,23 +565,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void debugWriteBuffer() {
-        Processor.getInstance().startRunnable(() -> {
-            CouchDBHelper cdb = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-            while (true) {
-                List<HazardAlert> haz = cdb.readHazardAlerts();
-                List<BikeRack> br = cdb.readBikeRacks();
-                List<Track> tr = cdb.readTracks();
-                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
-                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
-                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
-                Log.d("HalloWelt","Debug OWN Profile :"+cdb.readMyOwnProfile());
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+//        Processor.getInstance().startRunnable(() -> {
+//            CouchDBHelper cdb = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
+//            while (true) {
+//                List<HazardAlert> haz = cdb.readHazardAlerts();
+//                List<BikeRack> br = cdb.readBikeRacks();
+//                List<Track> tr = cdb.readTracks();
+//                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
+//                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
+//                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
+//                Log.d("HalloWelt","Debug OWN Profile :"+cdb.readMyOwnProfile());
+//                try {
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
     }
 
     @Override

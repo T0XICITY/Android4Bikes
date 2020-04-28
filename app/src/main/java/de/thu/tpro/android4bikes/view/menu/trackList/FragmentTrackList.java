@@ -156,6 +156,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
             dataBinder.addTrack(t);
         }
         adapter.replaceData(dataBinder.getTrackDistanceList());
+        updateTotalTracksTextView();
     }
 
     // ------- LocationListener Methods --------

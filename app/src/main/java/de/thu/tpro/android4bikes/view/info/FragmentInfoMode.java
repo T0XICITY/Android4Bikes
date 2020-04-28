@@ -558,6 +558,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             newHazard.setType(HazardAlert.HazardType.getByType(i+1)); // i+1 since we start counting on 1
 
             // submit hazard alert to ViewModel
+            Log.d("HAZARD SUBMIT",""+ newHazard);
             vmOwnHazards.addOwnHazard(newHazard);
         });
         dia_hazardBuilder.show();
