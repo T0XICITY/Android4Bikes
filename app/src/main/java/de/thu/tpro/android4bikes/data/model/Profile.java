@@ -27,7 +27,7 @@ public class Profile {
     private int overallDistance;
     @Expose
     @SerializedName("achievements")
-    private List<Achievement> achievements; //TODO better representation
+    private List<Achievement> achievements;
 
     public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Achievement> achievements) {
         this.firstName = firstName;

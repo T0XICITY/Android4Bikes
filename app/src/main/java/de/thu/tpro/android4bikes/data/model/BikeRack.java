@@ -6,6 +6,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Objects;
 
 import de.thu.tpro.android4bikes.util.GeoLocationHelper;
+import de.thu.tpro.android4bikes.util.UUIDGenerator;
 
 public class BikeRack {
     @Expose
@@ -14,9 +15,6 @@ public class BikeRack {
     @Expose
     @SerializedName("position")
     private Position position;
-    @Expose
-    @SerializedName("postcode")
-    private String postcode;
     @Expose
     @SerializedName("name")
     private String name;
@@ -58,7 +56,6 @@ public class BikeRack {
         this.hasBikeCharging = hasBikeCharging;
         this.isExistent = isExistent;
         this.isCovered = isCovered;
-        this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
     }
 
     /**
@@ -97,6 +94,26 @@ public class BikeRack {
         }
     }
 
+    /**
+     * Constructor generating automatically a UUID as FireBaseID.
+     *
+     * @param position
+     * @param name
+     * @param capacity
+     * @param hasBikeCharging
+     * @param isExistent
+     * @param isCovered
+     */
+    public BikeRack(Position position, String name, ConstantsCapacity capacity, boolean hasBikeCharging, boolean isExistent, boolean isCovered) {
+        this.position = position;
+        this.name = name;
+        this.capacity = capacity;
+        this.hasBikeCharging = hasBikeCharging;
+        this.isExistent = isExistent;
+        this.isCovered = isCovered;
+        this.firebaseID = UUIDGenerator.generateUUID();
+    }
+
     public String getFirebaseID() {
         return firebaseID;
     }
@@ -113,13 +130,6 @@ public class BikeRack {
         this.name = name;
     }
 
-    public String getPostcode() {
-        return postcode;
-    }
-
-    public void setPostcode(String postcode) {
-        this.postcode = postcode;
-    }
 
     public Position getPosition() {
         return position;
@@ -127,7 +137,6 @@ public class BikeRack {
 
     public void setPosition(Position position) {
         this.position = position;
-        this.postcode = GeoLocationHelper.convertPositionToPostcode(this.position);
     }
 
     public boolean hasBikeCharging() {
@@ -171,7 +180,6 @@ public class BikeRack {
         return "BikeRack{" +
                 "firebaseID='" + firebaseID + '\'' +
                 ", position=" + position +
-                ", postcode='" + postcode + '\'' +
                 ", name='" + name + '\'' +
                 ", capacity=" + capacity +
                 ", hasBikeCharging=" + hasBikeCharging +
@@ -190,14 +198,13 @@ public class BikeRack {
                 isCovered() == bikeRack.isCovered() &&
                 getFirebaseID().equals(bikeRack.getFirebaseID()) &&
                 getPosition().equals(bikeRack.getPosition()) &&
-                getPostcode().equals(bikeRack.getPostcode()) &&
                 getName().equals(bikeRack.getName()) &&
                 getCapacity() == bikeRack.getCapacity();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getFirebaseID(), getPosition(), getPostcode(), getName(), getCapacity(), isHasBikeCharging(), isExistent(), isCovered());
+        return Objects.hash(getFirebaseID(), getPosition(), getName(), getCapacity(), isHasBikeCharging(), isExistent(), isCovered());
     }
 
     public enum ConstantsBikeRack {

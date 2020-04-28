@@ -19,16 +19,16 @@ public interface FireStoreDatabase {
     void deleteProfileFromFireStoreAndLocalDB(String googleID);
 
     //BikeRacks
-    void submitBikeRackToFireStore(BikeRack bikeRack);
+    //void submitBikeRackToFireStore(BikeRack bikeRack);
 
-    void readBikeRacksFromFireStoreAndStoreItToLocalDB(String postcode);
+    //void readBikeRacksFromFireStoreAndStoreItToLocalDB(String postcode);
 
     //Tracks
-    void storeTrackToFireStoreAndLocalDB(Track track);
+    //void storeTrackToFireStoreAndLocalDB(Track track);
 
     void deleteTrackFromFireStoreAndLocalDB(String fireBaseID);
 
-    void readTracksFromFireStoreAndStoreItToLocalDB(String fireBaseID);
+    //void readTracksFromFireStoreAndStoreItToLocalDB(String fireBaseID);
 
     //HazardAlerts
     void submitHazardAlertToFireStore(HazardAlert hazardAlert);
@@ -36,19 +36,23 @@ public interface FireStoreDatabase {
     void readHazardAlertsFromFireStoreAndStoreItToLocalDB(String postcode);
 
     //Heatmap
-    void storeUtilizationToFireStore(List<Position> utilization);
+    void storeBufferedUtilizationToFireStore(List<Position> utilization);
 
     void readProfilesBasedOnTracks(List<Track> o);
 
-    void storeProfileToFireStore(Profile p);
+    void storeBufferedProfileToFireStore(Profile p);
 
-    void deleteProfileFromFireStore(Profile profile);
+    void deleteBufferedProfileFromFireStore(Profile profile);
 
-    void storeTrackInFireStore(Track t);
+    void storeBufferedTrackInFireStore(Track t);
 
-    void deleteTrackFromFireStore(Track t);
+    void deleteBufferedTrackFromFireStore(Track t);
 
-    void storeBikeRackInFireStore(BikeRack b);
+    void storeBufferedBikeRackInFireStore(BikeRack b);
 
-    void storeHazardAlertInFireStore(HazardAlert h);
+    void storeBufferedHazardAlertInFireStore(HazardAlert h);
+
+    //#################################################################
+    void readAllOwnTracksAndStoreItToOwnDB(String firebaseID);
+
 }
