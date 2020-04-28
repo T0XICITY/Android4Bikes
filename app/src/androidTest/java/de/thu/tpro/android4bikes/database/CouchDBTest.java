@@ -145,4 +145,26 @@ public class CouchDBTest {
             assertEquals(mutableDocument.toMap(), map_readMutable_Document);
         }
     }
+
+    @Test
+    public void clearAllDatabasesPolski() {
+        Database database_hazardAlerts = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_HAZARD_ALERT);
+        couchdb.clearDB(database_hazardAlerts);
+        long initialNumberOfDocouments = couchdb.getNumberOfStoredDocuments(database_hazardAlerts);
+        assertEquals(0, initialNumberOfDocouments);
+
+        for (int i = 0; i < 10; ++i) {
+            MutableDocument mutableDocument = new MutableDocument()
+                    .setFloat("version", i)
+                    .setString("type", "SDK");
+
+            couchdb.saveMutableDocumentToDatabase(database_hazardAlerts, mutableDocument);
+        }
+        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(database_hazardAlerts);
+        assertEquals(10, newNumberOfDocuments);
+
+        couchdb.clearAllDatabases();
+        assertEquals(0, initialNumberOfDocouments);
+
+    }
 }

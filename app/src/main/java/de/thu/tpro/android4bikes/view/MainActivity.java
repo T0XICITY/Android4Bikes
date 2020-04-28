@@ -20,6 +20,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -29,11 +31,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -45,24 +44,27 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
-import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -72,6 +74,7 @@ import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -79,10 +82,14 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
-    private ViewModelOwnProfile model_profile;
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile> {
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
+
+    private ViewModelOwnProfile vmOwnProfile;
+    private ViewModelOwnTracks vmOwnTracks;
+
+    public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
     private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
@@ -98,6 +105,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private ImageView imageView;
+    private TextView tv_headerName;
+    private TextView tv_headerMail;
+
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
 
@@ -109,6 +119,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         GlobalContext.setContext(this.getApplicationContext());
 
         checkFirebaseAuth();
+
+        // init View Models
+        ViewModelProvider provider = new ViewModelProvider(this);
+        vmOwnProfile = provider.get(ViewModelOwnProfile.class);
+        vmOwnTracks = provider.get(ViewModelOwnTracks.class);
 
         setContentView(R.layout.activity_main);
 
@@ -125,9 +140,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
-        //testWorkManager();
+        testWorkManager();
         //observeInternet();
-        scheduleUploadTask();
+
+        WorkManagerHelper.scheduleUploadTaskWithWorkManager();
+        //scheduleUploadTaskWithTaskSchedule();
+
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
 
@@ -179,26 +197,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * Defines a task that uploads not synchronized data.
+     * schedules UploadRunnable by using a TimerTask.
      */
-    public void scheduleUploadTask() {
-
-        Log.d("HalloWelt", "Started at: " + new Date());
-
-        //constraints regarding when a task should be scheduled
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-        //Define the request: How often should the task be scheduled
-        PeriodicWorkRequest saveRequest =
-                new PeriodicWorkRequest.Builder(UploadWorker.class, 15, TimeUnit.MINUTES)
-                        .setConstraints(constraints)
-                        .build();
-
-        //schedule task
-        WorkManager.getInstance(GlobalContext.getContext())
-                .enqueue(saveRequest);
+    public void scheduleUploadTaskWithTaskSchedule() {
+        Processor.getInstance().scheduleUploadTask();
     }
 
     private void toastShortInMiddle(String text) {
@@ -261,6 +263,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    @Override
+    public void onChanged(Profile profile) {
+        Log.d("PROFILE Main", "" + profile);
+        if (profile != null) {
+            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
+            tv_headerName.setText(fullName);
+            // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
+            tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        }
+    }
+
+    /**
+     * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,
+     * it is only stored in the local WriteBuffer. If it is available on the FireStore, all databases
+     * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
+     */
     private void goToLoginActivity() {
         FirebaseAuth.getInstance().signOut();
         //todo: Delete user from local db
@@ -309,6 +327,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initNavigationDrawer() {
         dLayout = findViewById(R.id.drawerLayout);
+        tv_headerName = findViewById(R.id.tvName);
+        tv_headerMail = findViewById(R.id.tvMail);
         //find width of screen and divide by 2
         int width = getResources().getDisplayMetrics().widthPixels / 2;
         Log.d("FragmentInfoMode", dLayout.toString());
@@ -363,9 +383,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * Show Dialog to give feedback after finishing your ride
      */
     private void submitTrack() {
-        AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
+		View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_submit, null);
+        TextView tvTrackName = dialogView.findViewById(R.id.tv_track_name);
+        EditText editDesc = dialogView.findViewById(R.id.tv_submit_desc);
+        RatingBar rbSubmitRoadQuality = dialogView.findViewById(R.id.rb_submit_roadquality);
+        RatingBar rbSubmitDifficulty = dialogView.findViewById(R.id.rb_submitk_difficulty);
+        RatingBar rbSubmitFun = dialogView.findViewById(R.id.rb_submit_fun);
+		
+		
+		AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
                 .setTitle("Store your Track!")
-                .setView(R.layout.dialog_track_submit)
+                .setView(dialogView)
                 .setPositiveButton(R.string.submit, null)
                 .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
                     @Override
@@ -384,14 +412,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         submitTrackDialog.show();
 
-        EditText editDesc = findViewById(R.id.tv_submit_desc);
         Button btnPos = submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         btnPos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(findViewById(R.id.fragment_container), "Store into Firestore", 1000).setAnchorView(bottomBar).show();
                 if (editDesc.getText().toString().trim().equals("")) {
-                    Snackbar.make(findViewById(R.id.map_container_info), "Pleas fill in Description", 1000).setAnchorView(findViewById(R.id.bottomAppBar)).show();
+                    Track newTrack = new Track();
+            newTrack.setName(tvTrackName.getText().toString());
+            newTrack.setDescription(editDesc.getText().toString());
+
+            Rating newRating = new Rating();
+            newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
+            newRating.setDifficulty(rbSubmitDifficulty.getProgress());
+            newRating.setFun(rbSubmitFun.getProgress());
+            newTrack.setRating(newRating);
+
+            // TODO get fine grained positions
+
+            newTrack.setAuthor_googleID(vmOwnProfile.getMyProfile().getValue().getGoogleID());
+
+            vmOwnTracks.submitTrack(newTrack);
                 }
                 else {
                     Snackbar.make(findViewById(R.id.map_container_info), "Store into Firebase", 1000).setAnchorView(findViewById(R.id.bottomAppBar)).show();
@@ -557,10 +597,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 List<HazardAlert> haz = cdb.readHazardAlerts();
                 List<BikeRack> br = cdb.readBikeRacks();
                 List<Track> tr = cdb.readTracks();
-                Log.d("HalloWelt", "Debug Buffer: Tracks (" + tr.size() + "):" + tr.toString());
-                Log.d("HalloWelt", "Debug Buffer: BikeRacks (" + br.size() + "):" + br.toString());
-                Log.d("HalloWelt", "Debug Buffer: Hazards (" + haz.size() + "):" + haz.toString());
-                Log.d("HalloWelt", "Debug Buffer: Profile :" + cdb.readMyOwnProfile());
+                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
+                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
+                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
+                Log.d("HalloWelt","Debug OWN Profile :"+cdb.readMyOwnProfile());
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {

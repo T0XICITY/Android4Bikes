@@ -9,29 +9,49 @@ import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineResult;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Observable;
 
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.view.MainActivity;
 
 public class PositionTracker {
 
-    private static Position lastPosition;
-    private static double lastSpeed;
-
+    private static Map<String, Object> map_position_speed;
     public static Position getLastPosition() {
-        return lastPosition;
+        return (Position) map_position_speed.get(CONSTANTS.POSITION.toText());
     }
 
     public static double getLastSpeed() {
-        return lastSpeed;
+        return (double) map_position_speed.get(CONSTANTS.POSITION.toText());
     }
 
-    public static class LocationChangeListeningActivityLocationCallback
+    public enum CONSTANTS {
+        POSITION("position"),
+        SPEED("speed");
+
+        private String name;
+
+        CONSTANTS(String type) {
+            this.name = type;
+        }
+
+        public String toText() {
+            return name;
+        }
+    }
+
+    public static class LocationChangeListeningActivityLocationCallback extends Observable
             implements LocationEngineCallback<LocationEngineResult> {
 
         private final WeakReference<MainActivity> activityWeakReference;
 
         public LocationChangeListeningActivityLocationCallback(MainActivity activity) {
+            if (map_position_speed == null) {
+                map_position_speed = new HashMap<>();
+            }
+
             this.activityWeakReference = new WeakReference<>(activity);
         }
 
@@ -51,8 +71,11 @@ public class PositionTracker {
                     return;
                 }
 
-                lastPosition = new Position(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
-                lastSpeed = location.getSpeed();
+
+                map_position_speed.put(CONSTANTS.POSITION.toText(), new Position(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude()));
+                map_position_speed.put(CONSTANTS.SPEED.toText(), location.getSpeed());
+                setChanged();
+                notifyObservers(map_position_speed);
 
                 // Pass the new location to the Maps SDK's LocationComponent
                 if (activity.navigationView != null && activity.navigationView.retrieveNavigationMapboxMap() != null) {
@@ -76,7 +99,5 @@ public class PositionTracker {
                         Toast.LENGTH_SHORT).show();
             }
         }
-
-
     }
 }

@@ -29,6 +29,7 @@ public class CouchDbHelperTest {
     private static CouchDBHelper couchDbHelper;
     private static CouchDBHelper cdbWriteBuffer;
     private static CouchDBHelper cdbOwn;
+    private static CouchDBHelper cdbDelBuffer;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -37,6 +38,7 @@ public class CouchDbHelperTest {
         couchdb = CouchDB.getInstance();
         cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
         cdbOwn = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
+        cdbDelBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
     }
 
     /**
@@ -280,23 +282,23 @@ public class CouchDbHelperTest {
 
     @Test
     public void storeProfile(){
-        Database db_profile = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+        Database db_profile_normal = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
 
-        Profile profile = TestObjectsGenerator.createProfile();
+        Profile profile_normal = TestObjectsGenerator.createProfile();
 
-        long initialNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_profile);
+        long initialNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_profile_normal);
 
-        couchDbHelper.storeProfile(profile);
+        couchDbHelper.storeProfile(profile_normal);
 
-        long newNumberOfDocuments = couchdb.getNumberOfStoredDocuments(db_profile);
+        long newNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_profile_normal);
 
-        assertEquals(initialNumberOfDocuments + 1, newNumberOfDocuments);
+        assertEquals(initialNumberOfDocuments_normal + 1, newNumberOfDocuments_normal);
 
-        Profile readProfile = couchDbHelper.readProfile(profile.getGoogleID());
+        Profile readProfile_normal = couchDbHelper.readProfile(profile_normal.getGoogleID());
 
-        assertEquals(profile,readProfile);
+        assertEquals(profile_normal,readProfile_normal);
 
-        couchDbHelper.deleteProfile(profile);
+        couchDbHelper.deleteProfile(profile_normal);
     }
 
     @Test
@@ -703,4 +705,54 @@ public class CouchDbHelperTest {
         couchDbHelper.deleteBikeRack(bikeRack_THU_normal.getFirebaseID());
     }
 
+    @Test
+    public void testProfileInterference(){
+        Database db_profile_normal = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE);
+        Database db_profile_own = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_OWNDATA_PROFILE);
+        Database db_profile_wb = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_WRITEBUFFER_PROFILE);
+        Database db_profile_del = couchdb.getDatabaseFromName(DatabaseNames.DATABASE_DELETEBUFFER_PROFILE);
+
+        Profile profile_normal = TestObjectsGenerator.createProfile();
+        Profile profile_own = TestObjectsGenerator.createProfile();
+        profile_own.setGoogleID("OWN");
+        Profile profile_wb = TestObjectsGenerator.createProfile();
+        profile_wb.setGoogleID("WB");
+        Profile profile_del = TestObjectsGenerator.createProfile();
+        profile_del.setGoogleID("DEL");
+
+        long initialNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_profile_normal);
+        long initialNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_profile_own);
+        long initialNumberOfDocuments_wb = couchdb.getNumberOfStoredDocuments(db_profile_wb);
+        long initialNumberOfDocuments_del = couchdb.getNumberOfStoredDocuments(db_profile_del);
+
+        couchDbHelper.storeProfile(profile_normal);
+        cdbOwn.storeProfile(profile_own);
+        cdbWriteBuffer.storeProfile(profile_wb);
+        cdbDelBuffer.storeProfile(profile_del);
+
+        long newNumberOfDocuments_normal = couchdb.getNumberOfStoredDocuments(db_profile_normal);
+        long newNumberOfDocuments_own = couchdb.getNumberOfStoredDocuments(db_profile_own);
+        long newNumberOfDocuments_wb = couchdb.getNumberOfStoredDocuments(db_profile_wb);
+        long newNumberOfDocuments_del = couchdb.getNumberOfStoredDocuments(db_profile_del);
+
+        assertEquals(initialNumberOfDocuments_normal + 1, newNumberOfDocuments_normal);
+        assertEquals(initialNumberOfDocuments_own + 1, newNumberOfDocuments_own);
+        assertEquals(initialNumberOfDocuments_wb + 1, newNumberOfDocuments_wb);
+        assertEquals(initialNumberOfDocuments_del + 1, newNumberOfDocuments_del);
+
+        Profile readProfile_normal = couchDbHelper.readProfile(profile_normal.getGoogleID());
+        Profile readProfile_own = cdbOwn.readProfile(profile_own.getGoogleID());
+        Profile readProfile_wb = cdbWriteBuffer.readProfile(profile_wb.getGoogleID());
+        Profile readProfile_del = cdbDelBuffer.readProfile(profile_del.getGoogleID());
+
+        assertEquals(profile_normal,readProfile_normal);
+        assertEquals(profile_own,readProfile_own);
+        assertEquals(profile_wb,readProfile_wb);
+        assertEquals(profile_del,readProfile_del);
+
+        couchDbHelper.deleteProfile(profile_normal);
+        cdbOwn.deleteProfile(profile_own);
+        cdbWriteBuffer.deleteProfile(profile_wb);
+        cdbDelBuffer.deleteProfile(profile_del);
+    }
 }
