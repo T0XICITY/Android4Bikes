@@ -38,6 +38,7 @@ import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.JSONHelper;
+import de.thu.tpro.android4bikes.util.MapToObjectConverter;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.util.TimeBase;
 
@@ -57,6 +58,12 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private CouchDBHelper cdb_deleteBuffer;
     private CouchDBHelper ownDataDB;
 
+    //MapToObjectConverter:
+    private MapToObjectConverter<BikeRack> mapToObjectConverter_bikeRack;
+    private MapToObjectConverter<Track> mapToObjectConverter_track;
+    private MapToObjectConverter<HazardAlert> mapToObjectConverter_hazardAlert;
+    private MapToObjectConverter<Profile> mapToObjectConverter_profile;
+
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
@@ -70,6 +77,12 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         cdb_writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
         cdb_deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
         ownDataDB = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
+
+        //Generate MapToObjectConverter for each required class:
+        mapToObjectConverter_bikeRack = new MapToObjectConverter<>(BikeRack.class);
+        mapToObjectConverter_track = new MapToObjectConverter<>(Track.class);
+        mapToObjectConverter_hazardAlert = new MapToObjectConverter<>(HazardAlert.class);
+        mapToObjectConverter_profile = new MapToObjectConverter<>(Profile.class);
     }
 
     public static FirebaseConnection getInstance() {
@@ -834,7 +847,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                         Map map_result = document.getData();
 
                         //convert resulting map to profile
-                        Profile myProfile = ownDataDB.convertMapProfileToProfile(map_result, null);
+                        Profile myProfile = mapToObjectConverter_profile.convertMapToObject(map_result, null);
                         list_profile.add(0, myProfile);
                         countDownLatch.countDown();
                     } else {

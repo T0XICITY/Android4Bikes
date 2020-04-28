@@ -134,7 +134,7 @@ public class GeoFencing extends Observable {
                         case COLLECTION_TRACKS:
                             break;
                         case COLLECTION_BIKERACKS:
-                            object_to_add = couchDBHelper.convertMapBikeRackToBikeRack(map_object, null);
+
                             break;
                         case COLLECTION_HAZARDS:
                             break;
