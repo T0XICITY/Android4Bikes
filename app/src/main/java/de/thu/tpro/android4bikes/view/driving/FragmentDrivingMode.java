@@ -26,6 +26,7 @@ import com.mapbox.api.directions.v5.DirectionsCriteria;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
@@ -135,7 +136,13 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public void onNavigationReady(boolean isRunning) {
         parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"));
         parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-
+        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+            @Override
+            public boolean onMapClick(@NonNull LatLng point) {
+                //Implement Code
+                return false;
+            }
+        });
         /*TrackRecorder trackRecorder = new TrackRecorder();
         trackRecorder.start();
         //Abfage User input

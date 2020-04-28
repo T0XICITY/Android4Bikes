@@ -177,6 +177,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                         @Override
                         public boolean onMapClick(@NonNull LatLng point) {
+                            Log.d("HELLO", "Click");
                             // Convert LatLng coordinates to screen pixel and only query the rendered features.
                             final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
 

@@ -13,6 +13,8 @@ import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.MapmatchingRequest;
+import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import retrofit2.Call;
@@ -28,6 +30,7 @@ public class TrackRecorder {
     private List<com.mapbox.geojson.Point> positionsRoute3 = PositionProvider.getMapsTrack3();
     private com.mapbox.geojson.Point start;
     private com.mapbox.geojson.Point end;
+    private Track finalTrack;
 
     public TrackRecorder() {
         context = GlobalContext.getContext();
@@ -35,6 +38,7 @@ public class TrackRecorder {
 
     public void start() {
         init();
+
         MapmatchingRequest request1 = new MapmatchingRequest(positionsRoute1);
         MapmatchingRequest request2 = new MapmatchingRequest(positionsRoute2);
         MapmatchingRequest request3 = new MapmatchingRequest(positionsRoute3);
@@ -44,8 +48,8 @@ public class TrackRecorder {
         mapmatchingRequests.add(request3);
     }
 
-    public void stop() {
-
+    public void stop(Track track_without_route) {
+        finalTrack = track_without_route;
         generateDirectionRouteAndSaveTrackToFirebase(mapmatchingRequests);
         finalroute = null;
     }
@@ -102,11 +106,11 @@ public class TrackRecorder {
                                 } else {
                                     //Finished with Track Appending
 
-                                    //TODO wait for UI input
-                                    //Trackname
-                                    //Track track = new Track();
+                                    //TODO add direction info
+                                    //finaltrack.setdir;
 
                                     //Save Track to Firebase
+                                    CouchWriteBuffer.getInstance().storeTrack(finalTrack);
                                 }
                             }
 
