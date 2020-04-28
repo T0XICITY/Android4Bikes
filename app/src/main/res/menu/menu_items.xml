@@ -13,7 +13,7 @@
             android:title="@string/title_telnumbers"
             app:showAsAction="always" />
         <item
-            android:id="@+id/menu_profil"
+            android:id="@+id/menu_profile"
             android:icon="@drawable/ic_material_person"
             android:title="@string/title_profile"
             app:showAsAction="always" />

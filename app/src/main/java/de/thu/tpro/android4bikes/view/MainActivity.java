@@ -238,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (menu.getItemId()) {
             case R.id.menu_submit:
                 Log.d(LOG_TAG, "Clicked menu_submit!");
-                //currentFragment = new SecondFragment();
                 fragInfo.submitMarker();
                 break;
             case R.id.menu_emergencyCall:
@@ -252,6 +251,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
                 goToLoginActivity();
+                break;
+            case R.id.menu_profile:
+                Log.d(LOG_TAG, "Clicked menu_profile!");
+                openProfile();
                 break;
             default:
                 Log.d(LOG_TAG, "Default case");
