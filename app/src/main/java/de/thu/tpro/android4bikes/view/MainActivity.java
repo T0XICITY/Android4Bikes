@@ -97,9 +97,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragAssistance, fragTrackList, fragProfile, fragSettings, currentFragment;
+    private Fragment fragAssistance, fragProfile, fragSettings, currentFragment;
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
+    private FragmentTrackList fragTrackList;
     private ImageView imageView;
     private TextView tv_headerName;
     private TextView tv_headerMail;
@@ -274,6 +275,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    public void showOwnTracksInTrackList(boolean ownTracksOnly) {
+        fragTrackList.setShowOwnTracksOnly(ownTracksOnly);
+    }
+
     /**
      * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,
      * it is only stored in the local WriteBuffer. If it is available on the FireStore, all databases
@@ -295,19 +300,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btn_community = findViewById(R.id.imagebutton_community);
         btn_tracks = findViewById(R.id.imagebutton_tracks);
 
-        btn_tracks.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(LOG_TAG, "Clicked menu_tracks!");
-                openTrackList();
-            }
+        btn_tracks.setOnClickListener(view -> {
+            Log.d(LOG_TAG, "Clicked trackList!");
+            fragTrackList.setShowOwnTracksOnly(false);
+            openTrackList();
         });
-        btn_community.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(LOG_TAG, "clicked community");
-                toggleNavigationDrawer();
-            }
+        btn_community.setOnClickListener(view -> {
+            Log.d(LOG_TAG, "clicked community");
+            toggleNavigationDrawer();
         });
     }
 
@@ -316,12 +316,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void initFAB() {
         fab = findViewById(R.id.fab_switchMode);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchInfoDriving();
-                Log.d("Mitte", "Clicked mitte");
-            }
+        fab.setOnClickListener(v -> {
+            switchInfoDriving();
+            Log.d("Mitte", "Clicked mitte");
         });
     }
 
@@ -407,9 +404,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             newRating.setFun(rbSubmitFun.getProgress());
             newTrack.setRating(newRating);
 
-            // TODO get fine grained positions
+            // TODO Set author ID -> currently NullPointerException
 
-            newTrack.setAuthor_googleID(vmOwnProfile.getMyProfile().getValue().getGoogleID());
+            // TODO set actual route of track
 
             vmOwnTracks.submitTrack(newTrack);
         });
@@ -479,7 +476,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateFragment();
     }
 
-    private void openTrackList() {
+    public void openTrackList() {
         currentFragment = fragTrackList;
         hideBottomBar();
         showToolbar();

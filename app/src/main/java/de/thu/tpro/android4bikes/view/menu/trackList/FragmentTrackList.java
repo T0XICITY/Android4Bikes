@@ -53,6 +53,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         LocationListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, Observer<Map<Track, Profile>> {
     private static final String LOG_TAG = "FragmentCreateTrack";
 
+    private boolean showOwnTracksOnly = false;
+
     private ViewModelTrack viewModelTrack;
     private ViewModelOwnTracks viewModelOwnTrack;
 
@@ -87,11 +89,13 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
 
         dataBinder = new TrackListDataBinder(getResources());
 
-
         viewModelTrack = new ViewModelProvider(this).get(ViewModelTrack.class);
-        viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
         viewModelOwnTrack = new ViewModelProvider(this).get(ViewModelOwnTracks.class);
-        viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+
+        if (showOwnTracksOnly)
+            viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+        else
+            viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
 
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
@@ -414,6 +418,10 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         if (view != searchView) {
             searchView.clearFocus();
         }
+    }
+
+    public void setShowOwnTracksOnly(boolean ownTracksOnly) {
+        showOwnTracksOnly = true;
     }
 
     // TODO delete after testing
