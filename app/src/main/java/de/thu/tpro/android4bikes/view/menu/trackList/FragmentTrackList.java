@@ -8,7 +8,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -29,19 +28,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.GpsLocation;
-import de.thu.tpro.android4bikes.view.MainActivity;
-import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
@@ -422,7 +415,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         dummy.setDescription("DummDumm");
         dummy.setDistance_km(999);
         Log.d("TRACK SUBMIT",""+dummy);
-        viewModelTrack.submitTrack(dummy);
+        //viewModelTrack.submitTrack(dummy); TODO: SUBMIT ONLY VIA OWN_TRACK.
         viewModelOwnTrack.submitTrack(dummy);
     }
 }

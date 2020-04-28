@@ -45,13 +45,6 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
         return hazardAlerts;
     }
 
-    public void submitHazardAlert(HazardAlert hazardAlert){
-        processor.startRunnable(()->{
-            //store it to writebuffer
-            //localDB.storeHazardAlerts(hazardAlert);
-        });
-    }
-
     public LiveData<Integer> getWorkInProgress() {
         return workInProgress;
     }

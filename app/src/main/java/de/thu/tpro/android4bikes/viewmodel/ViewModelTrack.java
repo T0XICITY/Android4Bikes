@@ -125,11 +125,6 @@ public class ViewModelTrack extends ViewModel implements Observer {
         return workInProgress;
     }
 
-
-    public void submitTrack(Track track) {
-        //write into the write buffer of the local db
-    }
-
     /**
      * increment number of outstanding operations
      */

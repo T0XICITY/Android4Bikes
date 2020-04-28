@@ -45,13 +45,6 @@ public class ViewModelBikerack extends ViewModel implements Observer {
         return list_bikeRacks_shown;
     }
 
-    public void submitBikeRack(BikeRack bikeRack) {
-        processor.startRunnable(() -> {
-            //store it to writebuffer
-            //localDB.storeHazardAlerts(hazardAlert);
-        });
-    }
-
     public LiveData<Integer> getWorkInProgress() {
         return workInProgress;
     }

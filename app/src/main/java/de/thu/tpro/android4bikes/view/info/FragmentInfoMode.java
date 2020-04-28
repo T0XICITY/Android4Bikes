@@ -68,7 +68,6 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.positiontest.TrackProvider;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -601,7 +600,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             newRack.setCovered(cbCovered.isChecked());
 
             Log.d(LOG_TAG, newRack.toString());
-            vmBikeRack.submitBikeRack(newRack);
+            //vmBikeRack.submitBikeRack(newRack); TODO: SUBMIT ONLY VIA OWN VMS
         });
 
         // do nothing on cancel
