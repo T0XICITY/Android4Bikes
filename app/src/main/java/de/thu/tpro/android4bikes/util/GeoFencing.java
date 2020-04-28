@@ -184,6 +184,10 @@ public class GeoFencing extends Observable {
         return false;
     }
 
+    public double getRadius() {
+        return geoQuery.getRadius();
+    }
+
     public enum ConstantsGeoFencing {
         COLLECTION_TRACKS("tracks"),
         COLLECTION_BIKERACKS("bikeracks"),

@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.JsonElement;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
@@ -102,6 +103,8 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
     private static final String TAG = "DirectionsActivity";
 
+    private static LatLng latLng_lastcamerapos;
+
     //OWN ViewModels (=OWN DATA CREATED BY THIS USER!!!!)
     private ViewModelOwnBikerack vm_ownBikeRack;
     private ViewModelOwnHazardAlerts vm_ownHazards;
@@ -124,6 +127,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private DirectionsRoute currentRoute;
     private NavigationMapRoute navigationMapRoute;
     SymbolManager symbolManager;
+
+    //GeoFencing
+    private GeoFencing geoFencing_bikeRacks;
+    private GeoFencing geoFencing_hazardAlerts;
+    private GeoFencing geoFencing_tracks;
 
 
     @Override
@@ -155,9 +163,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         GlobalContext.setContext(parent.getApplicationContext());
 
         //start with GeoFencing:
-        GeoFencing geoFencing_bikeRacks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
-        GeoFencing geoFencing_hazardAlerts = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
-        GeoFencing geoFencing_tracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
+        geoFencing_bikeRacks = vm_bikeRack.getGeoFencing_bikeRacks();
+        geoFencing_hazardAlerts = vm_Hazards.getGeoFencing_hazardAlerts();
+        geoFencing_tracks = vm_Tracks.getGeoFencing_tracks();
 
         initMap(savedInstanceState);
     }
@@ -247,6 +255,40 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     vm_bikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
                     vm_Tracks.getTracks().observe(getViewLifecycleOwner(), this::onChangedTracks);
 
+
+                    //setup geofences
+                    LatLng latlng_setuppos = mapboxMap.getCameraPosition().target;
+                    GeoPoint geopoint_setuppos = new GeoPoint(latlng_setuppos.getLatitude(), latlng_setuppos.getLongitude());
+                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 200);
+                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 500);
+                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 200);
+
+
+                    mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {
+                        @Override
+                        public void onCameraMove() {
+                            if (latLng_lastcamerapos != null) {
+                                LatLng latlng_currCameraPos = mapboxMap.getCameraPosition().target;
+                                double distance = latlng_currCameraPos.distanceTo(latLng_lastcamerapos);
+                                latLng_lastcamerapos = latlng_currCameraPos;
+                                GeoPoint geopoint_currPos = new GeoPoint(latlng_currCameraPos.getLatitude(), latlng_currCameraPos.getLongitude());
+
+                                if (distance > (geoFencing_bikeRacks.getRadius() / 2)) {
+                                    geoFencing_bikeRacks.updateCenter(geopoint_currPos);
+                                }
+
+                                if (distance > (geoFencing_hazardAlerts.getRadius() / 2)) {
+                                    geoFencing_hazardAlerts.updateCenter(geopoint_currPos);
+                                }
+
+                                if (distance > (geoFencing_tracks.getRadius() / 2)) {
+                                    geoFencing_tracks.updateCenter(geopoint_currPos);
+                                }
+                            }
+                        }
+                    });
+
+
                     mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                         @Override
                         public boolean onMapClick(@NonNull LatLng point) {
@@ -274,6 +316,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                         }
                     });
 
+                    geoFencing_bikeRacks.startGeoFenceListener();
+                    geoFencing_tracks.startGeoFenceListener();
+                    geoFencing_hazardAlerts.startGeoFenceListener();
                     /*//Draw Route on Map
                     mapview.drawRoute(route);
                     showRoute(start,end);*/

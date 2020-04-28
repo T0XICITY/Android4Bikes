@@ -13,6 +13,7 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
@@ -45,6 +46,9 @@ public class ViewModelTrack extends ViewModel implements Observer {
     private FirebaseConnection firebaseConnection;
     private Processor processor;
 
+
+    private GeoFencing geoFencing_tracks;
+
     //is there any outstanding operation? Important for ProgressBars in the UI.
     //if there are outstanding operations "workInProgress" is > 0.
     private MutableLiveData<Integer> workInProgress;
@@ -74,6 +78,11 @@ public class ViewModelTrack extends ViewModel implements Observer {
 
         //generate dummy data
         this.map_tracks_profile_shown.postValue(TestObjectsGenerator.initialize_map_track_profile());
+
+
+        //initialize GeoFencing
+        geoFencing_tracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
+        geoFencing_tracks.addObserver(this);
     }
 
     /**
@@ -83,8 +92,6 @@ public class ViewModelTrack extends ViewModel implements Observer {
      * Local database sends updates list to this class.
      * 3.2 FireStore operation not successful?
      * No more actions are taken!
-     *
-     * @param postcode postcode of the needed tracks
      */
     /*
     public void loadTracksWithSpecifiedPostcode(String postcode) {
@@ -107,6 +114,9 @@ public class ViewModelTrack extends ViewModel implements Observer {
 
         }
     }*/
+    public GeoFencing getGeoFencing_tracks() {
+        return geoFencing_tracks;
+    }
 
     /**
      *
