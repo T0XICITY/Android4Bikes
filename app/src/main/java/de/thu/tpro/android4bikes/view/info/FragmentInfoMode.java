@@ -68,6 +68,7 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.positiontest.TrackProvider;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -293,6 +294,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param tracks
      */
     private void addTrackOverlay(@NonNull Style loadedMapStyle, List<Track> tracks, String dataSourceID) {
+        MapBoxSymbols type = MapBoxSymbols.TRACK;
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (Track track : tracks) {
@@ -306,10 +308,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
         //Create unclustered symbol layer
-        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 200);
-        createUnclusteredSymbolLayer(loadedMapStyle, id);
+        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
+        createUnclusteredSymbolLayer(loadedMapStyle, id, type);
         //Create clustered circle layer
-        createClusteredCircleOverlay(loadedMapStyle, id);
+        createClusteredCircleOverlay(loadedMapStyle, id, type);
     }
 
     /**
@@ -319,6 +321,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param bikeRacks
      */
     private void addBikeRackOverlay(@NonNull Style loadedMapStyle, List<BikeRack> bikeRacks, String dataSourceID) {
+        MapBoxSymbols type = MapBoxSymbols.BIKERACK;
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (BikeRack bikeRack : bikeRacks) {
@@ -331,10 +334,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
         //Create unclustered symbol layer
-        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 200);
-        createUnclusteredSymbolLayer(loadedMapStyle, id);
+        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
+        createUnclusteredSymbolLayer(loadedMapStyle, id, type);
         //Create clustered circle layer
-        createClusteredCircleOverlay(loadedMapStyle, id);
+        createClusteredCircleOverlay(loadedMapStyle, id, type);
     }
 
     /**
@@ -345,10 +348,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      */
     private void addHazardAlertOverlay(@NonNull Style loadedMapStyle, List<HazardAlert> hazardAlerts, String dataSourceID) {
         // Create Markers from data and set the 'cluster' option to true.
+        MapBoxSymbols type = MapBoxSymbols.HAZARDALERT_GENERAL;
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (HazardAlert hazardAlert : hazardAlerts) {
-            SymbolOptions marker = createMarker(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL);
+            SymbolOptions marker = createMarker(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude(), type);
             Feature feature = Feature.fromGeometry(marker.getGeometry());
             feature.addStringProperty("ID", hazardAlert.getFirebaseID());
             //TODO add info for Popup
@@ -358,9 +362,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
         //Create unclustered symbol layer
         String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 200);
-        createUnclusteredSymbolLayer(loadedMapStyle, id);
+        createUnclusteredSymbolLayer(loadedMapStyle, id, type);
         //Create clustered circle layer
-        createClusteredCircleOverlay(loadedMapStyle, id);
+        createClusteredCircleOverlay(loadedMapStyle, id, type);
     }
 
     private String addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster, int clusterRadius) {
@@ -379,13 +383,13 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param sourceID
      */
-    private void createUnclusteredSymbolLayer(@NonNull Style loadedMapStyle, String sourceID) {
+    private void createUnclusteredSymbolLayer(@NonNull Style loadedMapStyle, String sourceID, MapBoxSymbols type) {
         //Create Symbol Layer for unclustered data points
-        SymbolLayer unclustered = new SymbolLayer("unclustered-points", sourceID);
+        SymbolLayer unclustered = new SymbolLayer("unclustered_" + sourceID, sourceID);
 
 
         unclustered.setProperties(
-                iconImage(FragmentInfoMode.MapBoxSymbols.BIKERACK.toString())/*,
+                iconImage(type.toString())/*,
                 iconSize(
                         division(
                                 get("mag"), literal(4.0f)
@@ -409,18 +413,29 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param sourceID
      */
-    private void createClusteredCircleOverlay(@NonNull Style loadedMapStyle, String sourceID) {
-
+    private void createClusteredCircleOverlay(@NonNull Style loadedMapStyle, String sourceID, MapBoxSymbols type) {
+        int color = R.color.mapbox_blue; //default
+        switch (type) {
+            case BIKERACK:
+                color = R.color.Blue400Dark;
+                break;
+            case HAZARDALERT_GENERAL:
+                color = R.color.Amber800Light;
+                break;
+            case TRACK:
+                color = R.color.Red800Light;
+                break;
+        }
         // Each point range gets a different fill color.
         int[][] layers = new int[][]{
-                new int[]{150, ContextCompat.getColor(parent, R.color.mapbox_blue)},
-                new int[]{20, ContextCompat.getColor(parent, R.color.mapbox_blue)},
-                new int[]{0, ContextCompat.getColor(parent, R.color.mapbox_blue)}
+                new int[]{150, ContextCompat.getColor(parent, color)},
+                new int[]{20, ContextCompat.getColor(parent, color)},
+                new int[]{0, ContextCompat.getColor(parent, color)}
         };
 
         for (int i = 0; i < layers.length; i++) {
             //Add clusters' circles
-            CircleLayer circles = new CircleLayer("cluster-" + i, sourceID);
+            CircleLayer circles = new CircleLayer("clustered_" + sourceID + i, sourceID);
             circles.setProperties(
                     circleColor(layers[i][1]),
                     circleRadius(30f)
@@ -442,7 +457,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
 
         //Add the count labels
-        SymbolLayer count = new SymbolLayer("count", sourceID);
+        SymbolLayer count = new SymbolLayer("count_" + sourceID, sourceID);
         count.setProperties(
                 textField(Expression.toString(get("point_count"))),
                 textSize(12f),
