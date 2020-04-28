@@ -154,25 +154,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
                 Map<String, Object> map_track = result.toMap();
-                JSONObject jsonObject_track = new JSONObject(map_track);
-                jsonObject_track = (JSONObject) jsonObject_track.get(db_name);
-                String jsonString_Route;
-                try{
-                    jsonString_Route = jsonObject_track.getString(Track.ConstantsTrack.ROUTE.toString());
-                }catch (Exception e){
-                    e.printStackTrace();
-                    jsonString_Route = null;
-                }
-                DirectionsRoute route;
-                if (jsonString_Route != null){
-                    route = DirectionsRoute.fromJson(jsonString_Route);
-                    jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
-                }else {
-                    route = null;
-                }
-                JSONHelper<Track> helper = new JSONHelper<>(Track.class);
-                Track track = helper.convertJSONObjectToObject(jsonObject_track);
-                track.setRoute(route);
+                Track track = convertMapTrackToTrack(map_track, db_name);
                 tracks.add(track);
             }
         } catch (Exception e) {
@@ -186,6 +168,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
         return tracks;
     }
+
 
     @Override
     public void deleteTrack(Track track) {
@@ -840,7 +823,39 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
     }
 
-    private BikeRack convertMapBikeRackToBikeRack(Map map_bikeRack, String db_name) {
+    public Track convertMapTrackToTrack(Map map_track, String db_name) {
+        Track track = null;
+        try {
+            JSONObject jsonObject_track = new JSONObject(map_track);
+
+            if (db_name != null) {
+                jsonObject_track = (JSONObject) jsonObject_track.get(db_name);
+            }
+
+            String jsonString_Route;
+            try {
+                jsonString_Route = jsonObject_track.getString(Track.ConstantsTrack.ROUTE.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                jsonString_Route = null;
+            }
+            DirectionsRoute route;
+            if (jsonString_Route != null) {
+                route = DirectionsRoute.fromJson(jsonString_Route);
+                jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
+            } else {
+                route = null;
+            }
+            JSONHelper<Track> helper = new JSONHelper<>(Track.class);
+            track = helper.convertJSONObjectToObject(jsonObject_track);
+            track.setRoute(route);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return track;
+    }
+
+    public BikeRack convertMapBikeRackToBikeRack(Map map_bikeRack, String db_name) {
         BikeRack bikeRack = null;
         try {
             JSONObject jsonObject_result = null;
@@ -855,7 +870,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         return bikeRack;
     }
 
-    private HazardAlert convertMapHazardAlertToHazardAlert(Map map_hazardAlert, String db_name) {
+    public HazardAlert convertMapHazardAlertToHazardAlert(Map map_hazardAlert, String db_name) {
         HazardAlert hazardAlert = null;
         try {
             JSONObject jsonObject_result = null;
