@@ -171,7 +171,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //String snackText = String.format("%d new Hazard Alerts found!", hazardList.size());
         //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
         //TODO: delete overlay
-        addHazardAlertOverlay(style, hazardList, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
+        updateHazardAlertOverlay(style, hazardList, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
     }
 
     /**
@@ -183,7 +183,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //String snackText = String.format("%d new Bike Racks found!", bikeRackList.size());
         //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
         //TODO: delete overlay
-        addBikeRackOverlay(style, bikeRackList, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
+        updateBikeRackOverlay(style, bikeRackList, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
+    }
+
+    private void onChangedTracks(Map<Track, Profile> trackProfileMap) {
+        List<Track> list_tracks = new ArrayList<>();
+        trackProfileMap.keySet().forEach(entry -> list_tracks.add(entry));
+        //TODO: delete overlay
+        updateTrackOverlay(style, list_tracks, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString());
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -275,13 +282,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 });
     }
 
-    private void onChangedTracks(Map<Track, Profile> trackProfileMap) {
-        List<Track> list_tracks = new ArrayList<>();
-        trackProfileMap.keySet().forEach(entry -> list_tracks.add(entry));
-        //TODO: delete overlay
-        addTrackOverlay(style, list_tracks, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString());
-    }
-
     private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
         return new SymbolOptions()
                 .withLatLng(new LatLng(latitude, longitude))
@@ -302,7 +302,15 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param tracks
      */
-    private void addTrackOverlay(@NonNull Style loadedMapStyle, List<Track> tracks, String dataSourceID) {
+    private void updateTrackOverlay(@NonNull Style loadedMapStyle, List<Track> tracks, String dataSourceID) {
+        //Check if Source is initialized
+        for (Source source : loadedMapStyle.getSources()) {
+            if (source.getId().equals(dataSourceID)) {
+                loadedMapStyle.removeSource(dataSourceID);
+            }
+        }
+
+        //Generate Data Source
         MapBoxSymbols type = MapBoxSymbols.TRACK;
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
@@ -329,7 +337,15 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param bikeRacks
      */
-    private void addBikeRackOverlay(@NonNull Style loadedMapStyle, List<BikeRack> bikeRacks, String dataSourceID) {
+    private void updateBikeRackOverlay(@NonNull Style loadedMapStyle, List<BikeRack> bikeRacks, String dataSourceID) {
+        //Check if Source is initialized
+        for (Source source : loadedMapStyle.getSources()) {
+            if (source.getId().equals(dataSourceID)) {
+                loadedMapStyle.removeSource(dataSourceID);
+            }
+        }
+
+        //Generate Data Source
         MapBoxSymbols type = MapBoxSymbols.BIKERACK;
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
@@ -355,7 +371,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param hazardAlerts
      */
-    private void addHazardAlertOverlay(@NonNull Style loadedMapStyle, List<HazardAlert> hazardAlerts, String dataSourceID) {
+    private void updateHazardAlertOverlay(@NonNull Style loadedMapStyle, List<HazardAlert> hazardAlerts, String dataSourceID) {
+        //Check if Source is initialized
+        for (Source source : loadedMapStyle.getSources()) {
+            if (source.getId().equals(dataSourceID)) {
+                loadedMapStyle.removeSource(dataSourceID);
+            }
+        }
+
+        //Generate Data Source
+
         // Create Markers from data and set the 'cluster' option to true.
         MapBoxSymbols type = MapBoxSymbols.HAZARDALERT_GENERAL;
         List<Feature> list_feature = new ArrayList<>();
@@ -370,7 +395,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
         //Create unclustered symbol layer
-        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 200);
+        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
         createUnclusteredSymbolLayer(loadedMapStyle, id, type);
         //Create clustered circle layer
         createClusteredCircleOverlay(loadedMapStyle, id, type);
