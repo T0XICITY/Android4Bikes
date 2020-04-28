@@ -74,7 +74,9 @@ import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelHazardAlert;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnBikerack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnHazardAlerts;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
@@ -100,11 +102,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
     private static final String TAG = "DirectionsActivity";
 
-    private ViewModelBikerack vmBikeRack;
-    private ViewModelOwnHazardAlerts vmOwnHazards;
-    private ViewModelTrack vmTracks;
-    private ViewModelHazardAlert vmHazards;
+    //OWN ViewModels (=OWN DATA CREATED BY THIS USER!!!!)
+    private ViewModelOwnBikerack vm_ownBikeRack;
+    private ViewModelOwnHazardAlerts vm_ownHazards;
+    private ViewModelOwnTracks vm_ownTracks;
     private Style style;
+
+    //Regular ViewModels (=DATA FROM THE GEOFENCE!!!)
+    private ViewModelBikerack vm_bikeRack;
+    private ViewModelHazardAlert vm_Hazards;
+    private ViewModelTrack vm_Tracks;
 
     private MainActivity parent;
     private View viewInfo;
@@ -126,10 +133,15 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
         // init ViewModels
         ViewModelProvider provider = new ViewModelProvider(this);
-        vmBikeRack = provider.get(ViewModelBikerack.class);
-        vmHazards = provider.get(ViewModelHazardAlert.class);
-        vmOwnHazards = provider.get(ViewModelOwnHazardAlerts.class);
-        vmTracks = provider.get(ViewModelTrack.class);
+        //own ViewModels
+        vm_ownBikeRack = provider.get(ViewModelOwnBikerack.class);
+        vm_ownHazards = provider.get(ViewModelOwnHazardAlerts.class);
+        vm_ownTracks = provider.get(ViewModelOwnTracks.class);
+
+        //general ViewModels
+        vm_Hazards = provider.get(ViewModelHazardAlert.class);
+        vm_Tracks = provider.get(ViewModelTrack.class);
+        vm_bikeRack = provider.get(ViewModelBikerack.class);
 
         return viewInfo;
     }
@@ -148,8 +160,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         GeoFencing geoFencing_tracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
 
         initMap(savedInstanceState);
-
-
     }
 
     /**
@@ -160,7 +170,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         // TODO display HazardAlert as Marker
         //String snackText = String.format("%d new Hazard Alerts found!", hazardList.size());
         //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
-
+        //TODO: delete overlay
         addHazardAlertOverlay(style, hazardList, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
     }
 
@@ -172,7 +182,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         // TODO display BikeRack as Marker
         //String snackText = String.format("%d new Bike Racks found!", bikeRackList.size());
         //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
-
+        //TODO: delete overlay
         addBikeRackOverlay(style, bikeRackList, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
     }
 
@@ -226,10 +236,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     this.style = style;
 
                     //register for ViewModels after the map is ready:
-                    vmHazards.getHazardAlerts().observe(getViewLifecycleOwner(), this::onChangedHazardAlerts);
-                    vmBikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
-                    vmTracks.getTracks().observe(getViewLifecycleOwner(), this::onChangedTracks);
-
+                    vm_Hazards.getHazardAlerts().observe(getViewLifecycleOwner(), this::onChangedHazardAlerts);
+                    vm_bikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
+                    vm_Tracks.getTracks().observe(getViewLifecycleOwner(), this::onChangedTracks);
 
                     mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                         @Override
@@ -269,6 +278,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private void onChangedTracks(Map<Track, Profile> trackProfileMap) {
         List<Track> list_tracks = new ArrayList<>();
         trackProfileMap.keySet().forEach(entry -> list_tracks.add(entry));
+        //TODO: delete overlay
         addTrackOverlay(style, list_tracks, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString());
     }
 
@@ -572,7 +582,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             newHazard.setType(HazardAlert.HazardType.getByType(i+1)); // i+1 since we start counting on 1
 
             // submit hazard alert to ViewModel
-            vmOwnHazards.addOwnHazard(newHazard);
+            vm_ownHazards.addOwnHazard(newHazard);
         });
         dia_hazardBuilder.show();
     }
@@ -600,7 +610,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             newRack.setCovered(cbCovered.isChecked());
 
             Log.d(LOG_TAG, newRack.toString());
-            //vmBikeRack.submitBikeRack(newRack); TODO: SUBMIT ONLY VIA OWN VMS
+
+
+            vm_ownBikeRack.addOwnHazard(newRack);
         });
 
         // do nothing on cancel
