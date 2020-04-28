@@ -2,6 +2,7 @@ package de.thu.tpro.android4bikes.view.login;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -18,6 +19,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -145,25 +147,15 @@ public class ActivityLogin extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            task.getResult().getAdditionalUserInfo().isNewUser();
-                            // Sign in success, update UI with the signed-in user's information
-                            //todo!!!
-                            CouchDBHelper cdbh = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
-                            CouchDB db = CouchDB.getInstance();
-                            db.clearDB(db.getDatabaseFromName(CouchDB.DatabaseNames.DATABASE_OWNDATA_PROFILE)); // Clear the Profile DB to ensure correct behaviour
+                            //todo
                             if(task.getResult().getAdditionalUserInfo().isNewUser()){
-                                //create new user on firestore
+                                // Sign in success, update UI with the signed-in user's information
+                                CouchDBHelper cdbh = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
                                 FirebaseUser user = task.getResult().getUser();
-                                Profile profile = new Profile(user.getDisplayName(),"",user.getUid(),0xADD8E6,0,new ArrayList<>());
+                                Profile profile = new Profile(user.getDisplayName(),"",user.getUid(), Color.BLUE,0,new ArrayList<>());
                                 Log.d("HalloWelt","Created new Profile");
                                 cdbh.storeProfile(profile);
-                                CouchWriteBuffer.getInstance().storeProfile(profile);
-                            }else {
-                                //load existing user from collection in firestore
-                                Log.d("HalloWelt","Load existing Profile");
-                                FirebaseConnection.getInstance().readOwnProfileFromFireStoreAndStoreItToOwnDB(task.getResult().getUser().getUid());
                             }
-
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                         } else {

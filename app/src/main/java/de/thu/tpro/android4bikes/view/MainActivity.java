@@ -29,10 +29,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
@@ -46,9 +42,7 @@ import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -57,14 +51,16 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
-import de.thu.tpro.android4bikes.services.UploadWorker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -140,9 +136,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
-        //testWorkManager();
+        testWorkManager();
         //observeInternet();
-        scheduleUploadTask();
+
+        WorkManagerHelper.scheduleUploadTaskWithWorkManager();
+        //scheduleUploadTaskWithTaskSchedule();
+
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
 
@@ -194,26 +193,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     /**
-     * Defines a task that uploads not synchronized data.
+     * schedules UploadRunnable by using a TimerTask.
      */
-    public void scheduleUploadTask() {
-
-        Log.d("HalloWelt", "Started at: " + new Date());
-
-        //constraints regarding when a task should be scheduled
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-
-        //Define the request: How often should the task be scheduled
-        PeriodicWorkRequest saveRequest =
-                new PeriodicWorkRequest.Builder(UploadWorker.class, 15, TimeUnit.MINUTES)
-                        .setConstraints(constraints)
-                        .build();
-
-        //schedule task
-        WorkManager.getInstance(GlobalContext.getContext())
-                .enqueue(saveRequest);
+    public void scheduleUploadTaskWithTaskSchedule() {
+        Processor.getInstance().scheduleUploadTask();
     }
 
     private void toastShortInMiddle(String text) {
@@ -287,6 +270,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /**
+     * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,
+     * it is only stored in the local WriteBuffer. If it is available on the FireStore, all databases
+     * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
+     */
     private void goToLoginActivity() {
         FirebaseAuth.getInstance().signOut();
         //todo: Delete user from local db
@@ -582,10 +570,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 List<HazardAlert> haz = cdb.readHazardAlerts();
                 List<BikeRack> br = cdb.readBikeRacks();
                 List<Track> tr = cdb.readTracks();
-                Log.d("HalloWelt", "Debug Buffer: Tracks (" + tr.size() + "):" + tr.toString());
-                Log.d("HalloWelt", "Debug Buffer: BikeRacks (" + br.size() + "):" + br.toString());
-                Log.d("HalloWelt", "Debug Buffer: Hazards (" + haz.size() + "):" + haz.toString());
-                Log.d("HalloWelt", "Debug Buffer: Profile :" + cdb.readMyOwnProfile());
+                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
+                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
+                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
+                Log.d("HalloWelt","Debug OWN Profile :"+cdb.readMyOwnProfile());
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {

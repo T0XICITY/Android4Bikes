@@ -2,12 +2,9 @@ package de.thu.tpro.android4bikes.services;
 
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -19,11 +16,13 @@ import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 public class UploadRunnable implements Runnable {
     private CouchDBHelper cdb_writeBuffer;
     private CouchDBHelper cdb_deleteBuffer;
+    private CouchDBHelper cdb_ownData;
 
     public UploadRunnable() {
         //get access to buffers:
         cdb_writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
         cdb_deleteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
+        cdb_ownData = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
     }
 
     private List<Position> readUtilisation() {
@@ -58,7 +57,11 @@ public class UploadRunnable implements Runnable {
      * @return current version of own profile or null
      */
     private Profile readProfileWriteBuffer() {
-        Profile buffered_profile = cdb_writeBuffer.readMyOwnProfile();
+        Profile p = cdb_ownData.readMyOwnProfile();
+        Profile buffered_profile = null;
+        if (p != null) {
+            buffered_profile = cdb_writeBuffer.readProfile(p.getGoogleID());
+        }
         return buffered_profile;
     }
 
@@ -68,7 +71,11 @@ public class UploadRunnable implements Runnable {
      * @return current version of own profile or null
      */
     private Profile readProfileDeleteBuffer() {
-        Profile buffered_profile = cdb_deleteBuffer.readMyOwnProfile();
+        Profile p = cdb_ownData.readMyOwnProfile();
+        Profile buffered_profile = null;
+        if (p != null) {
+            buffered_profile = cdb_deleteBuffer.readProfile(p.getGoogleID());
+        }
         return buffered_profile;
     }
 
