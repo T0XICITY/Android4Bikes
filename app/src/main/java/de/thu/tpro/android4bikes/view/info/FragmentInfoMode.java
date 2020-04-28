@@ -234,7 +234,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Generate Markers from ArrayList
         for (Track track : tracks) {
             //getStringProperty
-            SymbolOptions marker = createMarker(track.getFineGrainedPositions().get(0).getLatitude(), track.getFineGrainedPositions().get(0).getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
+            SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
             Feature feature = Feature.fromGeometry(marker.getGeometry());
             feature.addStringProperty("ID", track.getFirebaseID());
             //TODO add info for Popup
