@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
+import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 
 
@@ -29,6 +32,7 @@ public class GeoFencing extends Observable {
     private GeoQuery geoQuery;
     private CouchDBHelper couchDBHelper;
     private ConstantsGeoFencing currentCollection;
+    private MapToObjectConverter mapToObjectConverter;
 
 
     /**
@@ -43,6 +47,18 @@ public class GeoFencing extends Observable {
 
         couchDBHelper = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
         this.currentCollection = collection;
+
+        switch (currentCollection) {
+            case COLLECTION_TRACKS:
+                mapToObjectConverter = new MapToObjectConverter<>(Track.class);
+                break;
+            case COLLECTION_BIKERACKS:
+                mapToObjectConverter = new MapToObjectConverter<>(BikeRack.class);
+                break;
+            case COLLECTION_HAZARDS:
+                mapToObjectConverter = new MapToObjectConverter<>(HazardAlert.class);
+                break;
+        }
 
     }
 
@@ -128,17 +144,9 @@ public class GeoFencing extends Observable {
 
                     Object object_to_add = null;
                     Map map_object = documentSnapshot.getData();
-                    //couchDBHelper.convertMapProfileToProfile(map);
-                    switch (currentCollection) {
 
-                        case COLLECTION_TRACKS:
-                            break;
-                        case COLLECTION_BIKERACKS:
+                    object_to_add = mapToObjectConverter.convertMapToObject(map_object, null);
 
-                            break;
-                        case COLLECTION_HAZARDS:
-                            break;
-                    }
                     documents_in_area.add(documentSnapshot.getId());
                     list_objects.add(object_to_add);
                     //Log.d("HALLO WELT", "Document Entered: "+documentSnapshot.getId()+" Geo point: "+ geoPoint);
