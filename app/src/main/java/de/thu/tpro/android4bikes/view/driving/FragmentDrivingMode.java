@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -18,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.permissions.PermissionsListener;
@@ -47,17 +51,23 @@ import java.util.Date;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
+import de.thu.tpro.android4bikes.positiontest.PositionProvider;
+import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.positiontest.TrackProvider;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Navigation.DirectionRouteHelper;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FragmentDrivingMode extends Fragment implements PermissionsListener, OnNavigationReadyCallback {
+public class FragmentDrivingMode extends Fragment implements PermissionsListener,
+        OnNavigationReadyCallback, Observer<OpenWeatherObject> {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
@@ -66,13 +76,17 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     TextView txtAvgSpeed;
     TextView txtSpeedUnit;
     //TODO Delete after testing
+
     private ViewModelDrivingMode viewModel;
+    private ViewModelWeather vmWeather;
+
     private View viewDrivingMode;
     private CardView infoIcon;
     OvershootInterpolator interpolator;
     boolean isMenuOpen = false;
-
-    private FloatingActionButton fab, fab1, fab2, fab3;
+    Float translationY = 100f;
+    GpsLocation location;
+    private FloatingActionButton fab_weather;
     private Date time;
 
     MainActivity parent;
@@ -88,7 +102,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     //private List<Position> bikeRacks = new ArrayList<>();
     //private List<Position> bikeTracks = new ArrayList<>();
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,7 +110,10 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         txtSpeedUnit = viewDrivingMode.findViewById(R.id.txtSpeedUnit);
         txtAvgSpeed = viewDrivingMode.findViewById(R.id.txtAverageSpeed);
         infoIcon = viewDrivingMode.findViewById(R.id.cardView_Infoicon);
+        fab_weather = viewDrivingMode.findViewById(R.id.weatherFAB);
 
+        vmWeather = new ViewModelProvider(this).get(ViewModelWeather.class);
+        vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
 
         initCardView();
 
@@ -118,7 +134,44 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         GlobalContext.setContext(parent.getApplicationContext());
 
         initNavigation(view, savedInstanceState);
+    }
 
+    @Override
+    public void onChanged(OpenWeatherObject weatherObject) {
+        String weatherIconName = vmWeather.getCurrentWeather().getValue().getForecastList().get(0)
+                .getWeather().get(0).getIcon().substring(0,2);
+
+        Log.d(LOG_TAG, "Weather: "+weatherIconName+", "+weatherObject.getCity().getName());
+
+        int weatherDrawableId = 0;
+        switch (weatherIconName) {
+            case "01": // sunny
+                weatherDrawableId = R.drawable.weather_clear_sky;
+                break;
+            case "02":
+                weatherDrawableId = R.drawable.weather_few_clouds;
+                break;
+            case "03":
+                weatherDrawableId = R.drawable.weather_scattered_clouds;
+                break;
+            case "04":
+                weatherDrawableId = R.drawable.weather_broken_cloud;
+                break;
+            case "09":
+            case "10":
+                weatherDrawableId = R.drawable.weather_rain;
+                break;
+            case "11":
+                weatherDrawableId = R.drawable.weather_thunderstom;
+                break;
+            case "13":
+                weatherDrawableId = R.drawable.weather_snow;
+                break;
+            case "50":
+                weatherDrawableId = R.drawable.weather_mist;
+                break;
+        }
+        fab_weather.setImageDrawable(getResources().getDrawable(weatherDrawableId, parent.getTheme()));
     }
 
     private void initNavigation(View view, Bundle savedInstanceState) {
@@ -130,7 +183,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         parent.navigationView.onCreate(savedInstanceState);
         parent.navigationView.initialize(this::onNavigationReady);
     }
-
 
     @Override
     public void onNavigationReady(boolean isRunning) {

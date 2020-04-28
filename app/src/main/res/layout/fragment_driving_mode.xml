@@ -88,7 +88,7 @@
                     android:scaleType="centerCrop"
                     android:scaleX="0.75"
                     android:scaleY="0.75"
-                    android:src="@drawable/weather_partly_cloudy" />
+                    android:src="@drawable/weather_few_clouds" />
 
             </androidx.cardview.widget.CardView>
 
@@ -109,7 +109,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:maxImageSize="64dp"
-        app:srcCompat="@drawable/weather_partly_cloudy" />
+        app:srcCompat="@drawable/weather_few_clouds" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"

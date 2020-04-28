@@ -4,7 +4,7 @@
     <group android:id="@+id/group_main">
         <item
             android:id="@+id/menu_submit"
-            android:icon="@drawable/ic_community_test"
+            android:icon="@drawable/ic_material_marker_plus"
             android:title="Submit a..."
             app:showAsAction="always" />
         <item
