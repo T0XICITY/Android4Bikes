@@ -4,8 +4,10 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +23,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.JsonElement;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -30,6 +33,7 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -40,6 +44,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.maps.SupportMapFragment;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
@@ -52,6 +57,7 @@ import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -83,13 +89,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     private static final String LOG_TAG = "FragmentInfoMode";
     private View viewInfo;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 102;
-    ViewGroup container;
-    //MapViewContentBuilder builder;
-    int chosenMarkerId;
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
-    private static final long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
-    private static final long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private static final String TAG = "DirectionsActivity";
     MainActivity parent;
     SymbolOptions marker;
@@ -102,6 +102,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     // variables for calculating and drawing a route
     private DirectionsRoute currentRoute;
     private NavigationMapRoute navigationMapRoute;
+    SymbolManager symbolManager;
 
 
     @Override
@@ -160,9 +161,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     enableLocationComponent(style);
 
                     HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markerPool = new HashMap<>();
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.mapbox_marker_icon_default));
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL, parent.getDrawable(R.drawable.mapbox_marker_icon_default));
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.mapbox_marker_icon_default));
+                    markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.ic_material_parking));
+                    markerPool.put(FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL, parent.getDrawable(R.drawable.ic_material_hazard));
+                    markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.ic_material_track));
                     initMarkerSymbols(mapboxMap, markerPool);
                     //generateCustomRoute(generateTrack().getFineGrainedPositions());
                     initPosFab();
@@ -173,9 +174,53 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     addBikeRackOverlay(style, bikeRacks, "meineDaten");
                     //addHazardAlertOverlay();
                     //addTrackOverlay();
+                    mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+                        @Override
+                        public boolean onMapClick(@NonNull LatLng point) {
+                            Log.d("HELLO", "Click");
+                            // Convert LatLng coordinates to screen pixel and only query the rendered features.
+                            final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
 
-                    //new LoadGeoJson(FragmentInfoMode.this).execute();
+                            List<Feature> features = mapboxMap.queryRenderedFeatures(pixel);
+
+                            // Get the first feature within the list if one exist
+                            if (features.size() > 0) {
+                                for (Feature feature : features) {
+                                    if (feature.properties() != null) {
+                                        for (Map.Entry<String, JsonElement> entry : feature.properties().entrySet()) {
+                                            // Log all the properties
+                                            if (entry.getKey().equals("ID")) {
+                                                Log.d("HELLO", String.valueOf(entry.getValue()));
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                            return false;
+                        }
+                    });
+
+                    /*//Draw Route on Map
+                    mapview.drawRoute(route);
+                    showRoute(start,end);*/
+                    //https://docs.mapbox.com/android/java/examples/show-directions-on-a-map/
+                    //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
+    }
+
+    private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
+        return new SymbolOptions()
+                .withLatLng(new LatLng(latitude, longitude))
+                .withIconImage(type.toString());
+    }
+
+    private void showRoute(com.mapbox.geojson.Point start, com.mapbox.geojson.Point end) {
+        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                .include(new LatLng(start.latitude(), start.longitude())) // Northeast
+                .include(new LatLng(end.latitude(), end.longitude())) // Southwest
+                .build();
+        mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 50), 5000);
     }
 
     /**
@@ -188,8 +233,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         List<Feature> list_feature = new ArrayList<>();
         //Generate Markers from ArrayList
         for (Track track : tracks) {
+            //getStringProperty
             SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
-            list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+            Feature feature = Feature.fromGeometry(marker.getGeometry());
+            feature.addStringProperty("ID", track.getFirebaseID());
+            //TODO add info for Popup
+            list_feature.add(feature);
         }
         //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
@@ -211,7 +260,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Generate Markers from ArrayList
         for (BikeRack bikeRack : bikeRacks) {
             SymbolOptions marker = createMarker(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.BIKERACK);
-            list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+            Feature feature = Feature.fromGeometry(marker.getGeometry());
+            feature.addStringProperty("ID", bikeRack.getFirebaseID());
+            //TODO add info for Popup
+            list_feature.add(feature);
         }
         //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
@@ -234,7 +286,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Generate Markers from ArrayList
         for (HazardAlert hazardAlert : hazardAlerts) {
             SymbolOptions marker = createMarker(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL);
-            list_feature.add(Feature.fromGeometry(marker.getGeometry()));
+            Feature feature = Feature.fromGeometry(marker.getGeometry());
+            feature.addStringProperty("ID", hazardAlert.getFirebaseID());
+            //TODO add info for Popup
+            list_feature.add(feature);
         }
         //Create FeatureCollection from Feature List
         FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
@@ -524,18 +579,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
-        /*if(mCurrLocationMarker!=null){
-            mCurrLocationMarker.setPosition(latLng);
-        }else{
-            mCurrLocationMarker = map.addMarker(new MarkerOptions()
-                    .position(latLng);
-        }*/
-        return new SymbolOptions()
-                .withLatLng(new LatLng(latitude, longitude))
-                .withIconImage(type.toString());
-    }
-
     /**
      * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack} for test purposes
      *
@@ -545,7 +588,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private BikeRack generateTHUBikeRack(int i) {
         //create new BikeRack
         BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K", new Position(48.408880 + i / 7000.0, 9.997507 + i / 7000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
+                "pfo4eIrvzrI0m363KF0K" + i, new Position(48.408880 + i / 7000.0, 9.997507 + i / 7000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
         return bikeRack_THU;
