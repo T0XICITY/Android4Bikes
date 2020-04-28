@@ -90,10 +90,7 @@ dependencies {
     implementation "androidx.work:work-runtime:2.3.4"
     //fix: https://stackoverflow.com/questions/56639529/duplicate-class-com-google-common-util-concurrent-listenablefuture-found-in-modu
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
-    //implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.1.0'
-    //implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v9:0.8.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-core:2.0.0'
-    //implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation:0.42.6'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-navigation-ui:0.42.6'
 
 }
