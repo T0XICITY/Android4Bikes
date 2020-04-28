@@ -267,24 +267,30 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {
                         @Override
                         public void onCameraMove() {
-                            if (latLng_lastcamerapos != null) {
-                                LatLng latlng_currCameraPos = mapboxMap.getCameraPosition().target;
-                                double distance = latlng_currCameraPos.distanceTo(latLng_lastcamerapos);
-                                latLng_lastcamerapos = latlng_currCameraPos;
-                                GeoPoint geopoint_currPos = new GeoPoint(latlng_currCameraPos.getLatitude(), latlng_currCameraPos.getLongitude());
-
-                                if (distance > (geoFencing_bikeRacks.getRadius() / 2)) {
-                                    geoFencing_bikeRacks.updateCenter(geopoint_currPos);
-                                }
-
-                                if (distance > (geoFencing_hazardAlerts.getRadius() / 2)) {
-                                    geoFencing_hazardAlerts.updateCenter(geopoint_currPos);
-                                }
-
-                                if (distance > (geoFencing_tracks.getRadius() / 2)) {
-                                    geoFencing_tracks.updateCenter(geopoint_currPos);
-                                }
+                            if (latLng_lastcamerapos == null) {
+                                latLng_lastcamerapos = mapboxMap.getCameraPosition().target;
                             }
+
+                            LatLng latlng_currCameraPos = mapboxMap.getCameraPosition().target;
+                            double distance = latlng_currCameraPos.distanceTo(latLng_lastcamerapos);
+
+                            GeoPoint geopoint_currPos = new GeoPoint(latlng_currCameraPos.getLatitude(), latlng_currCameraPos.getLongitude());
+
+                            if (distance > (geoFencing_bikeRacks.getRadius() / 2)) {
+                                geoFencing_bikeRacks.updateCenter(geopoint_currPos);
+                                latLng_lastcamerapos = latlng_currCameraPos;
+                            }
+
+                            if (distance > (geoFencing_hazardAlerts.getRadius() / 2)) {
+                                geoFencing_hazardAlerts.updateCenter(geopoint_currPos);
+                                latLng_lastcamerapos = latlng_currCameraPos;
+                            }
+
+                            if (distance > (geoFencing_tracks.getRadius() / 2)) {
+                                geoFencing_tracks.updateCenter(geopoint_currPos);
+                                latLng_lastcamerapos = latlng_currCameraPos;
+                            }
+
                         }
                     });
 
@@ -348,32 +354,27 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param tracks
      */
     private void updateTrackOverlay(@NonNull Style loadedMapStyle, List<Track> tracks, String dataSourceID) {
-        //Check if Source is initialized
-        for (Source source : loadedMapStyle.getSources()) {
-            if (source.getId().equals(dataSourceID)) {
-                loadedMapStyle.removeSource(dataSourceID);
+        synchronized (this) {
+            //Generate Data Source
+            MapBoxSymbols type = MapBoxSymbols.TRACK;
+            List<Feature> list_feature = new ArrayList<>();
+            //Generate Markers from ArrayList
+            for (Track track : tracks) {
+                //getStringProperty
+                SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
+                Feature feature = Feature.fromGeometry(marker.getGeometry());
+                feature.addStringProperty("ID", track.getFirebaseID());
+                //TODO add info for Popup
+                list_feature.add(feature);
             }
+            //Create FeatureCollection from Feature List
+            FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+            //Create unclustered symbol layer
+            String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
+            createUnclusteredSymbolLayer(loadedMapStyle, id, type);
+            //Create clustered circle layer
+            createClusteredCircleOverlay(loadedMapStyle, id, type);
         }
-
-        //Generate Data Source
-        MapBoxSymbols type = MapBoxSymbols.TRACK;
-        List<Feature> list_feature = new ArrayList<>();
-        //Generate Markers from ArrayList
-        for (Track track : tracks) {
-            //getStringProperty
-            SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
-            Feature feature = Feature.fromGeometry(marker.getGeometry());
-            feature.addStringProperty("ID", track.getFirebaseID());
-            //TODO add info for Popup
-            list_feature.add(feature);
-        }
-        //Create FeatureCollection from Feature List
-        FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
-        //Create unclustered symbol layer
-        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
-        createUnclusteredSymbolLayer(loadedMapStyle, id, type);
-        //Create clustered circle layer
-        createClusteredCircleOverlay(loadedMapStyle, id, type);
     }
 
     /**
@@ -383,31 +384,26 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param bikeRacks
      */
     private void updateBikeRackOverlay(@NonNull Style loadedMapStyle, List<BikeRack> bikeRacks, String dataSourceID) {
-        //Check if Source is initialized
-        for (Source source : loadedMapStyle.getSources()) {
-            if (source.getId().equals(dataSourceID)) {
-                loadedMapStyle.removeSource(dataSourceID);
+        synchronized (this) {
+            //Generate Data Source
+            MapBoxSymbols type = MapBoxSymbols.BIKERACK;
+            List<Feature> list_feature = new ArrayList<>();
+            //Generate Markers from ArrayList
+            for (BikeRack bikeRack : bikeRacks) {
+                SymbolOptions marker = createMarker(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.BIKERACK);
+                Feature feature = Feature.fromGeometry(marker.getGeometry());
+                feature.addStringProperty("ID", bikeRack.getFirebaseID());
+                //TODO add info for Popup
+                list_feature.add(feature);
             }
+            //Create FeatureCollection from Feature List
+            FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+            //Create unclustered symbol layer
+            String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
+            createUnclusteredSymbolLayer(loadedMapStyle, id, type);
+            //Create clustered circle layer
+            createClusteredCircleOverlay(loadedMapStyle, id, type);
         }
-
-        //Generate Data Source
-        MapBoxSymbols type = MapBoxSymbols.BIKERACK;
-        List<Feature> list_feature = new ArrayList<>();
-        //Generate Markers from ArrayList
-        for (BikeRack bikeRack : bikeRacks) {
-            SymbolOptions marker = createMarker(bikeRack.getPosition().getLatitude(), bikeRack.getPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.BIKERACK);
-            Feature feature = Feature.fromGeometry(marker.getGeometry());
-            feature.addStringProperty("ID", bikeRack.getFirebaseID());
-            //TODO add info for Popup
-            list_feature.add(feature);
-        }
-        //Create FeatureCollection from Feature List
-        FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
-        //Create unclustered symbol layer
-        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
-        createUnclusteredSymbolLayer(loadedMapStyle, id, type);
-        //Create clustered circle layer
-        createClusteredCircleOverlay(loadedMapStyle, id, type);
     }
 
     /**
@@ -417,36 +413,40 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param hazardAlerts
      */
     private void updateHazardAlertOverlay(@NonNull Style loadedMapStyle, List<HazardAlert> hazardAlerts, String dataSourceID) {
-        //Check if Source is initialized
-        for (Source source : loadedMapStyle.getSources()) {
-            if (source.getId().equals(dataSourceID)) {
-                loadedMapStyle.removeSource(dataSourceID);
+        synchronized (this) {
+            //Generate Data Source
+
+            // Create Markers from data and set the 'cluster' option to true.
+            MapBoxSymbols type = MapBoxSymbols.HAZARDALERT_GENERAL;
+            List<Feature> list_feature = new ArrayList<>();
+            //Generate Markers from ArrayList
+            for (HazardAlert hazardAlert : hazardAlerts) {
+                SymbolOptions marker = createMarker(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude(), type);
+                Feature feature = Feature.fromGeometry(marker.getGeometry());
+                feature.addStringProperty("ID", hazardAlert.getFirebaseID());
+                //TODO add info for Popup
+                list_feature.add(feature);
             }
+            //Create FeatureCollection from Feature List
+            FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+            //Create unclustered symbol layer
+            String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
+            createUnclusteredSymbolLayer(loadedMapStyle, id, type);
+            //Create clustered circle layer
+            createClusteredCircleOverlay(loadedMapStyle, id, type);
         }
-
-        //Generate Data Source
-
-        // Create Markers from data and set the 'cluster' option to true.
-        MapBoxSymbols type = MapBoxSymbols.HAZARDALERT_GENERAL;
-        List<Feature> list_feature = new ArrayList<>();
-        //Generate Markers from ArrayList
-        for (HazardAlert hazardAlert : hazardAlerts) {
-            SymbolOptions marker = createMarker(hazardAlert.getPosition().getLatitude(), hazardAlert.getPosition().getLongitude(), type);
-            Feature feature = Feature.fromGeometry(marker.getGeometry());
-            feature.addStringProperty("ID", hazardAlert.getFirebaseID());
-            //TODO add info for Popup
-            list_feature.add(feature);
-        }
-        //Create FeatureCollection from Feature List
-        FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
-        //Create unclustered symbol layer
-        String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
-        createUnclusteredSymbolLayer(loadedMapStyle, id, type);
-        //Create clustered circle layer
-        createClusteredCircleOverlay(loadedMapStyle, id, type);
     }
 
     private String addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster, int clusterRadius) {
+        //TODO: ONLY ONCE FOR PRESENTATION PURPOSE
+
+        //Check if Source is initialized
+        for (Source source : loadedMapStyle.getSources()) {
+            if (source.getId().equals(ID)) {
+                loadedMapStyle.removeSource(ID);
+            }
+        }
+
         //New GeoJsonSource from FeatureCollection
         Source source = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
                 .withCluster(withCluster)

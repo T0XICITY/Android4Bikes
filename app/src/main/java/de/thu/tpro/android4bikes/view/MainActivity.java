@@ -51,11 +51,9 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
@@ -123,7 +121,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setContentView(R.layout.activity_main);
 
-        debugWriteBuffer();
+        //TODO: Debug WriteBuffer
+        //debugWriteBuffer();
 
         initFragments();
         initNavigationDrawer();
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
-        testWorkManager();
+        //testWorkManager();
         //observeInternet();
 
         WorkManagerHelper.scheduleUploadTaskWithWorkManager();
@@ -174,9 +173,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         for (int i = 0; i < 55; i++) {
             writeBuffer.addToUtilization(new Position(40.000 + i / 200.0, 9 + i / 200.0));
         }
-        writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());
-        writeBuffer.submitBikeRack(TestObjectsGenerator.generateTHUBikeRack());
-        writeBuffer.submitHazardAlerts(TestObjectsGenerator.generateHazardAlert());
+
+        for (BikeRack bikeRack : TestObjectsGenerator.generateRandomBikeRackList()) {
+            writeBuffer.submitBikeRack(bikeRack);
+        }
+        //writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());
+        //
+        //writeBuffer.submitHazardAlerts(TestObjectsGenerator.generateHazardAlert());
     }
 
     public void observeInternet() {

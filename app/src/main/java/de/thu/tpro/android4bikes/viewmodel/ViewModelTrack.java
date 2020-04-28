@@ -174,7 +174,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
     synchronized public void update(Observable observable, Object o) {
         try {
             if (o != null) {
-                if (o instanceof List && ((List) o).get(0) instanceof Track) {
+                if (o instanceof List && ((List) o).size() > 0 && ((List) o).get(0) instanceof Track) {
                     //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
                     firebaseConnection.readProfilesBasedOnTracks((List<Track>) o);
                 }

@@ -78,7 +78,7 @@ public class ViewModelBikerack extends ViewModel implements Observer {
             if (arg != null) {
                 //cast to general list
                 List list = (List) arg;
-                if (list.size() > 0 && list.get(0) instanceof BikeRack) {
+                if (list.size() > 0 && ((List) arg).size() > 0 && list.get(0) instanceof BikeRack) {
                     //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
                     list_loaded_bikeRacks = (List<BikeRack>) list;
                     list_bikeRacks_shown.postValue(list_loaded_bikeRacks);

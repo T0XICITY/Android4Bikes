@@ -74,7 +74,7 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
             if (arg != null) {
                 //cast to general list
                 List list = (List) arg;
-                if (list.size() > 0 && list.get(0) instanceof HazardAlert) {
+                if (list.size() > 0 && ((List) arg).size() > 0 && list.get(0) instanceof HazardAlert) {
                     //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
                     list_loaded_hazardAlerts = (List<HazardAlert>) list;
                     hazardAlerts.postValue(list_loaded_hazardAlerts);
