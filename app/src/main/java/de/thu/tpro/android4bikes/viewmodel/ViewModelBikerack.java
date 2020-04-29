@@ -12,6 +12,20 @@ import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.util.Processor;
 
+/**
+ * Class that provides {@link LiveData} regarding {@link BikeRack}s. All operations on HazardAlert data
+ * that are done by the UI have to be done using this class!! Following data can be observed:
+ * {@link List}<{@link BikeRack}> and an integer variable showing whether there is work in progress.
+ * Getting access and observing tracking data:
+ * <pre>{@code
+ *      public void observeViewModelListBikeRacksForChanges(){
+ *          ViewModelBikerack model_bikeRack = new ViewModelProvider(this).get(ViewModelBikerack.class);
+ *          model_bikeRack.getList_bikeRacks_shown().observe(this, newBikeRackList->{
+ *              newBikeRackList.get(0); //get the first element in the list
+ *          });
+ *      }
+ * }</pre>
+ */
 public class ViewModelBikerack extends ViewModel implements Observer {
     private CouchDBHelper localDB;
     private MutableLiveData<List<BikeRack>> list_bikeRacks_shown;
@@ -67,4 +81,6 @@ public class ViewModelBikerack extends ViewModel implements Observer {
             e.printStackTrace();
         }
     }
+
+
 }

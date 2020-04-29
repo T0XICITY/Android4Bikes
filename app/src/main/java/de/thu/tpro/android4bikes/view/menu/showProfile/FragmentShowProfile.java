@@ -1,64 +1,41 @@
 package de.thu.tpro.android4bikes.view.menu.showProfile;
 
-import android.app.DatePickerDialog;
-import android.app.FragmentManager;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ImageFormat;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.app.DialogFragment;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.util.GlobalContext;
-import de.thu.tpro.android4bikes.view.MainActivity;
-import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
-import de.thu.tpro.android4bikes.view.login.ActivityLogin;
+import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import petrov.kristiyan.colorpicker.ColorPicker;
 
 
-public class FragmentShowProfile extends Fragment {
+public class FragmentShowProfile extends Fragment implements Observer<Profile> {
+
+    private ViewModelOwnProfile vmProfile;
 
     private TextInputEditText nameEdit;
     private TextInputEditText emailEdit;
     private ImageView imageViewCircle;
-    private MaterialCardView materialCardView;
 
     private Button delete;
     private Button dialogColorPicker;
@@ -72,7 +49,6 @@ public class FragmentShowProfile extends Fragment {
      * <p>
      * TODO -> Implement Track & Achievments
      *
-     *
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -80,27 +56,31 @@ public class FragmentShowProfile extends Fragment {
      */
 
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
 
+        vmProfile = new ViewModelProvider(this).get(ViewModelOwnProfile.class);
+        vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this::onChanged);
+
         //Name & Email
         nameEdit = (TextInputEditText) view.findViewById(R.id.edit_Name_text);
         emailEdit = (TextInputEditText) view.findViewById(R.id.edit_Email_text);
 
+        // if there's an existing profile
+        Profile currentProfile = vmProfile.getMyProfile().getValue();
+        if (currentProfile != null)
+            onChanged(currentProfile);
 
-        nameEdit.setText("Max Mustermann");
-        nameEdit.setTextColor(Color.GRAY); // Text auf Graustellen
-        emailEdit.setText("max.mustermann@gmail.com");
-        emailEdit.setTextColor(Color.GRAY);     //Text auf Graustellen
+        // Text auf grau stellen
+        nameEdit.setTextColor(Color.GRAY);
+        emailEdit.setTextColor(Color.GRAY);
 
         // Delete Button & ImageView vor Profile
         delete = (Button) view.findViewById(R.id.buttonDelete);
         imageViewCircle = (ImageView) view.findViewById(R.id.imageView_Circle);
         imageViewCircle.setImageBitmap(textToBitmap("M"));
-        materialCardView = (MaterialCardView) view.findViewById(R.id.mater_card);
         //ColorPicker
         dialogColorPicker = (Button) view.findViewById(R.id.button_ChangeProfileView);
 
@@ -236,6 +216,7 @@ public class FragmentShowProfile extends Fragment {
 
                         //imageViewCircle.setColorFilter(color); //-> ändert Initialenfarbe
                     }
+
                     @Override
                     public void onCancel() {
                         // remains empty
@@ -277,30 +258,14 @@ public class FragmentShowProfile extends Fragment {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @Override
+    public void onChanged(Profile profile) {
+        Log.d("PROFILE", "" + profile);
+        if (profile!=null) {
+            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
+            nameEdit.setText(fullName);
+            // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
+            emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        }
+    }
 }

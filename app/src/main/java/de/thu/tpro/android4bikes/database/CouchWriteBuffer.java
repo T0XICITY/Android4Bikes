@@ -5,18 +5,25 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.util.Processor;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 
 import static de.thu.tpro.android4bikes.database.CouchDBHelper.DBMode;
 
+//TODO: Review code regarding OwnDB!
 public class CouchWriteBuffer implements WriteBuffer {
     private static CouchWriteBuffer instance;
     private CouchDBHelper localDBWriteBuffer;
     private CouchDBHelper localDBDeleteBuffer;
+    private CouchDBHelper cdb_OwnDB;
 
 
     private CouchWriteBuffer(){
         localDBWriteBuffer = new CouchDBHelper(DBMode.WRITEBUFFER);
         localDBDeleteBuffer = new CouchDBHelper(DBMode.DELETEBUFFER);
+
+        //local changes:
+        cdb_OwnDB = new CouchDBHelper(DBMode.OWNDATA);
     }
 
     public static CouchWriteBuffer getInstance(){
@@ -30,11 +37,12 @@ public class CouchWriteBuffer implements WriteBuffer {
     public void storeProfile(Profile profile) {
         localDBWriteBuffer.deleteProfile(profile);
         localDBWriteBuffer.storeProfile(profile);
-        //Im Hintergrund:
-        // Workmanager führt folgendes aus, wenn die Umstände passen:
-        // Workmanager liest writebuffer aus und schreibt diese Profiele auf firestore
-        // Erfolg: Profil aus wirtebuffer löschen. localDBWriteBuffer.deleteProfile(profile);
-        // Misserfolg: Nicht löschen und nochmal wann anders versuchen (retry)
+
+        //apply changes immediately to own profile in local db:
+        cdb_OwnDB.deleteMyOwnProfile();
+        cdb_OwnDB.storeMyOwnProfile(profile);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
@@ -45,36 +53,66 @@ public class CouchWriteBuffer implements WriteBuffer {
     @Override
     public void deleteProfile(Profile profile) {
         localDBDeleteBuffer.storeProfile(profile);
-        //Im Hintergrund:
-        // Workmanager führt folgendes aus, wenn die Umstände passen:
-        // Workmanager liest deletebuffer aus und löscht diese Profiele vom firestore
-        // Erfolg: Profil aus deletebuffer löschen. localDBDeleteBuffer.deleteProfile(profile);
-        // Misserfolg: Nicht löschen und nochmal wann anders versuchen (retry)
+
+        //delete profile immediately in local db:
+        cdb_OwnDB.deleteMyOwnProfile();
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
     public void submitBikeRack(BikeRack bikeRack) {
         localDBWriteBuffer.storeBikeRack(bikeRack);
+
+        //store BikeRack immediately in local db:
+        cdb_OwnDB.storeBikeRack(bikeRack);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
     public void storeTrack(Track track) {
         localDBWriteBuffer.storeTrack(track);
+
+        //store track immediately in local db:
+        cdb_OwnDB.storeTrack(track);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
     public void deleteTrack(Track track) {
         localDBDeleteBuffer.storeTrack(track);
+
+        //delete track immediately in own db:
+        cdb_OwnDB.deleteTrack(track);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
     public void submitHazardAlerts(HazardAlert hazardAlert) {
         localDBWriteBuffer.storeHazardAlerts(hazardAlert);
+
+        //store hazardAlert immediately in own db:
+        cdb_OwnDB.storeHazardAlerts(hazardAlert);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
     public void addToUtilization(Position position) {
         localDBWriteBuffer.addToUtilization(position);
         // nur auf firestore schreiben, wenn >= 50 datensätze
+    }
+
+    public void triggerUpdateWithWorkManager() {
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
+        WorkManagerHelper.scheduleUploadTaskWithWorkManager();
+    }
+
+    public void triggerUpdateTimerTask() {
+        Processor.getInstance().stopUploadTask();
+        Processor.getInstance().scheduleUploadTask();
     }
 }
