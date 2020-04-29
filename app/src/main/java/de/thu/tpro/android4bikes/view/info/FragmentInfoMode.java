@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -765,7 +766,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             newRack.setCovered(cbCovered.isChecked());
 
             Log.d(LOG_TAG, newRack.toString());
-            vmBikeRack.submitBikeRack(newRack);
+            vm_ownBikeRack.addOwnBikeRack(newRack);
         });
 
         // do nothing on cancel
