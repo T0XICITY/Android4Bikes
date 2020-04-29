@@ -6,11 +6,14 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -27,6 +30,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.mapbox.android.core.location.LocationEngineCallback;
+import com.mapbox.android.core.location.LocationEngineResult;
 import com.google.gson.JsonElement;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
@@ -42,6 +47,7 @@ import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
+import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -57,11 +63,13 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.appcompat.app.AlertDialog;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -146,6 +154,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     /**
      * Fake Observer to be called, when ViewModelHazardAlerts has changed (called by Lambda expression)
+     *
      * @param hazardList
      */
     private void onChangedHazardAlerts(List<HazardAlert> hazardList) {
@@ -156,6 +165,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     /**
      * Fake Observer to be called, when ViewModelBikeRack has changed (called by Lambda expression)
+     *
      * @param bikeRackList
      */
     private void onChangedBikeRacks(List<BikeRack> bikeRackList) {
@@ -530,32 +540,83 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     }
 
     public void submitMarker() {
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
-        dialogBuilder.setTitle(R.string.submit);
-        String[] s = getResources().getStringArray(R.array.marker);
-        dialogBuilder.setItems(R.array.marker, (dialogInterface, i) -> {
-            switch (i) {
-                case 0:
-                    submit_rack();
-                    break;
-                case 1:
-                    submit_hazard();
-                    break;
-                default:
-                    Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
-        dialogBuilder.show();
+        AlertDialog markerDialog = new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Submit")
+                .setItems(R.array.marker, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i) {
+                            case 0:
+                                submit_Rack();
+                                break;
+                            case 1:
+                                show_hazard();
+                                break;
+                            default:
+                                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                        }
+                    }
+                })
+                .create();
+        markerDialog.show();
+        markerDialog.setCanceledOnTouchOutside(false);
     }
 
-    private void submit_hazard() {
-        MaterialAlertDialogBuilder dia_hazardBuilder = new MaterialAlertDialogBuilder(getContext());
-        dia_hazardBuilder.setTitle(R.string.submit_hazard);
-        dia_hazardBuilder.setItems(R.array.hazards, (dialogInterface, i) -> {
-            // create hazard alert from entered info
-            HazardAlert newHazard = new HazardAlert();
-            newHazard.setPosition(PositionTracker.getLastPosition()); // TODO is setPosition() or setGeoPoint() correct?
-            newHazard.setType(HazardAlert.HazardType.getByType(i+1)); // i+1 since we start counting on 1
+    private void show_hazard() {
+        AlertDialog hazardDialog = new MaterialAlertDialogBuilder(getContext())
+                .setTitle(R.string.submit_hazard)
+                .setView(R.layout.dialog_hazard)
+                .setPositiveButton(R.string.submit, null)
+                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                    }
+                })
+                .create();
+        hazardDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+                hazardDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+            }
+        });
+        hazardDialog.show();
+        hazardDialog.setCanceledOnTouchOutside(false);
+
+        MapView hazardMap = (MapView) hazardDialog.findViewById(R.id.hazardMap);
+        hazardMap.onCreate(hazardDialog.onSaveInstanceState());
+
+        hazardMap.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMapRack) {
+
+                mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        if (PositionTracker.getLastPosition() != null) {
+                            mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                                    .target(PositionTracker.getLastPosition().toMapboxLocation())
+                                    .zoom(17)
+                                    .bearing(0)
+                                    .build()), 1000);
+                        }
+                    }
+                });
+
+            }
+        });
+
+        Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Spinner spinnerHazard = (Spinner) hazardDialog.findViewById(R.id.sp_hazards);
+        btnPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int i = spinnerHazard.getSelectedItemPosition();
+                // create hazard alert from entered info
+                HazardAlert newHazard = new HazardAlert();
+                newHazard.setPosition(PositionTracker.getLastPosition()); // TODO is setPosition() or setGeoPoint() correct?
+                newHazard.setType(HazardAlert.HazardType.getByType(i + 1)); // i+1 since we start counting on 1
 
             // submit hazard alert to ViewModel
             Log.d("HAZARD SUBMIT",""+ newHazard);
@@ -594,7 +655,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         rack_builder.setNegativeButton(R.string.cancel, null);
         rack_builder.show();
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -675,6 +735,54 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
         public String toString() {
             return type;
+        }
+    }
+
+    private static class LocationChangeListeningActivityLocationCallback
+            implements LocationEngineCallback<LocationEngineResult> {
+
+        private final WeakReference<FragmentInfoMode> activityWeakReference;
+
+        LocationChangeListeningActivityLocationCallback(FragmentInfoMode activity) {
+            this.activityWeakReference = new WeakReference<>(activity);
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location has changed.
+         *
+         * @param result the LocationEngineResult object which has the last known location within it.
+         */
+        @Override
+        public void onSuccess(LocationEngineResult result) {
+            FragmentInfoMode activity = activityWeakReference.get();
+
+            if (activity != null) {
+                Location location = result.getLastLocation();
+
+                if (location == null) {
+                    return;
+                }
+
+                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
+                // Pass the new location to the Maps SDK's LocationComponent
+                if (activity.mapboxMap != null && result.getLastLocation() != null) {
+                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
+                }
+            }
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
+         *
+         * @param exception the exception message
+         */
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+            FragmentInfoMode activity = activityWeakReference.get();
+            if (activity != null) {
+                Toast.makeText(activity.parent, exception.getLocalizedMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
