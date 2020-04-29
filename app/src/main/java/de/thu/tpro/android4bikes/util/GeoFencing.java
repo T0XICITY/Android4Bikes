@@ -130,18 +130,25 @@ public class GeoFencing extends Observable {
                     if (!documents_in_area.contains(documentSnapshot.getId())) {
                         documents_in_area.add(documentSnapshot.getId());
                     }
-                    //Log.d("HALLO WELT", "DocumentMoved: "+documentSnapshot.getId()+" Geo point: "+ geoPoint);
+                    Log.d("HalloWelt", "DocumentMoved: " + documentSnapshot.getId() + " Geo point: " + geoPoint);
                 }
 
                 @Override
                 public void onDocumentExited(DocumentSnapshot documentSnapshot) {
+                    Object object_to_remove = null;
+                    Map map_object = documentSnapshot.getData();
+
+                    object_to_remove = mapToObjectConverter.convertMapToObject(map_object, null);
+
                     documents_in_area.remove(documentSnapshot.getId());
+                    list_objects.remove(object_to_remove);
                     //Log.d("HALLO WELT", "DocumentExit: "+documentSnapshot.getId());
+                    setChanged();
+                    notifyObservers(list_objects);
                 }
 
                 @Override
                 public void onDocumentEntered(DocumentSnapshot documentSnapshot, GeoPoint geoPoint) {
-
                     Object object_to_add = null;
                     Map map_object = documentSnapshot.getData();
 
@@ -150,11 +157,14 @@ public class GeoFencing extends Observable {
                     documents_in_area.add(documentSnapshot.getId());
                     list_objects.add(object_to_add);
                     //Log.d("HALLO WELT", "Document Entered: "+documentSnapshot.getId()+" Geo point: "+ geoPoint);
+                    setChanged();
+                    notifyObservers(list_objects);
                 }
 
                 @Override
                 public void onDocumentChanged(DocumentSnapshot documentSnapshot, GeoPoint geoPoint) {
-
+                    geoPoint.toString();
+                    Log.d("HalloWelt", "onDocumentChanged");
                 }
 
                 @Override
@@ -162,8 +172,8 @@ public class GeoFencing extends Observable {
                     Log.d("HALLO WELT", "Query ready");
                     documents_in_area.forEach(key -> Log.d("HALLO WELT", key));
 
-                    setChanged();
-                    notifyObservers(list_objects);
+                    /*setChanged();
+                    notifyObservers(list_objects);*/
                 }
 
                 @Override

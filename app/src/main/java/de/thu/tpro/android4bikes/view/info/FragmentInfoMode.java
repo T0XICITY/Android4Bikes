@@ -276,17 +276,17 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
                             GeoPoint geopoint_currPos = new GeoPoint(latlng_currCameraPos.getLatitude(), latlng_currCameraPos.getLongitude());
 
-                            if (distance > (geoFencing_bikeRacks.getRadius() / 2)) {
+                            if (geoFencing_bikeRacks != null && distance / 1000 > (geoFencing_bikeRacks.getRadius() / 2)) {
                                 geoFencing_bikeRacks.updateCenter(geopoint_currPos);
                                 latLng_lastcamerapos = latlng_currCameraPos;
                             }
 
-                            if (distance > (geoFencing_hazardAlerts.getRadius() / 2)) {
+                            if (geoFencing_hazardAlerts != null && distance / 1000 > (geoFencing_hazardAlerts.getRadius() / 2)) {
                                 geoFencing_hazardAlerts.updateCenter(geopoint_currPos);
                                 latLng_lastcamerapos = latlng_currCameraPos;
                             }
 
-                            if (distance > (geoFencing_tracks.getRadius() / 2)) {
+                            if (geoFencing_tracks != null && distance / 1000 > (geoFencing_tracks.getRadius() / 2)) {
                                 geoFencing_tracks.updateCenter(geopoint_currPos);
                                 latLng_lastcamerapos = latlng_currCameraPos;
                             }
