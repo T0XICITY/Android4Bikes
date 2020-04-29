@@ -17,15 +17,19 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.concurrent.CountDownLatch;
 
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
+import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.commands.Command;
 import de.thu.tpro.android4bikes.data.commands.SearchForHazardAlertsWithPostalCodeInLocalDB;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -34,8 +38,10 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
+import de.thu.tpro.android4bikes.util.AchievementManager;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.MapToObjectConverter;
@@ -886,9 +892,42 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
             }
         });
     }
+
+    public void readAllKmAchievements(){
+        DocumentReference docRef = db.collection(ConstantsFirebase.COLLECTION_ACHIEVEMENTS.toString()).document(ConstantsFirebase.DOCUMENT_KM.toString());
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    Map map_result = document.getData();
+                    JSONObject result = new JSONObject(map_result);
+                    Iterator<String> keyIter = result.keys();
+                    List<KmAchievement> achievements = new ArrayList<>();
+                    while (keyIter.hasNext()){
+                        try {
+                            JSONObject one = result.getJSONObject(keyIter.next());
+                            achievements.add(gson.fromJson(one.toString(),KmAchievement.class));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    AchievementManager.getInstance().checkIfKmAchievementIsReached(achievements);
+                } else {
+                    Log.e(TAG, "FireBaseConnection error document not found");
+                    //TODO Exception Document not found
+                }
+            } else {
+                Log.e(TAG, "get failed with ", task.getException());
+                //TODO Exception no Connection
+            }
+        });
+    }
+
     //Methods for buffering################################################################################
 
     public enum ConstantsFirebase {
+        COLLECTION_ACHIEVEMENTS("AchievementDefinition"),
+        DOCUMENT_KM("km"),
         COLLECTION_PROFILES("profiles"),
         COLLECTION_UTILIZATION("utilization"),
         COLLECTION_TRACKS("tracks"),

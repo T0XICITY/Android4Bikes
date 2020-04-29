@@ -24,12 +24,14 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.util.AchievementManager;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests if the communication between {@link com.google.firebase.firestore.FirebaseFirestore} and the application
@@ -423,6 +425,20 @@ public class FirebaseConnectionTest {
         assertTrue(hazardAlerts_with_postcode_89075.contains(hazardAlert_THU));
     }*/
 
+    @Test
+    public void testAchievement(){
+        Profile p = TestObjectsGenerator.createProfile();
+        p.setOverallDistance(1001);
+        cdbOwnHelper.updateMyOwnProfile(p);
+        AchievementManager.getInstance().checkIfKmAchievementIsReached();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        p = cdbOwnHelper.readMyOwnProfile();
+        assertEquals(4,p.getAchievements().size());
+    }
 
     @Test
     public void updateToken() {
