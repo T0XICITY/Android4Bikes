@@ -522,20 +522,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
         dialogBuilder.setTitle("Store your Track!");
         dialogBuilder.setView(R.layout.dialog_feedback_track);
-        dialogBuilder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+        dialogBuilder.setPositiveButton(R.string.submit, (dialogInterface, i) ->
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into Firestore", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show());
 
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into Firestore", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
-
-        dialogBuilder.setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Don´t store ", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
+        dialogBuilder.setNegativeButton(R.string.discard, (dialogInterface, i) ->
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Don´t store ", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show());
         dialogBuilder.show();
     }
 
@@ -547,7 +538,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     public void onClick(DialogInterface dialogInterface, int i) {
                         switch (i) {
                             case 0:
-                                submit_Rack();
+                                submit_rack();
                                 break;
                             case 1:
                                 show_hazard();
@@ -618,11 +609,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 newHazard.setPosition(PositionTracker.getLastPosition()); // TODO is setPosition() or setGeoPoint() correct?
                 newHazard.setType(HazardAlert.HazardType.getByType(i + 1)); // i+1 since we start counting on 1
 
-            // submit hazard alert to ViewModel
-            Log.d("HAZARD SUBMIT",""+ newHazard);
-            vmOwnHazards.addOwnHazard(newHazard);
+                // submit hazard alert to ViewModel
+                Log.d("HAZARD SUBMIT", "" + newHazard);
+                vmOwnHazards.addOwnHazard(newHazard);
+            }
         });
-        dia_hazardBuilder.show();
+        hazardDialog.show();
     }
 
     private void submit_rack() {
@@ -630,7 +622,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_rack, null);
 
-        TextView tvRackName = dialogView.findViewById(R.id.tv_rack_name);
+        TextView tvRackName = dialogView.findViewById(R.id.edit_rack_name);
         Spinner spCapacity = dialogView.findViewById(R.id.sp_capacity);
         CheckBox cbEBike = dialogView.findViewById(R.id.chBx_ebike);
         CheckBox cbCovered = dialogView.findViewById(R.id.chBx_covered);
