@@ -31,7 +31,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import petrov.kristiyan.colorpicker.ColorPicker;
 
 
-public class FragmentShowProfile extends Fragment implements Observer<Profile>, View.OnClickListener {
+public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
     private ViewModelOwnProfile vmProfile;
 
@@ -60,10 +60,6 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile>, 
         //Name & Email
         nameEdit = view.findViewById(R.id.edit_Name_text);
         emailEdit = view.findViewById(R.id.edit_Email_text);
-
-        // clickable "your tracks" button
-        tvTracks = view.findViewById(R.id.tv_tracks);
-        ivKeyboard = view.findViewById(R.id.iv_keyboard);
 
         // if there's an existing profile
         Profile currentProfile = vmProfile.getMyProfile().getValue();
@@ -103,10 +99,6 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile>, 
 
         //If you press the ColorPicker
         dialogColorPicker.setOnClickListener(v -> openColorPicker());
-
-        //If you press the "your tracks" button
-        tvTracks.setOnClickListener(this::onClick);
-        ivKeyboard.setOnClickListener(this::onClick);
 
         //If you press the ImageView at the Achievements
         iv_a1.setOnClickListener(v -> openAchievements("Achievement 1", "Hallo1"));
@@ -196,11 +188,5 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile>, 
             // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
             emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         }
-    }
-
-    @Override
-    public void onClick(View view) {
-        parent.showOwnTracksInTrackList(true);
-        parent.openTrackList();
     }
 }

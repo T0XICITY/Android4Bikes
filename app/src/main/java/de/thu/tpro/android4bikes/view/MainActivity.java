@@ -75,6 +75,7 @@ import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
+import timber.log.Timber;
 
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // init View Models
         ViewModelProvider provider = new ViewModelProvider(this);
         vmOwnProfile = provider.get(ViewModelOwnProfile.class);
-        vmOwnProfile.getMyProfile().observe(this,this::onChanged);
+        vmOwnProfile.getMyProfile().observe(this, this::onChanged);
         vmOwnTracks = provider.get(ViewModelOwnTracks.class);
 
         setContentView(R.layout.activity_main);
@@ -253,6 +254,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(LOG_TAG, "Clicked menu_setting!");
                 openSettings();
                 break;
+            case R.id.menu_ownTracks:
+                Log.d(LOG_TAG, "Clicked menu_ownTracks");
+                fragTrackList.setShowOwnTracksOnly(true);
+                openTrackList();
+                break;
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
                 goToLoginActivity();
@@ -279,10 +285,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void showOwnTracksInTrackList(boolean ownTracksOnly) {
-        fragTrackList.setShowOwnTracksOnly(ownTracksOnly);
-    }
-
     /**
      * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,
      * it is only stored in the local WriteBuffer. If it is available on the FireStore, all databases
@@ -306,6 +308,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         btn_tracks.setOnClickListener(view -> {
             Log.d(LOG_TAG, "Clicked trackList!");
+            dLayout.closeDrawers();
             fragTrackList.setShowOwnTracksOnly(false);
             openTrackList();
         });
@@ -396,49 +399,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setTitle("Store your Track!")
                 .setView(dialogView)
                 .setPositiveButton(R.string.submit, null)
-                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
-                    }
-                })
+                .setNegativeButton(R.string.discard, (dialogInterface, i) -> Snackbar.make(findViewById(R.id.fragment_container),
+                        "Don´t store ", 1000).setAnchorView(bottomBar).show())
                 .create();
         submitTrackDialog.setCanceledOnTouchOutside(false);
-        submitTrackDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
-                submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
-            }
+        submitTrackDialog.setOnShowListener(dialogInterface -> {
+            submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+            submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
         });
         submitTrackDialog.show();
 
         Button btnPos = submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        btnPos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (tvTrackName.getText().toString().trim().equals("")) {
-                    Snackbar.make(findViewById(R.id.map_container_info), "Fill in Track Name", 1000).setAnchorView(findViewById(R.id.bottomAppBar)).show();
-                } else {
-                    Track newTrack = new Track();
-                    newTrack.setName(tvTrackName.getText().toString());
-                    newTrack.setDescription(editDesc.getText().toString());
+        btnPos.setOnClickListener(view -> {
+            if (tvTrackName.getText().toString().trim().equals("")) {
+                Snackbar.make(findViewById(R.id.map_container_info), "Fill in Track Name", 1000)
+                        .setAnchorView(findViewById(R.id.bottomAppBar)).show();
+            } else {
+                Track newTrack = new Track();
+                newTrack.setName(tvTrackName.getText().toString());
+                newTrack.setDescription(editDesc.getText().toString());
 
-                    Rating newRating = new Rating();
-                    newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
-                    newRating.setDifficulty(rbSubmitDifficulty.getProgress());
-                    newRating.setFun(rbSubmitFun.getProgress());
-                    newTrack.setRating(newRating);
+                Rating newRating = new Rating();
+                newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
+                newRating.setDifficulty(rbSubmitDifficulty.getProgress());
+                newRating.setFun(rbSubmitFun.getProgress());
+                newTrack.setRating(newRating);
 
-            // TODO Set author ID -> currently NullPointerException
+                // TODO Set author ID -> currently NullPointerException
 
-            // TODO set actual route of track
+                // TODO set actual route of track
 
-                    vmOwnTracks.submitTrack(newTrack);
-                    submitTrackDialog.dismiss();
-                }
-
+                vmOwnTracks.submitTrack(newTrack);
+                submitTrackDialog.dismiss();
             }
+
         });
     }
 
@@ -502,11 +496,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateFragment();
     }
 
-    public void openTrackList() {
+    private void openTrackList() {
         currentFragment = fragTrackList;
         hideBottomBar();
         showToolbar();
-        topAppBar.setTitle(R.string.title_tracks);
+
+        Log.d(LOG_TAG,"Own Tracks: "+fragTrackList.isOwnTracksOnly());
+        if (fragTrackList.isOwnTracksOnly())
+            topAppBar.setTitle(R.string.title_mytracks);
+        else
+            topAppBar.setTitle(R.string.title_tracks);
         updateFragment();
     }
 

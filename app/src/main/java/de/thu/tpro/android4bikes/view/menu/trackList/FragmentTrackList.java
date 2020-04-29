@@ -421,7 +421,11 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     }
 
     public void setShowOwnTracksOnly(boolean ownTracksOnly) {
-        showOwnTracksOnly = true;
+        showOwnTracksOnly = ownTracksOnly;
+    }
+
+    public boolean isOwnTracksOnly() {
+        return showOwnTracksOnly;
     }
 
     // TODO delete after testing

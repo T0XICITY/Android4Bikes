@@ -57,11 +57,8 @@
                 android:layout_marginRight="45dp"
                 android:layout_weight="1"
                 android:text="Change Profile image"
-                android:textAlignment="center"/>
-
-
+                android:textAlignment="center" />
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -113,7 +110,6 @@
                 android:paddingRight="15dp"
                 android:src="@drawable/ic_email" />
 
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/EmailText"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -137,40 +133,6 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-
-        <LinearLayout
-            android:id="@+id/ll_click"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_tracks"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:selectableItemBackground"
-                android:paddingTop="15dp"
-                android:paddingBottom="10dp"
-                android:text="Your tracks"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="22dp"/>
-
-            <ImageView
-                android:id="@+id/iv_keyboard"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:selectableItemBackground"
-                android:paddingLeft="240dp"
-                android:src="@drawable/ic_materialdesign_keyboard"/>
-
-        </LinearLayout>
-
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_design"
             android:layout_width="wrap_content"
@@ -179,7 +141,7 @@
             android:paddingBottom="10dp"
             android:text="Your achievements"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="22dp"/>
+            android:textSize="22dp" />
 
         <ScrollView
             android:layout_width="wrap_content"
@@ -204,7 +166,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Blue400Light"
-                        android:clickable="true"/>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv2"
@@ -212,7 +174,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Blue400Dark"
-                        android:clickable="true"/>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv3"
@@ -220,7 +182,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Brown400Light"
-                        android:clickable="true"/>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv4"
@@ -228,7 +190,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Red400Light"
-                        android:clickable="true"/>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv5"
@@ -236,7 +198,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Green800Light"
-                        android:clickable="true"/>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv6"
@@ -244,14 +206,14 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Yellow400Light"
-                        android:clickable="true"/>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv7"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
-                        android:background="@color/Orange400Dark"/>
+                        android:background="@color/Orange400Dark" />
 
                     <ImageView
                         android:id="@+id/iv8"
@@ -259,7 +221,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Pink400Dark"
-                        android:clickable="true"/>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv9"
@@ -267,25 +229,18 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Grey400Light"
-                        android:clickable="true"/>
-
+                        android:clickable="true" />
 
                 </LinearLayout>
             </HorizontalScrollView>
         </ScrollView>
 
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonDelete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:paddingTop="15dp"
-            android:paddingBottom="10dp"
             android:text="Delete Profile"
-            android:textAlignment="center"/>
-
+            android:textAlignment="center" />
 
     </LinearLayout>
 
