@@ -47,17 +47,13 @@ import java.util.List;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
-import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
-import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
-import de.thu.tpro.android4bikes.database.WriteBuffer;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
@@ -168,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         onCreate(savedInstanceState);
     }
 
-    private void testWorkManager() {
+    /*private void testWorkManager() {
         WriteBuffer writeBuffer = CouchWriteBuffer.getInstance();
         for (int i = 0; i < 55; i++) {
             writeBuffer.addToUtilization(new Position(40.000 + i / 200.0, 9 + i / 200.0));
@@ -180,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());
         //
         //writeBuffer.submitHazardAlerts(TestObjectsGenerator.generateHazardAlert());
-    }
+    }*/
 
     public void observeInternet() {
         ViewModelInternetConnection model_internet = new ViewModelProvider(this).get(ViewModelInternetConnection.class);
