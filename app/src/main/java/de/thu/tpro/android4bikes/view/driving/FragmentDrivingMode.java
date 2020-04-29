@@ -22,6 +22,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.DirectionsCriteria;
@@ -46,9 +47,12 @@ import com.mapbox.services.android.navigation.v5.navigation.RouteRefresh;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.services.PositionTracker;
@@ -92,6 +96,8 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     private DirectionsRoute finalroute;
     private com.mapbox.geojson.Point startPoint;
 
+    private List<Position> registeredHazardPositions;
+
     //private List<Position> bikeRacks = new ArrayList<>();
     //private List<Position> bikeTracks = new ArrayList<>();
 
@@ -107,6 +113,8 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
         vmWeather = new ViewModelProvider(this).get(ViewModelWeather.class);
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
+
+        registeredHazardPositions = new LinkedList<>();
 
         initCardView();
 
@@ -181,18 +189,22 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public void onNavigationReady(boolean isRunning) {
         parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"));
         parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapClickListener(new MapboxMap.OnMapClickListener() {
-            @Override
-            public boolean onMapClick(@NonNull LatLng point) {
-                //Implement Code
-                return false;
-            }
-        });
+
+        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap()
+                .addOnMapLongClickListener(point -> registerHazardPosition());
+
         /*TrackRecorder trackRecorder = new TrackRecorder();
         trackRecorder.start();
         //Abfage User input
         trackRecorder.stop(trackname,...);*/
 
+    }
+
+    private boolean registerHazardPosition() {
+        registeredHazardPositions.add(PositionTracker.getLastPosition());
+        Snackbar.make(getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
+        Log.d("addHazard", "List: " + registeredHazardPositions);
+        return true;
     }
 
     private void initspeedFAB(View view) {

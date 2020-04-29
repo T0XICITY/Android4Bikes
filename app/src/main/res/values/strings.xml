@@ -141,6 +141,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="loginfailure">Login went wrong</string>
     <string name="logoutfailed">Logout process failed!</string>
+    <string name="register_hazard">Registered Hazard!</string>
 
 
 </resources>
