@@ -56,11 +56,8 @@
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="45dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/colorPrimaryDark"
                 android:text="Change Profile image"
-                android:textAlignment="center"
-                android:textColorHint="@color/TextWhite"
-                android:textColor="@color/TextWhite"/>
+                android:textAlignment="center"/>
 
 
         </LinearLayout>
@@ -278,17 +275,15 @@
         </ScrollView>
 
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonDelete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:backgroundTint="@color/colorPrimaryDark"
             android:paddingTop="15dp"
             android:paddingBottom="10dp"
             android:text="Delete Profile"
-            android:textColor="@color/TextWhite"
             android:textAlignment="center"/>
 
 

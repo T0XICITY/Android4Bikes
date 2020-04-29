@@ -6,15 +6,18 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
         <item name="colorSecondary">@color/colorPrimaryDark</item>
         <item name="colorOnSecondary">@color/TextWhite</item>
-
+        <item name="materialButtonStyle">@style/CustomButtonStyle</item>
         <item name="materialAlertDialogTheme">
             @style/ThemeOverlay.MaterialComponents.MaterialAlertDialog
-
         </item>
     </style>
 
+    <style name="CustomButtonStyle" parent="Widget.AppCompat.Button.Colored">
+        <item name="backgroundTint">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/TextWhite</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
 
 </resources>
