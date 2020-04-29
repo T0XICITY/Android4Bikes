@@ -55,4 +55,5 @@ public interface FireStoreDatabase {
     //#################################################################
     void readAllOwnTracksAndStoreItToOwnDB(String firebaseID);
 
+    Profile readOwnProfileFromFireStore(String uid);
 }

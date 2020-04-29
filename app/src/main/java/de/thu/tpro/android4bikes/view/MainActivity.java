@@ -16,16 +16,22 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -38,21 +44,20 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
-import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
-import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
-import de.thu.tpro.android4bikes.database.WriteBuffer;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
@@ -63,6 +68,7 @@ import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -70,10 +76,14 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , View.OnClickListener{
-    private ViewModelOwnProfile model_profile;
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile> {
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
+
+    private ViewModelOwnProfile vmOwnProfile;
+    private ViewModelOwnTracks vmOwnTracks;
+
+    public LatLng lastPos;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
     private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
@@ -89,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private ImageView imageView;
+    private TextView tv_headerName;
+    private TextView tv_headerMail;
+
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
 
@@ -101,9 +114,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         checkFirebaseAuth();
 
+        // init View Models
+        ViewModelProvider provider = new ViewModelProvider(this);
+        vmOwnProfile = provider.get(ViewModelOwnProfile.class);
+        vmOwnTracks = provider.get(ViewModelOwnTracks.class);
+
         setContentView(R.layout.activity_main);
 
-        debugWriteBuffer();
+        //TODO: Debug WriteBuffer
+        //debugWriteBuffer();
 
         initFragments();
         initNavigationDrawer();
@@ -142,21 +161,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         locationEngine.requestLocationUpdates(request, callback, getMainLooper());
         locationEngine.getLastLocation(callback);
     }
+
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         onCreate(savedInstanceState);
     }
 
-    private void testWorkManager() {
+    /*private void testWorkManager() {
         WriteBuffer writeBuffer = CouchWriteBuffer.getInstance();
         for (int i = 0; i < 55; i++) {
-            writeBuffer.addToUtilization(new Position(40.000+i/200.0,9+i/200.0));
+            writeBuffer.addToUtilization(new Position(40.000 + i / 200.0, 9 + i / 200.0));
         }
-        writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());
-        writeBuffer.submitBikeRack(TestObjectsGenerator.generateTHUBikeRack());
-        writeBuffer.submitHazardAlerts(TestObjectsGenerator.generateHazardAlert());
-    }
+
+        for (BikeRack bikeRack : TestObjectsGenerator.generateRandomBikeRackList()) {
+            writeBuffer.submitBikeRack(bikeRack);
+        }
+        //writeBuffer.storeTrack(TestObjectsGenerator.generateTrack());
+        //
+        //writeBuffer.submitHazardAlerts(TestObjectsGenerator.generateHazardAlert());
+    }*/
 
     public void observeInternet() {
         ViewModelInternetConnection model_internet = new ViewModelProvider(this).get(ViewModelInternetConnection.class);
@@ -178,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Processor.getInstance().scheduleUploadTask();
     }
 
-    private void toastShortInMiddle(String text){
+    private void toastShortInMiddle(String text) {
         Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.getView().setBackgroundColor(Color.parseColor("#90ee90"));
@@ -238,6 +262,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    @Override
+    public void onChanged(Profile profile) {
+        Log.d("PROFILE Main", "" + profile);
+        if (profile != null) {
+            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
+            tv_headerName.setText(fullName);
+            // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
+            tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        }
+    }
+
+    /**
+     * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,
+     * it is only stored in the local WriteBuffer. If it is available on the FireStore, all databases
+     * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
+     */
     private void goToLoginActivity() {
         FirebaseAuth.getInstance().signOut();
         //todo: Delete user from local db
@@ -286,8 +326,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initNavigationDrawer() {
         dLayout = findViewById(R.id.drawerLayout);
+        tv_headerName = findViewById(R.id.tvName);
+        tv_headerMail = findViewById(R.id.tvMail);
         //find width of screen and divide by 2
-        int width = getResources().getDisplayMetrics().widthPixels/2;
+        int width = getResources().getDisplayMetrics().widthPixels / 2;
         Log.d("FragmentInfoMode", dLayout.toString());
         dLayout.closeDrawer(GravityCompat.END);
         drawer = findViewById(R.id.navigationDrawer);
@@ -339,25 +381,63 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * Show Dialog to give feedback after finishing your ride
      */
-    //TODO: delete after Testing
     private void submitTrack() {
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
-        dialogBuilder.setTitle("Store your Track!");
-        dialogBuilder.setView(R.layout.dialog_track_submit);
-        dialogBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(findViewById(R.id.fragment_container), "Store into Firestore", 1000).setAnchorView(bottomBar).show();
-            }
-        });
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_submit, null);
+        EditText tvTrackName = dialogView.findViewById(R.id.tv_track_name);
+        EditText editDesc = dialogView.findViewById(R.id.tv_submit_desc);
+        RatingBar rbSubmitRoadQuality = dialogView.findViewById(R.id.rb_submit_roadquality);
+        RatingBar rbSubmitDifficulty = dialogView.findViewById(R.id.rb_submitk_difficulty);
+        RatingBar rbSubmitFun = dialogView.findViewById(R.id.rb_submit_fun);
 
-        dialogBuilder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+
+        AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
+                .setTitle("Store your Track!")
+                .setView(dialogView)
+                .setPositiveButton(R.string.submit, null)
+                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
+                    }
+                })
+                .create();
+        submitTrackDialog.setCanceledOnTouchOutside(false);
+        submitTrackDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
+            public void onShow(DialogInterface dialogInterface) {
+                submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+                submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
             }
         });
-        dialogBuilder.show();
+        submitTrackDialog.show();
+
+        Button btnPos = submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        btnPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (tvTrackName.getText().toString().trim().equals("")) {
+                    Snackbar.make(findViewById(R.id.map_container_info), "Fill in Track Name", 1000).setAnchorView(findViewById(R.id.bottomAppBar)).show();
+                } else {
+                    Track newTrack = new Track();
+                    newTrack.setName(tvTrackName.getText().toString());
+                    newTrack.setDescription(editDesc.getText().toString());
+
+                    Rating newRating = new Rating();
+                    newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
+                    newRating.setDifficulty(rbSubmitDifficulty.getProgress());
+                    newRating.setFun(rbSubmitFun.getProgress());
+                    newTrack.setRating(newRating);
+
+                    // TODO get fine grained positions
+
+                    //newTrack.setAuthor_googleID(vmOwnProfile.getMyProfile().getValue().getGoogleID());
+
+                    vmOwnTracks.submitTrack(newTrack);
+                    submitTrackDialog.dismiss();
+                }
+
+            }
+        });
     }
 
     /**
@@ -508,20 +588,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void debugWriteBuffer(){
-        Processor.getInstance().startRunnable(()->{
+    private void debugWriteBuffer() {
+        Processor.getInstance().startRunnable(() -> {
             CouchDBHelper cdb = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
-            while (true){
+            while (true) {
                 List<HazardAlert> haz = cdb.readHazardAlerts();
                 List<BikeRack> br = cdb.readBikeRacks();
                 List<Track> tr = cdb.readTracks();
-                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
-                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
-                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
-                Log.d("HalloWelt","Debug OWN Profile :"+cdb.readMyOwnProfile());
+                Log.d("HalloWelt", "Debug Buffer: Tracks (" + tr.size() + "):" + tr.toString());
+                Log.d("HalloWelt", "Debug Buffer: BikeRacks (" + br.size() + "):" + br.toString());
+                Log.d("HalloWelt", "Debug Buffer: Hazards (" + haz.size() + "):" + haz.toString());
+                Log.d("HalloWelt", "Debug OWN Profile :" + cdb.readMyOwnProfile());
                 try {
                     Thread.sleep(5000);
-                }catch (InterruptedException e){
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }

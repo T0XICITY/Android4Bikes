@@ -14,7 +14,6 @@ import com.couchbase.lite.ResultSet;
 import com.couchbase.lite.SelectResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mapbox.api.directions.v5.models.DirectionsRoute;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,7 +32,7 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
-import de.thu.tpro.android4bikes.util.JSONHelper;
+import de.thu.tpro.android4bikes.util.MapToObjectConverter;
 import de.thu.tpro.android4bikes.util.deserialization.AchievementDeserializer;
 
 /**
@@ -47,6 +46,10 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     private Gson gson;
     private Gson gson_achievement;
     private DBMode currentMode;
+    private MapToObjectConverter<BikeRack> mapToObjectConverter_bikeRack;
+    private MapToObjectConverter<Track> mapToObjectConverter_track;
+    private MapToObjectConverter<HazardAlert> mapToObjectConverter_hazardAlert;
+    private MapToObjectConverter<Profile> mapToObjectConverter_profile;
 
     public CouchDBHelper() {
         couchDB = CouchDB.getInstance();
@@ -56,6 +59,12 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         GsonBuilder gsonBuilder_achievement = new GsonBuilder();
         gsonBuilder_achievement.registerTypeAdapter(Achievement.class, new AchievementDeserializer<Achievement>());
         gson_achievement = gsonBuilder_achievement.create();
+
+        //Generate MapToObjectConverter for each required class:
+        mapToObjectConverter_bikeRack = new MapToObjectConverter<>(BikeRack.class);
+        mapToObjectConverter_track = new MapToObjectConverter<>(Track.class);
+        mapToObjectConverter_hazardAlert = new MapToObjectConverter<>(HazardAlert.class);
+        mapToObjectConverter_profile = new MapToObjectConverter<>(Profile.class);
 
         currentMode = DBMode.OFFLINEDATA;
     }
@@ -154,25 +163,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
                 Map<String, Object> map_track = result.toMap();
-                JSONObject jsonObject_track = new JSONObject(map_track);
-                jsonObject_track = (JSONObject) jsonObject_track.get(db_name);
-                String jsonString_Route;
-                try{
-                    jsonString_Route = jsonObject_track.getString(Track.ConstantsTrack.ROUTE.toString());
-                }catch (Exception e){
-                    e.printStackTrace();
-                    jsonString_Route = null;
-                }
-                DirectionsRoute route;
-                if (jsonString_Route != null){
-                    route = DirectionsRoute.fromJson(jsonString_Route);
-                    jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
-                }else {
-                    route = null;
-                }
-                JSONHelper<Track> helper = new JSONHelper<>(Track.class);
-                Track track = helper.convertJSONObjectToObject(jsonObject_track);
-                track.setRoute(route);
+                Track track = mapToObjectConverter_track.convertMapToObject(map_track, db_name);
                 tracks.add(track);
             }
         } catch (Exception e) {
@@ -186,6 +177,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
         return tracks;
     }
+
 
     @Override
     public void deleteTrack(Track track) {
@@ -284,7 +276,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
-                hazardAlert = convertMapHazardAlertToHazardAlert(result.toMap(), db_name);
+                hazardAlert = mapToObjectConverter_hazardAlert.convertMapToObject(result.toMap(), db_name);
                 hazardAlerts.add(hazardAlert);
             }
         } catch (Exception e) {
@@ -422,7 +414,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
         }
 
 
-        Profile profile = convertMapProfileToProfile(map_profile, null); //todo: Conversion from map to profile
+        Profile profile = mapToObjectConverter_profile.convertMapToObject(map_profile, null);
 
         if (profile != null) {
             if (currentMode == DBMode.OWNDATA) {
@@ -431,41 +423,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
                 readProfile(profile.getGoogleID());
             }
         }
-    }
-
-    /**
-     * @param map_profile map representing a profile.
-     * @param db_name     required for query results that are delivered by the local db. Otherwise null as value is ok.
-     * @return
-     */
-    private Profile convertMapProfileToProfile(Map map_profile, String db_name) {
-        Profile profile = null;
-        try {
-            JSONObject jsonObject_profile = null;
-            JSONArray jsonArray_achievement = null;
-
-            jsonObject_profile = new JSONObject(map_profile);
-
-            if (db_name != null) {
-                jsonObject_profile = (JSONObject) jsonObject_profile.get(db_name);
-            }
-
-            jsonArray_achievement = jsonObject_profile.getJSONArray(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
-            List<Achievement> list_achievements = new ArrayList<>();
-
-            for (int i = 0; i < jsonArray_achievement.length(); ++i) {
-                JSONObject jsonObject_achievement = jsonArray_achievement.getJSONObject(i);
-                Achievement achievement = gson_achievement.fromJson(jsonObject_achievement.toString(), Achievement.class);
-                list_achievements.add(achievement);
-            }
-
-            jsonObject_profile.remove(Profile.ConstantsProfile.ACHIEVEMENTS.toString());
-            profile = gson.fromJson(jsonObject_profile.toString(), Profile.class);
-            profile.setAchievements(list_achievements);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return profile;
     }
 
     @Override
@@ -499,7 +456,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
 
             for (Result result : results) {
                 Map map_result = result.toMap();
-                profile = convertMapProfileToProfile(map_result, db_name);
+                profile = mapToObjectConverter_profile.convertMapToObject(map_result, db_name);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -628,7 +585,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             for (Result result : results) {
                 couchDB.deleteDocumentByID(db_profile, result.getString(CouchDB.AttributeNames.DATABASE_ID.toText()));
             }
-            Log.d("HalloWelt", "Deleted profile sucessfully from "+currentMode.toText());
+            //Log.d("HalloWelt", "Deleted profile sucessfully from "+currentMode.toText());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -704,7 +661,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             ResultSet results = couchDB.queryDatabase(query);
             for (Result result : results) {
                 //convert result to jsonObject-string
-                bikeRack = convertMapBikeRackToBikeRack(result.toMap(), db_name);
+                bikeRack = mapToObjectConverter_bikeRack.convertMapToObject(result.toMap(), db_name);
                 bikeRacks.add(bikeRack);
             }
         } catch (Exception e) {
@@ -781,12 +738,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     }
 
     @Override
-    public Position getLastPosition() {
-        //todo
-        return new Position( 9.836149,48.304486);
-    }
-
-    @Override
     public void storeBikeRack(Map map_bikeRack) {
         Database db_bikerack = null;
         try {
@@ -807,7 +758,7 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             e.printStackTrace();
         }
 
-        BikeRack bikeRack = convertMapBikeRackToBikeRack(map_bikeRack, null);
+        BikeRack bikeRack = mapToObjectConverter_bikeRack.convertMapToObject(map_bikeRack, null);
         if (bikeRack != null) {
             readBikeRacks();
         }
@@ -834,45 +785,13 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
             e.printStackTrace();
         }
 
-        HazardAlert hazardAlert = convertMapHazardAlertToHazardAlert(map_hazardAlert, null);
+        HazardAlert hazardAlert = mapToObjectConverter_hazardAlert.convertMapToObject(map_hazardAlert, null);
         if (hazardAlert != null) {
             readHazardAlerts();
         }
     }
 
-    private BikeRack convertMapBikeRackToBikeRack(Map map_bikeRack, String db_name) {
-        BikeRack bikeRack = null;
-        try {
-            JSONObject jsonObject_result = null;
-            jsonObject_result = new JSONObject(map_bikeRack);
-            if (db_name != null) {
-                jsonObject_result = (JSONObject) jsonObject_result.get(db_name);
-            }
-            bikeRack = gson.fromJson(jsonObject_result.toString(), BikeRack.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return bikeRack;
-    }
 
-    private HazardAlert convertMapHazardAlertToHazardAlert(Map map_hazardAlert, String db_name) {
-        HazardAlert hazardAlert = null;
-        try {
-            JSONObject jsonObject_result = null;
-            //convert result to jsonObject-string
-            jsonObject_result = new JSONObject(map_hazardAlert);
-            //result document -> "db_haradAlert":{ <object> }
-            //because the necessary object in nested, we have to access it by getting it:
-            if (db_name != null) {
-                jsonObject_result = (JSONObject) jsonObject_result.get(db_name);
-            }
-            hazardAlert = gson.fromJson(jsonObject_result.toString(), HazardAlert.class);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return hazardAlert;
-    }
 
     /**
      * Generates the JSON representation out of a mutable document

@@ -88,7 +88,7 @@
                     android:scaleType="centerCrop"
                     android:scaleX="0.75"
                     android:scaleY="0.75"
-                    android:src="@drawable/weather_partly_cloudy" />
+                    android:src="@drawable/weather_few_clouds" />
 
             </androidx.cardview.widget.CardView>
 
@@ -109,7 +109,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:maxImageSize="64dp"
-        app:srcCompat="@drawable/weather_partly_cloudy" />
+        app:srcCompat="@drawable/weather_few_clouds" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
@@ -121,19 +121,6 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/start_nav"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="96dp"
-        android:tint="@android:color/white"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:maxImageSize="24dp"
-        app:srcCompat="@drawable/ic_directions_car_black_24dp" />
 
     <com.mapbox.services.android.navigation.ui.v5.NavigationView
         android:id="@+id/navigation_view"

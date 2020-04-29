@@ -2,12 +2,9 @@ package de.thu.tpro.android4bikes.services;
 
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import de.thu.tpro.android4bikes.data.achievements.Achievement;
-import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -60,7 +57,11 @@ public class UploadRunnable implements Runnable {
      * @return current version of own profile or null
      */
     private Profile readProfileWriteBuffer() {
-        Profile buffered_profile = cdb_writeBuffer.readProfile(cdb_ownData.readMyOwnProfile().getGoogleID());
+        Profile p = cdb_ownData.readMyOwnProfile();
+        Profile buffered_profile = null;
+        if (p != null) {
+            buffered_profile = cdb_writeBuffer.readProfile(p.getGoogleID());
+        }
         return buffered_profile;
     }
 
@@ -70,7 +71,11 @@ public class UploadRunnable implements Runnable {
      * @return current version of own profile or null
      */
     private Profile readProfileDeleteBuffer() {
-        Profile buffered_profile = cdb_deleteBuffer.readProfile(cdb_ownData.readMyOwnProfile().getGoogleID());
+        Profile p = cdb_ownData.readMyOwnProfile();
+        Profile buffered_profile = null;
+        if (p != null) {
+            buffered_profile = cdb_deleteBuffer.readProfile(p.getGoogleID());
+        }
         return buffered_profile;
     }
 

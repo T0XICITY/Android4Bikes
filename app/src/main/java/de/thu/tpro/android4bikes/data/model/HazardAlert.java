@@ -181,5 +181,18 @@ public class HazardAlert {
         public int getType() {
             return type;
         }
+
+        /**
+         * Gets the corresponding HazardType to a type int
+         * @param type as int code
+         * @return HazardType
+         */
+        public static HazardType getByType(int type) {
+            for (HazardType value : HazardType.values()) {
+                if (value.type == type)
+                    return value;
+            }
+            return null; // if nothing found
+        }
     }
 }

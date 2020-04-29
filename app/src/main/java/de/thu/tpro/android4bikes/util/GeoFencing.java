@@ -12,16 +12,28 @@ import org.imperiumlabs.geofirestore.GeoQuery;
 import org.imperiumlabs.geofirestore.listeners.GeoQueryDataEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+
+import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDBHelper;
 
 
-public class GeoFencing {
+public class GeoFencing extends Observable {
     /**
      * See: https://github.com/imperiumlabs/GeoFirestore-Android
      */
 
-    GeoFirestore geoFirestore;
-    ArrayList<String> documents_in_area;
-    GeoQuery geoQuery;
+    private GeoFirestore geoFirestore;
+    private ArrayList<String> documents_in_area;
+    private GeoQuery geoQuery;
+    private CouchDBHelper couchDBHelper;
+    private ConstantsGeoFencing currentCollection;
+    private MapToObjectConverter mapToObjectConverter;
+
 
     /**
      * Create new Geofence Object at a given point with a certain radius of interest.
@@ -32,6 +44,22 @@ public class GeoFencing {
         CollectionReference collectionReference = FirebaseFirestore.getInstance().collection(collection.toString());
         geoFirestore = new GeoFirestore(collectionReference);
         documents_in_area = new ArrayList<>();
+
+        couchDBHelper = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
+        this.currentCollection = collection;
+
+        switch (currentCollection) {
+            case COLLECTION_TRACKS:
+                mapToObjectConverter = new MapToObjectConverter<>(Track.class);
+                break;
+            case COLLECTION_BIKERACKS:
+                mapToObjectConverter = new MapToObjectConverter<>(BikeRack.class);
+                break;
+            case COLLECTION_HAZARDS:
+                mapToObjectConverter = new MapToObjectConverter<>(HazardAlert.class);
+                break;
+        }
+
     }
 
     /**
@@ -92,6 +120,9 @@ public class GeoFencing {
 
 
     public boolean startGeoFenceListener() {
+        List<Object> list_objects = new ArrayList<>();
+
+
         if (geoQuery != null) {
             geoQuery.addGeoQueryDataEventListener(new GeoQueryDataEventListener() {
                 @Override
@@ -99,30 +130,50 @@ public class GeoFencing {
                     if (!documents_in_area.contains(documentSnapshot.getId())) {
                         documents_in_area.add(documentSnapshot.getId());
                     }
-                    //Log.d("HALLO WELT", "DocumentMoved: "+documentSnapshot.getId()+" Geo point: "+ geoPoint);
+                    Log.d("HalloWelt", "DocumentMoved: " + documentSnapshot.getId() + " Geo point: " + geoPoint);
                 }
 
                 @Override
                 public void onDocumentExited(DocumentSnapshot documentSnapshot) {
+                    Object object_to_remove = null;
+                    Map map_object = documentSnapshot.getData();
+
+                    object_to_remove = mapToObjectConverter.convertMapToObject(map_object, null);
+
                     documents_in_area.remove(documentSnapshot.getId());
+                    list_objects.remove(object_to_remove);
                     //Log.d("HALLO WELT", "DocumentExit: "+documentSnapshot.getId());
+                    setChanged();
+                    notifyObservers(list_objects);
                 }
 
                 @Override
                 public void onDocumentEntered(DocumentSnapshot documentSnapshot, GeoPoint geoPoint) {
+                    Object object_to_add = null;
+                    Map map_object = documentSnapshot.getData();
+
+                    object_to_add = mapToObjectConverter.convertMapToObject(map_object, null);
+
                     documents_in_area.add(documentSnapshot.getId());
+                    list_objects.add(object_to_add);
                     //Log.d("HALLO WELT", "Document Entered: "+documentSnapshot.getId()+" Geo point: "+ geoPoint);
+                    setChanged();
+                    notifyObservers(list_objects);
                 }
 
                 @Override
                 public void onDocumentChanged(DocumentSnapshot documentSnapshot, GeoPoint geoPoint) {
-
+                    geoPoint.toString();
+                    Log.d("HalloWelt", "onDocumentChanged");
                 }
 
                 @Override
                 public void onGeoQueryReady() {
                     Log.d("HALLO WELT", "Query ready");
                     documents_in_area.forEach(key -> Log.d("HALLO WELT", key));
+
+                    /*setChanged();
+                    notifyObservers(list_objects);*/
                 }
 
                 @Override
@@ -141,6 +192,10 @@ public class GeoFencing {
             return true;
         }
         return false;
+    }
+
+    public double getRadius() {
+        return geoQuery.getRadius();
     }
 
     public enum ConstantsGeoFencing {

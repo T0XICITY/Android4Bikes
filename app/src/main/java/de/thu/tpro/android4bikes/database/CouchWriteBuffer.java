@@ -41,6 +41,8 @@ public class CouchWriteBuffer implements WriteBuffer {
         //apply changes immediately to own profile in local db:
         cdb_OwnDB.deleteMyOwnProfile();
         cdb_OwnDB.storeMyOwnProfile(profile);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
@@ -54,6 +56,8 @@ public class CouchWriteBuffer implements WriteBuffer {
 
         //delete profile immediately in local db:
         cdb_OwnDB.deleteMyOwnProfile();
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
@@ -62,6 +66,8 @@ public class CouchWriteBuffer implements WriteBuffer {
 
         //store BikeRack immediately in local db:
         cdb_OwnDB.storeBikeRack(bikeRack);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
@@ -70,6 +76,8 @@ public class CouchWriteBuffer implements WriteBuffer {
 
         //store track immediately in local db:
         cdb_OwnDB.storeTrack(track);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
@@ -78,6 +86,8 @@ public class CouchWriteBuffer implements WriteBuffer {
 
         //delete track immediately in own db:
         cdb_OwnDB.deleteTrack(track);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
@@ -86,6 +96,8 @@ public class CouchWriteBuffer implements WriteBuffer {
 
         //store hazardAlert immediately in own db:
         cdb_OwnDB.storeHazardAlerts(hazardAlert);
+
+        triggerUpdateWithWorkManager();
     }
 
     @Override
@@ -95,15 +107,11 @@ public class CouchWriteBuffer implements WriteBuffer {
     }
 
     public void triggerUpdateWithWorkManager() {
-        //TODO: Review -> is interference possible?
-        //TODO: insert in code
         WorkManagerHelper.stopUploadTaskWithWorkManager();
         WorkManagerHelper.scheduleUploadTaskWithWorkManager();
     }
 
     public void triggerUpdateTimerTask() {
-        //TODO: Review -> is interference possible?
-        //TODO: insert in code
         Processor.getInstance().stopUploadTask();
         Processor.getInstance().scheduleUploadTask();
     }

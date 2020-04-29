@@ -46,6 +46,7 @@ public class Processor {
     public void stopUploadTask() {
         if (timer_uploadTask != null) {
             cancelTimerTask(timer_uploadTask);
+            timer_uploadTask.purge();
             timer_uploadTask = null;
         }
     }
