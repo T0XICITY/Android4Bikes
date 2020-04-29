@@ -289,7 +289,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * it is only stored in the local WriteBuffer. If it is available on the FireStore, all databases
      * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
      */
-    private void goToLoginActivity() {
+    public void goToLoginActivity() {
         FirebaseAuth.getInstance().signOut();
         //todo: Delete user from local db
         Intent intent = new Intent(this, ActivityLogin.class);

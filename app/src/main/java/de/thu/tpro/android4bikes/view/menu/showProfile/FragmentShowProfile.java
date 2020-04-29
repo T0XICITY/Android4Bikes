@@ -19,6 +19,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import petrov.kristiyan.colorpicker.ColorPicker;
@@ -72,6 +76,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
         // Delete Button & ImageView vor Profile
         delete = view.findViewById(R.id.buttonDelete);
+        delete.setOnClickListener(v -> confirmDeletion());
         imageViewCircle = view.findViewById(R.id.imageView_Circle);
         imageViewCircle.setImageBitmap(textToBitmap("M"));
         //ColorPicker
@@ -178,6 +183,19 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         da.show(getParentFragmentManager(), "Open Achievements");
     }
 
+    public void deleteMyProfile() {
+        // TODO uncomment this line when we really want to mess around with profile deletion
+        // vmProfile.deleteMyProfile();
+        parent.goToLoginActivity();
+    }
+
+    public void confirmDeletion() {
+        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(GlobalContext.getContext());
+        dialogBuilder.setTitle(R.string.confirmation);
+        dialogBuilder.setMessage(R.string.confirmation_message);
+        dialogBuilder.setPositiveButton(R.string.delete, (dialogInterface, i) -> deleteMyProfile());
+        dialogBuilder.setNegativeButton(R.string.cancel, null); // do nothing on cancel
+    }
 
     @Override
     public void onChanged(Profile profile) {
