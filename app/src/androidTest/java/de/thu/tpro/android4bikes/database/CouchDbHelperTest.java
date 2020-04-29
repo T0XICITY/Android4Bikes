@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import de.thu.tpro.android4bikes.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -16,7 +17,6 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.util.GlobalContext;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

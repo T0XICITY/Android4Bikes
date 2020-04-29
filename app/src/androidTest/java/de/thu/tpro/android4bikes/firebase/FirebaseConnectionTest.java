@@ -16,6 +16,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import de.thu.tpro.android4bikes.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -27,11 +28,9 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.util.AchievementManager;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests if the communication between {@link com.google.firebase.firestore.FirebaseFirestore} and the application

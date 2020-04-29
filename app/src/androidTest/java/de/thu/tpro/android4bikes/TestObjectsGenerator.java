@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.util;
+package de.thu.tpro.android4bikes;
 
 import android.content.Context;
 
@@ -22,6 +22,7 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.util.GlobalContext;
 
 public class TestObjectsGenerator {
     /**

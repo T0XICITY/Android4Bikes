@@ -15,7 +15,6 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.Processor;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
 /**
  * Class that provides {@link LiveData} regarding {@link Track}s. All operations on track data
@@ -75,10 +74,6 @@ public class ViewModelTrack extends ViewModel implements Observer {
 
         //set initial values
         workInProgress.postValue(0);
-
-        //generate dummy data
-        this.map_tracks_profile_shown.postValue(TestObjectsGenerator.initialize_map_track_profile());
-
 
         //initialize GeoFencing
         geoFencing_tracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);

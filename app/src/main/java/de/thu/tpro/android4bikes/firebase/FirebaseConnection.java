@@ -17,7 +17,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -38,14 +37,12 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
-import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.util.AchievementManager;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.MapToObjectConverter;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
 
 public class FirebaseConnection extends Observable implements FireStoreDatabase {
@@ -496,6 +493,11 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     }
 
 
+    public static Profile createAnonProfile() {
+        List<Achievement> list = new ArrayList<>();
+        return new Profile("Android", "Biker", "-1", 0x2e8b57, 0, list);
+    }
+
     /**
      * TODO
      *
@@ -514,7 +516,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         //...
 
         tracks.forEach(entry -> {
-            map_track_profile.put(entry, TestObjectsGenerator.createAnonProfile());
+            map_track_profile.put(entry, createAnonProfile());
         });
 
         setChanged();
