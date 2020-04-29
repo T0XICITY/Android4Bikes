@@ -51,6 +51,7 @@ import java.util.List;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
@@ -377,6 +378,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (currentFragment.equals(fragDriving)) {
             openInfoMode();
             submitTrack();
+            List<Position> hazardPositions = fragDriving.getRegisteredHazardPositions();
+            if (hazardPositions.size() > 0) {
+                for (Position hazPos : fragDriving.getRegisteredHazardPositions())
+                    fragInfo.submit_hazard(hazPos);
+            }
         } else {
             openDrivingMode();
         }

@@ -679,24 +679,30 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         markerDialog.setCanceledOnTouchOutside(false);
     }
 
+    /**
+     * submits a Hazard Alert on the current position
+     */
     private void submit_hazard() {
-        AlertDialog hazardDialog = new MaterialAlertDialogBuilder(getContext())
+        submit_hazard(PositionTracker.getLastPosition());
+    }
+
+    /**
+     * submits a Hazard Alert on the given position
+     * @param hazardPosition position of the hazard to report
+     */
+    public void submit_hazard(Position hazardPosition) {
+        AlertDialog hazardDialog = new MaterialAlertDialogBuilder(parent)
                 .setTitle(R.string.submit_hazard)
                 .setView(R.layout.dialog_hazard)
                 .setPositiveButton(R.string.submit, null)
-                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                    }
-                })
+                .setNegativeButton(R.string.discard, (dialogInterface, i) ->
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), R.string.dismiss, 1000)
+                                .setAnchorView(viewInfo.findViewById(R.id.bottomAppBar))
+                                .show())
                 .create();
-        hazardDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
-                hazardDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
-            }
+        hazardDialog.setOnShowListener(dialogInterface -> {
+            hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+            hazardDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
         });
         hazardDialog.show();
         hazardDialog.setCanceledOnTouchOutside(false);
@@ -704,25 +710,18 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         MapView hazardMap = hazardDialog.findViewById(R.id.hazardMap);
         hazardMap.onCreate(hazardDialog.onSaveInstanceState());
 
-        hazardMap.getMapAsync(new OnMapReadyCallback() {
+        hazardMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMapRack) {
-
-                mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        if (PositionTracker.getLastPosition() != null) {
-                            mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                                    .target(PositionTracker.getLastPosition().toMapboxLocation())
-                                    .zoom(17)
-                                    .bearing(0)
-                                    .build()), 1000);
-                        }
-                    }
-                });
-
+            public void onStyleLoaded(@NonNull Style style) {
+                if (PositionTracker.getLastPosition() != null) {
+                    mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                            .target(PositionTracker.getLastPosition().toMapboxLocation())
+                            .zoom(17)
+                            .bearing(0)
+                            .build()), 1000);
+                }
             }
-        });
+        }));
 
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
@@ -732,7 +731,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 int i = spinnerHazard.getSelectedItemPosition();
                 // create hazard alert from entered info
                 HazardAlert newHazard = new HazardAlert();
-                newHazard.setPosition(PositionTracker.getLastPosition()); // TODO is setPosition() or setGeoPoint() correct?
+                newHazard.setPosition(hazardPosition); // TODO is setPosition() or setGeoPoint() correct?
                 newHazard.setType(HazardAlert.HazardType.getByType(i + 1)); // i+1 since we start counting on 1
 
                 // submit hazard alert to ViewModel

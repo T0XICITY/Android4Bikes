@@ -78,6 +78,7 @@
     <string name="accept">Accept</string>
     <string name="reset">Reset</string>
     <string name="delete">Delete</string>
+    <string name="dismiss">Dismiss</string>
     <!---Setting Strings -->
     <string name="settings_Bluetooth">Bluetooth</string>
     <string name="settings_Bluetooth_summary">Einstellungen für zusätliche Bluetooth Hardware</string>

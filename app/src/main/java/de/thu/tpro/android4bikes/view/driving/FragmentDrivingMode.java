@@ -515,6 +515,10 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         return (int) Math.rint(base * factor);
     }
 
+    public List<Position> getRegisteredHazardPositions() {
+        return registeredHazardPositions;
+    }
+
 
     /*//TODO: handle permission in a central class
     private void locationPermissions() {
