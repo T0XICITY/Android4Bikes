@@ -2,6 +2,7 @@ package de.thu.tpro.android4bikes.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -15,12 +16,15 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -377,41 +381,63 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /**
      * Show Dialog to give feedback after finishing your ride
      */
-    //TODO: delete after Testing
-        private void submitTrack() {
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(this);
+    private void submitTrack() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_submit, null);
-
-        TextView tvTrackName = dialogView.findViewById(R.id.tv_track_name);
-        TextView tvDescription = dialogView.findViewById(R.id.tv_submit_desc);
+        EditText tvTrackName = dialogView.findViewById(R.id.tv_track_name);
+        EditText editDesc = dialogView.findViewById(R.id.tv_submit_desc);
         RatingBar rbSubmitRoadQuality = dialogView.findViewById(R.id.rb_submit_roadquality);
         RatingBar rbSubmitDifficulty = dialogView.findViewById(R.id.rb_submitk_difficulty);
         RatingBar rbSubmitFun = dialogView.findViewById(R.id.rb_submit_fun);
 
-        dialogBuilder.setTitle("Store your Track!");
-        dialogBuilder.setView(dialogView);
 
-        dialogBuilder.setPositiveButton("Submit", (dialogInterface, i) -> {
-            Track newTrack = new Track();
-            newTrack.setName(tvTrackName.getText().toString());
-            newTrack.setDescription(tvDescription.getText().toString());
-
-            Rating newRating = new Rating();
-            newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
-            newRating.setDifficulty(rbSubmitDifficulty.getProgress());
-            newRating.setFun(rbSubmitFun.getProgress());
-            newTrack.setRating(newRating);
-
-            // TODO get fine grained positions
-
-            newTrack.setAuthor_googleID(vmOwnProfile.getMyProfile().getValue().getGoogleID());
-
-            vmOwnTracks.submitTrack(newTrack);
+        AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
+                .setTitle("Store your Track!")
+                .setView(dialogView)
+                .setPositiveButton(R.string.submit, null)
+                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
+                    }
+                })
+                .create();
+        submitTrackDialog.setCanceledOnTouchOutside(false);
+        submitTrackDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+                submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+            }
         });
+        submitTrackDialog.show();
 
-        dialogBuilder.setNegativeButton("Discard", null); // do nothing on Cancel
+        Button btnPos = submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        btnPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (tvTrackName.getText().toString().trim().equals("")) {
+                    Snackbar.make(findViewById(R.id.map_container_info), "Fill in Track Name", 1000).setAnchorView(findViewById(R.id.bottomAppBar)).show();
+                } else {
+                    Track newTrack = new Track();
+                    newTrack.setName(tvTrackName.getText().toString());
+                    newTrack.setDescription(editDesc.getText().toString());
 
-        dialogBuilder.show();
+                    Rating newRating = new Rating();
+                    newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
+                    newRating.setDifficulty(rbSubmitDifficulty.getProgress());
+                    newRating.setFun(rbSubmitFun.getProgress());
+                    newTrack.setRating(newRating);
+
+                    // TODO get fine grained positions
+
+                    //newTrack.setAuthor_googleID(vmOwnProfile.getMyProfile().getValue().getGoogleID());
+
+                    vmOwnTracks.submitTrack(newTrack);
+                    submitTrackDialog.dismiss();
+                }
+
+            }
+        });
     }
 
     /**
@@ -569,10 +595,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 List<HazardAlert> haz = cdb.readHazardAlerts();
                 List<BikeRack> br = cdb.readBikeRacks();
                 List<Track> tr = cdb.readTracks();
-                Log.d("HalloWelt","Debug Buffer: Tracks ("+tr.size()+"):"+tr.toString());
-                Log.d("HalloWelt","Debug Buffer: BikeRacks ("+br.size()+"):"+br.toString());
-                Log.d("HalloWelt","Debug Buffer: Hazards ("+haz.size()+"):"+haz.toString());
-                Log.d("HalloWelt","Debug OWN Profile :"+cdb.readMyOwnProfile());
+                Log.d("HalloWelt", "Debug Buffer: Tracks (" + tr.size() + "):" + tr.toString());
+                Log.d("HalloWelt", "Debug Buffer: BikeRacks (" + br.size() + "):" + br.toString());
+                Log.d("HalloWelt", "Debug Buffer: Hazards (" + haz.size() + "):" + haz.toString());
+                Log.d("HalloWelt", "Debug OWN Profile :" + cdb.readMyOwnProfile());
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {

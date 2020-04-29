@@ -6,18 +6,21 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -29,6 +32,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.JsonElement;
+import com.mapbox.android.core.location.LocationEngineCallback;
+import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -43,6 +48,7 @@ import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
+import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -58,6 +64,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -172,6 +179,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     /**
      * Fake Observer to be called, when ViewModelHazardAlerts has changed (called by Lambda expression)
+     *
      * @param hazardList
      */
     private void onChangedHazardAlerts(List<HazardAlert> hazardList) {
@@ -179,11 +187,19 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //String snackText = String.format("%d new Hazard Alerts found!", hazardList.size());
         //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
         //TODO: delete overlay
+        List<HazardAlert> cleared = new ArrayList<>();
+        hazardList.forEach(entry -> {
+            if (entry.getPosition() != null) {
+                cleared.add(entry);
+            }
+        });
+        hazardList = cleared;
         updateHazardAlertOverlay(style, hazardList, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
     }
 
     /**
      * Fake Observer to be called, when ViewModelBikeRack has changed (called by Lambda expression)
+     *
      * @param bikeRackList
      */
     private void onChangedBikeRacks(List<BikeRack> bikeRackList) {
@@ -191,13 +207,31 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //String snackText = String.format("%d new Bike Racks found!", bikeRackList.size());
         //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
         //TODO: delete overlay
+
+        List<BikeRack> cleared = new ArrayList<>();
+        bikeRackList.forEach(entry -> {
+            if (entry.getPosition() != null) {
+                cleared.add(entry);
+            }
+        });
+        bikeRackList = cleared;
         updateBikeRackOverlay(style, bikeRackList, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
     }
 
     private void onChangedTracks(Map<Track, Profile> trackProfileMap) {
         List<Track> list_tracks = new ArrayList<>();
-        trackProfileMap.keySet().forEach(entry -> list_tracks.add(entry));
+        for (Track t : trackProfileMap.keySet()) {
+            list_tracks.add(t);
+        }
         //TODO: delete overlay
+
+        List<Track> cleared = new ArrayList<>();
+        list_tracks.forEach(entry -> {
+            if (entry.getStartPosition() != null) {
+                cleared.add(entry);
+            }
+        });
+        list_tracks = cleared;
         updateTrackOverlay(style, list_tracks, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString());
     }
 
@@ -631,72 +665,91 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     }
 
     public void submitMarker() {
-        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
-        dialogBuilder.setTitle(R.string.submit);
-        String[] s = getResources().getStringArray(R.array.marker);
-        dialogBuilder.setItems(R.array.marker, (dialogInterface, i) -> {
-            switch (i) {
-                case 0:
-                    submit_rack();
-                    break;
-                case 1:
-                    submit_hazard();
-                    break;
-                default:
-                    Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
-        dialogBuilder.show();
+        AlertDialog markerDialog = new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Submit")
+                .setItems(R.array.marker, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i) {
+                            case 0:
+                                submit_Rack();
+                                break;
+                            case 1:
+                                submit_hazard();
+                                break;
+                            default:
+                                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "default", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                        }
+                    }
+                })
+                .create();
+        markerDialog.show();
+        markerDialog.setCanceledOnTouchOutside(false);
     }
 
     private void submit_hazard() {
-        MaterialAlertDialogBuilder dia_hazardBuilder = new MaterialAlertDialogBuilder(getContext());
-        dia_hazardBuilder.setTitle(R.string.submit_hazard);
-        dia_hazardBuilder.setItems(R.array.hazards, (dialogInterface, i) -> {
-            // create hazard alert from entered info
-            HazardAlert newHazard = new HazardAlert();
-            newHazard.setPosition(PositionTracker.getLastPosition()); // TODO is setPosition() or setGeoPoint() correct?
-            newHazard.setType(HazardAlert.HazardType.getByType(i+1)); // i+1 since we start counting on 1
-
-            // submit hazard alert to ViewModel
-            vm_ownHazards.addOwnHazard(newHazard);
+        AlertDialog hazardDialog = new MaterialAlertDialogBuilder(getContext())
+                .setTitle(R.string.submit_hazard)
+                .setView(R.layout.dialog_hazard)
+                .setPositiveButton(R.string.submit, null)
+                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                    }
+                })
+                .create();
+        hazardDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+                hazardDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+            }
         });
-        dia_hazardBuilder.show();
-    }
+        hazardDialog.show();
+        hazardDialog.setCanceledOnTouchOutside(false);
 
-    private void submit_rack() {
-        //showRackMap();
-        MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_rack, null);
+        MapView hazardMap = hazardDialog.findViewById(R.id.hazardMap);
+        hazardMap.onCreate(hazardDialog.onSaveInstanceState());
 
-        TextView tvRackName = dialogView.findViewById(R.id.tv_rack_name);
-        Spinner spCapacity = dialogView.findViewById(R.id.sp_capacity);
-        CheckBox cbEBike = dialogView.findViewById(R.id.chBx_ebike);
-        CheckBox cbCovered = dialogView.findViewById(R.id.chBx_covered);
+        hazardMap.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMapRack) {
 
-        rack_builder.setTitle("Submit rack");
-        rack_builder.setView(dialogView);
-        rack_builder.setPositiveButton(R.string.submit, (dialogInterface, i) -> {
-            BikeRack newRack = new BikeRack();
+                mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        if (PositionTracker.getLastPosition() != null) {
+                            mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                                    .target(PositionTracker.getLastPosition().toMapboxLocation())
+                                    .zoom(17)
+                                    .bearing(0)
+                                    .build()), 1000);
+                        }
+                    }
+                });
 
-            newRack.setName(tvRackName.getText().toString());
-            newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
-                    spCapacity.getSelectedItem().toString().toUpperCase())
-            );
-            newRack.setHasBikeCharging(cbEBike.isChecked());
-            newRack.setCovered(cbCovered.isChecked());
-
-            Log.d(LOG_TAG, newRack.toString());
-
-
-            vm_ownBikeRack.addOwnHazard(newRack);
+            }
         });
 
-        // do nothing on cancel
-        rack_builder.setNegativeButton(R.string.cancel, null);
-        rack_builder.show();
-    }
+        Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
+        btnPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int i = spinnerHazard.getSelectedItemPosition();
+                // create hazard alert from entered info
+                HazardAlert newHazard = new HazardAlert();
+                newHazard.setPosition(PositionTracker.getLastPosition()); // TODO is setPosition() or setGeoPoint() correct?
+                newHazard.setType(HazardAlert.HazardType.getByType(i + 1)); // i+1 since we start counting on 1
 
+                // submit hazard alert to ViewModel
+                vm_ownHazards.addOwnHazard(newHazard);
+                hazardDialog.dismiss();
+            }
+        });
+
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -780,8 +833,130 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
+    private static class LocationChangeListeningActivityLocationCallback
+            implements LocationEngineCallback<LocationEngineResult> {
+
+        private final WeakReference<FragmentInfoMode> activityWeakReference;
+
+        LocationChangeListeningActivityLocationCallback(FragmentInfoMode activity) {
+            this.activityWeakReference = new WeakReference<>(activity);
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location has changed.
+         *
+         * @param result the LocationEngineResult object which has the last known location within it.
+         */
+        @Override
+        public void onSuccess(LocationEngineResult result) {
+            FragmentInfoMode activity = activityWeakReference.get();
+
+            if (activity != null) {
+                Location location = result.getLastLocation();
+
+                if (location == null) {
+                    return;
+                }
+
+                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
+                // Pass the new location to the Maps SDK's LocationComponent
+                if (activity.mapboxMap != null && result.getLastLocation() != null) {
+                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
+                }
+            }
+        }
+
+        /**
+         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
+         *
+         * @param exception the exception message
+         */
+        @Override
+        public void onFailure(@NonNull Exception exception) {
+            FragmentInfoMode activity = activityWeakReference.get();
+            if (activity != null) {
+                Toast.makeText(activity.parent, exception.getLocalizedMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    public void submit_Rack() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setTitle("Submit rack");
+        builder.setView(R.layout.dialog_rack);
+        builder.setPositiveButton("Submit", null);
+        builder.setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+            }
+        });
+        dialog.show();
+
+        MapView rackMap = dialog.findViewById(R.id.rackMap);
+        rackMap.onCreate(dialog.onSaveInstanceState());
+
+        rackMap.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMapRack) {
+
+                mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        if (PositionTracker.getLastPosition() != null) {
+                            mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                                    .target(PositionTracker.getLastPosition().toMapboxLocation())
+                                    .zoom(17)
+                                    .bearing(0)
+                                    .build()), 1000);
+                        }
+                    }
+                });
+
+            }
+        });
+
+        EditText editRack = dialog.findViewById(R.id.edit_rack_name);
+        Spinner spCapacity = dialog.findViewById(R.id.sp_capacity);
+        CheckBox cbEBike = dialog.findViewById(R.id.chBx_ebike);
+        CheckBox cbCovered = dialog.findViewById(R.id.chBx_covered);
+        Button btnPos = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button btnNeg = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        btnPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (editRack.getText().toString().trim().equals("")) {
+                    Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                } else {
+                    BikeRack newRack = new BikeRack();
+
+                    newRack.setName(editRack.getText().toString());
+                    newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
+                            spCapacity.getSelectedItem().toString().toUpperCase())
+                    );
+                    newRack.setHasBikeCharging(cbEBike.isChecked());
+                    newRack.setCovered(cbCovered.isChecked());
+
+                    Log.d(LOG_TAG, newRack.toString());
+                    vm_ownBikeRack.addOwnBikeRack(newRack);
+                    dialog.dismiss();
+                }
+            }
+        });
     }
 }
