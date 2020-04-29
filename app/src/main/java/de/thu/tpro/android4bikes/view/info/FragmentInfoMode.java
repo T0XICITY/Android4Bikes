@@ -444,6 +444,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         for (Source source : loadedMapStyle.getSources()) {
             if (source.getId().equals(ID)) {
                 loadedMapStyle.removeSource(ID);
+                loadedMapStyle.removeLayer("unclustered_" + ID);
+                loadedMapStyle.removeLayer("clustered_" + ID + 0);
+                loadedMapStyle.removeLayer("clustered_" + ID + 1);
+                loadedMapStyle.removeLayer("clustered_" + ID + 2);
             }
         }
 
