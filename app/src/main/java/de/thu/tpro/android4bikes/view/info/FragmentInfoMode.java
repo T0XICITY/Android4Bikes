@@ -928,7 +928,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     newRack.setCovered(cbCovered.isChecked());
 
                     Log.d(LOG_TAG, newRack.toString());
-                    vm_ownBikeRack.addOwnHazard(newRack);
+                    vm_ownBikeRack.addOwnBikeRack(newRack);
                     dialog.dismiss();
                 }
             }
