@@ -6,9 +6,7 @@ import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -51,12 +49,8 @@ import java.util.Date;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
-import de.thu.tpro.android4bikes.positiontest.PositionProvider;
 import de.thu.tpro.android4bikes.services.GpsLocation;
-import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.positiontest.TrackProvider;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Navigation.DirectionRouteHelper;
@@ -95,7 +89,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     private DirectionsRoute reroute;
 
     //TODO refactor
-    private Track track = TrackProvider.getDummyTrack();
     private DirectionsRoute finalroute;
     private com.mapbox.geojson.Point startPoint;
 

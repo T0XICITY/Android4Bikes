@@ -13,13 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -30,9 +31,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.gson.JsonElement;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineResult;
-import com.google.gson.JsonElement;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -69,7 +70,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import androidx.appcompat.app.AlertDialog;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -187,6 +187,13 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //String snackText = String.format("%d new Hazard Alerts found!", hazardList.size());
         //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
         //TODO: delete overlay
+        List<HazardAlert> cleared = new ArrayList<>();
+        hazardList.forEach(entry -> {
+            if (entry.getPosition() != null) {
+                cleared.add(entry);
+            }
+        });
+        hazardList = cleared;
         updateHazardAlertOverlay(style, hazardList, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
     }
 
@@ -200,13 +207,31 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //String snackText = String.format("%d new Bike Racks found!", bikeRackList.size());
         //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
         //TODO: delete overlay
+
+        List<BikeRack> cleared = new ArrayList<>();
+        bikeRackList.forEach(entry -> {
+            if (entry.getPosition() != null) {
+                cleared.add(entry);
+            }
+        });
+        bikeRackList = cleared;
         updateBikeRackOverlay(style, bikeRackList, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
     }
 
     private void onChangedTracks(Map<Track, Profile> trackProfileMap) {
         List<Track> list_tracks = new ArrayList<>();
-        trackProfileMap.keySet().forEach(entry -> list_tracks.add(entry));
+        for (Track t : trackProfileMap.keySet()) {
+            list_tracks.add(t);
+        }
         //TODO: delete overlay
+
+        List<Track> cleared = new ArrayList<>();
+        list_tracks.forEach(entry -> {
+            if (entry.getStartPosition() != null) {
+                cleared.add(entry);
+            }
+        });
+        list_tracks = cleared;
         updateTrackOverlay(style, list_tracks, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString());
     }
 
@@ -684,7 +709,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         hazardDialog.show();
         hazardDialog.setCanceledOnTouchOutside(false);
 
-        MapView hazardMap = (MapView) hazardDialog.findViewById(R.id.hazardMap);
+        MapView hazardMap = hazardDialog.findViewById(R.id.hazardMap);
         hazardMap.onCreate(hazardDialog.onSaveInstanceState());
 
         hazardMap.getMapAsync(new OnMapReadyCallback() {
@@ -708,7 +733,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         });
 
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        Spinner spinnerHazard = (Spinner) hazardDialog.findViewById(R.id.sp_hazards);
+        Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
         btnPos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -883,7 +908,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         });
         dialog.show();
 
-        MapView rackMap = (MapView) dialog.findViewById(R.id.rackMap);
+        MapView rackMap = dialog.findViewById(R.id.rackMap);
         rackMap.onCreate(dialog.onSaveInstanceState());
 
         rackMap.getMapAsync(new OnMapReadyCallback() {
