@@ -9,10 +9,12 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.Processor;
 
@@ -76,7 +78,11 @@ public class ViewModelTrack extends ViewModel implements Observer {
         workInProgress.postValue(0);
 
         //initialize GeoFencing
-        geoFencing_tracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
+        if (PositionTracker.getLastPosition() != null){
+            geoFencing_tracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS,PositionTracker.getLastPosition().getGeoPoint(),200);
+        }else {
+            geoFencing_tracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS,new Position(48.408751,9.997498).getGeoPoint(),200);
+        }
         geoFencing_tracks.addObserver(this);
     }
 

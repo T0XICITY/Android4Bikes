@@ -105,7 +105,7 @@ public class FirebaseConnectionTest {
 
         GeoPoint center = new GeoPoint(48.403498, 9.978170);
         double radius_in_km = 14.9d;
-        GeoFencing geoFencing_hazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        GeoFencing geoFencing_hazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS,center,radius_in_km);
         //FirebaseConnection.getInstance().submitHazardAlertToFireStore(new HazardAlert(
         //HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
         //));

@@ -171,9 +171,9 @@ public class TestObjectsGenerator {
         //test liste TODO: Backend anbinden
         list_tracks = Arrays.asList(new Track(), new Track(), new Track());
 
-        list_tracks.get(0).setRating(new Rating(1, 1, 1, null));
-        list_tracks.get(1).setRating(new Rating(3, 3, 3, null));
-        list_tracks.get(2).setRating(new Rating(5, 5, 5, null));
+        list_tracks.get(0).setRating(new Rating(1, 1, 1));
+        list_tracks.get(1).setRating(new Rating(3, 3, 3));
+        list_tracks.get(2).setRating(new Rating(5, 5, 5));
 
         list_tracks.get(0).setName("Mega Harte Tour");
         list_tracks.get(1).setName("Mega Harte Tour 2: Electric Boogaloo");

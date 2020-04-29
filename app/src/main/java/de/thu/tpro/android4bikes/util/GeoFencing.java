@@ -40,7 +40,7 @@ public class GeoFencing extends Observable {
      *
      * @param collection Firebase collection path
      */
-    public GeoFencing(ConstantsGeoFencing collection) {
+    public GeoFencing(ConstantsGeoFencing collection,GeoPoint center, double radius_km) {
         CollectionReference collectionReference = FirebaseFirestore.getInstance().collection(collection.toString());
         geoFirestore = new GeoFirestore(collectionReference);
         documents_in_area = new ArrayList<>();
@@ -60,23 +60,7 @@ public class GeoFencing extends Observable {
                 break;
         }
 
-    }
-
-    /**
-     * Register new Document at Firestore containing Geohash and GeoPoint
-     * Only Registered Documents will considered in GeoQuery
-     *
-     * @param documentID Firestore DocumentID
-     * @param geoPoint   Geoposition(Lat,Lon) of the new Element
-     */
-    public void registerDocument(String documentID, GeoPoint geoPoint) {
-        geoFirestore.setLocation(documentID, geoPoint, exception -> {
-            if (exception != null) {
-                Log.d("HALLO WELT!", "An error has occurred while registering Document: " + exception.getMessage());
-            } else {
-                Log.d("HALLO WELT!", "Document " + documentID + " : " + geoPoint.toString() + " registered successfully!");
-            }
-        });
+        setupGeofence(center,radius_km);
     }
 
     /**
