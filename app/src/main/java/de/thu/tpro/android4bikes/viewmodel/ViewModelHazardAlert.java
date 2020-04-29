@@ -10,6 +10,7 @@ import java.util.Observer;
 
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.Processor;
 
 /**
@@ -31,6 +32,7 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
     private MutableLiveData<List<HazardAlert>> hazardAlerts;
     private MutableLiveData<Integer> workInProgress;
     private Processor processor;
+    private GeoFencing geoFencing_hazardAlerts;
 
     public ViewModelHazardAlert(){
         processor = Processor.getInstance();
@@ -39,17 +41,14 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
         workInProgress = new MutableLiveData<>();
         workInProgress.postValue(0);
         localDB.addObserver(this);
+
+        //initialize GeoFencing
+        geoFencing_hazardAlerts = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        geoFencing_hazardAlerts.addObserver(this);
     }
 
     public LiveData<List<HazardAlert>> getHazardAlerts(){
         return hazardAlerts;
-    }
-
-    public void submitHazardAlert(HazardAlert hazardAlert){
-        processor.startRunnable(()->{
-            //store it to writebuffer
-            //localDB.storeHazardAlerts(hazardAlert);
-        });
     }
 
     public LiveData<Integer> getWorkInProgress() {
@@ -58,6 +57,10 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
 
     public void incrementWorkInProgress() {
         workInProgress.postValue(workInProgress.getValue() + 1);
+    }
+
+    public GeoFencing getGeoFencing_hazardAlerts() {
+        return geoFencing_hazardAlerts;
     }
 
     public void decrementWorkInProgress() {
@@ -71,7 +74,7 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
             if (arg != null) {
                 //cast to general list
                 List list = (List) arg;
-                if (list.size() > 0 && list.get(0) instanceof HazardAlert) {
+                if (list.size() > 0 && ((List) arg).size() > 0 && list.get(0) instanceof HazardAlert) {
                     //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
                     list_loaded_hazardAlerts = (List<HazardAlert>) list;
                     hazardAlerts.postValue(list_loaded_hazardAlerts);

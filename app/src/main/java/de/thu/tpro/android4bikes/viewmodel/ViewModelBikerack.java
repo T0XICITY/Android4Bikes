@@ -10,6 +10,7 @@ import java.util.Observer;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.Processor;
 
 /**
@@ -32,6 +33,10 @@ public class ViewModelBikerack extends ViewModel implements Observer {
     private MutableLiveData<Integer> workInProgress;
     private Processor processor;
 
+    //GeoFencing
+    private GeoFencing geoFencing_bikeRacks;
+
+
     public ViewModelBikerack() {
         processor = Processor.getInstance();
         localDB = new CouchDBHelper();
@@ -39,21 +44,23 @@ public class ViewModelBikerack extends ViewModel implements Observer {
         workInProgress = new MutableLiveData<>();
         workInProgress.postValue(0);
         localDB.addObserver(this);
+
+
+        //Initialize GeoFences
+        geoFencing_bikeRacks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
+        geoFencing_bikeRacks.addObserver(this);
     }
 
     public LiveData<List<BikeRack>> getList_bikeRacks_shown() {
         return list_bikeRacks_shown;
     }
 
-    public void submitBikeRack(BikeRack bikeRack) {
-        processor.startRunnable(() -> {
-            //store it to writebuffer
-            //localDB.storeHazardAlerts(hazardAlert);
-        });
-    }
-
     public LiveData<Integer> getWorkInProgress() {
         return workInProgress;
+    }
+
+    public GeoFencing getGeoFencing_bikeRacks() {
+        return geoFencing_bikeRacks;
     }
 
     public void incrementWorkInProgress() {
@@ -71,7 +78,7 @@ public class ViewModelBikerack extends ViewModel implements Observer {
             if (arg != null) {
                 //cast to general list
                 List list = (List) arg;
-                if (list.size() > 0 && list.get(0) instanceof BikeRack) {
+                if (list.size() > 0 && ((List) arg).size() > 0 && list.get(0) instanceof BikeRack) {
                     //CouchDB notifies in two cases: new data is available OR synchronisation is in progress
                     list_loaded_bikeRacks = (List<BikeRack>) list;
                     list_bikeRacks_shown.postValue(list_loaded_bikeRacks);
