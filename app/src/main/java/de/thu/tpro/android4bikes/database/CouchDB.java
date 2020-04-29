@@ -422,7 +422,7 @@ public class CouchDB {
                 Query query = QueryBuilder.select(SelectResult.expression(Meta.id))
                         .from(DataSource.database(database));
                 results = query.execute();
-                Log.d("HalloWelt", query.explain());
+                //Log.d("HalloWelt", query.explain());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -565,7 +565,7 @@ public class CouchDB {
                 database.delete(document, ConcurrencyControl.LAST_WRITE_WINS);
             } catch (CouchbaseLiteException e) {
                 e.printStackTrace();
-                Log.d("HalloWelt", "couldn't delete docment");
+                ////Log.d("HalloWelt", "couldn't delete docment");
             }
         }
     }
@@ -582,7 +582,7 @@ public class CouchDB {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.d("HalloWelt", "couldn't delete docment");
+                ////Log.d("HalloWelt", "couldn't delete docment");
             }
         }
     }
@@ -600,7 +600,7 @@ public class CouchDB {
                 Query query = QueryBuilder.select(SelectResult.all())
                         .from(DataSource.database(database));
                 results = query.execute();
-                //Log.d("HalloWelt", query.explain());
+                ////Log.d("HalloWelt", query.explain());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -617,7 +617,7 @@ public class CouchDB {
                 database.close();
             } catch (CouchbaseLiteException e) {
                 e.printStackTrace();
-                Log.d("HalloWelt", "Database couln't be closed!");
+                ////Log.d("HalloWelt", "Database couln't be closed!");
             }
         }
     }
