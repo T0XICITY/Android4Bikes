@@ -283,7 +283,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
      */
     private void goToLoginActivity() {
-        CouchDB.getInstance().clearAllDatabases(); //clear all databases when logging out!
         Intent intent = new Intent(this, ActivityLogin.class);
         startActivity(intent);
     }
