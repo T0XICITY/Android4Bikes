@@ -39,6 +39,7 @@ public class CouchDBTest {
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_PROFILE));
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_RATING));
         couchdb.closeDBConnection(couchdb.getDatabaseFromName(DatabaseNames.DATABASE_TRACK));
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
 
     }
 
@@ -167,6 +168,6 @@ public class CouchDBTest {
 
         couchdb.clearAllDatabases();
         assertEquals(0, initialNumberOfDocouments);
-
     }
+
 }

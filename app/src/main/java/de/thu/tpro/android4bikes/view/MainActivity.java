@@ -60,6 +60,7 @@ import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -140,6 +141,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //observeInternet();
         //WorkManagerHelper.scheduleUploadTaskWithWorkManager();
         //scheduleUploadTaskWithTaskSchedule();
+
+        //will be started after first attempt to read:
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
+
 
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
@@ -283,12 +288,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
      */
     private void goToLoginActivity() {
-        CouchDB.getInstance().clearAllDatabases(); //clear all databases when logging out!
         Intent intent = new Intent(this, ActivityLogin.class);
         startActivity(intent);
     }
 
     private void logout() {
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
         FirebaseAuth.getInstance().signOut();
         CouchDB.getInstance().clearAllDatabases(); //clear all databases when logging out!
         Intent intent = new Intent(this, ActivityLogin.class);
