@@ -17,6 +17,8 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -39,6 +41,7 @@ public class CouchDbHelperTest {
         cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
         cdbOwn = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
         cdbDelBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
     }
 
     /**
