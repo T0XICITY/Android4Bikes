@@ -30,7 +30,7 @@ public class ViewModelOwnBikerack extends ViewModel implements Observer {
         return myBikeracks;
     }
 
-    public void addOwnHazard(BikeRack bikeRack){
+    public void addOwnBikeRack(BikeRack bikeRack){
         writeBuffer.submitBikeRack(bikeRack);
     }
 

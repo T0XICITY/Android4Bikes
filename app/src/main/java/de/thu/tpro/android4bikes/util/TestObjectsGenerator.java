@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
@@ -28,12 +29,50 @@ public class TestObjectsGenerator {
      *
      * @return instance of a bike rack
      */
+
+    private static Random random;
     public static BikeRack generateTHUBikeRack() {
         //create new BikeRack
         BikeRack bikeRack_THU = new BikeRack(new Position(48.408880, 9.997507), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
                 false, true, false
         );
         return bikeRack_THU;
+    }
+
+    public static List<BikeRack> generateRandomBikeRackList() {
+        List<BikeRack> list_random_bikeRacks = new ArrayList<>();
+
+
+        for (int i = 0; i < 200; ++i) {
+            BikeRack bikeRack = generateTHUBikeRack();
+            bikeRack.setPosition(generateRandomPosition());
+            list_random_bikeRacks.add(bikeRack);
+        }
+
+        for (int i = 0; i < 200; ++i) {
+            BikeRack bikeRack = generateTHUBikeRack();
+            bikeRack.setPosition(generateDeterministicRandomPositions(i, bikeRack.getPosition().getLongitude(), bikeRack.getPosition().getLatitude()));
+            list_random_bikeRacks.add(bikeRack);
+        }
+
+        return list_random_bikeRacks;
+    }
+
+    public static Position generateRandomPosition() {
+        if (random == null) {
+            random = new Random();
+        }
+        //compare: https://stackoverflow.com/questions/32735998/generating-a-random-lat-long-with-bias-away-from-poles
+        double u = random.nextDouble();
+        double v = random.nextDouble();
+
+        double latitude = Math.toDegrees(Math.acos(u * 2 - 1)) - 90;
+        double longitude = 360 * v - 180;
+        return new Position(latitude, longitude);
+    }
+
+    public static Position generateDeterministicRandomPositions(int i, double lng, double lat) {
+        return new Position(lng + (i / 100.0), lat);
     }
 
     /**

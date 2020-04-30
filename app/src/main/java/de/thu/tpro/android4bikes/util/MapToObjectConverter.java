@@ -35,14 +35,18 @@ public class MapToObjectConverter<T> {
 
     public T convertMapToObject(Map map, String db_name) {
         T object = null;
-        if (type.equals(BikeRack.class)) {
-            object = (T) convertMapBikeRackToBikeRack(map, db_name);
-        } else if (type.equals(HazardAlert.class)) {
-            object = (T) convertMapHazardAlertToHazardAlert(map, db_name);
-        } else if (type.equals(Track.class)) {
-            object = (T) convertMapTrackToTrack(map, db_name);
-        } else if (type.equals(Profile.class)) {
-            object = (T) convertMapProfileToProfile(map, db_name);
+        try {
+            if (type.equals(BikeRack.class)) {
+                object = (T) convertMapBikeRackToBikeRack(map, db_name);
+            } else if (type.equals(HazardAlert.class)) {
+                object = (T) convertMapHazardAlertToHazardAlert(map, db_name);
+            } else if (type.equals(Track.class)) {
+                object = (T) convertMapTrackToTrack(map, db_name);
+            } else if (type.equals(Profile.class)) {
+                object = (T) convertMapProfileToProfile(map, db_name);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return object;
     }

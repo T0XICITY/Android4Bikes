@@ -8,6 +8,7 @@ import androidx.work.WorkerParameters;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
 
 
@@ -28,7 +29,9 @@ public class UploadWorker extends Worker {
     public Result doWork() {
         //Check if there is a user signed in
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            processor.startRunnable(new UploadRunnable());
+            if (GlobalContext.getContext() != null) { //todo: check why there is sometimes no global context???
+                processor.startRunnable(new UploadRunnable());
+            }
         }
         return Result.success();
     }
