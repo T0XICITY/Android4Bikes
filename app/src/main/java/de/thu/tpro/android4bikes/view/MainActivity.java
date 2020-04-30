@@ -54,7 +54,9 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
@@ -114,6 +116,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         checkFirebaseAuth();
 
+
+        loadOwnUser();
+
         // init View Models
         ViewModelProvider provider = new ViewModelProvider(this);
         vmOwnProfile = provider.get(ViewModelOwnProfile.class);
@@ -122,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         //TODO: Debug WriteBuffer
-        //debugWriteBuffer();
+        debugWriteBuffer();
 
         initFragments();
         initNavigationDrawer();
@@ -144,6 +149,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
 
+    }
+
+    private void loadOwnUser() {
+        CouchDBHelper cdb_ownDB = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
+        if(cdb_ownDB.readMyOwnProfile() == null){
+            //read own Profile from FireStore:
+            FirebaseConnection.getInstance().readOwnProfileFromFireStoreAndStoreItToOwnDB(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+            if(cdb_ownDB.readMyOwnProfile()==null){
+                Toast.makeText(getApplicationContext(), R.string.loginfailed,Toast.LENGTH_LONG);
+                goToLoginActivity();
+            }
+        }
     }
 
     /**
@@ -253,6 +271,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
+                CouchDB.getInstance().clearAllDatabases(); //clear all databases when logging out!
                 goToLoginActivity();
                 break;
             default:
@@ -579,6 +598,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void checkFirebaseAuth() {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
             goToLoginActivity();
         }
     }
