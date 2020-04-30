@@ -121,23 +121,6 @@ public class ActivityLogin extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
-                if (!PermissionsManager.areLocationPermissionsGranted(this)) {
-                    permissionsManager = new PermissionsManager(new PermissionsListener() {
-                        @Override
-                        public void onExplanationNeeded(List<String> permissionsToExplain) {
-                            Toast.makeText(ActivityLogin.this, R.string.user_location_permission_explanation,
-                                    Toast.LENGTH_LONG).show();
-                        }
-
-                        @Override
-                        public void onPermissionResult(boolean granted) {
-                            if (!granted) {
-                                Toast.makeText(ActivityLogin.this, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
-                    permissionsManager.requestLocationPermissions(this);
-                }
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
@@ -167,8 +150,27 @@ public class ActivityLogin extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
+                            if (!PermissionsManager.areLocationPermissionsGranted(ActivityLogin.this)) {
+                                permissionsManager = new PermissionsManager(new PermissionsListener() {
+                                    @Override
+                                    public void onExplanationNeeded(List<String> permissionsToExplain) {
+                                        Toast.makeText(ActivityLogin.this, R.string.user_location_permission_explanation,
+                                                Toast.LENGTH_LONG).show();
+                                    }
+
+                                    @Override
+                                    public void onPermissionResult(boolean granted) {
+                                        if (granted) {
+                                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                            startActivity(intent);
+                                        } else {
+                                            Toast.makeText(ActivityLogin.this, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
+                                            permissionsManager.requestLocationPermissions(ActivityLogin.this);
+                                        }
+                                    }
+                                });
+                                permissionsManager.requestLocationPermissions(ActivityLogin.this);
+                            }
                         } else {
                             Toast.makeText(ActivityLogin.this, R.string.Activity_Login_Toast_Fail, Toast.LENGTH_SHORT).show();
                         }
