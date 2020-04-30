@@ -356,15 +356,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dLayout = findViewById(R.id.drawerLayout);
         tv_headerName = findViewById(R.id.tvName);
         tv_headerMail = findViewById(R.id.tvMail);
+
         //find width of screen and divide by 2
         int width = getResources().getDisplayMetrics().widthPixels / 2;
         Log.d("FragmentInfoMode", dLayout.toString());
         dLayout.closeDrawer(GravityCompat.END);
         drawer = findViewById(R.id.navigationDrawer);
+
         //set the drawer width to the half of the screen
         ViewGroup.LayoutParams params = drawer.getLayoutParams();
         params.width = width;
         drawer.setLayoutParams(params);
+
+        // "Lock" Drawer to not open on swipe gestures
+        dLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
+        // set Menu Item Listener
         drawer.setNavigationItemSelectedListener(this);
     }
 
