@@ -9,7 +9,9 @@ import java.util.Observable;
 import java.util.Observer;
 
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.Processor;
 
@@ -47,7 +49,12 @@ public class ViewModelBikerack extends ViewModel implements Observer {
 
 
         //Initialize GeoFences
-        geoFencing_bikeRacks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
+        if (PositionTracker.getLastPosition() != null){
+            geoFencing_bikeRacks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS,PositionTracker.getLastPosition().getGeoPoint(),200);
+        }else {
+            geoFencing_bikeRacks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS,new Position(48.408751,9.997498).getGeoPoint(),200);
+        }
+
         geoFencing_bikeRacks.addObserver(this);
     }
 
