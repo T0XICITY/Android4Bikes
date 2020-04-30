@@ -54,11 +54,12 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Processor;
-import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         //TODO: Debug WriteBuffer
-        //debugWriteBuffer();
+        debugWriteBuffer();
 
         initFragments();
         initNavigationDrawer();
@@ -137,12 +138,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //testWorkManager();
         //observeInternet();
-
-        WorkManagerHelper.scheduleUploadTaskWithWorkManager();
+        //WorkManagerHelper.scheduleUploadTaskWithWorkManager();
         //scheduleUploadTaskWithTaskSchedule();
 
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
+
+    }
+
+    private void loadOwnUser() {
 
     }
 
@@ -253,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
-                goToLoginActivity();
+                logout();
                 break;
             default:
                 Log.d(LOG_TAG, "Default case");
@@ -279,8 +283,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
      */
     private void goToLoginActivity() {
+        CouchDB.getInstance().clearAllDatabases(); //clear all databases when logging out!
+        Intent intent = new Intent(this, ActivityLogin.class);
+        startActivity(intent);
+    }
+
+    private void logout() {
         FirebaseAuth.getInstance().signOut();
-        //todo: Delete user from local db
+        CouchDB.getInstance().clearAllDatabases(); //clear all databases when logging out!
         Intent intent = new Intent(this, ActivityLogin.class);
         startActivity(intent);
     }
@@ -579,7 +589,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void checkFirebaseAuth() {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            finish();
             goToLoginActivity();
+        } else {
+            CouchDBHelper cdb_ownDB = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
+            if (cdb_ownDB.readMyOwnProfile() == null) {
+                //read own Profile from FireStore:
+                FirebaseConnection.getInstance().readOwnProfileFromFireStoreAndStoreItToOwnDB(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+                if (cdb_ownDB.readMyOwnProfile() == null) {
+                    Toast.makeText(getApplicationContext(), R.string.loginfailed, Toast.LENGTH_LONG);
+                    goToLoginActivity();
+                }
+            }
         }
     }
 

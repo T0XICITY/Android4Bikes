@@ -20,10 +20,18 @@ public class PositionTracker {
 
     private static Map<String, Object> map_position_speed;
     public static Position getLastPosition() {
+        if (map_position_speed.get(CONSTANTS.POSITION.toText()) == null) {
+            map_position_speed.put(CONSTANTS.POSITION.toText(), new Position());
+        }
+
         return (Position) map_position_speed.get(CONSTANTS.POSITION.toText());
     }
 
     public static double getLastSpeed() {
+        if (map_position_speed.get(CONSTANTS.SPEED.toText()) == null) {
+            map_position_speed.put(CONSTANTS.SPEED.toText(), 0);
+        }
+
         return (double) map_position_speed.get(CONSTANTS.POSITION.toText());
     }
 
