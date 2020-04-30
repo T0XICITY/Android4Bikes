@@ -10,12 +10,14 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.GeoPoint;
 
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import de.thu.tpro.android4bikes.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.data.achievements.Achievement;
 import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -28,10 +30,10 @@ import de.thu.tpro.android4bikes.util.AchievementManager;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests if the communication between {@link com.google.firebase.firestore.FirebaseFirestore} and the application
@@ -63,7 +65,7 @@ public class FirebaseConnectionTest {
                     authSignal.countDown();
                 }
             });
-
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
     }
 
     @Test
@@ -106,7 +108,7 @@ public class FirebaseConnectionTest {
 
         GeoPoint center = new GeoPoint(48.403498, 9.978170);
         double radius_in_km = 14.9d;
-        GeoFencing geoFencing_hazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        GeoFencing geoFencing_hazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS,center,radius_in_km);
         //FirebaseConnection.getInstance().submitHazardAlertToFireStore(new HazardAlert(
         //HazardAlert.HazardType.GENERAL, new Position(9.997507, 48.408880), 120000, 5, "12345"
         //));
@@ -442,5 +444,10 @@ public class FirebaseConnectionTest {
 
     @Test
     public void updateToken() {
+    }
+
+    @After
+    public void after() {
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
     }
 }

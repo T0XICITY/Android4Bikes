@@ -80,6 +80,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.GpsUtils;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelHazardAlert;
@@ -140,6 +141,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private GeoFencing geoFencing_bikeRacks;
     private GeoFencing geoFencing_hazardAlerts;
     private GeoFencing geoFencing_tracks;
+    private boolean bike_hazard_geofence_stopped = false;
 
 
     @Override
@@ -255,6 +257,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
 
         } else {
+            Mapbox.getInstance(parent, parent.getString(R.string.access_token));
             mapFragment = (SupportMapFragment) parent.getSupportFragmentManager()
                     .findFragmentByTag(MAPFRAGMENT_TAG);
 
@@ -277,7 +280,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markerPool = new HashMap<>();
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.ic_material_parking));
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL, parent.getDrawable(R.drawable.ic_material_hazard));
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.ic_material_track));
+                    markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.ic_flag_green_24dp));
                     initMarkerSymbols(mapboxMap, markerPool);
                     //generateCustomRoute(generateTrack().getFineGrainedPositions());
                     initPosFab();
@@ -294,9 +297,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //setup geofences
                     LatLng latlng_setuppos = mapboxMap.getCameraPosition().target;
                     GeoPoint geopoint_setuppos = new GeoPoint(latlng_setuppos.getLatitude(), latlng_setuppos.getLongitude());
-                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 200);
-                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 500);
-                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 200);
+
+                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 50);
+                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 50);
+                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 1000);
+
 
 
                     mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {
@@ -305,18 +310,38 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             if (latLng_lastcamerapos == null) {
                                 latLng_lastcamerapos = mapboxMap.getCameraPosition().target;
                             }
+                            if (mapboxMap.getCameraPosition().zoom > 13) {
+                                if (bike_hazard_geofence_stopped) {
+                                    geoFencing_bikeRacks.startGeoFenceListener();
+                                    geoFencing_hazardAlerts.startGeoFenceListener();
+                                    bike_hazard_geofence_stopped = false;
+                                }
+
+                            } else {
+                                if (!bike_hazard_geofence_stopped) {
+                                    geoFencing_bikeRacks.stopGeoFenceListener();
+                                    geoFencing_hazardAlerts.stopGeoFenceListener();
+                                    mapboxMap.getStyle(style1 -> {
+                                        deleteLayers(style1, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
+                                        deleteLayers(style1, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
+                                    });
+
+                                    bike_hazard_geofence_stopped = true;
+
+                                }
+
+                            }
 
                             LatLng latlng_currCameraPos = mapboxMap.getCameraPosition().target;
                             double distance = latlng_currCameraPos.distanceTo(latLng_lastcamerapos);
 
                             GeoPoint geopoint_currPos = new GeoPoint(latlng_currCameraPos.getLatitude(), latlng_currCameraPos.getLongitude());
-
-                            if (geoFencing_bikeRacks != null && distance / 1000 > (geoFencing_bikeRacks.getRadius() / 2)) {
+                            if (mapboxMap.getCameraPosition().zoom > 13 && geoFencing_bikeRacks != null && distance / 1000 > (geoFencing_bikeRacks.getRadius() / 2)) {
                                 geoFencing_bikeRacks.updateCenter(geopoint_currPos);
                                 latLng_lastcamerapos = latlng_currCameraPos;
                             }
 
-                            if (geoFencing_hazardAlerts != null && distance / 1000 > (geoFencing_hazardAlerts.getRadius() / 2)) {
+                            if (mapboxMap.getCameraPosition().zoom > 13 && geoFencing_hazardAlerts != null && distance / 1000 > (geoFencing_hazardAlerts.getRadius() / 2)) {
                                 geoFencing_hazardAlerts.updateCenter(geopoint_currPos);
                                 latLng_lastcamerapos = latlng_currCameraPos;
                             }
@@ -357,9 +382,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                         }
                     });
 
-                    geoFencing_bikeRacks.startGeoFenceListener();
                     geoFencing_tracks.startGeoFenceListener();
-                    geoFencing_hazardAlerts.startGeoFenceListener();
                     /*//Draw Route on Map
                     mapview.drawRoute(route);
                     showRoute(start,end);*/
@@ -472,10 +495,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private String addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster, int clusterRadius) {
-        //TODO: ONLY ONCE FOR PRESENTATION PURPOSE
-
-        //Check if Source is initialized
+    private void deleteLayers(@NonNull Style loadedMapStyle, String ID) {
         for (Source source : loadedMapStyle.getSources()) {
             if (source.getId().equals(ID)) {
 
@@ -487,7 +507,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 loadedMapStyle.removeSource(ID);
             }
         }
+    }
+    private String addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster, int clusterRadius) {
+        //TODO: ONLY ONCE FOR PRESENTATION PURPOSE
 
+        //Check if Source is initialized
+        deleteLayers(loadedMapStyle, ID);
         //New GeoJsonSource from FeatureCollection
         Source source = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
                 .withCluster(withCluster)
@@ -544,7 +569,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 color = R.color.Amber800Light;
                 break;
             case TRACK:
-                color = R.color.Red800Light;
+                color = R.color.Green800Primary;
                 break;
         }
         // Each point range gets a different fill color.
@@ -598,6 +623,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(parent)) {
+
+            //Check if GPS is enabled on device
+            //parent.checkLocationEnabled();
+            new GpsUtils(getActivity()).turnGPSOn(new GpsUtils.onGpsListener() {
+                @Override
+                public void gpsStatus(boolean isGPSEnable) {
+                    // turn on GPS
+                    //isGPS = isGPSEnable;
+                }
+            });
 
             // Get an instance of the component
             locationComponent = mapboxMap.getLocationComponent();
@@ -806,6 +841,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         FAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        enableLocationComponent(style);
+                    }
+                });
                 if (PositionTracker.getLastPosition() != null) {
                     mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
                             .target(PositionTracker.getLastPosition().toMapboxLocation())

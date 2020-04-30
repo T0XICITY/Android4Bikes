@@ -2,7 +2,6 @@ package de.thu.tpro.android4bikes.view.login;
 
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -19,22 +18,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.database.CouchDB;
-import de.thu.tpro.android4bikes.database.CouchDBHelper;
-import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 
@@ -48,6 +43,7 @@ public class ActivityLogin extends AppCompatActivity {
     private final static int RC_SIGN_IN = 9999;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
+    private PermissionsManager permissionsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +130,11 @@ public class ActivityLogin extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
     /**
      * After a user successfully signs in, get an ID token from the GoogleSignInAccount object,
      * exchange it for a Firebase credential, and authenticate with Firebase using the Firebase credential
@@ -144,26 +145,39 @@ public class ActivityLogin extends AppCompatActivity {
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+
+
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            //todo
-                            if(task.getResult().getAdditionalUserInfo().isNewUser()){
-                                // Sign in success, update UI with the signed-in user's information
-                                CouchDBHelper cdbh = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
-                                FirebaseUser user = task.getResult().getUser();
-                                Profile profile = new Profile(user.getDisplayName(),"",user.getUid(), Color.BLUE,0,new ArrayList<>());
-                                Log.d("HalloWelt","Created new Profile");
-                                cdbh.storeProfile(profile);
+                            if (!PermissionsManager.areLocationPermissionsGranted(ActivityLogin.this)) {
+                                permissionsManager = new PermissionsManager(new PermissionsListener() {
+                                    @Override
+                                    public void onExplanationNeeded(List<String> permissionsToExplain) {
+                                        Toast.makeText(ActivityLogin.this, R.string.user_location_permission_explanation,
+                                                Toast.LENGTH_LONG).show();
+                                    }
+
+                                    @Override
+                                    public void onPermissionResult(boolean granted) {
+                                        if (granted) {
+                                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                            startActivity(intent);
+                                        } else {
+                                            Toast.makeText(ActivityLogin.this, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
+                                            permissionsManager.requestLocationPermissions(ActivityLogin.this);
+                                        }
+                                    }
+                                });
+                                permissionsManager.requestLocationPermissions(ActivityLogin.this);
                             }
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
                         } else {
                             Toast.makeText(ActivityLogin.this, R.string.Activity_Login_Toast_Fail, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
+
 
     public boolean onKeyDown(int keyCode, KeyEvent event)  {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {

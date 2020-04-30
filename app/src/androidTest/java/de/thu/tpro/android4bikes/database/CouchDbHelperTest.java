@@ -4,11 +4,13 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.couchbase.lite.Database;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
 
+import de.thu.tpro.android4bikes.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
@@ -16,7 +18,7 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.util.GlobalContext;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -39,6 +41,7 @@ public class CouchDbHelperTest {
         cdbWriteBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
         cdbOwn = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
         cdbDelBuffer = new CouchDBHelper(CouchDBHelper.DBMode.DELETEBUFFER);
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
     }
 
     /**
@@ -754,5 +757,10 @@ public class CouchDbHelperTest {
         cdbOwn.deleteProfile(profile_own);
         cdbWriteBuffer.deleteProfile(profile_wb);
         cdbDelBuffer.deleteProfile(profile_del);
+    }
+
+    @AfterClass
+    public void after() {
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
     }
 }
