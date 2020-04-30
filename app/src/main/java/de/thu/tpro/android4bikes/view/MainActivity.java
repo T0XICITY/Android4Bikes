@@ -128,8 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         setContentView(R.layout.activity_main);
 
-        //TODO: Debug WriteBuffer
-        debugWriteBuffer();
+        //debugWriteBuffer();
 
         initFragments();
         initNavigationDrawer();
@@ -297,7 +296,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
      */
     private void goToLoginActivity() {
-        CouchDB.getInstance().clearAllDatabases(); //clear all databases when logging out!
         Intent intent = new Intent(this, ActivityLogin.class);
         startActivity(intent);
     }
