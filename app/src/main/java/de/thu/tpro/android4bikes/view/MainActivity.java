@@ -40,6 +40,7 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.List;
+import java.util.Observable;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -60,6 +61,7 @@ import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
+import de.thu.tpro.android4bikes.util.BluetoothButtonHandler;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.GpsUtils;
 import de.thu.tpro.android4bikes.util.Processor;
@@ -81,7 +83,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile> {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile>, java.util.Observer {
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
 
@@ -161,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
-
+        BluetoothButtonHandler.getInstance(getApplicationContext()).addObserver(this);
     }
 
     private void loadOwnUser() {
@@ -502,7 +504,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             openInfoMode();
             return true;
         }
-        return super.onKeyDown(keyCode, event); //handles other keys
+        Log.d("HalloWelt","onKeyDown");
+        return BluetoothButtonHandler.getInstance(getApplicationContext()).handleKeyEvent(event);
     }
 
     private void openInfoMode() {
@@ -703,6 +706,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             Button btnNeg = gpsDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
             btnNeg.setOnClickListener(view -> gpsDialog.dismiss());
+        }
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (o instanceof BluetoothButtonHandler){
+            Log.d("HalloWelt","MainActivity-UpdateBlueToothButton");
+            Toast.makeText(getApplicationContext(),"MainActivity-UpdateBlueToothButton",Toast.LENGTH_SHORT).show();
         }
     }
 }
