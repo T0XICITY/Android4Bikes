@@ -13,26 +13,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.JsonElement;
 import com.mapbox.android.core.location.LocationEngineCallback;
 import com.mapbox.android.core.location.LocationEngineResult;
-import com.google.gson.JsonElement;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -69,7 +60,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -78,6 +76,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.positiontest.TrackProvider;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.GpsUtils;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelHazardAlert;
@@ -193,6 +192,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
 
         } else {
+            Mapbox.getInstance(parent, parent.getString(R.string.access_token));
             mapFragment = (SupportMapFragment) parent.getSupportFragmentManager()
                     .findFragmentByTag(MAPFRAGMENT_TAG);
 
@@ -474,7 +474,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         if (PermissionsManager.areLocationPermissionsGranted(parent)) {
 
             //Check if GPS is enabled on device
-            parent.checkLocationEnabled();
+            //parent.checkLocationEnabled();
+            new GpsUtils(getActivity()).turnGPSOn(new GpsUtils.onGpsListener() {
+                @Override
+                public void gpsStatus(boolean isGPSEnable) {
+                    // turn on GPS
+                    //isGPS = isGPSEnable;
+                }
+            });
 
             // Get an instance of the component
             locationComponent = mapboxMap.getLocationComponent();
@@ -587,7 +594,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         hazardDialog.show();
         hazardDialog.setCanceledOnTouchOutside(false);
 
-        MapView hazardMap = (MapView) hazardDialog.findViewById(R.id.hazardMap);
+        MapView hazardMap = hazardDialog.findViewById(R.id.hazardMap);
         hazardMap.onCreate(hazardDialog.onSaveInstanceState());
 
         hazardMap.getMapAsync(new OnMapReadyCallback() {
@@ -611,7 +618,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         });
 
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        Spinner spinnerHazard = (Spinner) hazardDialog.findViewById(R.id.sp_hazards);
+        Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
         btnPos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -668,12 +675,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     }
                 });
                 if (PositionTracker.getLastPosition() != null) {
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                        .target(lastPos)
-                        .zoom(15)
-                        .bearing(0)
-                        .build()), 3000);
-                    }
+                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                            .target(PositionTracker.getLastPosition().toMapboxLocation())
+                            .zoom(15)
+                            .bearing(0)
+                            .build()), 3000);
+                }
             }
         });
     }
@@ -792,7 +799,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         });
         dialog.show();
 
-        MapView rackMap = (MapView) dialog.findViewById(R.id.rackMap);
+        MapView rackMap = dialog.findViewById(R.id.rackMap);
         rackMap.onCreate(dialog.onSaveInstanceState());
 
         rackMap.getMapAsync(new OnMapReadyCallback() {

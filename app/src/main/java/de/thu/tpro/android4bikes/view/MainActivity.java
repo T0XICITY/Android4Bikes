@@ -1,6 +1,7 @@
 package de.thu.tpro.android4bikes.view;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,16 +27,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -57,11 +48,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Constraints;
-import androidx.work.NetworkType;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -69,13 +57,12 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.GpsUtils;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
@@ -104,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewModelOwnTracks vmOwnTracks;
 
     public LatLng lastPos;
+    public static final int GPS_REQUEST = 97;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
     private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
@@ -126,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
 
     private boolean toolbarHidden;
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +144,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateFragment();
 
         testWorkManager();
+        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
+            @Override
+            public void gpsStatus(boolean isGPSEnable) {
+                // turn on GPS
+                //isGPS = isGPSEnable;
+            }
+        });
+
+        //testWorkManager();
         //observeInternet();
 
         WorkManagerHelper.scheduleUploadTaskWithWorkManager();
@@ -184,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        onCreate(savedInstanceState);
+        //onCreate(savedInstanceState);
     }
 
     private void testWorkManager() {
@@ -630,6 +628,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (locationEngine != null) {
             locationEngine.removeLocationUpdates(callback);
         }
+        navigationView.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == GPS_REQUEST) {
+                //isGPS = true; // flag maintain before get location
+            }
+        }
     }
 
     public void checkLocationEnabled() {
@@ -642,6 +651,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .setPositiveButton("Yes", null)
                     .setNegativeButton("No", null)
                     .create();
+
+            gpsDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
+                    gpsDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+                    gpsDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+                }
+            });
             gpsDialog.show();
             gpsDialog.setCanceledOnTouchOutside(false);
             Button btnPos = gpsDialog.getButton(AlertDialog.BUTTON_POSITIVE);
