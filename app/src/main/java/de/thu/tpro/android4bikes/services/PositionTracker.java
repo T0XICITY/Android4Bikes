@@ -27,12 +27,12 @@ public class PositionTracker {
         return (Position) map_position_speed.get(CONSTANTS.POSITION.toText());
     }
 
-    public static double getLastSpeed() {
+    public static Float getLastSpeed() {
         if (map_position_speed.get(CONSTANTS.SPEED.toText()) == null) {
             map_position_speed.put(CONSTANTS.SPEED.toText(), 0);
         }
 
-        return (double) map_position_speed.get(CONSTANTS.POSITION.toText());
+        return (Float) map_position_speed.get(CONSTANTS.SPEED.toText());
     }
 
     public enum CONSTANTS {

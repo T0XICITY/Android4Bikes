@@ -5,15 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.OvershootInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
@@ -40,6 +42,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,8 +52,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
-import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Navigation.DirectionRouteHelper;
@@ -64,55 +68,36 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
+    private static final int VELOCITY_UPDATE_INTERVAL = 250;
 
-    TextView txtCurrentSpeed;
-    TextView txtAvgSpeed;
-    TextView txtSpeedUnit;
-    //TODO Delete after testing
-
-    private ViewModelDrivingMode viewModel;
+    private DrivingModeDataBinder dataBinder;
     private ViewModelWeather vmWeather;
 
     private View viewDrivingMode;
     private CardView infoIcon;
-    OvershootInterpolator interpolator;
-    boolean isMenuOpen = false;
-    Float translationY = 100f;
-    GpsLocation location;
     private FloatingActionButton fab_weather;
+    private ExtendedFloatingActionButton fab_velocity;
     private Date time;
 
     MainActivity parent;
     private PermissionsManager permissionsManager;
-    // Navigation related variables
-    private DirectionsRoute reroute;
 
+    // Navigation related variables
     //TODO refactor
+    private DirectionsRoute reroute;
     private DirectionsRoute finalroute;
     private com.mapbox.geojson.Point startPoint;
-
-    //private List<Position> bikeRacks = new ArrayList<>();
-    //private List<Position> bikeTracks = new ArrayList<>();
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         viewDrivingMode = inflater.inflate(R.layout.fragment_driving_mode, container, false);
-        txtCurrentSpeed = viewDrivingMode.findViewById(R.id.txtCurrentSpeed);
-        txtSpeedUnit = viewDrivingMode.findViewById(R.id.txtSpeedUnit);
-        txtAvgSpeed = viewDrivingMode.findViewById(R.id.txtAverageSpeed);
-        infoIcon = viewDrivingMode.findViewById(R.id.cardView_Infoicon);
         fab_weather = viewDrivingMode.findViewById(R.id.weatherFAB);
+        fab_velocity = viewDrivingMode.findViewById(R.id.velocityFAB);
 
         vmWeather = new ViewModelProvider(this).get(ViewModelWeather.class);
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
-
-        initCardView();
-
-        //locationPermissions();
-        viewModel = ViewModelDrivingMode.getInstance();
-        txtCurrentSpeed.setText(viewModel.updateSpeed(null) + "");
-        txtAvgSpeed.setText(viewModel.updateAverageSpeed(0) + "");
+        dataBinder = DrivingModeDataBinder.getInstance();
 
         return viewDrivingMode;
     }
@@ -126,6 +111,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         GlobalContext.setContext(parent.getApplicationContext());
 
         initNavigation(view, savedInstanceState);
+        initVelocityFAB();
     }
 
     @Override
@@ -194,8 +180,19 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     }
 
-    private void initspeedFAB(View view) {
-        //TODO
+    private void initVelocityFAB() {
+        // schedule a timer to update velocity periodically
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // update TextViews from UI Thread only
+                parent.runOnUiThread(() -> {
+                    int currentVelocity = Math.round(PositionTracker.getLastSpeed());
+                    String velocityText = String.format(getString(R.string.speed), currentVelocity);
+                    fab_velocity.setText(velocityText);
+                });
+            }
+        }, 0, VELOCITY_UPDATE_INTERVAL);
     }
 
     private void startNavigation() {
@@ -457,28 +454,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
             navigation.stopNavigation();
         }
     }
-
-    /**
-     * initiates the top cardView and sets the correct sizes for all elements
-     */
-    private void initCardView() {
-        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-        Point size = new Point();
-        wm.getDefaultDisplay().getSize(size);
-
-        int infoIconHeight = calculateSize(size.y, 0.2);
-        int currentSpeedHeight = calculateSize(size.y, 0.1);
-        int currentSpeedWidth = calculateSize(size.x, 0.2);
-        int unitWidth = calculateSize(size.x, 0.4);
-        int avgSpeedHeight = calculateSize(size.y, 0.05);
-        int avgSpeedWidth = calculateSize(size.x, 0.6);
-
-        setViewDimension(infoIcon, infoIconHeight, infoIconHeight);
-        setViewDimension(txtCurrentSpeed, currentSpeedWidth, currentSpeedHeight);
-        setViewDimension(txtSpeedUnit, unitWidth, currentSpeedHeight);
-        setViewDimension(txtAvgSpeed, avgSpeedWidth, avgSpeedHeight);
-    }
-
     /**
      * sets the size for the current view
      *

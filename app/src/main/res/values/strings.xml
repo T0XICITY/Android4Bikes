@@ -22,6 +22,7 @@
     <string name="map_key" translatable="false">AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc</string>
     <!-- Tracks Strings -->
     <string name="distance">%1$.2f km</string> <!-- '%1$.2f' means Placeholder for float with 2 decimals -->
+    <string name="speed">%1$d km/h</string>
     <string name="track_description">Description</string>
     <string name="range">%1$d km</string>
     <string name="total_track_List">Total Tracks: %1$d </string>
