@@ -70,14 +70,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -305,9 +297,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     LatLng latlng_setuppos = mapboxMap.getCameraPosition().target;
                     GeoPoint geopoint_setuppos = new GeoPoint(latlng_setuppos.getLatitude(), latlng_setuppos.getLongitude());
 
-                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 200);
-                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 200);
-                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 5000);
+                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 50);
+                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 50);
+                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 1000);
 
 
 
