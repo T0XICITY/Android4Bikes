@@ -57,8 +57,6 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
-import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
-import de.thu.tpro.android4bikes.database.WriteBuffer;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.GpsUtils;
@@ -107,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView imageView;
     private TextView tv_headerName;
     private TextView tv_headerMail;
+    private boolean isGPS;
 
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
@@ -142,12 +141,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragInfo;
         updateFragment();
 
-        testWorkManager();
         new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
             @Override
             public void gpsStatus(boolean isGPSEnable) {
                 // turn on GPS
-                //isGPS = isGPSEnable;
+                isGPS = isGPSEnable;
             }
         });
 
@@ -639,7 +637,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == GPS_REQUEST) {
-                //isGPS = true; // flag maintain before get location
+                isGPS = true; // flag maintain before get location
             }
         }
     }
