@@ -139,6 +139,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private GeoFencing geoFencing_bikeRacks;
     private GeoFencing geoFencing_hazardAlerts;
     private GeoFencing geoFencing_tracks;
+    private boolean bike_hazard_geofence_stopped = false;
 
 
     @Override
@@ -293,9 +294,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //setup geofences
                     LatLng latlng_setuppos = mapboxMap.getCameraPosition().target;
                     GeoPoint geopoint_setuppos = new GeoPoint(latlng_setuppos.getLatitude(), latlng_setuppos.getLongitude());
-                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 3000);
+
+                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 200);
+                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 200);
                     geoFencing_tracks.setupGeofence(geopoint_setuppos, 5000);
-                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 3000);
+
 
 
                     mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {
@@ -304,18 +307,38 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             if (latLng_lastcamerapos == null) {
                                 latLng_lastcamerapos = mapboxMap.getCameraPosition().target;
                             }
+                            if (mapboxMap.getCameraPosition().zoom > 13) {
+                                if (bike_hazard_geofence_stopped) {
+                                    geoFencing_bikeRacks.startGeoFenceListener();
+                                    geoFencing_hazardAlerts.startGeoFenceListener();
+                                    bike_hazard_geofence_stopped = false;
+                                }
+
+                            } else {
+                                if (!bike_hazard_geofence_stopped) {
+                                    geoFencing_bikeRacks.stopGeoFenceListener();
+                                    geoFencing_hazardAlerts.stopGeoFenceListener();
+                                    mapboxMap.getStyle(style1 -> {
+                                        deleteLayers(style1, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
+                                        deleteLayers(style1, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
+                                    });
+
+                                    bike_hazard_geofence_stopped = true;
+
+                                }
+
+                            }
 
                             LatLng latlng_currCameraPos = mapboxMap.getCameraPosition().target;
                             double distance = latlng_currCameraPos.distanceTo(latLng_lastcamerapos);
 
                             GeoPoint geopoint_currPos = new GeoPoint(latlng_currCameraPos.getLatitude(), latlng_currCameraPos.getLongitude());
-
-                            if (geoFencing_bikeRacks != null && distance / 1000 > (geoFencing_bikeRacks.getRadius() / 2)) {
+                            if (mapboxMap.getCameraPosition().zoom > 13 && geoFencing_bikeRacks != null && distance / 1000 > (geoFencing_bikeRacks.getRadius() / 2)) {
                                 geoFencing_bikeRacks.updateCenter(geopoint_currPos);
                                 latLng_lastcamerapos = latlng_currCameraPos;
                             }
 
-                            if (geoFencing_hazardAlerts != null && distance / 1000 > (geoFencing_hazardAlerts.getRadius() / 2)) {
+                            if (mapboxMap.getCameraPosition().zoom > 13 && geoFencing_hazardAlerts != null && distance / 1000 > (geoFencing_hazardAlerts.getRadius() / 2)) {
                                 geoFencing_hazardAlerts.updateCenter(geopoint_currPos);
                                 latLng_lastcamerapos = latlng_currCameraPos;
                             }
@@ -356,9 +379,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                         }
                     });
 
-                    geoFencing_bikeRacks.startGeoFenceListener();
                     geoFencing_tracks.startGeoFenceListener();
-                    geoFencing_hazardAlerts.startGeoFenceListener();
                     /*//Draw Route on Map
                     mapview.drawRoute(route);
                     showRoute(start,end);*/
@@ -471,10 +492,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private String addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster, int clusterRadius) {
-        //TODO: ONLY ONCE FOR PRESENTATION PURPOSE
-
-        //Check if Source is initialized
+    private void deleteLayers(@NonNull Style loadedMapStyle, String ID) {
         for (Source source : loadedMapStyle.getSources()) {
             if (source.getId().equals(ID)) {
 
@@ -486,7 +504,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 loadedMapStyle.removeSource(ID);
             }
         }
+    }
+    private String addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster, int clusterRadius) {
+        //TODO: ONLY ONCE FOR PRESENTATION PURPOSE
 
+        //Check if Source is initialized
+        deleteLayers(loadedMapStyle, ID);
         //New GeoJsonSource from FeatureCollection
         Source source = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
                 .withCluster(withCluster)
@@ -543,7 +566,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 color = R.color.Amber800Light;
                 break;
             case TRACK:
-                color = R.color.Red800Light;
+                color = R.color.Green800Primary;
                 break;
         }
         // Each point range gets a different fill color.
