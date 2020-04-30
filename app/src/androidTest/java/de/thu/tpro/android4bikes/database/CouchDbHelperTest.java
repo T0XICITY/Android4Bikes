@@ -17,7 +17,6 @@ import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import de.thu.tpro.android4bikes.util.GlobalContext;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 
 import static org.junit.Assert.assertEquals;
