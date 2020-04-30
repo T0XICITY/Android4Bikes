@@ -125,7 +125,9 @@ public class GeoFencing extends Observable {
                     object_to_remove = mapToObjectConverter.convertMapToObject(map_object, null);
 
                     documents_in_area.remove(documentSnapshot.getId());
-                    list_objects.remove(object_to_remove);
+                    if (object_to_remove != null){
+                        list_objects.remove(object_to_remove);
+                    }
                     //Log.d("HALLO WELT", "DocumentExit: "+documentSnapshot.getId());
                     setChanged();
                     notifyObservers(list_objects);
@@ -139,7 +141,9 @@ public class GeoFencing extends Observable {
                     object_to_add = mapToObjectConverter.convertMapToObject(map_object, null);
 
                     documents_in_area.add(documentSnapshot.getId());
-                    list_objects.add(object_to_add);
+                    if (object_to_add != null){
+                        list_objects.add(object_to_add);
+                    }
                     //Log.d("HALLO WELT", "Document Entered: "+documentSnapshot.getId()+" Geo point: "+ geoPoint);
                     setChanged();
                     notifyObservers(list_objects);
