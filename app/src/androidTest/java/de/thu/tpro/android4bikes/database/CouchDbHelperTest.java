@@ -4,6 +4,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.couchbase.lite.Database;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -757,5 +758,10 @@ public class CouchDbHelperTest {
         cdbOwn.deleteProfile(profile_own);
         cdbWriteBuffer.deleteProfile(profile_wb);
         cdbDelBuffer.deleteProfile(profile_del);
+    }
+
+    @AfterClass
+    public void after() {
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
     }
 }

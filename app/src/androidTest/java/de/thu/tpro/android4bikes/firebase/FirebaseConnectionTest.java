@@ -10,6 +10,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.GeoPoint;
 
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -28,6 +29,8 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.util.AchievementManager;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -62,7 +65,7 @@ public class FirebaseConnectionTest {
                     authSignal.countDown();
                 }
             });
-
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
     }
 
     @Test
@@ -441,5 +444,10 @@ public class FirebaseConnectionTest {
 
     @Test
     public void updateToken() {
+    }
+
+    @After
+    public void after() {
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
     }
 }
