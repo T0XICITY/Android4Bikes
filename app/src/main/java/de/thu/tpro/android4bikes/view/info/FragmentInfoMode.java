@@ -293,9 +293,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //setup geofences
                     LatLng latlng_setuppos = mapboxMap.getCameraPosition().target;
                     GeoPoint geopoint_setuppos = new GeoPoint(latlng_setuppos.getLatitude(), latlng_setuppos.getLongitude());
-                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 200);
-                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 500);
-                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 200);
+                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 3000);
+                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 5000);
+                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 3000);
 
 
                     mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {

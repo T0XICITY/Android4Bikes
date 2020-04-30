@@ -2,7 +2,6 @@ package de.thu.tpro.android4bikes.view.login;
 
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -19,7 +18,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -27,14 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import java.util.ArrayList;
-
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.model.Profile;
-import de.thu.tpro.android4bikes.database.CouchDB;
-import de.thu.tpro.android4bikes.database.CouchDBHelper;
-import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
-import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.view.MainActivity;
 
@@ -144,18 +135,11 @@ public class ActivityLogin extends AppCompatActivity {
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+
+
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            //todo
-                            if(task.getResult().getAdditionalUserInfo().isNewUser()){
-                                // Sign in success, update UI with the signed-in user's information
-                                CouchDBHelper cdbh = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
-                                FirebaseUser user = task.getResult().getUser();
-                                Profile profile = new Profile(user.getDisplayName(),"",user.getUid(), Color.BLUE,0,new ArrayList<>());
-                                Log.d("HalloWelt","Created new Profile");
-                                cdbh.storeProfile(profile);
-                            }
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                         } else {
@@ -164,6 +148,7 @@ public class ActivityLogin extends AppCompatActivity {
                     }
                 });
     }
+
 
     public boolean onKeyDown(int keyCode, KeyEvent event)  {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
