@@ -96,15 +96,7 @@ public class CreateDataForFirebase {
                         ));
             }
 
-            bikeRacks.forEach(e -> {
-                uploadBikeRack(e);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-
-            });
+            bikeRacks.forEach(this::uploadBikeRack);
             tracks.forEach(this::uploadTrack);
             hazardAlerts.forEach(this::uploadHazardAlerts);
 
@@ -123,7 +115,7 @@ public class CreateDataForFirebase {
                     .document(hazardAlert.getFirebaseID())
                     .set(map_hazardAlert) //generate id automatically
                     .addOnSuccessListener(documentReference -> {
-                        con.registerDocument(hazardAlert.getFirebaseID(), hazardAlert.getPosition().getGeoPoint(),con.getGeoFireStore_bikeRack());
+                        con.registerDocument(hazardAlert.getFirebaseID(), hazardAlert.getPosition().getGeoPoint(),con.getGeoFireStore_hazardAlert());
                         countDownLatch.countDown();
                     })
                     .addOnFailureListener(e -> {
@@ -141,12 +133,20 @@ public class CreateDataForFirebase {
             FirebaseConnection con = FirebaseConnection.getInstance();
             CountDownLatch countDownLatch = new CountDownLatch(1);
             JSONObject jsonObject_track = new JSONObject(new Gson().toJson(track));
+            jsonObject_track.remove(Track.ConstantsTrack.ROUTE.toString());
+            String json_Route;
+            if (track.getRoute() != null){
+                json_Route = track.getRoute().toJson();
+            }else {
+                json_Route = null;
+            }
             Map map_track = new Gson().fromJson(jsonObject_track.toString(), Map.class);
+            map_track.put(Track.ConstantsTrack.ROUTE.toString(),json_Route);
             con.getDb().collection(FirebaseConnection.ConstantsFirebase.COLLECTION_TRACKS.toString())
                     .document(track.getFirebaseID())
                     .set(map_track) //generate id automatically
                     .addOnSuccessListener(documentReference -> {
-                        con.registerDocument(track.getFirebaseID(), track.getStartPosition().getGeoPoint(),con.getGeoFireStore_bikeRack());
+                        con.registerDocument(track.getFirebaseID(), track.getStartPosition().getGeoPoint(),con.getGeoFireStore_tracks());
                         countDownLatch.countDown();
                     })
                     .addOnFailureListener(e -> {
