@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import de.thu.tpro.android4bikes.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
