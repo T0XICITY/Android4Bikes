@@ -378,6 +378,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (currentFragment.equals(fragDriving)) {
             openInfoMode();
             submitTrack();
+            // iterate over registered hazards while driving
             List<Position> hazardPositions = fragDriving.getRegisteredHazardPositions();
             if (hazardPositions.size() > 0) {
                 for (Position hazPos : fragDriving.getRegisteredHazardPositions())

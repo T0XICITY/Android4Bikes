@@ -725,19 +725,20 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
-        btnPos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int i = spinnerHazard.getSelectedItemPosition();
-                // create hazard alert from entered info
-                HazardAlert newHazard = new HazardAlert();
-                newHazard.setPosition(hazardPosition); // TODO is setPosition() or setGeoPoint() correct?
-                newHazard.setType(HazardAlert.HazardType.getByType(i + 1)); // i+1 since we start counting on 1
+        btnPos.setOnClickListener(view -> {
+            int i = spinnerHazard.getSelectedItemPosition();
+            HazardAlert.HazardType type = HazardAlert.HazardType.getByType(i);
+            // TODO the numbers mason, what do they mean?
+            long expiryTimestamp = 120000L;
+            int distanceOfInterest = 5;
 
-                // submit hazard alert to ViewModel
-                vm_ownHazards.addOwnHazard(newHazard);
-                hazardDialog.dismiss();
-            }
+            // create hazard alert from entered info
+            HazardAlert newHazard = new HazardAlert(type, hazardPosition, expiryTimestamp,
+                    distanceOfInterest, true);
+
+            // submit hazard alert to ViewModel
+            vm_ownHazards.addOwnHazard(newHazard);
+            hazardDialog.dismiss();
         });
         hazardDialog.show();
     }
