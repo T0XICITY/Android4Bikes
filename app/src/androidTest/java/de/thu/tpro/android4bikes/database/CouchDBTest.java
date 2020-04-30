@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.util.Map;
 
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 
 import static de.thu.tpro.android4bikes.database.CouchDB.DatabaseNames;
 import static org.junit.Assert.assertEquals;
@@ -27,6 +28,7 @@ public class CouchDBTest {
         //Context simulieren
         GlobalContext.setContext(ApplicationProvider.getApplicationContext());
         couchdb = CouchDB.getInstance();
+        WorkManagerHelper.stopUploadTaskWithWorkManager();
     }
 
     @AfterClass

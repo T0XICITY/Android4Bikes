@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,7 +18,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 
-import org.json.JSONException;
+import org.imperiumlabs.geofirestore.GeoFirestore;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -38,14 +39,12 @@ import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
-import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.FireStoreDatabase;
 import de.thu.tpro.android4bikes.database.LocalDatabaseHelper;
 import de.thu.tpro.android4bikes.util.AchievementManager;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.JSONHelper;
 import de.thu.tpro.android4bikes.util.MapToObjectConverter;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
 
 public class FirebaseConnection extends Observable implements FireStoreDatabase {
@@ -54,9 +53,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private LocalDatabaseHelper localDatabaseHelper;
     private String TAG = "HalloWelt";
     private Gson gson;
-    private GeoFencing geoFencingHazards;
-    private GeoFencing geoFencingBikeracks;
-    private GeoFencing geoFencingTracks;
 
     //Buffer
     private CouchDBHelper cdb_writeBuffer;
@@ -69,14 +65,27 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     private MapToObjectConverter<HazardAlert> mapToObjectConverter_hazardAlert;
     private MapToObjectConverter<Profile> mapToObjectConverter_profile;
 
+    //GeoFirestore
+    private GeoFirestore geoFireStore_bikeRack;
+    private GeoFirestore geoFireStore_hazardAlert;
+    private GeoFirestore geoFireStore_tracks;
 
     private FirebaseConnection() {
         this.db = FirebaseFirestore.getInstance();
         localDatabaseHelper = new CouchDBHelper();
         this.gson = new Gson();
-        geoFencingHazards = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
-        geoFencingBikeracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS);
-        geoFencingTracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS);
+
+        geoFireStore_hazardAlert = new GeoFirestore(FirebaseFirestore
+                .getInstance()
+                .collection(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString()));
+
+        geoFireStore_bikeRack = new GeoFirestore(FirebaseFirestore
+                .getInstance()
+                .collection(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString()));
+
+        geoFireStore_tracks = new GeoFirestore(FirebaseFirestore
+                .getInstance()
+                .collection(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString()));
 
         //WriteBuffer und DeleteBuffer
         cdb_writeBuffer = new CouchDBHelper(CouchDBHelper.DBMode.WRITEBUFFER);
@@ -95,6 +104,39 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
             firebaseConnection = new FirebaseConnection();
         }
         return firebaseConnection;
+    }
+
+    public FirebaseFirestore getDb() {
+        return db;
+    }
+
+    public GeoFirestore getGeoFireStore_bikeRack() {
+        return geoFireStore_bikeRack;
+    }
+
+    public GeoFirestore getGeoFireStore_hazardAlert() {
+        return geoFireStore_hazardAlert;
+    }
+
+    public GeoFirestore getGeoFireStore_tracks() {
+        return geoFireStore_tracks;
+    }
+
+    /**
+     * Register new Document at Firestore containing Geohash and GeoPoint
+     * Only Registered Documents will considered in GeoQuery
+     *
+     * @param documentID Firestore DocumentID
+     * @param geoPoint   Geoposition(Lat,Lon) of the new Element
+     */
+    public void registerDocument(String documentID, GeoPoint geoPoint, GeoFirestore fireStore) {
+        fireStore.setLocation(documentID, geoPoint, exception -> {
+            if (exception != null) {
+                Log.d("HALLO WELT!", "An error has occurred while registering Document: " + exception.getMessage());
+            } else {
+                Log.d("HALLO WELT!", "Document " + documentID + " : " + geoPoint.toString() + " registered successfully!");
+            }
+        });
     }
 
     /**
@@ -445,7 +487,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                 + ","
                                 + hazardAlert.getPosition().getLongitude()
                                 + " submitted successfully");*/
-                        geoFencingHazards.registerDocument(hazardAlert.getFirebaseID(), hazardAlert.getPosition().getGeoPoint());
+                        registerDocument(hazardAlert.getFirebaseID(), hazardAlert.getPosition().getGeoPoint(),geoFireStore_hazardAlert);
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -496,6 +538,11 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     }
 
 
+    public static Profile createAnonProfile() {
+        List<Achievement> list = new ArrayList<>();
+        return new Profile("Android", "Biker", "-1", 0x2e8b57, 0, list);
+    }
+
     /**
      * TODO
      *
@@ -514,7 +561,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
         //...
 
         tracks.forEach(entry -> {
-            map_track_profile.put(entry, TestObjectsGenerator.createAnonProfile());
+            map_track_profile.put(entry, createAnonProfile());
         });
 
         setChanged();
@@ -668,7 +715,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                     .set(map_track) //generate id automatically
                     .addOnSuccessListener(documentReference -> {
                         //Log.d(TAG, "Track " + track.getName() + " added successfully " + TimeBase.getCurrentUnixTimeStamp());
-                        geoFencingTracks.registerDocument(track.getFirebaseID(), track.getStartPosition().getGeoPoint());
+                        registerDocument(track.getFirebaseID(), track.getStartPosition().getGeoPoint(),geoFireStore_tracks);
 
                         //track to store by own user:
                         ownDataDB.storeTrack(track);
@@ -743,7 +790,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                 + ","
                                 + bikeRack.getPosition().getLongitude()
                                 + " submitted successfully");*/
-                        geoFencingBikeracks.registerDocument(bikeRack.getFirebaseID(), bikeRack.getPosition().getGeoPoint());
+                        registerDocument(bikeRack.getFirebaseID(), bikeRack.getPosition().getGeoPoint(),geoFireStore_bikeRack);
                         ownDataDB.storeBikeRack(bikeRack);
                         cdb_writeBuffer.deleteBikeRack(bikeRack);
                         countDownLatch.countDown();
@@ -780,7 +827,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                 + ","
                                 + hazardAlert.getPosition().getLongitude()
                                 + " submitted successfully");*/
-                        geoFencingHazards.registerDocument(hazardAlert.getFirebaseID(), hazardAlert.getPosition().getGeoPoint());
+                        registerDocument(hazardAlert.getFirebaseID(), hazardAlert.getPosition().getGeoPoint(),geoFireStore_hazardAlert);
 
                         //track to store by own user:
                         ownDataDB.storeHazardAlerts(hazardAlert);

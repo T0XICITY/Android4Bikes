@@ -9,7 +9,9 @@ import java.util.Observable;
 import java.util.Observer;
 
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.Processor;
 
@@ -43,7 +45,12 @@ public class ViewModelHazardAlert extends ViewModel implements Observer {
         localDB.addObserver(this);
 
         //initialize GeoFencing
-        geoFencing_hazardAlerts = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS);
+        if (PositionTracker.getLastPosition() != null){
+            geoFencing_hazardAlerts = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS, PositionTracker.getLastPosition().getGeoPoint(),200);
+        }else {
+            geoFencing_hazardAlerts = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS,new Position(48.408751,9.997498).getGeoPoint(),200);
+        }
+
         geoFencing_hazardAlerts.addObserver(this);
     }
 

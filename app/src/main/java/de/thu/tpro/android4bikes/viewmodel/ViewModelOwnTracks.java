@@ -15,7 +15,6 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.database.WriteBuffer;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
 public class ViewModelOwnTracks extends ViewModel implements Observer {
     private MutableLiveData<Map<Track, Profile>> map_tracks_profile_shown;
@@ -47,9 +46,6 @@ public class ViewModelOwnTracks extends ViewModel implements Observer {
 
         //set initial values
         workInProgress.postValue(0);
-
-        //generate dummy data
-        this.map_tracks_profile_shown.postValue(TestObjectsGenerator.initialize_map_track_profile());
     }
 
     /**

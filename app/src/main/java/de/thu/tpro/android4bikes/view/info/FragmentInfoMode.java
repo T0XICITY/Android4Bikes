@@ -286,7 +286,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markerPool = new HashMap<>();
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.ic_material_parking));
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL, parent.getDrawable(R.drawable.ic_material_hazard));
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.ic_material_track));
+                    markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.ic_flag_green_24dp));
                     initMarkerSymbols(mapboxMap, markerPool);
                     //generateCustomRoute(generateTrack().getFineGrainedPositions());
                     initPosFab();
@@ -303,9 +303,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //setup geofences
                     LatLng latlng_setuppos = mapboxMap.getCameraPosition().target;
                     GeoPoint geopoint_setuppos = new GeoPoint(latlng_setuppos.getLatitude(), latlng_setuppos.getLongitude());
-                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 200);
-                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 500);
-                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 200);
+                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 3000);
+                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 5000);
+                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 3000);
 
 
                     mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {

@@ -22,7 +22,7 @@ public class Rating {
     public Rating() {
     }
 
-    public Rating(int difficulty, int fun, int roadquality, String firebaseID) {
+    public Rating(int difficulty, int fun, int roadquality) {
         this.difficulty = difficulty;
         this.fun = fun;
         this.roadquality = roadquality;
