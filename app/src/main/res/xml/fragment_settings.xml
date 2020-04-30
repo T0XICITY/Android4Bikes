@@ -21,11 +21,11 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="@string/settings_Bluetooth"
-        app:summary="@string/settings_Bluetooth_summary">
-        <SwitchPreferenceCompat
-            app:key="bluetooth_active"
-            app:title="@string/settings_Bluetooth_Button"/>
+        app:title="@string/settings_Bluetooth">
+        <Preference
+            app:summary="@string/settings_Bluetooth_summary"
+            app:key="bluetooth_active">
+        </Preference>
     </PreferenceCategory>
 
     <PreferenceCategory
