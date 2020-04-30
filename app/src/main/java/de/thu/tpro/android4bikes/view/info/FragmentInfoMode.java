@@ -70,6 +70,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -79,6 +87,7 @@ import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.GpsUtils;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelHazardAlert;
@@ -254,6 +263,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
 
         } else {
+            Mapbox.getInstance(parent, parent.getString(R.string.access_token));
             mapFragment = (SupportMapFragment) parent.getSupportFragmentManager()
                     .findFragmentByTag(MAPFRAGMENT_TAG);
 
@@ -598,6 +608,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(parent)) {
 
+            //Check if GPS is enabled on device
+            //parent.checkLocationEnabled();
+            new GpsUtils(getActivity()).turnGPSOn(new GpsUtils.onGpsListener() {
+                @Override
+                public void gpsStatus(boolean isGPSEnable) {
+                    // turn on GPS
+                    //isGPS = isGPSEnable;
+                }
+            });
+
             // Get an instance of the component
             locationComponent = mapboxMap.getLocationComponent();
 
@@ -783,6 +803,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         FAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        enableLocationComponent(style);
+                    }
+                });
                 if (PositionTracker.getLastPosition() != null) {
                     mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
                             .target(PositionTracker.getLastPosition().toMapboxLocation())

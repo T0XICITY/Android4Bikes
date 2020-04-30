@@ -1,11 +1,14 @@
 package de.thu.tpro.android4bikes.view;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -24,16 +27,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -48,6 +41,15 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.List;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -59,6 +61,7 @@ import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.GpsUtils;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
@@ -86,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewModelOwnTracks vmOwnTracks;
 
     public LatLng lastPos;
+    public static final int GPS_REQUEST = 97;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
     private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
@@ -103,11 +107,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView imageView;
     private TextView tv_headerName;
     private TextView tv_headerMail;
+    private boolean isGPS;
 
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
 
     private boolean toolbarHidden;
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +141,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         onCreateClickShowProfile();
         currentFragment = fragInfo;
         updateFragment();
+
+        new GpsUtils(this).turnGPSOn(new GpsUtils.onGpsListener() {
+            @Override
+            public void gpsStatus(boolean isGPSEnable) {
+                // turn on GPS
+                isGPS = isGPSEnable;
+            }
+        });
 
         //testWorkManager();
         //observeInternet();
@@ -173,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        onCreate(savedInstanceState);
+        //onCreate(savedInstanceState);
     }
 
     /*private void testWorkManager() {
@@ -640,6 +654,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Prevent leaks
         if (locationEngine != null) {
             locationEngine.removeLocationUpdates(callback);
+        }
+        navigationView.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == GPS_REQUEST) {
+                isGPS = true; // flag maintain before get location
+            }
+        }
+    }
+
+    public void checkLocationEnabled() {
+        LocationManager locManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        if(!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog gpsDialog = new MaterialAlertDialogBuilder(this)
+                    .setTitle(getResources().getString(R.string.gps_title))
+                    .setMessage(getResources().getString(R.string.user_location_permission_explanation)
+                        +"\n"+ getResources().getString(R.string.gps_message))
+                    .setPositiveButton("Yes", null)
+                    .setNegativeButton("No", null)
+                    .create();
+
+            gpsDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
+                    gpsDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+                    gpsDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+                }
+            });
+            gpsDialog.show();
+            gpsDialog.setCanceledOnTouchOutside(false);
+            Button btnPos = gpsDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            btnPos.setOnClickListener(view -> {
+                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                gpsDialog.dismiss();
+            });
+
+            Button btnNeg = gpsDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            btnNeg.setOnClickListener(view -> gpsDialog.dismiss());
         }
     }
 }

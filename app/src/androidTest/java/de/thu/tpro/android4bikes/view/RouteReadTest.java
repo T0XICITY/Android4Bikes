@@ -9,11 +9,11 @@ import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import de.thu.tpro.android4bikes.TestObjectsGenerator;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.util.GlobalContext;
-import de.thu.tpro.android4bikes.util.TestObjectsGenerator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 public class RouteReadTest {
     private static Context context;
