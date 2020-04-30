@@ -24,6 +24,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
+
+import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -39,6 +43,7 @@ public class ActivityLogin extends AppCompatActivity {
     private final static int RC_SIGN_IN = 9999;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
+    private PermissionsManager permissionsManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +121,23 @@ public class ActivityLogin extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
+                if (!PermissionsManager.areLocationPermissionsGranted(this)) {
+                    permissionsManager = new PermissionsManager(new PermissionsListener() {
+                        @Override
+                        public void onExplanationNeeded(List<String> permissionsToExplain) {
+                            Toast.makeText(ActivityLogin.this, R.string.user_location_permission_explanation,
+                                    Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onPermissionResult(boolean granted) {
+                            if (!granted) {
+                                Toast.makeText(ActivityLogin.this, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                    permissionsManager.requestLocationPermissions(this);
+                }
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
@@ -123,6 +145,11 @@ public class ActivityLogin extends AppCompatActivity {
                 Log.w(TAG, "Google sign in failed", e);
             }
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     /**
