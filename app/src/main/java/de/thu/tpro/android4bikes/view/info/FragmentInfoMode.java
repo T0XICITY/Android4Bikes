@@ -39,6 +39,7 @@ import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Geometry;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -58,6 +59,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
+import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
@@ -96,6 +98,8 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
@@ -104,6 +108,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 
 public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener {
@@ -143,6 +148,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private GeoFencing geoFencing_tracks;
     private boolean fenceAlreadyRunning;
     private boolean fenceAlreadyStopped;
+    private boolean hazardLayer_created;
+    private boolean bikerackLayer_created;
+    private boolean trackLayer_created;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -317,6 +325,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 if (!fenceAlreadyRunning){
                                     geoFencing_bikeRacks.startGeoFenceListener();
                                     geoFencing_hazardAlerts.startGeoFenceListener();
+                                    toggleBikeRacks_Hazards(true);
                                     fenceAlreadyRunning = true;
                                     fenceAlreadyStopped = false;
                                 }
@@ -324,10 +333,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 if (!fenceAlreadyStopped){
                                     geoFencing_bikeRacks.stopGeoFenceListener();
                                     geoFencing_hazardAlerts.stopGeoFenceListener();
-                                    mapboxMap.getStyle(style1 -> {
-                                        deleteLayers(style1, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
-                                        deleteLayers(style1, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
-                                    });
+                                    toggleBikeRacks_Hazards(false);
                                     fenceAlreadyRunning = false;
                                     fenceAlreadyStopped = true;
                                 }
@@ -372,14 +378,17 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                             // Log all the properties
                                             if (entry.getKey().equals("ID")) {
                                                 Set<Track> tracks = vm_Tracks.getTracks().getValue().keySet();
-                                                Track result = tracks.stream()
+                                                Track track_result = tracks.stream()
                                                         .filter(track -> entry.getValue().getAsString().equals(track.getFirebaseID()))
                                                         .findFirst()
                                                         .orElse(null);
-                                                if (result != null){
-                                                    Log.d("HalloWelt","Trackname: "+result.getName());
+                                                if (track_result != null) {
+                                                    //Was Track
+                                                    showRoute(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
+
                                                 }else {
-                                                    Log.d("HalloWelt","Track was null :(");
+                                                    //Was Bikerack or HazardALert
+                                                    //TODO just Popup
                                                 }
                                             }
                                         }
@@ -400,6 +409,38 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 });
     }
 
+    private void toggleBikeRacks_Hazards(boolean visible) {
+        String bikeracks = GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString();
+        toggleLayer("unclustered_" + bikeracks, visible);
+        toggleLayer("clustered_" + bikeracks + 0, visible);
+        toggleLayer("clustered_" + bikeracks + 1, visible);
+        toggleLayer("clustered_" + bikeracks + 2, visible);
+        toggleLayer("count_" + bikeracks, visible);
+
+        String hazards = GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString();
+        toggleLayer("unclustered_" + hazards, visible);
+        toggleLayer("clustered_" + hazards + 0, visible);
+        toggleLayer("clustered_" + hazards + 1, visible);
+        toggleLayer("clustered_" + hazards + 2, visible);
+        toggleLayer("count_" + hazards, visible);
+    }
+
+    private void toggleLayer(String ID, boolean visible) {
+        mapboxMap.getStyle(new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
+                Layer layer = style.getLayer(ID);
+                if (layer != null) {
+                    if (!visible) {
+                        layer.setProperties(visibility(NONE));
+                    } else {
+                        layer.setProperties(visibility(VISIBLE));
+                    }
+                }
+            }
+        });
+    }
+
     private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
         return new SymbolOptions()
                 .withLatLng(new LatLng(latitude, longitude))
@@ -414,6 +455,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 50), 5000);
     }
 
+    private void addRoutetoMap(@NonNull Style loadedMapStyle, DirectionsRoute route, String dataSourceID) {
+        //FeatureCollection.fromFeatures(new Feature[] {
+        //Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6))}));
+
+        //String id = addGeoJsonSource(loadedMapStyle,)
+    }
     /**
      * Create Markers from Track List
      *
@@ -436,11 +483,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
             //Create FeatureCollection from Feature List
             FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+
             //Create unclustered symbol layer
-            String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
-            createUnclusteredSymbolLayer(loadedMapStyle, id, type);
-            //Create clustered circle layer
-            createClusteredCircleOverlay(loadedMapStyle, id, type);
+            addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true);
+            if (!trackLayer_created) {
+                createUnclusteredSymbolLayer(loadedMapStyle, dataSourceID, type);
+                //Create clustered circle layer
+                createClusteredCircleOverlay(loadedMapStyle, dataSourceID, type);
+                trackLayer_created = true;
+            }
+
         }
     }
 
@@ -466,10 +518,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             //Create FeatureCollection from Feature List
             FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
             //Create unclustered symbol layer
-            String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
-            createUnclusteredSymbolLayer(loadedMapStyle, id, type);
-            //Create clustered circle layer
-            createClusteredCircleOverlay(loadedMapStyle, id, type);
+            addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true);
+            if (!bikerackLayer_created) {
+                createUnclusteredSymbolLayer(loadedMapStyle, dataSourceID, type);
+                //Create clustered circle layer
+                createClusteredCircleOverlay(loadedMapStyle, dataSourceID, type);
+                bikerackLayer_created = true;
+            }
+
         }
     }
 
@@ -496,11 +552,15 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
             //Create FeatureCollection from Feature List
             FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
-            //Create unclustered symbol layer
-            String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
-            createUnclusteredSymbolLayer(loadedMapStyle, id, type);
-            //Create clustered circle layer
-            createClusteredCircleOverlay(loadedMapStyle, id, type);
+            addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true);
+            if (!hazardLayer_created) {
+                //Create unclustered symbol layer
+                createUnclusteredSymbolLayer(loadedMapStyle, dataSourceID, type);
+                //Create clustered circle layer
+                createClusteredCircleOverlay(loadedMapStyle, dataSourceID, type);
+                hazardLayer_created = true;
+            }
+
         }
     }
 
@@ -517,19 +577,39 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
         }
     }
-    private String addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster, int clusterRadius) {
-        //TODO: ONLY ONCE FOR PRESENTATION PURPOSE
 
+    private void addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster) {
         //Check if Source is initialized
-        deleteLayers(loadedMapStyle, ID);
-        //New GeoJsonSource from FeatureCollection
-        Source source = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
-                .withCluster(withCluster)
-                .withClusterRadius(clusterRadius)
-        );
-        loadedMapStyle.addSource(source);
+        //deleteLayers(loadedMapStyle, ID);
+        GeoJsonSource mapStyleSource = loadedMapStyle.getSourceAs(ID);
+        if (mapStyleSource != null) {
+            mapStyleSource.setGeoJson(featureCollection);
+        } else {
+            if (withCluster) {
+                GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
+                        .withCluster(true)
+                        .withClusterRadius(50));
+                loadedMapStyle.addSource(geoJsonSource);
+            } else {
+                GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection);
+                loadedMapStyle.addSource(geoJsonSource);
+            }
 
-        return source.getId();
+        }
+
+    }
+
+    private void addGeoJsonSource(@NonNull Style loadedMapStyle, Geometry geometry, String ID) {
+        //Check if Source is initialized
+        //deleteLayers(loadedMapStyle, ID);
+        GeoJsonSource mapStyleSource = loadedMapStyle.getSourceAs(ID);
+        if (mapStyleSource != null) {
+            mapStyleSource.setGeoJson(geometry);
+        } else {
+            GeoJsonSource geoJsonSource = new GeoJsonSource(ID, FeatureCollection.fromFeatures(new Feature[]{
+                    Feature.fromGeometry(geometry)}));
+            loadedMapStyle.addSource(geoJsonSource);
+        }
     }
 
     /**
