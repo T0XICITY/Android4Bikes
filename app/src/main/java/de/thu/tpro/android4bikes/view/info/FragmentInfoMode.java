@@ -96,11 +96,12 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.not;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
@@ -325,7 +326,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 if (!fenceAlreadyRunning){
                                     geoFencing_bikeRacks.startGeoFenceListener();
                                     geoFencing_hazardAlerts.startGeoFenceListener();
-                                    toggleBikeRacks_Hazards(true);
+                                    //toggleBikeRacks_Hazards(true);
                                     fenceAlreadyRunning = true;
                                     fenceAlreadyStopped = false;
                                 }
@@ -333,7 +334,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 if (!fenceAlreadyStopped){
                                     geoFencing_bikeRacks.stopGeoFenceListener();
                                     geoFencing_hazardAlerts.stopGeoFenceListener();
-                                    toggleBikeRacks_Hazards(false);
+                                    //toggleBikeRacks_Hazards(false);
                                     fenceAlreadyRunning = false;
                                     fenceAlreadyStopped = true;
                                 }
@@ -412,16 +413,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private void toggleBikeRacks_Hazards(boolean visible) {
         String bikeracks = GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString();
         toggleLayer("unclustered_" + bikeracks, visible);
-        toggleLayer("clustered_" + bikeracks + 0, visible);
-        toggleLayer("clustered_" + bikeracks + 1, visible);
-        toggleLayer("clustered_" + bikeracks + 2, visible);
+        toggleLayer("clustered_" + bikeracks, visible);
         toggleLayer("count_" + bikeracks, visible);
 
         String hazards = GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString();
         toggleLayer("unclustered_" + hazards, visible);
-        toggleLayer("clustered_" + hazards + 0, visible);
-        toggleLayer("clustered_" + hazards + 1, visible);
-        toggleLayer("clustered_" + hazards + 2, visible);
+        toggleLayer("clustered_" + hazards, visible);
         toggleLayer("count_" + hazards, visible);
     }
 
@@ -569,9 +566,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             if (source.getId().equals(ID)) {
 
                 loadedMapStyle.removeLayer("unclustered_" + ID);
-                loadedMapStyle.removeLayer("clustered_" + ID + 0);
-                loadedMapStyle.removeLayer("clustered_" + ID + 1);
-                loadedMapStyle.removeLayer("clustered_" + ID + 2);
+                loadedMapStyle.removeLayer("clustered_" + ID);
                 loadedMapStyle.removeLayer("count_" + ID);
                 loadedMapStyle.removeSource(ID);
             }
@@ -586,10 +581,26 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             mapStyleSource.setGeoJson(featureCollection);
         } else {
             if (withCluster) {
-                GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
-                        .withCluster(true)
-                        .withClusterRadius(50));
-                loadedMapStyle.addSource(geoJsonSource);
+                if (ID.equals(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString()) || ID.equals(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString())) {
+                    GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
+                            .withCluster(true)
+                            .withClusterRadius(50)
+                            //.withClusterMaxZoom(10)
+                            .withMinZoom(13)
+                    );
+                    loadedMapStyle.addSource(geoJsonSource);
+                } else {
+                    GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
+                            .withCluster(true)
+                            .withClusterRadius(50)
+                            //.withClusterMaxZoom(10)
+                            .withMaxZoom(13)
+                            .withMinZoom(4)
+                    );
+                    loadedMapStyle.addSource(geoJsonSource);
+                }
+
+
             } else {
                 GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection);
                 loadedMapStyle.addSource(geoJsonSource);
@@ -638,6 +649,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                         )
                 )*/
         );
+        Expression pointCount = toNumber(get("point_count"));
+        // Add a filter to the cluster layer that hides the circles based on "point_count"
+        unclustered.setFilter(
+                all(not(has("point_count"))
+                ));
         //unclustered.setFilter(has("mag"));
         loadedMapStyle.addLayer(unclustered);
     }
@@ -661,35 +677,24 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 color = R.color.Green800Primary;
                 break;
         }
-        // Each point range gets a different fill color.
-        int[][] layers = new int[][]{
-                new int[]{150, ContextCompat.getColor(parent, color)},
-                new int[]{20, ContextCompat.getColor(parent, color)},
-                new int[]{0, ContextCompat.getColor(parent, color)}
-        };
-
-        for (int i = 0; i < layers.length; i++) {
             //Add clusters' circles
-            CircleLayer circles = new CircleLayer("clustered_" + sourceID + i, sourceID);
+        CircleLayer circles = new CircleLayer("clustered_" + sourceID, sourceID);
             circles.setProperties(
-                    circleColor(layers[i][1]),
-                    circleRadius(30f)
+                    circleOpacity(0.6f),
+                    circleColor(ContextCompat.getColor(parent, color)),
+                    circleRadius(15f)
             );
 
             Expression pointCount = toNumber(get("point_count"));
 
             // Add a filter to the cluster layer that hides the circles based on "point_count"
             circles.setFilter(
-                    i == 0
-                            ? all(has("point_count"),
-                            gte(pointCount, literal(layers[i][0]))
-                    ) : all(has("point_count"),
-                            gte(pointCount, literal(layers[i][0])),
-                            lt(pointCount, literal(layers[i - 1][0]))
-                    )
-            );
+                    all(has("point_count"),
+                            gte(pointCount, literal(0)
+                            )
+                    ));
+
             loadedMapStyle.addLayer(circles);
-        }
 
         //Add the count labels
         SymbolLayer count = new SymbolLayer("count_" + sourceID, sourceID);
@@ -698,7 +703,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 textSize(12f),
                 textColor(Color.WHITE),
                 textIgnorePlacement(true),
-                textAllowOverlap(true)
+                textAllowOverlap(false)
         );
         loadedMapStyle.addLayer(count);
     }
