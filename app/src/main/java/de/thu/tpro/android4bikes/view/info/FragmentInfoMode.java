@@ -140,8 +140,8 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private GeoFencing geoFencing_bikeRacks;
     private GeoFencing geoFencing_hazardAlerts;
     private GeoFencing geoFencing_tracks;
-    private boolean bike_hazard_geofence_stopped = false;
-
+    private boolean fenceAlreadyRunning;
+    private boolean fenceAlreadyStopped;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -175,6 +175,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         geoFencing_bikeRacks = vm_bikeRack.getGeoFencing_bikeRacks();
         geoFencing_hazardAlerts = vm_Hazards.getGeoFencing_hazardAlerts();
         geoFencing_tracks = vm_Tracks.getGeoFencing_tracks();
+
+        fenceAlreadyRunning = false;
+        fenceAlreadyStopped = true;
 
         initMap(savedInstanceState);
     }
@@ -310,25 +313,23 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 latLng_lastcamerapos = mapboxMap.getCameraPosition().target;
                             }
                             if (mapboxMap.getCameraPosition().zoom > 13) {
-                                if (bike_hazard_geofence_stopped) {
+                                if (!fenceAlreadyRunning){
                                     geoFencing_bikeRacks.startGeoFenceListener();
                                     geoFencing_hazardAlerts.startGeoFenceListener();
-                                    bike_hazard_geofence_stopped = false;
+                                    fenceAlreadyRunning = true;
+                                    fenceAlreadyStopped = false;
                                 }
-
                             } else {
-                                if (!bike_hazard_geofence_stopped) {
+                                if (!fenceAlreadyStopped){
                                     geoFencing_bikeRacks.stopGeoFenceListener();
                                     geoFencing_hazardAlerts.stopGeoFenceListener();
                                     mapboxMap.getStyle(style1 -> {
                                         deleteLayers(style1, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
                                         deleteLayers(style1, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
                                     });
-
-                                    bike_hazard_geofence_stopped = true;
-
+                                    fenceAlreadyRunning = false;
+                                    fenceAlreadyStopped = true;
                                 }
-
                             }
 
                             LatLng latlng_currCameraPos = mapboxMap.getCameraPosition().target;
