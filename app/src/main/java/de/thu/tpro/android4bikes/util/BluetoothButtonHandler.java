@@ -47,6 +47,10 @@ public class BluetoothButtonHandler extends Observable {
         bDetect = true;
     }
 
+    public void removeButton(){
+        sharedPreferences.edit().putInt(Contract.DEVICEID, -1).apply();
+    }
+
     /**
      * Method which handles the keyEvent in order to notify Observers for the keyEvent
      *
