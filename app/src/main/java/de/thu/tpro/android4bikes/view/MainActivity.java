@@ -71,6 +71,7 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
 import de.thu.tpro.android4bikes.view.menu.settings.FragmentSettings;
 import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelBtBtn;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
@@ -81,7 +82,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile> {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile>{
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
 
@@ -108,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tv_headerName;
     private TextView tv_headerMail;
     private boolean isGPS;
+    private ViewModelBtBtn vm_BtBtn;
 
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
@@ -126,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ViewModelProvider provider = new ViewModelProvider(this);
         vmOwnProfile = provider.get(ViewModelOwnProfile.class);
         vmOwnTracks = provider.get(ViewModelOwnTracks.class);
+        vm_BtBtn = new ViewModelProvider(this).get(ViewModelBtBtn.class);
 
         setContentView(R.layout.activity_main);
 
@@ -161,7 +164,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
-
+        vm_BtBtn.getBtnEvent().observe(this,newValue->{
+            if (currentFragment == fragDriving){
+                Toast.makeText(getApplicationContext(),"BtBtn was clicked",Toast.LENGTH_SHORT).show();
+                //todo: Make the real submit
+            }
+        });
     }
 
     private void loadOwnUser() {
@@ -502,7 +510,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             openInfoMode();
             return true;
         }
-        return super.onKeyDown(keyCode, event); //handles other keys
+        Log.d("HalloWelt","onKeyDown");
+        return vm_BtBtn.handleKeyEvent(event);
     }
 
     private void openInfoMode() {
