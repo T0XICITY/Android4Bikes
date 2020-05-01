@@ -40,7 +40,6 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.List;
-import java.util.Observable;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -61,7 +60,6 @@ import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
-import de.thu.tpro.android4bikes.util.BluetoothButtonHandler;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.GpsUtils;
 import de.thu.tpro.android4bikes.util.Processor;
@@ -73,6 +71,7 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
 import de.thu.tpro.android4bikes.view.menu.settings.FragmentSettings;
 import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelBtBtn;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
@@ -83,7 +82,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile>, java.util.Observer {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile>{
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
 
@@ -110,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tv_headerName;
     private TextView tv_headerMail;
     private boolean isGPS;
+    private ViewModelBtBtn vm_BtBtn;
 
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ViewModelProvider provider = new ViewModelProvider(this);
         vmOwnProfile = provider.get(ViewModelOwnProfile.class);
         vmOwnTracks = provider.get(ViewModelOwnTracks.class);
+        vm_BtBtn = new ViewModelProvider(this).get(ViewModelBtBtn.class);
 
         setContentView(R.layout.activity_main);
 
@@ -163,7 +164,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
-        BluetoothButtonHandler.getInstance(getApplicationContext()).addObserver(this);
+        vm_BtBtn.getBtnEvent().observe(this,newValue->{
+            if (currentFragment == fragDriving){
+                Toast.makeText(getApplicationContext(),"BtBtn was clicked",Toast.LENGTH_SHORT).show();
+                //todo: Make the real submit
+            }
+        });
     }
 
     private void loadOwnUser() {
@@ -505,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return true;
         }
         Log.d("HalloWelt","onKeyDown");
-        return BluetoothButtonHandler.getInstance(getApplicationContext()).handleKeyEvent(event);
+        return vm_BtBtn.handleKeyEvent(event);
     }
 
     private void openInfoMode() {
@@ -706,14 +712,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             Button btnNeg = gpsDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
             btnNeg.setOnClickListener(view -> gpsDialog.dismiss());
-        }
-    }
-
-    @Override
-    public void update(Observable observable, Object o) {
-        if (o instanceof BluetoothButtonHandler){
-            Log.d("HalloWelt","MainActivity-UpdateBlueToothButton");
-            Toast.makeText(getApplicationContext(),"MainActivity-UpdateBlueToothButton",Toast.LENGTH_SHORT).show();
         }
     }
 }
