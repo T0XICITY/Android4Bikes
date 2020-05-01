@@ -58,6 +58,7 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -159,21 +160,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //scheduleUploadTaskWithTaskSchedule();
 
         //will be started after first attempt to read:
-        WorkManagerHelper.stopUploadTaskWithWorkManager();
-
+        if (savedInstanceState == null){
+            WorkManagerHelper.stopUploadTaskWithWorkManager();
+        }
 
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
         vm_BtBtn.getBtnEvent().observe(this,newValue->{
             if (currentFragment == fragDriving){
                 Toast.makeText(getApplicationContext(),"BtBtn was clicked",Toast.LENGTH_SHORT).show();
-                //todo: Make the real submit
+                //todo: klären distanceof interrest
+                HazardAlert alert = new HazardAlert(HazardAlert.HazardType.GENERAL,PositionTracker.getLastPosition(),10,true);
+                CouchWriteBuffer.getInstance().submitHazardAlerts(alert);
             }
         });
-    }
-
-    private void loadOwnUser() {
-
     }
 
     /**
