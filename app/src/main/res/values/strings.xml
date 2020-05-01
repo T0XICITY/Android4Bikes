@@ -44,6 +44,7 @@
     <string name="submit_hazard">Select Hazard</string>
     <string name="discard">Discard</string>
     <string name="track_name">Track name</string>
+    <string name="error_name">You have to enter a name</string>
 
     <!-- Rack Dialog -->
     <string name="rack_name">Rack name</string>
