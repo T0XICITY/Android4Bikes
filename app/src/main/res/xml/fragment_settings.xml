@@ -23,8 +23,12 @@
     <PreferenceCategory
         app:title="@string/settings_Bluetooth">
         <Preference
-            app:summary="@string/settings_Bluetooth_summary"
+            app:title="@string/settings_Bluetooth_summary"
             app:key="bluetooth_active">
+        </Preference>
+        <Preference
+            app:title="@string/settings_Bluetooth_reset"
+            app:key="bluetooth_reset">
         </Preference>
     </PreferenceCategory>
 

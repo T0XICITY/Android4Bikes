@@ -27,5 +27,11 @@ public class FragmentSettings extends PreferenceFragmentCompat {
             BluetoothButtonHandler.getInstance(getActivity().getApplicationContext()).detectButton();
             return true;
         });
+        findPreference("bluetooth_reset").setOnPreferenceClickListener(preference -> {
+            Log.d("HalloWelt","Reset");
+            BluetoothButtonHandler.getInstance(getActivity().getApplicationContext()).removeButton();
+            return true;
+        });
+
     }
 }

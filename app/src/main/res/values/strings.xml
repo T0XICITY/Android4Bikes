@@ -139,6 +139,7 @@
     <string name="loginfailure">Login went wrong</string>
     <string name="logoutfailed">Logout process failed!</string>
     <string name="loginfailed">The login process failed. Please retry.</string>
+    <string name="settings_Bluetooth_reset">Bluetooth Button zurücksetzen</string>
 
 
 </resources>
