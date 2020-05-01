@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -358,7 +359,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                         @Override
                         public boolean onMapClick(@NonNull LatLng point) {
-                            Log.d("HELLO", "Click");
                             // Convert LatLng coordinates to screen pixel and only query the rendered features.
                             final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
 
@@ -371,7 +371,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                         for (Map.Entry<String, JsonElement> entry : feature.properties().entrySet()) {
                                             // Log all the properties
                                             if (entry.getKey().equals("ID")) {
-                                                Log.d("HELLO", String.valueOf(entry.getValue()));
+                                                Set<Track> tracks = vm_Tracks.getTracks().getValue().keySet();
+                                                Track result = tracks.stream()
+                                                        .filter(track -> entry.getValue().getAsString().equals(track.getFirebaseID()))
+                                                        .findFirst()
+                                                        .orElse(null);
+                                                if (result != null){
+                                                    Log.d("HalloWelt","Trackname: "+result.getName());
+                                                }else {
+                                                    Log.d("HalloWelt","Track was null :(");
+                                                }
                                             }
                                         }
                                     }
