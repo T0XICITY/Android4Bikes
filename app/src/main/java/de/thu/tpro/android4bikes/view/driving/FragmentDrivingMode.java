@@ -405,43 +405,58 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onStart() {
         super.onStart();
-        parent.navigationView.onStart();
+        if (parent.navigationView!=null) {
+            parent.navigationView.onStart();
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        parent.navigationView.onResume();
+        if (parent.navigationView!=null) {
+            parent.navigationView.onResume();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        parent.navigationView.onPause();
+        if (parent.navigationView!=null) {
+            parent.navigationView.onPause();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        parent.navigationView.onStop();
+        if (parent.navigationView!=null) {
+            parent.navigationView.onStop();
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        parent.navigationView.onSaveInstanceState(outState);
+        if (parent.navigationView!=null) {
+            parent.navigationView.onSaveInstanceState(outState);
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        parent.navigationView.onDestroy();
+        if (parent.navigationView!=null){
+            parent.navigationView.onDestroy();
+        }
+
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        parent.navigationView.onLowMemory();
+        if (parent.navigationView!=null) {
+            parent.navigationView.onLowMemory();
+        }
     }
 
     private static class MyBroadcastReceiver extends BroadcastReceiver {
