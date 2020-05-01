@@ -190,7 +190,7 @@ public class GeoFencing extends Observable {
         COLLECTION_TRACKS("tracks"),
         COLLECTION_BIKERACKS("bikeracks"),
         COLLECTION_HAZARDS("hazards"),
-        COLLECTION_RADIUS("radiustest");
+        COLLECTION_ROUTE("route");
 
 
         private String type;

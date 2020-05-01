@@ -13,6 +13,7 @@ import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.MapmatchingRequest;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
@@ -55,7 +56,7 @@ public class TrackRecorder {
     }
 
     private void init() {
-        mapmatchingRequests = null;
+        mapmatchingRequests = new ArrayList<>();
         finalroute = null;
         start = null;
         end = null;
@@ -105,11 +106,11 @@ public class TrackRecorder {
                                     generateDirectionRouteAndSaveTrackToFirebase(requests);
                                 } else {
                                     //Finished with Track Appending
-
-                                    //TODO add direction info
-                                    //finaltrack.setdir;
-
                                     //Save Track to Firebase
+                                    finalTrack.setRoute(finalroute);
+                                    finalTrack.setStartPosition(new Position(start.latitude(), start.longitude()));
+                                    finalTrack.setEndPosition(new Position(end.latitude(), end.longitude()));
+                                    //TODO set Distance and remove from Constuctor
                                     CouchWriteBuffer.getInstance().storeTrack(finalTrack);
                                 }
                             }
