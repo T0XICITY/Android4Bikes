@@ -468,7 +468,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
         addGeoJsonSource(loadedMapStyle, LineString.fromPolyline(track.getRoute().geometry(), PRECISION_6),
                 GeoFencing.ConstantsGeoFencing.COLLECTION_ROUTE.toString());
-        addGeoJsonSource(loadedMapStyle, track.getRoute().routeOptions().coordinates().get(track.getRoute().routeOptions().coordinates().size() - 1), GeoFencing.ConstantsGeoFencing.FINISH_FLAG.toString());
+        addGeoJsonSource(loadedMapStyle, track.getEndPosition().getAsPoint(), GeoFencing.ConstantsGeoFencing.FINISH_FLAG.toString());
     }
     /**
      * Create Markers from Track List
@@ -482,6 +482,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             MapBoxSymbols type = MapBoxSymbols.TRACK;
             List<Feature> list_feature = new ArrayList<>();
             //Generate Markers from ArrayList
+
             for (Track track : tracks) {
                 //getStringProperty
                 SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);

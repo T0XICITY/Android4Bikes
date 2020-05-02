@@ -108,8 +108,8 @@ public class TrackRecorder {
                                     //Finished with Track Appending
                                     //Save Track to Firebase
                                     finalTrack.setRoute(finalroute);
-                                    finalTrack.setStartPosition(new Position(start.latitude(), start.longitude()));
-                                    finalTrack.setEndPosition(new Position(end.latitude(), end.longitude()));
+                                    finalTrack.setStartPosition(new Position(finalroute.legs().get(0).steps().get(0).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(0).maneuver().location().longitude()));
+                                    finalTrack.setEndPosition(new Position(finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().longitude()));
                                     //TODO set Distance and remove from Constuctor
                                     CouchWriteBuffer.getInstance().storeTrack(finalTrack);
                                 }
