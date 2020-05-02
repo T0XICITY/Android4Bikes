@@ -369,7 +369,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab = findViewById(R.id.fab_switchMode);
         fab.setOnClickListener(v -> {
             //if Track null start freemode, else start Navigation
-                //if ()switchInfoDriving();
+            //if ()
+            switchInfoDriving();
             Log.d("Mitte", "Clicked center Button");
         });
     }

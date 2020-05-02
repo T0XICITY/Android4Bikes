@@ -585,9 +585,13 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 //Create clustered circle layer
                 createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString(), type);
                 hazardLayer_created = true;
+            } else {
+                GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection);
+                loadedMapStyle.addSource(geoJsonSource);
             }
 
         }
+
     }
 
     private void addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster) {
