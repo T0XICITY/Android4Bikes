@@ -13,6 +13,7 @@ import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.MapmatchingRequest;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
@@ -28,8 +29,6 @@ public class TrackRecorder {
     private List<com.mapbox.geojson.Point> positionsRoute1 = PositionProvider.getMapsTrack1();
     private List<com.mapbox.geojson.Point> positionsRoute2 = PositionProvider.getMapsTrack2();
     private List<com.mapbox.geojson.Point> positionsRoute3 = PositionProvider.getMapsTrack3();
-    private com.mapbox.geojson.Point start;
-    private com.mapbox.geojson.Point end;
     private Track finalTrack;
 
     public TrackRecorder() {
@@ -38,6 +37,11 @@ public class TrackRecorder {
 
     public void start() {
         init();
+        //Generate Point at Location every 5sec
+
+        //Add to List till 99Points are reached
+
+        //Generate new MapMatchingRequest and add to Task List
 
         MapmatchingRequest request1 = new MapmatchingRequest(positionsRoute1);
         MapmatchingRequest request2 = new MapmatchingRequest(positionsRoute2);
@@ -55,10 +59,8 @@ public class TrackRecorder {
     }
 
     private void init() {
-        mapmatchingRequests = null;
+        mapmatchingRequests = new ArrayList<>();
         finalroute = null;
-        start = null;
-        end = null;
     }
 
     private void generateDirectionRouteAndSaveTrackToFirebase(List<MapmatchingRequest> mapmatchingRequests) {
@@ -91,9 +93,7 @@ public class TrackRecorder {
                                     finalroute = DirectionRouteHelper.appendRoute(finalroute, route_new);
                                 } else {
                                     //First Init of Route
-                                    start = requests.get(0).getPoints().get(0);
                                     List<com.mapbox.geojson.Point> lastlist = requests.get(requests.size() - 1).getPoints();
-                                    end = lastlist.get(lastlist.size() - 1);
                                     finalroute = route_new;
                                 }
                                 //Slice first index
@@ -105,11 +105,11 @@ public class TrackRecorder {
                                     generateDirectionRouteAndSaveTrackToFirebase(requests);
                                 } else {
                                     //Finished with Track Appending
-
-                                    //TODO add direction info
-                                    //finaltrack.setdir;
-
                                     //Save Track to Firebase
+                                    finalTrack.setRoute(finalroute);
+                                    finalTrack.setStartPosition(new Position(finalroute.legs().get(0).steps().get(0).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(0).maneuver().location().longitude()));
+                                    finalTrack.setEndPosition(new Position(finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().longitude()));
+                                    //TODO set Distance and remove from Constuctor
                                     CouchWriteBuffer.getInstance().storeTrack(finalTrack);
                                 }
                             }

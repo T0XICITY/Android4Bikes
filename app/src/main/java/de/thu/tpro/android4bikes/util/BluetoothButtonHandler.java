@@ -2,6 +2,7 @@ package de.thu.tpro.android4bikes.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.KeyEvent;
 
 import java.util.Observable;
@@ -47,6 +48,11 @@ public class BluetoothButtonHandler extends Observable {
         bDetect = true;
     }
 
+    public void removeButton(){
+        sharedPreferences.edit().putInt(Contract.DEVICEID, -1).apply();
+        deviceID = -1;
+    }
+
     /**
      * Method which handles the keyEvent in order to notify Observers for the keyEvent
      *
@@ -61,6 +67,7 @@ public class BluetoothButtonHandler extends Observable {
                 bDetect = false;
                 return true;
             } else if (keyEvent.getDeviceId() == deviceID) {
+                Log.d("HalloWelt","BtBtn was fired");
                 setChanged();
                 notifyObservers();
                 return true;

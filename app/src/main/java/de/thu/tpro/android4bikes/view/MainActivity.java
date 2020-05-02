@@ -27,6 +27,16 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -41,15 +51,6 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.List;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -59,6 +60,7 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
 import de.thu.tpro.android4bikes.database.CouchDBHelper;
+import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -72,10 +74,11 @@ import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAs
 import de.thu.tpro.android4bikes.view.menu.settings.FragmentSettings;
 import de.thu.tpro.android4bikes.view.menu.showProfile.FragmentShowProfile;
 import de.thu.tpro.android4bikes.view.menu.trackList.FragmentTrackList;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelBtBtn;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
-import timber.log.Timber;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -83,12 +86,13 @@ import timber.log.Timber;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile> {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile>{
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
 
     private ViewModelOwnProfile vmOwnProfile;
     private ViewModelOwnTracks vmOwnTracks;
+    private ViewModelTrack vm_track;
 
     public LatLng lastPos;
     public static final int GPS_REQUEST = 97;
@@ -111,12 +115,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tv_headerName;
     private TextView tv_headerMail;
     private boolean isGPS;
-
+    private ViewModelBtBtn vm_BtBtn;
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
-
     private boolean toolbarHidden;
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +132,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vmOwnProfile = provider.get(ViewModelOwnProfile.class);
         vmOwnProfile.getMyProfile().observe(this, this::onChanged);
         vmOwnTracks = provider.get(ViewModelOwnTracks.class);
+        vm_BtBtn = new ViewModelProvider(this).get(ViewModelBtBtn.class);
+        vm_track = provider.get(ViewModelTrack.class);
 
         setContentView(R.layout.activity_main);
 
@@ -160,16 +164,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //scheduleUploadTaskWithTaskSchedule();
 
         //will be started after first attempt to read:
-        WorkManagerHelper.stopUploadTaskWithWorkManager();
-
+        if (savedInstanceState == null){
+            WorkManagerHelper.stopUploadTaskWithWorkManager();
+        }
 
         //init Location Engine
         this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
+        vm_BtBtn.getBtnEvent().observe(this,newValue->{
+            if (currentFragment == fragDriving){
+                Toast.makeText(getApplicationContext(),"BtBtn was clicked",Toast.LENGTH_SHORT).show();
+                //todo: klären distanceof interrest
+                HazardAlert alert = new HazardAlert(HazardAlert.HazardType.GENERAL,PositionTracker.getLastPosition(),10,true);
+                CouchWriteBuffer.getInstance().submitHazardAlerts(alert);
+            }
+        });
 
-    }
-
-    private void loadOwnUser() {
-
+        vm_track.getNavigationTrack().observe(this, newValue -> {
+            if (newValue == null) {
+                //TODO: Change color of fab to default color
+            } else {
+                //TODO: Change color of fab to color "selected track"
+            }
+        });
     }
 
     /**
@@ -352,8 +368,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initFAB() {
         fab = findViewById(R.id.fab_switchMode);
         fab.setOnClickListener(v -> {
-            switchInfoDriving();
-            Log.d("Mitte", "Clicked mitte");
+            //if Track null start freemode, else start Navigation
+                //if ()switchInfoDriving();
+            Log.d("Mitte", "Clicked center Button");
         });
     }
 
@@ -504,7 +521,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             openInfoMode();
             return true;
         }
-        return super.onKeyDown(keyCode, event); //handles other keys
+        Log.d("HalloWelt","onKeyDown");
+        return vm_BtBtn.handleKeyEvent(event);
     }
 
     private void openInfoMode() {
@@ -669,7 +687,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (locationEngine != null) {
             locationEngine.removeLocationUpdates(callback);
         }
-        navigationView.onDestroy();
+        if (navigationView != null) {
+            navigationView.onDestroy();
+        }
     }
 
     @Override

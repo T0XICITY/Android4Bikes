@@ -81,7 +81,7 @@
     <string name="dismiss">Dismiss</string>
     <!---Setting Strings -->
     <string name="settings_Bluetooth">Bluetooth</string>
-    <string name="settings_Bluetooth_summary">Einstellungen für zusätliche Bluetooth Hardware</string>
+    <string name="settings_Bluetooth_summary">Bluetooth Hardwarebutton erkennen</string>
     <string name="settings_Bluetooth_addButton">Bluetooth Hardware mit App verbinden</string>
     <string name="settings_Bluetooth_Button">Bluetooth Hardware aktivieren</string>
     <string name="settings_Bluetooth_Click">Klick Einstellungen</string>
@@ -146,6 +146,7 @@
     <string name="logoutfailed">Logout process failed!</string>
     <string name="loginfailed">The login process failed. Please retry.</string>
     <string name="register_hazard">Registered Hazard!</string>
+    <string name="settings_Bluetooth_reset">Bluetooth Button zurücksetzen</string>
 
 
 </resources>

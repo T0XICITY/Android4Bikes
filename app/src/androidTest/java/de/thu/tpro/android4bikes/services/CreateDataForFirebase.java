@@ -29,6 +29,7 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.Navigation.TrackRecorder;
 import de.thu.tpro.android4bikes.util.TimeBase;
 
 public class CreateDataForFirebase {
@@ -40,6 +41,30 @@ public class CreateDataForFirebase {
         context = ApplicationProvider.getApplicationContext();
     }
 
+    @Test
+    public void generateTrackforUlm() {
+        TrackRecorder trackRecorder = new TrackRecorder();
+        Track track = new Track(
+                "8kfObeMeXCOlPs62GUIUPX52OU33",
+                new Rating(2, 5, 3),
+                "ULM Patrick",
+                "description cool",
+                TimeBase.getCurrentUnixTimeStamp(),
+                8.2,
+                null,
+                new ArrayList<>(),
+                null,
+                null,
+                true
+        );
+        trackRecorder.start();
+        trackRecorder.stop(track);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     @Test
     public void generateDataForFirebase() {
         try {
@@ -75,7 +100,6 @@ public class CreateDataForFirebase {
                 hazardAlerts.add(new HazardAlert(
                         HazardAlert.HazardType.ROADKILL,
                         new Position(city_hazard.getDouble("lat"),city_hazard.getDouble("lng")),
-                        TimeBase.getCurrentUnixTimeStamp(),
                         10,
                         true
                         ));
