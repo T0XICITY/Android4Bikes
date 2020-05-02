@@ -29,8 +29,6 @@ public class TrackRecorder {
     private List<com.mapbox.geojson.Point> positionsRoute1 = PositionProvider.getMapsTrack1();
     private List<com.mapbox.geojson.Point> positionsRoute2 = PositionProvider.getMapsTrack2();
     private List<com.mapbox.geojson.Point> positionsRoute3 = PositionProvider.getMapsTrack3();
-    private com.mapbox.geojson.Point start;
-    private com.mapbox.geojson.Point end;
     private Track finalTrack;
 
     public TrackRecorder() {
@@ -39,6 +37,11 @@ public class TrackRecorder {
 
     public void start() {
         init();
+        //Generate Point at Location every 5sec
+
+        //Add to List till 99Points are reached
+
+        //Generate new MapMatchingRequest and add to Task List
 
         MapmatchingRequest request1 = new MapmatchingRequest(positionsRoute1);
         MapmatchingRequest request2 = new MapmatchingRequest(positionsRoute2);
@@ -58,8 +61,6 @@ public class TrackRecorder {
     private void init() {
         mapmatchingRequests = new ArrayList<>();
         finalroute = null;
-        start = null;
-        end = null;
     }
 
     private void generateDirectionRouteAndSaveTrackToFirebase(List<MapmatchingRequest> mapmatchingRequests) {
@@ -92,9 +93,7 @@ public class TrackRecorder {
                                     finalroute = DirectionRouteHelper.appendRoute(finalroute, route_new);
                                 } else {
                                     //First Init of Route
-                                    start = requests.get(0).getPoints().get(0);
                                     List<com.mapbox.geojson.Point> lastlist = requests.get(requests.size() - 1).getPoints();
-                                    end = lastlist.get(lastlist.size() - 1);
                                     finalroute = route_new;
                                 }
                                 //Slice first index

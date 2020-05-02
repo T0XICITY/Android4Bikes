@@ -49,6 +49,7 @@ import java.util.Date;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.services.PositionTracker;
@@ -89,8 +90,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     private DirectionsRoute reroute;
 
     //TODO refactor
-    private DirectionsRoute finalroute;
-    private com.mapbox.geojson.Point startPoint;
+    private Track track;
 
     //private List<Position> bikeRacks = new ArrayList<>();
     //private List<Position> bikeTracks = new ArrayList<>();
@@ -187,6 +187,12 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                 return false;
             }
         });
+
+        //Get Track from Viewmodel
+        //track =
+        //Start Navigation
+        startNavigation();
+
         /*TrackRecorder trackRecorder = new TrackRecorder();
         trackRecorder.start();
         //Abfage User input
@@ -199,10 +205,10 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     }
 
     private void startNavigation() {
-        boolean isValidRoute = finalroute != null;
+        boolean isValidRoute = track.getRoute() != null;
         if (isValidRoute) {
             parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                    .directionsRoute(finalroute)
+                    .directionsRoute(track.getRoute())
                     .locationEngine(parent.locationEngine)
                     .navigationListener(new NavigationListener() {
                         @Override
@@ -231,7 +237,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                             // Fetch new route with MapboxMapMatching
                             List<com.mapbox.geojson.Point> points = new ArrayList<>();
                             points.add(offRoutePoint);
-                            points.add(com.mapbox.geojson.Point.fromLngLat(startPoint.longitude(), startPoint.latitude()));
+                            points.add(com.mapbox.geojson.Point.fromLngLat(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude()));
 
                             NavigationRoute.builder(parent)
                                     .accessToken(getString(R.string.access_token))
@@ -254,9 +260,9 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                                                     if (reroute != null) {
                                                         Log.d("HELLO", "reroute initialized");
                                                     }
-                                                    finalroute = DirectionRouteHelper.appendRoute(reroute, finalroute);
+                                                    track.setRoute(DirectionRouteHelper.appendRoute(reroute, track.getRoute()));
                                                     parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                                                            .directionsRoute(finalroute)
+                                                            .directionsRoute(track.getRoute())
                                                             .locationEngine(parent.locationEngine)
                                                             .navigationListener(new NavigationListener() {
                                                                 @Override
@@ -279,8 +285,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
                                                                 }
                                                             }).build());
-
-
                                                 }
                                             }
                                         }

@@ -112,12 +112,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tv_headerMail;
     private boolean isGPS;
     private ViewModelBtBtn vm_BtBtn;
-
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
-
     private boolean toolbarHidden;
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -355,8 +352,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //if Track null start freemode, else start Navigation
+                //if ()
                 switchInfoDriving();
-                Log.d("Mitte", "Clicked mitte");
+                Log.d("Mitte", "Clicked center Button");
             }
         });
     }
