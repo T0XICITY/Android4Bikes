@@ -46,6 +46,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
     private CouchDBHelper couchDBHelper;
     private FirebaseConnection firebaseConnection;
     private Processor processor;
+    private Track track_navigation;
 
 
     private GeoFencing geoFencing_tracks;
@@ -84,6 +85,14 @@ public class ViewModelTrack extends ViewModel implements Observer {
             geoFencing_tracks = new GeoFencing(GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS,new Position(48.408751,9.997498).getGeoPoint(),200);
         }
         geoFencing_tracks.addObserver(this);
+    }
+
+    public Track getNavigationTrack() {
+        return track_navigation;
+    }
+
+    public void setNavigationTrack(Track track) {
+        this.track_navigation = track;
     }
 
     /**
