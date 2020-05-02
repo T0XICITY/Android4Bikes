@@ -86,10 +86,6 @@ public class HazardAlert {
         this.position = position;
     }
 
-    public void setGeoPoint(Position position) {
-        this.position = position;
-    }
-
     public int getType() {
         return type.getType();
     }

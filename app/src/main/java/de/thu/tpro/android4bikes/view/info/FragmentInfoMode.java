@@ -899,19 +899,17 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
-        btnPos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int i = spinnerHazard.getSelectedItemPosition();
-                // create hazard alert from entered info
-                HazardAlert newHazard = new HazardAlert();
-                newHazard.setPosition(PositionTracker.getLastPosition()); // TODO is setPosition() or setGeoPoint() correct?
-                newHazard.setType(HazardAlert.HazardType.getByType(i + 1)); // i+1 since we start counting on 1
-
-                // submit hazard alert to ViewModel
+        btnPos.setOnClickListener(view -> {
+            Position curr = PositionTracker.getLastPosition();
+            if (curr != null) {
+                HazardAlert newHazard = new HazardAlert(HazardAlert.HazardType.getByType(spinnerHazard.getSelectedItemPosition() + 1), // i+1 since we start counting on 1
+                        curr,
+                        10,
+                        true
+                );
                 vm_ownHazards.addOwnHazard(newHazard);
-                hazardDialog.dismiss();
             }
+            hazardDialog.dismiss();
         });
 
     }
@@ -971,21 +969,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             //Register Symbols in Mapbox
             markers.forEach((type, icon) -> mapboxMap.getStyle().addImage(type.toString(), icon));
         }
-    }
-
-    /**
-     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack} for test purposes
-     *
-     * @return instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack}
-     */
-
-    private BikeRack generateTHUBikeRack(int i) {
-        //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K" + i, new Position(48.408880 + i / 7000.0, 9.997507 + i / 7000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
-        return bikeRack_THU;
     }
 
     private enum MapBoxSymbols {
