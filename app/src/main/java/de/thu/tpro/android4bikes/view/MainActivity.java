@@ -77,6 +77,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelBtBtn;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private ViewModelOwnProfile vmOwnProfile;
     private ViewModelOwnTracks vmOwnTracks;
+    private ViewModelTrack vm_track;
 
     public LatLng lastPos;
     public static final int GPS_REQUEST = 97;
@@ -112,12 +114,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tv_headerMail;
     private boolean isGPS;
     private ViewModelBtBtn vm_BtBtn;
-
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
-
     private boolean toolbarHidden;
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vmOwnProfile = provider.get(ViewModelOwnProfile.class);
         vmOwnTracks = provider.get(ViewModelOwnTracks.class);
         vm_BtBtn = new ViewModelProvider(this).get(ViewModelBtBtn.class);
+        vm_track = provider.get(ViewModelTrack.class);
 
         setContentView(R.layout.activity_main);
 
@@ -173,6 +173,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //todo: klären distanceof interrest
                 HazardAlert alert = new HazardAlert(HazardAlert.HazardType.GENERAL,PositionTracker.getLastPosition(),10,true);
                 CouchWriteBuffer.getInstance().submitHazardAlerts(alert);
+            }
+        });
+
+        vm_track.getNavigationTrack().observe(this, newValue -> {
+            if (newValue == null) {
+                //TODO: Change color of fab to default color
+            } else {
+                //TODO: Change color of fab to color "selected track"
             }
         });
     }
@@ -355,8 +363,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //if Track null start freemode, else start Navigation
+                //if ()
                 switchInfoDriving();
-                Log.d("Mitte", "Clicked mitte");
+                Log.d("Mitte", "Clicked center Button");
             }
         });
     }

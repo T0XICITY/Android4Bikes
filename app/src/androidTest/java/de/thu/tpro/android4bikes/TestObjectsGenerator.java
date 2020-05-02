@@ -83,7 +83,7 @@ public class TestObjectsGenerator {
      */
     public static HazardAlert generateHazardAlert() {
         HazardAlert hazardAlert_thu = new HazardAlert(
-                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 120000, 5, true
+                HazardAlert.HazardType.GENERAL, new Position(48.408880, 9.997507), 5, true
         );
         return hazardAlert_thu;
     }

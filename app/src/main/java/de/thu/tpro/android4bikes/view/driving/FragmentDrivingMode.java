@@ -14,6 +14,13 @@ import android.view.animation.OvershootInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
@@ -41,19 +48,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Navigation.DirectionRouteHelper;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -87,9 +90,11 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     // Navigation related variables
     private DirectionsRoute reroute;
 
+    //ViewModels
+    ViewModelTrack vm_track;
+
     //TODO refactor
-    private DirectionsRoute finalroute;
-    private com.mapbox.geojson.Point startPoint;
+    private Track track_for_navigation;
 
     //private List<Position> bikeRacks = new ArrayList<>();
     //private List<Position> bikeTracks = new ArrayList<>();
@@ -113,13 +118,14 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         viewModel = ViewModelDrivingMode.getInstance();
         txtCurrentSpeed.setText(viewModel.updateSpeed(null) + "");
         txtAvgSpeed.setText(viewModel.updateAverageSpeed(0) + "");
-
         return viewDrivingMode;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        vm_track = new ViewModelProvider(this).get(ViewModelTrack.class);
 
         //we need the parent Activity to init our map
         parent = (MainActivity) this.getActivity();
@@ -187,11 +193,20 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                 return false;
             }
         });
-        /*TrackRecorder trackRecorder = new TrackRecorder();
-        trackRecorder.start();
-        //Abfage User input
-        trackRecorder.stop(trackname,...);*/
 
+        //Get Track from Viewmodel
+        //track =
+        //Start Navigation
+        track_for_navigation = vm_track.getNavigationTrack().getValue();
+        if (track_for_navigation != null) {
+            startNavigation();
+        } else {
+            //start free mode
+            /*TrackRecorder trackRecorder = new TrackRecorder();
+                trackRecorder.start();
+                //Abfage User input
+                trackRecorder.stop(trackname,...);*/
+        }
     }
 
     private void initspeedFAB(View view) {
@@ -199,10 +214,10 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     }
 
     private void startNavigation() {
-        boolean isValidRoute = finalroute != null;
+        boolean isValidRoute = track_for_navigation.getRoute() != null;
         if (isValidRoute) {
             parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                    .directionsRoute(finalroute)
+                    .directionsRoute(track_for_navigation.getRoute())
                     .locationEngine(parent.locationEngine)
                     .navigationListener(new NavigationListener() {
                         @Override
@@ -231,7 +246,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                             // Fetch new route with MapboxMapMatching
                             List<com.mapbox.geojson.Point> points = new ArrayList<>();
                             points.add(offRoutePoint);
-                            points.add(com.mapbox.geojson.Point.fromLngLat(startPoint.longitude(), startPoint.latitude()));
+                            points.add(com.mapbox.geojson.Point.fromLngLat(track_for_navigation.getStartPosition().getLatitude(), track_for_navigation.getStartPosition().getLongitude()));
 
                             NavigationRoute.builder(parent)
                                     .accessToken(getString(R.string.access_token))
@@ -254,9 +269,9 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                                                     if (reroute != null) {
                                                         Log.d("HELLO", "reroute initialized");
                                                     }
-                                                    finalroute = DirectionRouteHelper.appendRoute(reroute, finalroute);
+                                                    track_for_navigation.setRoute(DirectionRouteHelper.appendRoute(reroute, track_for_navigation.getRoute()));
                                                     parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                                                            .directionsRoute(finalroute)
+                                                            .directionsRoute(track_for_navigation.getRoute())
                                                             .locationEngine(parent.locationEngine)
                                                             .navigationListener(new NavigationListener() {
                                                                 @Override
@@ -279,8 +294,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
                                                                 }
                                                             }).build());
-
-
                                                 }
                                             }
                                         }
