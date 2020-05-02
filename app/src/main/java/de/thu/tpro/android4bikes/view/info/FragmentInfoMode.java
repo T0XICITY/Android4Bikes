@@ -163,7 +163,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         viewInfo = inflater.inflate(R.layout.fragment_info_mode, container, false);
 
         // init ViewModels
-        ViewModelProvider provider = new ViewModelProvider(this);
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
         //own ViewModels
         vm_ownBikeRack = provider.get(ViewModelOwnBikerack.class);
         vm_ownHazards = provider.get(ViewModelOwnHazardAlerts.class);
@@ -313,6 +313,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     vm_Hazards.getHazardAlerts().observe(getViewLifecycleOwner(), this::onChangedHazardAlerts);
                     vm_bikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
                     vm_Tracks.getTracks().observe(getViewLifecycleOwner(), this::onChangedTracks);
+                    Log.d("HalloWeltAUA", "InfoMode:" + vm_Tracks.toString());
 
 
                     //setup geofences

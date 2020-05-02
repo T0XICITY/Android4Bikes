@@ -110,7 +110,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         infoIcon = viewDrivingMode.findViewById(R.id.cardView_Infoicon);
         fab_weather = viewDrivingMode.findViewById(R.id.weatherFAB);
 
-        vmWeather = new ViewModelProvider(this).get(ViewModelWeather.class);
+        vmWeather = new ViewModelProvider(requireActivity()).get(ViewModelWeather.class);
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
 
         initCardView();
@@ -126,7 +126,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        vm_track = new ViewModelProvider(this).get(ViewModelTrack.class);
+        vm_track = new ViewModelProvider(requireActivity()).get(ViewModelTrack.class);
 
         //we need the parent Activity to init our map
         parent = (MainActivity) this.getActivity();

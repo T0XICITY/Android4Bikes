@@ -61,12 +61,12 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
 
-        vmProfile = new ViewModelProvider(this).get(ViewModelOwnProfile.class);
+        vmProfile = new ViewModelProvider(requireActivity()).get(ViewModelOwnProfile.class);
         vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this::onChanged);
 
         //Name & Email
-        nameEdit = (TextInputEditText) view.findViewById(R.id.edit_Name_text);
-        emailEdit = (TextInputEditText) view.findViewById(R.id.edit_Email_text);
+        nameEdit = view.findViewById(R.id.edit_Name_text);
+        emailEdit = view.findViewById(R.id.edit_Email_text);
 
         // if there's an existing profile
         Profile currentProfile = vmProfile.getMyProfile().getValue();
@@ -78,22 +78,22 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         emailEdit.setTextColor(Color.GRAY);
 
         // Delete Button & ImageView vor Profile
-        delete = (Button) view.findViewById(R.id.buttonDelete);
-        imageViewCircle = (ImageView) view.findViewById(R.id.imageView_Circle);
+        delete = view.findViewById(R.id.buttonDelete);
+        imageViewCircle = view.findViewById(R.id.imageView_Circle);
         imageViewCircle.setImageBitmap(textToBitmap("M"));
         //ColorPicker
-        dialogColorPicker = (Button) view.findViewById(R.id.button_ChangeProfileView);
+        dialogColorPicker = view.findViewById(R.id.button_ChangeProfileView);
 
         //Imageview for Achievements
-        iv_a1 = (ImageView) view.findViewById(R.id.iv1);
-        iv_a2 = (ImageView) view.findViewById(R.id.iv2);
-        iv_a3 = (ImageView) view.findViewById(R.id.iv3);
-        iv_a4 = (ImageView) view.findViewById(R.id.iv4);
-        iv_a5 = (ImageView) view.findViewById(R.id.iv5);
-        iv_a6 = (ImageView) view.findViewById(R.id.iv6);
-        iv_a7 = (ImageView) view.findViewById(R.id.iv7);
-        iv_a8 = (ImageView) view.findViewById(R.id.iv8);
-        iv_a9 = (ImageView) view.findViewById(R.id.iv9);
+        iv_a1 = view.findViewById(R.id.iv1);
+        iv_a2 = view.findViewById(R.id.iv2);
+        iv_a3 = view.findViewById(R.id.iv3);
+        iv_a4 = view.findViewById(R.id.iv4);
+        iv_a5 = view.findViewById(R.id.iv5);
+        iv_a6 = view.findViewById(R.id.iv6);
+        iv_a7 = view.findViewById(R.id.iv7);
+        iv_a8 = view.findViewById(R.id.iv8);
+        iv_a9 = view.findViewById(R.id.iv9);
         return view;
     }
 
