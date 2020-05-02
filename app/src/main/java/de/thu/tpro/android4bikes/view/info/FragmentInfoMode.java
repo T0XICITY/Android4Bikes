@@ -3,12 +3,16 @@ package de.thu.tpro.android4bikes.view.info;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +20,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,6 +47,7 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.BubbleLayout;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -96,18 +102,21 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
 import static com.mapbox.core.constants.Constants.PRECISION_6;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.eq;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.not;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
+import static com.mapbox.mapboxsdk.style.layers.Property.ICON_ANCHOR_BOTTOM;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAnchor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
@@ -327,8 +336,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 50);
                     geoFencing_tracks.setupGeofence(geopoint_setuppos, 1000);
 
-
-
                     mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {
                         @Override
                         public void onCameraMove() {
@@ -403,12 +410,38 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                 }else {
                                                     //Was Bikerack or HazardALert
                                                     //TODO just Popup
+
+                                                    List<BikeRack> racks = vm_bikeRack.getList_bikeRacks_shown().getValue();
+                                                    BikeRack rack_result = racks.stream()
+                                                            .filter(rack -> entry.getValue().getAsString().equals(rack.getFirebaseID()))
+                                                            .findFirst()
+                                                            .orElse(null);
+                                                    if (rack_result != null){
+                                                        Toast toast = Toast.makeText(getContext(),"Bike rack:\t\t\t\t\t\t\t\t"+rack_result.getName()
+                                                                        +"\n"+"Capacity:\t\t\t\t\t\t\t\t"+rack_result.getCapacity().name()
+                                                                        +"\n"+"e-Bike charging:\t\t"+(rack_result.hasBikeCharging() ? "yes" : "no")
+                                                                        +"\n"+"Is it covered:\t\t\t\t\t"+(rack_result.isCovered()? "yes" : "no")
+                                                                ,Toast.LENGTH_LONG);
+                                                        toast.setGravity(Gravity.TOP,0,50);
+                                                        toast.show();
+                                                    }else {
+                                                        List<HazardAlert> hazards = vm_Hazards.getHazardAlerts().getValue();
+                                                        HazardAlert hazard_result = hazards.stream()
+                                                                .filter(hazard -> entry.getValue().getAsString().equals(hazard.getFirebaseID()))
+                                                                .findFirst()
+                                                                .orElse(null);
+                                                        if (hazard_result != null){
+                                                            Toast toast = Toast.makeText(getContext(),"Hazard type: "+HazardAlert.HazardType.getByType(hazard_result.getType()),Toast.LENGTH_LONG);
+                                                            toast.setGravity(Gravity.TOP,0,50);
+                                                            toast.show();
+                                                        }
+                                                    }
+                                                    //return handleClickIcon(pixel);
                                                 }
                                             }
                                         }
                                     }
                                 }
-
                             }
                             return false;
                         }
@@ -422,7 +455,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
     }
-
+/*
     private void toggleBikeRacks_Hazards(boolean visible) {
         String bikeracks = GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString();
         toggleLayer("unclustered_" + bikeracks, visible);
@@ -450,7 +483,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
         });
     }
-
+*/
     private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
         return new SymbolOptions()
                 .withLatLng(new LatLng(latitude, longitude))
@@ -529,9 +562,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
             //Create FeatureCollection from Feature List
             FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+            for (Feature singleFeature : featureCollection.features()) {
+                singleFeature.addBooleanProperty("selected", false);
+            }
             //Create unclustered symbol layer
             addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID.toString(), true);
+            //new GenerateViewIconTask(parent).execute(featureCollection);
             if (!bikerackLayer_created) {
+                //createInfoWindowLayer(style,,);
                 createUnclusteredSymbolLayer(loadedMapStyle, dataSourceID.toString(), type);
                 //Create clustered circle layer
                 createClusteredCircleOverlay(loadedMapStyle, dataSourceID.toString(), type);
@@ -564,8 +602,13 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
             //Create FeatureCollection from Feature List
             FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+            for (Feature singleFeature : featureCollection.features()) {
+                singleFeature.addBooleanProperty("selected", false);
+            }
             addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID.toString(), true);
+            //new GenerateViewIconTask(parent).execute(featureCollection);
             if (!hazardLayer_created) {
+                //createInfoWindowLayer(style,,);
                 //Create unclustered symbol layer
                 createUnclusteredSymbolLayer(loadedMapStyle, dataSourceID.toString(), type);
                 //Create clustered circle layer
@@ -667,15 +710,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Create Symbol Layer for unclustered data points
         SymbolLayer unclustered = new SymbolLayer("unclustered_" + sourceID, sourceID);
 
-
         unclustered.setProperties(
                 iconImage(type.toString())
         );
-        Expression pointCount = toNumber(get("point_count"));
         // Add a filter to the cluster layer that hides the circles based on "point_count"
-        unclustered.setFilter(
-                all(not(has("point_count"))
-                ));
+        unclustered.setFilter(all(not(has("point_count"))));
         loadedMapStyle.addLayer(unclustered);
     }
 
@@ -728,6 +767,22 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         );
         loadedMapStyle.addLayer(count);
     }
+
+    /*private void createInfoWindowLayer(@NonNull Style loadedStyle, String ID, MapBoxSymbols type) {
+        loadedStyle.addLayer(new SymbolLayer("info_"+ID, ID) //todo: 2nd param should be maybe the id of the source of the already existing markers
+                .withProperties(
+                        ///* show image with id title based on the value of the name feature property
+                        iconImage("{name}"), //todo: check if this is right
+                        ///* set anchor of icon to bottom-left
+                        iconAnchor(ICON_ANCHOR_BOTTOM),
+                        ///* all info window and marker image to appear at the same time
+                        iconAllowOverlap(true),
+                        ///* offset the info window to be above the marker
+                        iconOffset(new Float[] {-2f, -28f})
+                )
+                ///* add a filter to show only when selected feature property is true
+                .withFilter(eq((get("selected")), literal(true))));
+    }*/
 
     //Location Stuff--------------------------------------------------------------
 
@@ -978,7 +1033,8 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         BIKERACK("BIKERACK"),
         HAZARDALERT_GENERAL("HAZARDALERT_GENERAL"),
         TRACK("TRACK"),
-        TRACK_FINISH("TRACK_FINISH");
+        TRACK_FINISH("TRACK_FINISH"),
+        INFO("INFO");
 
         private String type;
 
