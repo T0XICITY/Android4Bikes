@@ -46,7 +46,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
     private CouchDBHelper couchDBHelper;
     private FirebaseConnection firebaseConnection;
     private Processor processor;
-    private Track track_navigation;
+    private MutableLiveData<Track> track_navigation;
 
 
     private GeoFencing geoFencing_tracks;
@@ -65,6 +65,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
         //create LiveData-Wrapper:
         map_tracks_profile_shown = new MutableLiveData<>();
         workInProgress = new MutableLiveData<>();
+        track_navigation = new MutableLiveData<>();
 
         //Deal with the local database
         couchDBHelper = new CouchDBHelper();
@@ -87,12 +88,12 @@ public class ViewModelTrack extends ViewModel implements Observer {
         geoFencing_tracks.addObserver(this);
     }
 
-    public Track getNavigationTrack() {
+    public LiveData<Track> getNavigationTrack() {
         return track_navigation;
     }
 
     public void setNavigationTrack(Track track) {
-        this.track_navigation = track;
+        this.track_navigation.postValue(track);
     }
 
     /**

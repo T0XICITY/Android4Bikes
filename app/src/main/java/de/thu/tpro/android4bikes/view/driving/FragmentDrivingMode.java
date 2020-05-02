@@ -56,6 +56,7 @@ import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Navigation.DirectionRouteHelper;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -89,8 +90,11 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     // Navigation related variables
     private DirectionsRoute reroute;
 
+    //ViewModels
+    ViewModelTrack vm_track;
+
     //TODO refactor
-    private Track track;
+    private Track track_for_navigation;
 
     //private List<Position> bikeRacks = new ArrayList<>();
     //private List<Position> bikeTracks = new ArrayList<>();
@@ -120,6 +124,8 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        vm_track = new ViewModelProvider(this).get(ViewModelTrack.class);
 
         //we need the parent Activity to init our map
         parent = (MainActivity) this.getActivity();
@@ -191,13 +197,16 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         //Get Track from Viewmodel
         //track =
         //Start Navigation
-        startNavigation();
-
-        /*TrackRecorder trackRecorder = new TrackRecorder();
-        trackRecorder.start();
-        //Abfage User input
-        trackRecorder.stop(trackname,...);*/
-
+        track_for_navigation = vm_track.getNavigationTrack().getValue();
+        if (track_for_navigation != null) {
+            startNavigation();
+        } else {
+            //start free mode
+            /*TrackRecorder trackRecorder = new TrackRecorder();
+                trackRecorder.start();
+                //Abfage User input
+                trackRecorder.stop(trackname,...);*/
+        }
     }
 
     private void initspeedFAB(View view) {
@@ -205,10 +214,10 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     }
 
     private void startNavigation() {
-        boolean isValidRoute = track.getRoute() != null;
+        boolean isValidRoute = track_for_navigation.getRoute() != null;
         if (isValidRoute) {
             parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                    .directionsRoute(track.getRoute())
+                    .directionsRoute(track_for_navigation.getRoute())
                     .locationEngine(parent.locationEngine)
                     .navigationListener(new NavigationListener() {
                         @Override
@@ -237,7 +246,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                             // Fetch new route with MapboxMapMatching
                             List<com.mapbox.geojson.Point> points = new ArrayList<>();
                             points.add(offRoutePoint);
-                            points.add(com.mapbox.geojson.Point.fromLngLat(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude()));
+                            points.add(com.mapbox.geojson.Point.fromLngLat(track_for_navigation.getStartPosition().getLatitude(), track_for_navigation.getStartPosition().getLongitude()));
 
                             NavigationRoute.builder(parent)
                                     .accessToken(getString(R.string.access_token))
@@ -260,9 +269,9 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                                                     if (reroute != null) {
                                                         Log.d("HELLO", "reroute initialized");
                                                     }
-                                                    track.setRoute(DirectionRouteHelper.appendRoute(reroute, track.getRoute()));
+                                                    track_for_navigation.setRoute(DirectionRouteHelper.appendRoute(reroute, track_for_navigation.getRoute()));
                                                     parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                                                            .directionsRoute(track.getRoute())
+                                                            .directionsRoute(track_for_navigation.getRoute())
                                                             .locationEngine(parent.locationEngine)
                                                             .navigationListener(new NavigationListener() {
                                                                 @Override

@@ -394,12 +394,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                         .findFirst()
                                                         .orElse(null);
                                                 if (track_result != null) {
-                                                    //Was Track
+                                                    //set track for navigation mode
+                                                    vm_Tracks.setNavigationTrack(track_result);
+
                                                     addRoutetoMap(style, track_result);
                                                     showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
                                                 }else {
                                                     //Was Bikerack or HazardALert
-                                                    //TODO just Popup
+                                                    vm_Tracks.setNavigationTrack(null);
 
                                                     List<BikeRack> racks = vm_bikeRack.getList_bikeRacks_shown().getValue();
                                                     BikeRack rack_result = racks.stream()
@@ -428,6 +430,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                     }
                                                     //return handleClickIcon(pixel);
                                                 }
+                                            } else {
+                                                vm_Tracks.setNavigationTrack(null);
+                                                //TODO: remove drawn track from map
                                             }
                                         }
                                     }
