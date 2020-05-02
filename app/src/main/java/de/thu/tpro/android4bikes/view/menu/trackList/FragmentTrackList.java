@@ -80,11 +80,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
 
         dataBinder = new TrackListDataBinder(getResources());
 
-
         viewModelTrack = new ViewModelProvider(this).get(ViewModelTrack.class);
-        viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
         viewModelOwnTrack = new ViewModelProvider(this).get(ViewModelOwnTracks.class);
-        viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
 
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
@@ -114,6 +111,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initLocationManager();
+        viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+        viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
         adapter = new TrackListAdapter(this, dataBinder.getTrackDistanceList());
 
         Log.d("FragmentCreateTrack", getActivity() + "");
