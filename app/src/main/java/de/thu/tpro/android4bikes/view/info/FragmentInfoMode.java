@@ -419,7 +419,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                     if (rack_result != null){
                                                         Toast toast = Toast.makeText(getContext(),"Bike rack:\t\t\t\t\t\t\t\t"+rack_result.getName()
                                                                         +"\n"+"Capacity:\t\t\t\t\t\t\t\t"+rack_result.getCapacity().name()
-                                                                        +"\n"+"e-Bike charging:\t\t"+(rack_result.hasBikeCharging() ? "yes" : "no")
+                                                                        +"\n"+"e-Bike charging:\t\t"+(rack_result.hasBikeCharging() ? "available" : "not available")
                                                                         +"\n"+"Is it covered:\t\t\t\t\t"+(rack_result.isCovered()? "yes" : "no")
                                                                 ,Toast.LENGTH_LONG);
                                                         toast.setGravity(Gravity.TOP,0,50);
