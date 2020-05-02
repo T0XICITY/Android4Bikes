@@ -66,7 +66,6 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
 import java.lang.ref.WeakReference;
@@ -339,7 +338,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 if (!fenceAlreadyRunning){
                                     geoFencing_bikeRacks.startGeoFenceListener();
                                     geoFencing_hazardAlerts.startGeoFenceListener();
-                                    //toggleBikeRacks_Hazards(true);
                                     fenceAlreadyRunning = true;
                                     fenceAlreadyStopped = false;
                                 }
@@ -347,7 +345,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 if (!fenceAlreadyStopped){
                                     geoFencing_bikeRacks.stopGeoFenceListener();
                                     geoFencing_hazardAlerts.stopGeoFenceListener();
-                                    //toggleBikeRacks_Hazards(false);
                                     fenceAlreadyRunning = false;
                                     fenceAlreadyStopped = true;
                                 }
@@ -448,35 +445,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
     }
-/*
-    private void toggleBikeRacks_Hazards(boolean visible) {
-        String bikeracks = GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString();
-        toggleLayer("unclustered_" + bikeracks, visible);
-        toggleLayer("clustered_" + bikeracks, visible);
-        toggleLayer("count_" + bikeracks, visible);
 
-        String hazards = GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString();
-        toggleLayer("unclustered_" + hazards, visible);
-        toggleLayer("clustered_" + hazards, visible);
-        toggleLayer("count_" + hazards, visible);
-    }
-
-    private void toggleLayer(String ID, boolean visible) {
-        mapboxMap.getStyle(new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                Layer layer = style.getLayer(ID);
-                if (layer != null) {
-                    if (!visible) {
-                        layer.setProperties(visibility(NONE));
-                    } else {
-                        layer.setProperties(visibility(VISIBLE));
-                    }
-                }
-            }
-        });
-    }
-*/
     private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
         return new SymbolOptions()
                 .withLatLng(new LatLng(latitude, longitude))
@@ -612,21 +581,8 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private void deleteLayers(@NonNull Style loadedMapStyle, String ID) {
-        for (Source source : loadedMapStyle.getSources()) {
-            if (source.getId().equals(ID)) {
-
-                loadedMapStyle.removeLayer("unclustered_" + ID);
-                loadedMapStyle.removeLayer("clustered_" + ID);
-                loadedMapStyle.removeLayer("count_" + ID);
-                loadedMapStyle.removeSource(ID);
-            }
-        }
-    }
-
     private void addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster) {
         //Check if Source is initialized
-        //deleteLayers(loadedMapStyle, ID);
         GeoJsonSource mapStyleSource = loadedMapStyle.getSourceAs(ID);
         if (mapStyleSource != null) {
             mapStyleSource.setGeoJson(featureCollection);
@@ -663,7 +619,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     private void addGeoJsonSource(@NonNull Style loadedMapStyle, Geometry geometry, String ID) {
         //Check if Source is initialized
-        //deleteLayers(loadedMapStyle, ID);
         GeoJsonSource mapStyleSource = loadedMapStyle.getSourceAs(ID);
         if (mapStyleSource != null) {
             mapStyleSource.setGeoJson(geometry);
