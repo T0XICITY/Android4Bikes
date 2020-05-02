@@ -1116,17 +1116,17 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 if (editRack.getText().toString().trim().equals("")) {
                     Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
                 } else {
-                    BikeRack newRack = new BikeRack();
-
-                    newRack.setName(editRack.getText().toString());
-                    newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
-                            spCapacity.getSelectedItem().toString().toUpperCase())
-                    );
-                    newRack.setHasBikeCharging(cbEBike.isChecked());
-                    newRack.setCovered(cbCovered.isChecked());
-
-                    Log.d(LOG_TAG, newRack.toString());
-                    vm_ownBikeRack.addOwnBikeRack(newRack);
+                    Position currLastPos = PositionTracker.getLastPosition();
+                    if (currLastPos != null) {
+                        BikeRack newRack = new BikeRack(currLastPos, editRack.getText().toString(),
+                                BikeRack.ConstantsCapacity.valueOf(spCapacity.getSelectedItem().toString().toUpperCase()),
+                                cbEBike.isChecked(),
+                                true,
+                                cbCovered.isChecked()
+                        );
+                        Log.d(LOG_TAG, newRack.toString());
+                        vm_ownBikeRack.addOwnBikeRack(newRack);
+                    }
                     dialog.dismiss();
                 }
             }
