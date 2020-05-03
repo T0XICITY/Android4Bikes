@@ -30,7 +30,6 @@ import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
@@ -52,9 +51,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
-import de.thu.tpro.android4bikes.data.model.Track;
-import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.services.PositionTracker;
@@ -203,12 +201,11 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                             .build());
                 }
                 parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapClickListener(new MapboxMap.OnMapClickListener() {
-                    @Override
-                    public boolean onMapClick(@NonNull LatLng point) {
-                        //Implement Code
-                        return false;
-                    }
+                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapLongClickListener(click -> {
+                    registeredHazardPositions.add(PositionTracker.getLastPosition());
+                    Snackbar.make(getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
+                    Log.d("addHazard", "List: " + registeredHazardPositions);
+                    return true;
                 });
 
                 //Get Track from Viewmodel
@@ -222,13 +219,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                 /*TrackRecorder trackRecorder = new TrackRecorder();
                 trackRecorder.start();
                 //Abfage User input
-                trackRecorder.stop(trackname,...);
-                //todo: new Longclicklistener
-                registeredHazardPositions.add(PositionTracker.getLastPosition());
-                Snackbar.make(getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
-                Log.d("addHazard", "List: " + registeredHazardPositions);
-                return true;
-                */
+                trackRecorder.stop(trackname,...);*/
                 }
             }
         });
