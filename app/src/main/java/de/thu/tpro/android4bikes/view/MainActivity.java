@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -626,6 +627,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (currentFragment.equals(fragInfo))
                 fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_bike));
             else
+                fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
                 fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_information));
             // grow back to original X
             fab.animate().scaleX(1).start();

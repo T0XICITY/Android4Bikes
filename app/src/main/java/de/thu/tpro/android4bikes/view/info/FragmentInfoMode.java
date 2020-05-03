@@ -399,7 +399,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
                                                     addRoutetoMap(style, track_result);
                                                     showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
-                                                    //Patrick
                                                     parent.fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(parent, R.color.Green800Primary)));
 
                                                 }else {
