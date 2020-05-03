@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private BottomAppBar bottomBar;
-    private FloatingActionButton fab;
+    public FloatingActionButton fab;
     private MaterialToolbar topAppBar;
     private ImageButton btn_tracks;
     private ImageButton btn_community;

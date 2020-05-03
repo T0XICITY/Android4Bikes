@@ -3,8 +3,10 @@ package de.thu.tpro.android4bikes.view.info;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -395,6 +397,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
                                                     addRoutetoMap(style, track_result);
                                                     showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
+                                                    //Patrick
+                                                    parent.fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(parent, R.color.Green800Primary)));
+
                                                 }else {
                                                     //Was Bikerack or HazardALert
                                                     vm_Tracks.setNavigationTrack(null);
