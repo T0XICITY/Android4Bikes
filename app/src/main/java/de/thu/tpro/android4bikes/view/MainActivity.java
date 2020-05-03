@@ -624,12 +624,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // shrink X to middle
         fab.animate().scaleX(0).withEndAction(() -> {
             // change icon
-            if (currentFragment.equals(fragInfo))
+            if (currentFragment.equals(fragInfo)) {
+                //fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
                 fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_bike));
-            else
+            }else {
                 fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
                 fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_information));
-            // grow back to original X
+            }// grow back to original X
             fab.animate().scaleX(1).start();
         }).start();
     }
