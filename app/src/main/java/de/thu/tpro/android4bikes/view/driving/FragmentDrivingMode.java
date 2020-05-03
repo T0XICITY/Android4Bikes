@@ -77,7 +77,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     private CardView infoIcon;
     private FloatingActionButton fab_weather;
     private ExtendedFloatingActionButton fab_velocity;
-    private Date time;
+    private Timer updateTimer;
 
     MainActivity parent;
     private PermissionsManager permissionsManager;
@@ -182,7 +182,8 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     private void initVelocityFAB() {
         // schedule a timer to update velocity periodically
-        new Timer().schedule(new TimerTask() {
+        updateTimer = new Timer();
+        updateTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 // update TextViews from UI Thread only
@@ -193,6 +194,10 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                 });
             }
         }, 0, VELOCITY_UPDATE_INTERVAL);
+    }
+
+    public void cancelUpdateTimer() {
+        updateTimer.cancel();
     }
 
     private void startNavigation() {

@@ -401,6 +401,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
+            fragDriving.cancelUpdateTimer(); // no more speed updates
             openInfoMode();
             submitTrack();
         } else {
