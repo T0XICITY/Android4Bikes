@@ -107,15 +107,9 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
         vmWeather = new ViewModelProvider(requireActivity()).get(ViewModelWeather.class);
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
+        dataBinder = DrivingModeDataBinder.getInstance();
 
         registeredHazardPositions = new LinkedList<>();
-
-        initCardView();
-
-        //locationPermissions(); + "");
-        dataBinder = DrivingModeDataBinder.getInstance();
-        txtCurrentSpeed.setText(viewModel.updateSpeed(null) + "");
-        txtAvgSpeed.setText(viewModel.updateAverageSpeed(0)
 
         return viewDrivingMode;
     }
