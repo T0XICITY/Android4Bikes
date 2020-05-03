@@ -58,8 +58,9 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
 
-        vmProfile = new ViewModelProvider(this).get(ViewModelOwnProfile.class);
+        vmProfile = new ViewModelProvider(requireActivity()).get(ViewModelOwnProfile.class);
         vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this);
+
 
         //Name & Email
         nameEdit = view.findViewById(R.id.edit_Name_text);

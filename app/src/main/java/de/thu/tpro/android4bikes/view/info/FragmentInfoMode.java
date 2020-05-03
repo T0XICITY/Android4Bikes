@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,8 +33,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.JsonElement;
-import com.mapbox.android.core.location.LocationEngineCallback;
-import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -69,7 +66,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,7 +164,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         viewInfo = inflater.inflate(R.layout.fragment_info_mode, container, false);
 
         // init ViewModels
-        ViewModelProvider provider = new ViewModelProvider(this);
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
         //own ViewModels
         vm_ownBikeRack = provider.get(ViewModelOwnBikerack.class);
         vm_ownHazards = provider.get(ViewModelOwnHazardAlerts.class);
@@ -302,7 +298,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck93ydsyn2ovs1js95kx1nu4u"),
                 style -> {
                     enableLocationComponent(style);
-
                     HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markerPool = new HashMap<>();
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.ic_material_bikerack));
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL, parent.getDrawable(R.drawable.ic_material_hazard));
@@ -319,6 +314,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     vm_Hazards.getHazardAlerts().observe(getViewLifecycleOwner(), this::onChangedHazardAlerts);
                     vm_bikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
                     vm_Tracks.getTracks().observe(getViewLifecycleOwner(), this::onChangedTracks);
+                    Log.d("HalloWeltAUA", "InfoMode:" + vm_Tracks.toString());
 
 
                     //setup geofences
@@ -442,7 +438,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             return false;
                         }
                     });
-
+                    if (PositionTracker.getLastPosition() != null) {
+                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                                .target(PositionTracker.getLastPosition().toMapboxLocation())
+                                .zoom(15)
+                                .build());
+                    }
                     geoFencing_tracks.startGeoFenceListener();
                     /*//Draw Route on Map
                     mapview.drawRoute(route);
@@ -1011,103 +1012,40 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private static class LocationChangeListeningActivityLocationCallback
-            implements LocationEngineCallback<LocationEngineResult> {
-
-        private final WeakReference<FragmentInfoMode> activityWeakReference;
-
-        LocationChangeListeningActivityLocationCallback(FragmentInfoMode activity) {
-            this.activityWeakReference = new WeakReference<>(activity);
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location has changed.
-         *
-         * @param result the LocationEngineResult object which has the last known location within it.
-         */
-        @Override
-        public void onSuccess(LocationEngineResult result) {
-            FragmentInfoMode activity = activityWeakReference.get();
-
-            if (activity != null) {
-                Location location = result.getLastLocation();
-
-                if (location == null) {
-                    return;
-                }
-
-                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
-                // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.mapboxMap != null && result.getLastLocation() != null) {
-                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
-                }
-            }
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
-         *
-         * @param exception the exception message
-         */
-        @Override
-        public void onFailure(@NonNull Exception exception) {
-            FragmentInfoMode activity = activityWeakReference.get();
-            if (activity != null) {
-                Toast.makeText(activity.parent, exception.getLocalizedMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
     }
 
     public void submit_Rack() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(parent);
         builder.setTitle("Submit rack");
         builder.setView(R.layout.dialog_rack);
         builder.setPositiveButton("Submit", null);
-        builder.setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
+        builder.setNegativeButton("Dismiss", (dialogInterface, i) -> Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show());
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
-            }
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
         });
         dialog.show();
 
         MapView rackMap = dialog.findViewById(R.id.rackMap);
         rackMap.onCreate(dialog.onSaveInstanceState());
 
-        rackMap.getMapAsync(new OnMapReadyCallback() {
+        rackMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMapRack) {
-
-                mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        if (PositionTracker.getLastPosition() != null) {
-                            mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                                    .target(PositionTracker.getLastPosition().toMapboxLocation())
-                                    .zoom(17)
-                                    .bearing(0)
-                                    .build()), 1000);
-                        }
-                    }
-                });
-
+            public void onStyleLoaded(@NonNull Style style) {
+                if (PositionTracker.getLastPosition() != null) {
+                    mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                            .target(PositionTracker.getLastPosition().toMapboxLocation())
+                            .zoom(17)
+                            .bearing(0)
+                            .build()), 1000);
+                }
             }
-        });
+        }));
 
         EditText editRack = dialog.findViewById(R.id.edit_rack_name);
         Spinner spCapacity = dialog.findViewById(R.id.sp_capacity);
@@ -1115,25 +1053,22 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         CheckBox cbCovered = dialog.findViewById(R.id.chBx_covered);
         Button btnPos = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Button btnNeg = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-        btnPos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (editRack.getText().toString().trim().equals("")) {
-                    Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                } else {
-                    Position currLastPos = PositionTracker.getLastPosition();
-                    if (currLastPos != null) {
-                        BikeRack newRack = new BikeRack(currLastPos, editRack.getText().toString(),
-                                BikeRack.ConstantsCapacity.valueOf(spCapacity.getSelectedItem().toString().toUpperCase()),
-                                cbEBike.isChecked(),
-                                true,
-                                cbCovered.isChecked()
-                        );
-                        Log.d(LOG_TAG, newRack.toString());
-                        vm_ownBikeRack.addOwnBikeRack(newRack);
-                    }
-                    dialog.dismiss();
+        btnPos.setOnClickListener(view -> {
+            if (editRack.getText().toString().trim().equals("")) {
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+            } else {
+                Position currLastPos = PositionTracker.getLastPosition();
+                if (currLastPos != null) {
+                    BikeRack newRack = new BikeRack(currLastPos, editRack.getText().toString(),
+                            BikeRack.ConstantsCapacity.valueOf(spCapacity.getSelectedItem().toString().toUpperCase()),
+                            cbEBike.isChecked(),
+                            true,
+                            cbCovered.isChecked()
+                    );
+                    Log.d(LOG_TAG, newRack.toString());
+                    vm_ownBikeRack.addOwnBikeRack(newRack);
                 }
+                dialog.dismiss();
             }
         });
     }
