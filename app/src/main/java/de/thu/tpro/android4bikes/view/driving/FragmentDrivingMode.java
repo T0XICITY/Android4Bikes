@@ -29,6 +29,7 @@ import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -48,8 +49,11 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Observable;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 import de.thu.tpro.android4bikes.services.GpsLocation;
@@ -64,7 +68,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class FragmentDrivingMode extends Fragment implements PermissionsListener,
-        OnNavigationReadyCallback, Observer<OpenWeatherObject> {
+        OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
@@ -185,40 +189,78 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     @Override
     public void onNavigationReady(boolean isRunning) {
-        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"), new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                if (PositionTracker.getLastPosition() != null) {
-                    parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
-                            .target(PositionTracker.getLastPosition().toMapboxLocation())
-                            .zoom(15)
-                            .build());
-                }
-                parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapClickListener(new MapboxMap.OnMapClickListener() {
-                    @Override
-                    public boolean onMapClick(@NonNull LatLng point) {
-                        //Implement Code
-                        return false;
-                    }
-                });
-
-                //Get Track from Viewmodel
-                //track =
-                //Start Navigation
-                track_for_navigation = vm_track.getNavigationTrack().getValue();
-                if (track_for_navigation != null) {
-                    startNavigation();
-                } else {
-                    //start free mode
-                /*TrackRecorder trackRecorder = new TrackRecorder();
-                trackRecorder.start();
-                //Abfage User input
-                trackRecorder.stop(trackname,...);*/
-                }
+        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"), style -> {
+            if (PositionTracker.getLastPosition().isValid()) {
+                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
+                        .target(PositionTracker.getLastPosition().toMapboxLocation())
+                        .zoom(15)
+                        .build());
+                start();
+            } else {
+                Position germany_center = new Position(51.163361111111, 10.447683333333);
+                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
+                        .target(germany_center.toMapboxLocation())
+                        .zoom(4)
+                        .build());
+                //Observe Position
+                PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(this);
             }
+            parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
+            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+                @Override
+                public boolean onMapClick(@NonNull LatLng point) {
+                    //Implement Code
+                    return false;
+                }
+            });
+
         });
 
+    }
+
+    private void start() {
+        track_for_navigation = vm_track.getNavigationTrack().getValue();
+        if (track_for_navigation != null) {
+            startDrivingMODE();
+        } else {
+            startFreeMODE();
+        }
+    }
+
+    private void startDrivingMODE() {
+        //Start Navigation
+        startNavigation();
+    }
+
+    private void startFreeMODE() {
+        //start free mode
+            /*TrackRecorder trackRecorder = new TrackRecorder();
+            trackRecorder.start();
+            //Abfage User input
+            trackRecorder.stop(trackname,...);*/
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (observable instanceof PositionTracker.LocationChangeListeningActivityLocationCallback) {
+            if (o instanceof Map && !((Map) o).keySet().isEmpty()) {
+                Map map = (Map) o;
+                if (map.get(PositionTracker.CONSTANTS.POSITION.toText()) != null) {
+                    Position last_position = (Position) map.get(PositionTracker.CONSTANTS.POSITION.toText());
+                    if (last_position.isValid()) {
+                        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                                .target(last_position.toMapboxLocation())
+                                .zoom(15)
+                                .bearing(0)
+                                .build()), 3000);
+                        start();
+                        observable.deleteObserver(this);
+                    }
+
+                }
+
+            }
+        }
     }
 
     private void initspeedFAB(View view) {
@@ -228,6 +270,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     private void startNavigation() {
         boolean isValidRoute = track_for_navigation.getRoute() != null;
         if (isValidRoute) {
+            parent.navigationView.drawRoute(track_for_navigation.getRoute());
             parent.navigationView.startNavigation(NavigationViewOptions.builder()
                     .directionsRoute(track_for_navigation.getRoute())
                     .locationEngine(parent.locationEngine)
@@ -381,7 +424,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
             // Set the component's render mode
             parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().setRenderMode(RenderMode.GPS);
 
-            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().zoomWhileTracking(8, 3000, new MapboxMap.CancelableCallback() {
+            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().zoomWhileTracking(15, 3000, new MapboxMap.CancelableCallback() {
                 @Override
                 public void onCancel() {
                 }

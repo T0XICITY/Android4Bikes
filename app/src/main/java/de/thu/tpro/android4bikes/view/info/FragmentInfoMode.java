@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PointF;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -452,10 +451,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                         Position germany_center = new Position(51.163361111111, 10.447683333333);
                         mapboxMap.setCameraPosition(new CameraPosition.Builder()
                                 .target(germany_center.toMapboxLocation())
-                                .zoom(15)
+                                .zoom(4)
                                 .build());
                         //Observe Position
-                        new PositionTracker.LocationChangeListeningActivityLocationCallback(parent).addObserver(this);
+                        PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(this);
                     }
                     geoFencing_tracks.startGeoFenceListener();
                     /*//Draw Route on Map
@@ -474,10 +473,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 if (map.get(PositionTracker.CONSTANTS.POSITION.toText()) != null) {
                     Position last_position = (Position) map.get(PositionTracker.CONSTANTS.POSITION.toText());
                     if (last_position.isValid()) {
-                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
                                 .target(last_position.toMapboxLocation())
                                 .zoom(15)
-                                .build());
+                                .bearing(0)
+                                .build()), 3000);
                         observable.deleteObserver(this);
                     }
 

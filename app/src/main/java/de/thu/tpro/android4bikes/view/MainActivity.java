@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         //init Location Engine
-        this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
+        this.callback = PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(this);
         vm_BtBtn.getBtnEvent().observe(this,newValue->{
             if (currentFragment == fragDriving){
                 Toast.makeText(getApplicationContext(),"BtBtn was clicked",Toast.LENGTH_SHORT).show();

@@ -53,13 +53,21 @@ public class PositionTracker {
             implements LocationEngineCallback<LocationEngineResult> {
 
         private final WeakReference<MainActivity> activityWeakReference;
+        private static LocationChangeListeningActivityLocationCallback instance;
 
-        public LocationChangeListeningActivityLocationCallback(MainActivity activity) {
+        private LocationChangeListeningActivityLocationCallback(MainActivity activity) {
             if (map_position_speed == null) {
                 map_position_speed = new HashMap<>();
             }
 
             this.activityWeakReference = new WeakReference<>(activity);
+        }
+
+        public static LocationChangeListeningActivityLocationCallback getInstance(MainActivity activity) {
+            if (instance == null) {
+                instance = new LocationChangeListeningActivityLocationCallback(activity);
+            }
+            return instance;
         }
 
         /**
