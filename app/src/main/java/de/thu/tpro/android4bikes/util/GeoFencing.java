@@ -188,9 +188,10 @@ public class GeoFencing extends Observable {
 
     public enum ConstantsGeoFencing {
         COLLECTION_TRACKS("tracks"),
+        FINISH_FLAG("finishflag"),
         COLLECTION_BIKERACKS("bikeracks"),
         COLLECTION_HAZARDS("hazards"),
-        COLLECTION_RADIUS("radiustest");
+        COLLECTION_ROUTE("route");
 
 
         private String type;

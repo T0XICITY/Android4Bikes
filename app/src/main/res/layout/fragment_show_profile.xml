@@ -1,27 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:padding="10dp">
-
+    android:layout_width="match_parent">
 
     <LinearLayout
         android:id="@+id/linearLayout2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="9dp"
-        android:layout_marginTop="9dp"
-        android:layout_marginEnd="9dp"
-        android:layout_marginBottom="9dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        android:padding="15dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -57,16 +46,9 @@
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="45dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/Green400Primary"
                 android:text="Change Profile image"
-                android:textAlignment="center"
-                android:textColorHint="@color/TextWhite"
-
-                />
-
-
+                android:textAlignment="center" />
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -90,10 +72,10 @@
                 android:layout_marginBottom="15dp"
                 android:focusable="false"
                 android:hint="Name"
-                android:textColorHint="@color/Green400Primary"
+                android:textColorHint="@color/colorPrimaryDark"
                 app:boxBackgroundMode="outline"
-                app:boxStrokeColor="@color/Green400Primary"
-                app:hintTextColor="@color/Green400Primary">
+                app:boxStrokeColor="@color/colorPrimaryDark"
+                app:hintTextColor="@color/colorPrimaryDark">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_Name_text"
@@ -118,7 +100,6 @@
                 android:paddingRight="15dp"
                 android:src="@drawable/ic_email" />
 
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/EmailText"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -126,15 +107,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:hint="Email"
-                android:textColorHint="@color/Green400Primary"
+                android:textColorHint="@color/colorPrimaryDark"
                 app:boxBackgroundMode="outline"
-                app:boxStrokeColor="@color/Green400Primary"
+                app:boxStrokeColor="@color/colorPrimaryDark"
                 app:errorEnabled="true"
-
-                app:hintTextColor="@color/Green400Primary"
-
-                >
-
+                app:hintTextColor="@color/colorPrimaryDark">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_Email_text"
@@ -146,46 +123,6 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-
-        <LinearLayout
-            android:id="@+id/ll_click"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:foreground="?android:selectableItemBackground"
-            android:orientation="horizontal">
-
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_tracks"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:clickable="true"
-                android:paddingTop="15dp"
-                android:paddingBottom="10dp"
-                android:text="Your tracks"
-                android:textColor="@color/Green400Primary"
-                android:textSize="22dp">
-
-            </com.google.android.material.textview.MaterialTextView>
-
-            <ImageView
-                android:id="@+id/iv_keyboard"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:clickable="true"
-                android:paddingLeft="240dp"
-                android:src="@drawable/ic_materialdesign_keyboard"
-
-                ></ImageView>
-
-        </LinearLayout>
-
-
-        >
-
-
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_design"
             android:layout_width="wrap_content"
@@ -193,15 +130,14 @@
             android:paddingTop="15dp"
             android:paddingBottom="10dp"
             android:text="Your achievements"
-            android:textColor="@color/Green400Primary"
-            android:textSize="22dp"></com.google.android.material.textview.MaterialTextView>
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="22dp" />
 
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingBottom="15dp"
             android:scrollbarSize="10dp">
-            >
 
             <HorizontalScrollView
                 android:layout_width="wrap_content"
@@ -220,7 +156,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Blue400Light"
-                        android:clickable="true"></ImageView>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv2"
@@ -228,7 +164,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Blue400Dark"
-                        android:clickable="true"></ImageView>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv3"
@@ -236,7 +172,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Brown400Light"
-                        android:clickable="true"></ImageView>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv4"
@@ -244,7 +180,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Red400Light"
-                        android:clickable="true"></ImageView>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv5"
@@ -252,7 +188,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Green800Light"
-                        android:clickable="true"></ImageView>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv6"
@@ -260,14 +196,14 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Yellow400Light"
-                        android:clickable="true"></ImageView>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv7"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
-                        android:background="@color/Orange400Dark"></ImageView>
+                        android:background="@color/Orange400Dark" />
 
                     <ImageView
                         android:id="@+id/iv8"
@@ -275,7 +211,7 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Pink400Dark"
-                        android:clickable="true"></ImageView>
+                        android:clickable="true" />
 
                     <ImageView
                         android:id="@+id/iv9"
@@ -283,28 +219,18 @@
                         android:layout_height="60dp"
                         android:layout_marginRight="8dp"
                         android:background="@color/Grey400Light"
-                        android:clickable="true"></ImageView>
-
+                        android:clickable="true" />
 
                 </LinearLayout>
             </HorizontalScrollView>
         </ScrollView>
 
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonDelete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:backgroundTint="@color/Green400Primary"
-            android:paddingTop="15dp"
-            android:paddingBottom="10dp"
             android:text="Delete Profile"
-            android:textAlignment="center"></Button>
-
+            android:textAlignment="center" />
 
     </LinearLayout>
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

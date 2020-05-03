@@ -6,9 +6,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,13 +33,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.JsonElement;
-import com.mapbox.android.core.location.LocationEngineCallback;
-import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Geometry;
+import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -58,26 +59,19 @@ import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
+import com.mapbox.mapboxsdk.style.layers.LineLayer;
+import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.mapboxsdk.style.sources.Source;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -96,16 +90,25 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnHazardAlerts;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
+import static com.mapbox.core.constants.Constants.PRECISION_6;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.lt;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.not;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineCap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineJoin;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
@@ -148,7 +151,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private GeoFencing geoFencing_bikeRacks;
     private GeoFencing geoFencing_hazardAlerts;
     private GeoFencing geoFencing_tracks;
-
+    private boolean fenceAlreadyRunning;
+    private boolean fenceAlreadyStopped;
+    private boolean hazardLayer_created;
+    private boolean bikerackLayer_created;
+    private boolean trackLayer_created;
+    private boolean routeLayer_created;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -156,7 +164,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         viewInfo = inflater.inflate(R.layout.fragment_info_mode, container, false);
 
         // init ViewModels
-        ViewModelProvider provider = new ViewModelProvider(this);
+        ViewModelProvider provider = new ViewModelProvider(requireActivity());
         //own ViewModels
         vm_ownBikeRack = provider.get(ViewModelOwnBikerack.class);
         vm_ownHazards = provider.get(ViewModelOwnHazardAlerts.class);
@@ -183,6 +191,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         geoFencing_hazardAlerts = vm_Hazards.getGeoFencing_hazardAlerts();
         geoFencing_tracks = vm_Tracks.getGeoFencing_tracks();
 
+        fenceAlreadyRunning = false;
+        fenceAlreadyStopped = true;
+
+        hazardLayer_created = false;
+        bikerackLayer_created = false;
+        routeLayer_created = false;
+        trackLayer_created = false;
+
         initMap(savedInstanceState);
     }
 
@@ -203,7 +219,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
         });
         hazardList = cleared;
-        updateHazardAlertOverlay(style, hazardList, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString());
+        updateHazardAlertOverlay(style, hazardList);
     }
 
     /**
@@ -224,7 +240,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
         });
         bikeRackList = cleared;
-        updateBikeRackOverlay(style, bikeRackList, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString());
+        updateBikeRackOverlay(style, bikeRackList);
     }
 
     private void onChangedTracks(Map<Track, Profile> trackProfileMap) {
@@ -241,7 +257,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
         });
         list_tracks = cleared;
-        updateTrackOverlay(style, list_tracks, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString());
+        updateTrackOverlay(style, list_tracks);
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -282,11 +298,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck93ydsyn2ovs1js95kx1nu4u"),
                 style -> {
                     enableLocationComponent(style);
-
                     HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markerPool = new HashMap<>();
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.ic_material_parking));
+                    markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.ic_material_bikerack));
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL, parent.getDrawable(R.drawable.ic_material_hazard));
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.ic_flag_green_24dp));
+                    markerPool.put(MapBoxSymbols.TRACK_FINISH, parent.getDrawable(R.drawable.flag_finish_green_24dp));
                     initMarkerSymbols(mapboxMap, markerPool);
                     //generateCustomRoute(generateTrack().getFineGrainedPositions());
                     initPosFab();
@@ -298,15 +314,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     vm_Hazards.getHazardAlerts().observe(getViewLifecycleOwner(), this::onChangedHazardAlerts);
                     vm_bikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
                     vm_Tracks.getTracks().observe(getViewLifecycleOwner(), this::onChangedTracks);
+                    Log.d("HalloWeltAUA", "InfoMode:" + vm_Tracks.toString());
 
 
                     //setup geofences
                     LatLng latlng_setuppos = mapboxMap.getCameraPosition().target;
                     GeoPoint geopoint_setuppos = new GeoPoint(latlng_setuppos.getLatitude(), latlng_setuppos.getLongitude());
-                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 3000);
-                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 5000);
-                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 3000);
 
+                    geoFencing_bikeRacks.setupGeofence(geopoint_setuppos, 50);
+                    geoFencing_hazardAlerts.setupGeofence(geopoint_setuppos, 50);
+                    geoFencing_tracks.setupGeofence(geopoint_setuppos, 1000);
 
                     mapboxMap.addOnCameraMoveListener(new MapboxMap.OnCameraMoveListener() {
                         @Override
@@ -314,18 +331,32 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             if (latLng_lastcamerapos == null) {
                                 latLng_lastcamerapos = mapboxMap.getCameraPosition().target;
                             }
+                            if (mapboxMap.getCameraPosition().zoom > 13) {
+                                if (!fenceAlreadyRunning){
+                                    geoFencing_bikeRacks.startGeoFenceListener();
+                                    geoFencing_hazardAlerts.startGeoFenceListener();
+                                    fenceAlreadyRunning = true;
+                                    fenceAlreadyStopped = false;
+                                }
+                            } else {
+                                if (!fenceAlreadyStopped){
+                                    geoFencing_bikeRacks.stopGeoFenceListener();
+                                    geoFencing_hazardAlerts.stopGeoFenceListener();
+                                    fenceAlreadyRunning = false;
+                                    fenceAlreadyStopped = true;
+                                }
+                            }
 
                             LatLng latlng_currCameraPos = mapboxMap.getCameraPosition().target;
                             double distance = latlng_currCameraPos.distanceTo(latLng_lastcamerapos);
 
                             GeoPoint geopoint_currPos = new GeoPoint(latlng_currCameraPos.getLatitude(), latlng_currCameraPos.getLongitude());
-
-                            if (geoFencing_bikeRacks != null && distance / 1000 > (geoFencing_bikeRacks.getRadius() / 2)) {
+                            if (mapboxMap.getCameraPosition().zoom > 13 && geoFencing_bikeRacks != null && distance / 1000 > (geoFencing_bikeRacks.getRadius() / 2)) {
                                 geoFencing_bikeRacks.updateCenter(geopoint_currPos);
                                 latLng_lastcamerapos = latlng_currCameraPos;
                             }
 
-                            if (geoFencing_hazardAlerts != null && distance / 1000 > (geoFencing_hazardAlerts.getRadius() / 2)) {
+                            if (mapboxMap.getCameraPosition().zoom > 13 && geoFencing_hazardAlerts != null && distance / 1000 > (geoFencing_hazardAlerts.getRadius() / 2)) {
                                 geoFencing_hazardAlerts.updateCenter(geopoint_currPos);
                                 latLng_lastcamerapos = latlng_currCameraPos;
                             }
@@ -342,7 +373,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                         @Override
                         public boolean onMapClick(@NonNull LatLng point) {
-                            Log.d("HELLO", "Click");
                             // Convert LatLng coordinates to screen pixel and only query the rendered features.
                             final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
 
@@ -355,20 +385,66 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                         for (Map.Entry<String, JsonElement> entry : feature.properties().entrySet()) {
                                             // Log all the properties
                                             if (entry.getKey().equals("ID")) {
-                                                Log.d("HELLO", String.valueOf(entry.getValue()));
+                                                Set<Track> tracks = vm_Tracks.getTracks().getValue().keySet();
+                                                Track track_result = tracks.stream()
+                                                        .filter(track -> entry.getValue().getAsString().equals(track.getFirebaseID()))
+                                                        .findFirst()
+                                                        .orElse(null);
+                                                if (track_result != null) {
+                                                    //set track for navigation mode
+                                                    vm_Tracks.setNavigationTrack(track_result);
+
+                                                    addRoutetoMap(style, track_result);
+                                                    showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
+                                                }else {
+                                                    //Was Bikerack or HazardALert
+                                                    vm_Tracks.setNavigationTrack(null);
+
+                                                    List<BikeRack> racks = vm_bikeRack.getList_bikeRacks_shown().getValue();
+                                                    BikeRack rack_result = racks.stream()
+                                                            .filter(rack -> entry.getValue().getAsString().equals(rack.getFirebaseID()))
+                                                            .findFirst()
+                                                            .orElse(null);
+                                                    if (rack_result != null){
+                                                        Toast toast = Toast.makeText(getContext(),"Bike rack:\t\t\t\t\t\t\t\t"+rack_result.getName()
+                                                                        +"\n"+"Capacity:\t\t\t\t\t\t\t\t"+rack_result.getCapacity().name()
+                                                                        +"\n"+"e-Bike charging:\t\t"+(rack_result.hasBikeCharging() ? "available" : "not available")
+                                                                        +"\n"+"Is it covered:\t\t\t\t\t"+(rack_result.isCovered()? "yes" : "no")
+                                                                ,Toast.LENGTH_LONG);
+                                                        toast.setGravity(Gravity.TOP,0,50);
+                                                        toast.show();
+                                                    }else {
+                                                        List<HazardAlert> hazards = vm_Hazards.getHazardAlerts().getValue();
+                                                        HazardAlert hazard_result = hazards.stream()
+                                                                .filter(hazard -> entry.getValue().getAsString().equals(hazard.getFirebaseID()))
+                                                                .findFirst()
+                                                                .orElse(null);
+                                                        if (hazard_result != null){
+                                                            Toast toast = Toast.makeText(getContext(),"Hazard type: "+HazardAlert.HazardType.getByType(hazard_result.getType()),Toast.LENGTH_LONG);
+                                                            toast.setGravity(Gravity.TOP,0,50);
+                                                            toast.show();
+                                                        }
+                                                    }
+                                                    //return handleClickIcon(pixel);
+                                                }
+                                            } else {
+                                                vm_Tracks.setNavigationTrack(null);
+                                                //TODO: remove drawn track from map
                                             }
                                         }
                                     }
                                 }
-
                             }
                             return false;
                         }
                     });
-
-                    geoFencing_bikeRacks.startGeoFenceListener();
+                    if (PositionTracker.getLastPosition() != null) {
+                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                                .target(PositionTracker.getLastPosition().toMapboxLocation())
+                                .zoom(15)
+                                .build());
+                    }
                     geoFencing_tracks.startGeoFenceListener();
-                    geoFencing_hazardAlerts.startGeoFenceListener();
                     /*//Draw Route on Map
                     mapview.drawRoute(route);
                     showRoute(start,end);*/
@@ -383,7 +459,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 .withIconImage(type.toString());
     }
 
-    private void showRoute(com.mapbox.geojson.Point start, com.mapbox.geojson.Point end) {
+    private void showRoutewithCamera(com.mapbox.geojson.Point start, com.mapbox.geojson.Point end) {
         LatLngBounds latLngBounds = new LatLngBounds.Builder()
                 .include(new LatLng(start.latitude(), start.longitude())) // Northeast
                 .include(new LatLng(end.latitude(), end.longitude())) // Southwest
@@ -391,18 +467,29 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 50), 5000);
     }
 
+    private void addRoutetoMap(@NonNull Style loadedMapStyle, Track track) {
+        if (!routeLayer_created) {
+            createRouteLayer(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_ROUTE.toString());
+            createFinishLayer(loadedMapStyle, GeoFencing.ConstantsGeoFencing.FINISH_FLAG.toString());
+            routeLayer_created = true;
+        }
+        addGeoJsonSource(loadedMapStyle, LineString.fromPolyline(track.getRoute().geometry(), PRECISION_6),
+                GeoFencing.ConstantsGeoFencing.COLLECTION_ROUTE.toString());
+        addGeoJsonSource(loadedMapStyle, track.getEndPosition().getAsPoint(), GeoFencing.ConstantsGeoFencing.FINISH_FLAG.toString());
+    }
     /**
      * Create Markers from Track List
      *
      * @param loadedMapStyle
      * @param tracks
      */
-    private void updateTrackOverlay(@NonNull Style loadedMapStyle, List<Track> tracks, String dataSourceID) {
+    private void updateTrackOverlay(@NonNull Style loadedMapStyle, List<Track> tracks) {
         synchronized (this) {
             //Generate Data Source
             MapBoxSymbols type = MapBoxSymbols.TRACK;
             List<Feature> list_feature = new ArrayList<>();
             //Generate Markers from ArrayList
+
             for (Track track : tracks) {
                 //getStringProperty
                 SymbolOptions marker = createMarker(track.getStartPosition().getLatitude(), track.getStartPosition().getLongitude(), FragmentInfoMode.MapBoxSymbols.TRACK);
@@ -413,11 +500,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
             //Create FeatureCollection from Feature List
             FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+
             //Create unclustered symbol layer
-            String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
-            createUnclusteredSymbolLayer(loadedMapStyle, id, type);
-            //Create clustered circle layer
-            createClusteredCircleOverlay(loadedMapStyle, id, type);
+            addGeoJsonSource(loadedMapStyle, featureCollection, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString(), true);
+            if (!trackLayer_created) {
+                createUnclusteredSymbolLayer(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString(), type);
+                //Create clustered circle layer
+                createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString(), type);
+                trackLayer_created = true;
+            }
+
         }
     }
 
@@ -427,7 +519,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param bikeRacks
      */
-    private void updateBikeRackOverlay(@NonNull Style loadedMapStyle, List<BikeRack> bikeRacks, String dataSourceID) {
+    private void updateBikeRackOverlay(@NonNull Style loadedMapStyle, List<BikeRack> bikeRacks) {
         synchronized (this) {
             //Generate Data Source
             MapBoxSymbols type = MapBoxSymbols.BIKERACK;
@@ -442,11 +534,20 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
             //Create FeatureCollection from Feature List
             FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
+            for (Feature singleFeature : featureCollection.features()) {
+                singleFeature.addBooleanProperty("selected", false);
+            }
             //Create unclustered symbol layer
-            String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
-            createUnclusteredSymbolLayer(loadedMapStyle, id, type);
-            //Create clustered circle layer
-            createClusteredCircleOverlay(loadedMapStyle, id, type);
+            addGeoJsonSource(loadedMapStyle, featureCollection, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString(), true);
+            //new GenerateViewIconTask(parent).execute(featureCollection);
+            if (!bikerackLayer_created) {
+                //createInfoWindowLayer(style,,);
+                createUnclusteredSymbolLayer(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString(), type);
+                //Create clustered circle layer
+                createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString(), type);
+                bikerackLayer_created = true;
+            }
+
         }
     }
 
@@ -456,7 +557,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
      * @param loadedMapStyle
      * @param hazardAlerts
      */
-    private void updateHazardAlertOverlay(@NonNull Style loadedMapStyle, List<HazardAlert> hazardAlerts, String dataSourceID) {
+    private void updateHazardAlertOverlay(@NonNull Style loadedMapStyle, List<HazardAlert> hazardAlerts) {
         synchronized (this) {
             //Generate Data Source
 
@@ -473,40 +574,93 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
             //Create FeatureCollection from Feature List
             FeatureCollection featureCollection = FeatureCollection.fromFeatures(list_feature);
-            //Create unclustered symbol layer
-            String id = addGeoJsonSource(loadedMapStyle, featureCollection, dataSourceID, true, 50);
-            createUnclusteredSymbolLayer(loadedMapStyle, id, type);
-            //Create clustered circle layer
-            createClusteredCircleOverlay(loadedMapStyle, id, type);
-        }
-    }
-
-    private String addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster, int clusterRadius) {
-        //TODO: ONLY ONCE FOR PRESENTATION PURPOSE
-
-        //Check if Source is initialized
-        for (Source source : loadedMapStyle.getSources()) {
-            if (source.getId().equals(ID)) {
-
-                loadedMapStyle.removeLayer("unclustered_" + ID);
-                loadedMapStyle.removeLayer("clustered_" + ID + 0);
-                loadedMapStyle.removeLayer("clustered_" + ID + 1);
-                loadedMapStyle.removeLayer("clustered_" + ID + 2);
-                loadedMapStyle.removeLayer("count_" + ID);
-                loadedMapStyle.removeSource(ID);
+            for (Feature singleFeature : featureCollection.features()) {
+                singleFeature.addBooleanProperty("selected", false);
+            }
+            addGeoJsonSource(loadedMapStyle, featureCollection, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString(), true);
+            //new GenerateViewIconTask(parent).execute(featureCollection);
+            if (!hazardLayer_created) {
+                //createInfoWindowLayer(style,,);
+                //Create unclustered symbol layer
+                createUnclusteredSymbolLayer(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString(), type);
+                //Create clustered circle layer
+                createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString(), type);
+                hazardLayer_created = true;
             }
         }
 
-        //New GeoJsonSource from FeatureCollection
-        Source source = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
-                .withCluster(withCluster)
-                .withClusterRadius(clusterRadius)
-        );
-        loadedMapStyle.addSource(source);
-
-        return source.getId();
     }
 
+    private void addGeoJsonSource(@NonNull Style loadedMapStyle, FeatureCollection featureCollection, String ID, boolean withCluster) {
+        //Check if Source is initialized
+        GeoJsonSource mapStyleSource = loadedMapStyle.getSourceAs(ID);
+        if (mapStyleSource != null) {
+            mapStyleSource.setGeoJson(featureCollection);
+        } else {
+            if (withCluster) {
+                if (ID.equals(GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString()) || ID.equals(GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString())) {
+                    GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
+                            .withCluster(true)
+                            .withClusterRadius(50)
+                            //.withClusterMaxZoom(10)
+                            .withMinZoom(13)
+                    );
+                    loadedMapStyle.addSource(geoJsonSource);
+                } else {
+                    GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection, new GeoJsonOptions()
+                            .withCluster(true)
+                            .withClusterRadius(50)
+                            //.withClusterMaxZoom(10)
+                            .withMaxZoom(13)
+                            .withMinZoom(4)
+                    );
+                    loadedMapStyle.addSource(geoJsonSource);
+                }
+
+
+            } else {
+                GeoJsonSource geoJsonSource = new GeoJsonSource(ID, featureCollection);
+                loadedMapStyle.addSource(geoJsonSource);
+            }
+
+        }
+
+    }
+
+    private void addGeoJsonSource(@NonNull Style loadedMapStyle, Geometry geometry, String ID) {
+        //Check if Source is initialized
+        GeoJsonSource mapStyleSource = loadedMapStyle.getSourceAs(ID);
+        if (mapStyleSource != null) {
+            mapStyleSource.setGeoJson(geometry);
+        } else {
+            GeoJsonSource geoJsonSource = new GeoJsonSource(ID, FeatureCollection.fromFeatures(new Feature[]{
+                    Feature.fromGeometry(geometry)}));
+            loadedMapStyle.addSource(geoJsonSource);
+        }
+    }
+
+    private void createRouteLayer(@NonNull Style loadedMapStyle, String ID) {
+        LineLayer routeLayer = new LineLayer("Tracks_" + ID, ID);
+
+        // Add the LineLayer to the map. This layer will display the directions route.
+        routeLayer.setProperties(
+                lineCap(Property.LINE_CAP_ROUND),
+                lineJoin(Property.LINE_JOIN_ROUND),
+                lineWidth(5f),
+                lineColor(ContextCompat.getColor(parent, R.color.Green800Primary))
+        );
+        loadedMapStyle.addLayer(routeLayer);
+
+    }
+
+    private void createFinishLayer(@NonNull Style loadedMapStyle, String ID) {
+        // Add the Finish SymbolLayer to the map
+        loadedMapStyle.addLayer(new SymbolLayer("Finish_" + ID, ID).withProperties(
+                iconImage(MapBoxSymbols.TRACK_FINISH.toString()),
+                iconIgnorePlacement(true),
+                iconAllowOverlap(true),
+                iconOffset(new Float[]{0f, -9f})));
+    }
     /**
      * Create unclustered SymbolLayer for small zoom level
      *
@@ -517,23 +671,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         //Create Symbol Layer for unclustered data points
         SymbolLayer unclustered = new SymbolLayer("unclustered_" + sourceID, sourceID);
 
-
         unclustered.setProperties(
-                iconImage(type.toString())/*,
-                iconSize(
-                        division(
-                                get("mag"), literal(4.0f)
-                        )
-                ),
-                iconColor(
-                        interpolate(exponential(1), get("mag"),
-                                stop(2.0, rgb(0, 255, 0)),
-                                stop(4.5, rgb(0, 0, 255)),
-                                stop(7.0, rgb(255, 0, 0))
-                        )
-                )*/
+                iconImage(type.toString())
         );
-        //unclustered.setFilter(has("mag"));
+        // Add a filter to the cluster layer that hides the circles based on "point_count"
+        unclustered.setFilter(all(not(has("point_count"))));
         loadedMapStyle.addLayer(unclustered);
     }
 
@@ -553,38 +695,27 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 color = R.color.Amber800Light;
                 break;
             case TRACK:
-                color = R.color.Red800Light;
+                color = R.color.Green800Primary;
                 break;
         }
-        // Each point range gets a different fill color.
-        int[][] layers = new int[][]{
-                new int[]{150, ContextCompat.getColor(parent, color)},
-                new int[]{20, ContextCompat.getColor(parent, color)},
-                new int[]{0, ContextCompat.getColor(parent, color)}
-        };
-
-        for (int i = 0; i < layers.length; i++) {
             //Add clusters' circles
-            CircleLayer circles = new CircleLayer("clustered_" + sourceID + i, sourceID);
+        CircleLayer circles = new CircleLayer("clustered_" + sourceID, sourceID);
             circles.setProperties(
-                    circleColor(layers[i][1]),
-                    circleRadius(30f)
+                    circleOpacity(0.6f),
+                    circleColor(ContextCompat.getColor(parent, color)),
+                    circleRadius(15f)
             );
 
             Expression pointCount = toNumber(get("point_count"));
 
             // Add a filter to the cluster layer that hides the circles based on "point_count"
             circles.setFilter(
-                    i == 0
-                            ? all(has("point_count"),
-                            gte(pointCount, literal(layers[i][0]))
-                    ) : all(has("point_count"),
-                            gte(pointCount, literal(layers[i][0])),
-                            lt(pointCount, literal(layers[i - 1][0]))
-                    )
-            );
+                    all(has("point_count"),
+                            gte(pointCount, literal(0)
+                            )
+                    ));
+
             loadedMapStyle.addLayer(circles);
-        }
 
         //Add the count labels
         SymbolLayer count = new SymbolLayer("count_" + sourceID, sourceID);
@@ -593,10 +724,26 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 textSize(12f),
                 textColor(Color.WHITE),
                 textIgnorePlacement(true),
-                textAllowOverlap(true)
+                textAllowOverlap(false)
         );
         loadedMapStyle.addLayer(count);
     }
+
+    /*private void createInfoWindowLayer(@NonNull Style loadedStyle, String ID, MapBoxSymbols type) {
+        loadedStyle.addLayer(new SymbolLayer("info_"+ID, ID) //todo: 2nd param should be maybe the id of the source of the already existing markers
+                .withProperties(
+                        ///* show image with id title based on the value of the name feature property
+                        iconImage("{name}"), //todo: check if this is right
+                        ///* set anchor of icon to bottom-left
+                        iconAnchor(ICON_ANCHOR_BOTTOM),
+                        ///* all info window and marker image to appear at the same time
+                        iconAllowOverlap(true),
+                        ///* offset the info window to be above the marker
+                        iconOffset(new Float[] {-2f, -28f})
+                )
+                ///* add a filter to show only when selected feature property is true
+                .withFilter(eq((get("selected")), literal(true))));
+    }*/
 
     //Location Stuff--------------------------------------------------------------
 
@@ -667,20 +814,11 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(getContext());
         dialogBuilder.setTitle("Store your Track!");
         dialogBuilder.setView(R.layout.dialog_feedback_track);
-        dialogBuilder.setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+        dialogBuilder.setPositiveButton(R.string.submit, (dialogInterface, i) ->
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into Firestore", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show());
 
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Store into Firestore", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
-
-        dialogBuilder.setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Don´t store ", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
+        dialogBuilder.setNegativeButton(R.string.discard, (dialogInterface, i) ->
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Don´t store ", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show());
         dialogBuilder.show();
     }
 
@@ -692,7 +830,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     public void onClick(DialogInterface dialogInterface, int i) {
                         switch (i) {
                             case 0:
-                                submit_Rack();
+                                submit_rack();
                                 break;
                             case 1:
                                 submit_hazard();
@@ -707,24 +845,30 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         markerDialog.setCanceledOnTouchOutside(false);
     }
 
+    /**
+     * submits a Hazard Alert on the current position
+     */
     private void submit_hazard() {
-        AlertDialog hazardDialog = new MaterialAlertDialogBuilder(getContext())
+        submit_hazard(PositionTracker.getLastPosition());
+    }
+
+    /**
+     * submits a Hazard Alert on the given position
+     * @param hazardPosition position of the hazard to report
+     */
+    public void submit_hazard(Position hazardPosition) {
+        AlertDialog hazardDialog = new MaterialAlertDialogBuilder(parent)
                 .setTitle(R.string.submit_hazard)
                 .setView(R.layout.dialog_hazard)
                 .setPositiveButton(R.string.submit, null)
-                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                    }
-                })
+                .setNegativeButton(R.string.discard, (dialogInterface, i) ->
+                        Snackbar.make(viewInfo.findViewById(R.id.map_container_info), R.string.dismiss, 1000)
+                                .setAnchorView(viewInfo.findViewById(R.id.bottomAppBar))
+                                .show())
                 .create();
-        hazardDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
-                hazardDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
-            }
+        hazardDialog.setOnShowListener(dialogInterface -> {
+            hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+            hazardDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
         });
         hazardDialog.show();
         hazardDialog.setCanceledOnTouchOutside(false);
@@ -732,43 +876,65 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         MapView hazardMap = hazardDialog.findViewById(R.id.hazardMap);
         hazardMap.onCreate(hazardDialog.onSaveInstanceState());
 
-        hazardMap.getMapAsync(new OnMapReadyCallback() {
+        hazardMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMapRack) {
-
-                mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        if (PositionTracker.getLastPosition() != null) {
-                            mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                                    .target(PositionTracker.getLastPosition().toMapboxLocation())
-                                    .zoom(17)
-                                    .bearing(0)
-                                    .build()), 1000);
-                        }
-                    }
-                });
-
+            public void onStyleLoaded(@NonNull Style style) {
+                if (PositionTracker.getLastPosition() != null) {
+                    mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                            .target(PositionTracker.getLastPosition().toMapboxLocation())
+                            .zoom(17)
+                            .bearing(0)
+                            .build()), 1000);
+                }
             }
-        });
+        }));
 
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
-        btnPos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int i = spinnerHazard.getSelectedItemPosition();
-                // create hazard alert from entered info
-                HazardAlert newHazard = new HazardAlert();
-                newHazard.setPosition(PositionTracker.getLastPosition()); // TODO is setPosition() or setGeoPoint() correct?
-                newHazard.setType(HazardAlert.HazardType.getByType(i + 1)); // i+1 since we start counting on 1
+        btnPos.setOnClickListener(view -> {
+            int i = spinnerHazard.getSelectedItemPosition();
+            HazardAlert.HazardType type = HazardAlert.HazardType.getByType(i);
+            int distanceOfInterest = 10;
 
-                // submit hazard alert to ViewModel
-                vm_ownHazards.addOwnHazard(newHazard);
-                hazardDialog.dismiss();
-            }
+            // create hazard alert from entered info
+            HazardAlert newHazard = new HazardAlert(type, hazardPosition, distanceOfInterest, true);
+
+            // submit hazard alert to ViewModel
+            vm_ownHazards.addOwnHazard(newHazard);
+            hazardDialog.dismiss();
+        });
+        hazardDialog.show();
+    }
+
+    private void submit_rack() {
+        //showRackMap();
+        MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_rack, null);
+
+        TextView tvRackName = dialogView.findViewById(R.id.edit_rack_name);
+        Spinner spCapacity = dialogView.findViewById(R.id.sp_capacity);
+        CheckBox cbEBike = dialogView.findViewById(R.id.chBx_ebike);
+        CheckBox cbCovered = dialogView.findViewById(R.id.chBx_covered);
+
+        rack_builder.setTitle("Submit rack");
+        rack_builder.setView(dialogView);
+        rack_builder.setPositiveButton(R.string.submit, (dialogInterface, i) -> {
+            BikeRack newRack = new BikeRack();
+
+            newRack.setName(tvRackName.getText().toString());
+            newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
+                    spCapacity.getSelectedItem().toString().toUpperCase())
+            );
+            newRack.setHasBikeCharging(cbEBike.isChecked());
+            newRack.setCovered(cbCovered.isChecked());
+
+            Log.d(LOG_TAG, newRack.toString());
+            vm_ownBikeRack.addOwnBikeRack(newRack);
         });
 
+        // do nothing on cancel
+        rack_builder.setNegativeButton(R.string.cancel, null);
+        rack_builder.show();
     }
 
     @Override
@@ -828,25 +994,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    /**
-     * generates a new instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack} for test purposes
-     *
-     * @return instance of the class {@link de.thu.tpro.android4bikes.data.model.BikeRack}
-     */
-
-    private BikeRack generateTHUBikeRack(int i) {
-        //create new BikeRack
-        BikeRack bikeRack_THU = new BikeRack(
-                "pfo4eIrvzrI0m363KF0K" + i, new Position(48.408880 + i / 7000.0, 9.997507 + i / 7000.0), "THUBikeRack", BikeRack.ConstantsCapacity.SMALL,
-                false, true, false
-        );
-        return bikeRack_THU;
-    }
-
     private enum MapBoxSymbols {
         BIKERACK("BIKERACK"),
         HAZARDALERT_GENERAL("HAZARDALERT_GENERAL"),
-        TRACK("TRACK");
+        TRACK("TRACK"),
+        TRACK_FINISH("TRACK_FINISH"),
+        INFO("INFO");
 
         private String type;
 
@@ -859,103 +1012,40 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
-    private static class LocationChangeListeningActivityLocationCallback
-            implements LocationEngineCallback<LocationEngineResult> {
-
-        private final WeakReference<FragmentInfoMode> activityWeakReference;
-
-        LocationChangeListeningActivityLocationCallback(FragmentInfoMode activity) {
-            this.activityWeakReference = new WeakReference<>(activity);
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location has changed.
-         *
-         * @param result the LocationEngineResult object which has the last known location within it.
-         */
-        @Override
-        public void onSuccess(LocationEngineResult result) {
-            FragmentInfoMode activity = activityWeakReference.get();
-
-            if (activity != null) {
-                Location location = result.getLastLocation();
-
-                if (location == null) {
-                    return;
-                }
-
-                activity.lastPos = new LatLng(result.getLastLocation().getLatitude(), result.getLastLocation().getLongitude());
-                // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.mapboxMap != null && result.getLastLocation() != null) {
-                    activity.mapboxMap.getLocationComponent().forceLocationUpdate(result.getLastLocation());
-                }
-            }
-        }
-
-        /**
-         * The LocationEngineCallback interface's method which fires when the device's location can't be captured
-         *
-         * @param exception the exception message
-         */
-        @Override
-        public void onFailure(@NonNull Exception exception) {
-            FragmentInfoMode activity = activityWeakReference.get();
-            if (activity != null) {
-                Toast.makeText(activity.parent, exception.getLocalizedMessage(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
     }
 
     public void submit_Rack() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(parent);
         builder.setTitle("Submit rack");
         builder.setView(R.layout.dialog_rack);
         builder.setPositiveButton("Submit", null);
-        builder.setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-            }
-        });
+        builder.setNegativeButton("Dismiss", (dialogInterface, i) -> Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Dismiss", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show());
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
-            }
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, parent.getTheme()));
         });
         dialog.show();
 
         MapView rackMap = dialog.findViewById(R.id.rackMap);
         rackMap.onCreate(dialog.onSaveInstanceState());
 
-        rackMap.getMapAsync(new OnMapReadyCallback() {
+        rackMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
             @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMapRack) {
-
-                mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        if (PositionTracker.getLastPosition() != null) {
-                            mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                                    .target(PositionTracker.getLastPosition().toMapboxLocation())
-                                    .zoom(17)
-                                    .bearing(0)
-                                    .build()), 1000);
-                        }
-                    }
-                });
-
+            public void onStyleLoaded(@NonNull Style style) {
+                if (PositionTracker.getLastPosition() != null) {
+                    mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                            .target(PositionTracker.getLastPosition().toMapboxLocation())
+                            .zoom(17)
+                            .bearing(0)
+                            .build()), 1000);
+                }
             }
-        });
+        }));
 
         EditText editRack = dialog.findViewById(R.id.edit_rack_name);
         Spinner spCapacity = dialog.findViewById(R.id.sp_capacity);
@@ -963,25 +1053,22 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         CheckBox cbCovered = dialog.findViewById(R.id.chBx_covered);
         Button btnPos = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Button btnNeg = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-        btnPos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (editRack.getText().toString().trim().equals("")) {
-                    Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
-                } else {
-                    BikeRack newRack = new BikeRack();
-
-                    newRack.setName(editRack.getText().toString());
-                    newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
-                            spCapacity.getSelectedItem().toString().toUpperCase())
+        btnPos.setOnClickListener(view -> {
+            if (editRack.getText().toString().trim().equals("")) {
+                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+            } else {
+                Position currLastPos = PositionTracker.getLastPosition();
+                if (currLastPos != null) {
+                    BikeRack newRack = new BikeRack(currLastPos, editRack.getText().toString(),
+                            BikeRack.ConstantsCapacity.valueOf(spCapacity.getSelectedItem().toString().toUpperCase()),
+                            cbEBike.isChecked(),
+                            true,
+                            cbCovered.isChecked()
                     );
-                    newRack.setHasBikeCharging(cbEBike.isChecked());
-                    newRack.setCovered(cbCovered.isChecked());
-
                     Log.d(LOG_TAG, newRack.toString());
                     vm_ownBikeRack.addOwnBikeRack(newRack);
-                    dialog.dismiss();
                 }
+                dialog.dismiss();
             }
         });
     }

@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
-import de.thu.tpro.android4bikes.util.GeoLocationHelper;
+import de.thu.tpro.android4bikes.util.TimeBase;
 import de.thu.tpro.android4bikes.util.UUIDGenerator;
 
 public class HazardAlert {
@@ -50,14 +50,13 @@ public class HazardAlert {
      *
      * @param type
      * @param position
-     * @param expiryTimestamp
      * @param distanceOfInterest
      * @param isExistent
      */
-    public HazardAlert(HazardType type, Position position, long expiryTimestamp, int distanceOfInterest, boolean isExistent) {
+    public HazardAlert(HazardType type, Position position, int distanceOfInterest, boolean isExistent) {
         this.type = type;
         this.position = position;
-        this.expiryTimestamp = expiryTimestamp;
+        this.expiryTimestamp = TimeBase.getCurrentUnixTimeStamp() + 604800000;
         this.distanceOfInterest = distanceOfInterest;
         this.isExistent = isExistent;
         this.firebaseID = UUIDGenerator.generateUUID();
@@ -84,10 +83,6 @@ public class HazardAlert {
     }
 
     public void setPosition(Position position) {
-        this.position = position;
-    }
-
-    public void setGeoPoint(Position position) {
         this.position = position;
     }
 
