@@ -69,6 +69,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
 import de.thu.tpro.android4bikes.R;
@@ -115,7 +117,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacem
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 
 
-public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener {
+public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener, Observer {
 
     private static final String LOG_TAG = "FragmentInfoMode";
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
@@ -437,11 +439,19 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             return false;
                         }
                     });
-                    if (PositionTracker.getLastPosition() != null) {
+                    if (PositionTracker.getLastPosition().isValid()) {
                         mapboxMap.setCameraPosition(new CameraPosition.Builder()
                                 .target(PositionTracker.getLastPosition().toMapboxLocation())
                                 .zoom(15)
                                 .build());
+                    } else {
+                        Position germany_center = new Position(51.163361111111, 10.447683333333);
+                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                                .target(germany_center.toMapboxLocation())
+                                .zoom(15)
+                                .build());
+                        //Observe Position
+                        new PositionTracker.LocationChangeListeningActivityLocationCallback(parent).addObserver(this);
                     }
                     geoFencing_tracks.startGeoFenceListener();
                     /*//Draw Route on Map
@@ -450,6 +460,27 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //https://docs.mapbox.com/android/java/examples/show-directions-on-a-map/
                     //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (observable instanceof PositionTracker.LocationChangeListeningActivityLocationCallback) {
+            if (o instanceof Map && !((Map) o).keySet().isEmpty()) {
+                Map map = (Map) o;
+                if (map.get(PositionTracker.CONSTANTS.POSITION.toText()) != null) {
+                    Position last_position = (Position) map.get(PositionTracker.CONSTANTS.POSITION.toText());
+                    if (last_position.isValid()) {
+                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                                .target(last_position.toMapboxLocation())
+                                .zoom(15)
+                                .build());
+                        observable.deleteObserver(this);
+                    }
+
+                }
+
+            }
+        }
     }
 
     private SymbolOptions createMarker(double latitude, double longitude, FragmentInfoMode.MapBoxSymbols type) {
@@ -971,6 +1002,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             markers.forEach((type, icon) -> mapboxMap.getStyle().addImage(type.toString(), icon));
         }
     }
+
 
     private enum MapBoxSymbols {
         BIKERACK("BIKERACK"),
