@@ -46,6 +46,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         LocationListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, Observer<Map<Track, Profile>> {
     private static final String LOG_TAG = "FragmentCreateTrack";
 
+    private boolean showOwnTracksOnly = false;
+
     private ViewModelTrack viewModelTrack;
     private ViewModelOwnTracks viewModelOwnTrack;
 
@@ -115,8 +117,10 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         Log.d("FragmentCreateTrack", getActivity() + "");
         recyclerView.setAdapter(adapter);
         updateTotalTracksTextView();
-        viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
-        viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+        if (showOwnTracksOnly)
+            viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+        else
+            viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
         Log.d("HalloWeltAUA", "TrackList:" + viewModelTrack.toString());
     }
 
@@ -148,6 +152,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
             dataBinder.addTrack(t);
         }
         adapter.replaceData(dataBinder.getTrackDistanceList());
+        updateTotalTracksTextView();
     }
 
     // ------- LocationListener Methods --------
@@ -405,6 +410,14 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         if (view != searchView) {
             searchView.clearFocus();
         }
+    }
+
+    public void setShowOwnTracksOnly(boolean ownTracksOnly) {
+        showOwnTracksOnly = ownTracksOnly;
+    }
+
+    public boolean isOwnTracksOnly() {
+        return showOwnTracksOnly;
     }
 
     // TODO delete after testing

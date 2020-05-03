@@ -12,6 +12,7 @@ import java.util.List;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
+import de.thu.tpro.android4bikes.util.GeoLocationHelper;
 
 /**
  * @author Stefanie
@@ -58,7 +59,8 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListViewHolder> 
                 (double) currentTrack.getDistance_km())
         );
         // TODO replace postcode with actual location name (-> waiting for backend)
-        holder.tv_trackLocation.setText("TODO");
+        String postcodeStart = GeoLocationHelper.convertPositionToPostcode(currentTrack.getStartPosition());
+        holder.tv_trackLocation.setText(postcodeStart);
 
 
         // Only display distance when available

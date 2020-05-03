@@ -13,10 +13,15 @@
             android:title="@string/title_telnumbers"
             app:showAsAction="always" />
         <item
-            android:id="@+id/menu_profil"
+            android:id="@+id/menu_profile"
             android:icon="@drawable/ic_material_person"
             android:title="@string/title_profile"
             app:showAsAction="always" />
+        <item
+            android:id="@+id/menu_ownTracks"
+            android:icon="@drawable/ic_material_map_legend"
+            android:title="My Tracks"
+            app:showAsAction="always"/>
     </group>
     <group android:id="@+id/group_settings">
         <item
