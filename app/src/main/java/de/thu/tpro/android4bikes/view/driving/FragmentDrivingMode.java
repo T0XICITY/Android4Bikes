@@ -28,6 +28,7 @@ import com.mapbox.api.directions.v5.DirectionsCriteria;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -109,7 +110,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         infoIcon = viewDrivingMode.findViewById(R.id.cardView_Infoicon);
         fab_weather = viewDrivingMode.findViewById(R.id.weatherFAB);
 
-        vmWeather = new ViewModelProvider(this).get(ViewModelWeather.class);
+        vmWeather = new ViewModelProvider(requireActivity()).get(ViewModelWeather.class);
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
 
         initCardView();
@@ -125,7 +126,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        vm_track = new ViewModelProvider(this).get(ViewModelTrack.class);
+        vm_track = new ViewModelProvider(requireActivity()).get(ViewModelTrack.class);
 
         //we need the parent Activity to init our map
         parent = (MainActivity) this.getActivity();
@@ -184,29 +185,40 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     @Override
     public void onNavigationReady(boolean isRunning) {
-        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"));
-        parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"), new Style.OnStyleLoaded() {
             @Override
-            public boolean onMapClick(@NonNull LatLng point) {
-                //Implement Code
-                return false;
-            }
-        });
+            public void onStyleLoaded(@NonNull Style style) {
+                if (PositionTracker.getLastPosition() != null) {
+                    parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
+                            .target(PositionTracker.getLastPosition().toMapboxLocation())
+                            .zoom(15)
+                            .build());
+                }
+                parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
+                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+                    @Override
+                    public boolean onMapClick(@NonNull LatLng point) {
+                        //Implement Code
+                        return false;
+                    }
+                });
 
-        //Get Track from Viewmodel
-        //track =
-        //Start Navigation
-        track_for_navigation = vm_track.getNavigationTrack().getValue();
-        if (track_for_navigation != null) {
-            startNavigation();
-        } else {
-            //start free mode
-            /*TrackRecorder trackRecorder = new TrackRecorder();
+                //Get Track from Viewmodel
+                //track =
+                //Start Navigation
+                track_for_navigation = vm_track.getNavigationTrack().getValue();
+                if (track_for_navigation != null) {
+                    startNavigation();
+                } else {
+                    //start free mode
+                /*TrackRecorder trackRecorder = new TrackRecorder();
                 trackRecorder.start();
                 //Abfage User input
                 trackRecorder.stop(trackname,...);*/
-        }
+                }
+            }
+        });
+
     }
 
     private void initspeedFAB(View view) {

@@ -80,11 +80,8 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
 
         dataBinder = new TrackListDataBinder(getResources());
 
-
-        viewModelTrack = new ViewModelProvider(this).get(ViewModelTrack.class);
-        viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
-        viewModelOwnTrack = new ViewModelProvider(this).get(ViewModelOwnTracks.class);
-        viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+        viewModelTrack = new ViewModelProvider(requireActivity()).get(ViewModelTrack.class);
+        viewModelOwnTrack = new ViewModelProvider(requireActivity()).get(ViewModelOwnTracks.class);
 
         View view = inflater.inflate(R.layout.fragment_track_list, container, false);
         recyclerView = view.findViewById(R.id.rv_tracks);
@@ -115,10 +112,12 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         super.onViewCreated(view, savedInstanceState);
         initLocationManager();
         adapter = new TrackListAdapter(this, dataBinder.getTrackDistanceList());
-
         Log.d("FragmentCreateTrack", getActivity() + "");
         recyclerView.setAdapter(adapter);
         updateTotalTracksTextView();
+        viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+        viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
+        Log.d("HalloWeltAUA", "TrackList:" + viewModelTrack.toString());
     }
 
     @SuppressLint("MissingPermission")

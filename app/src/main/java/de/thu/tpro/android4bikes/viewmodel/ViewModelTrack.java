@@ -4,10 +4,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
@@ -78,6 +80,7 @@ public class ViewModelTrack extends ViewModel implements Observer {
 
         //set initial values
         workInProgress.postValue(0);
+        map_tracks_profile_shown.postValue(new HashMap<>());
 
         //initialize GeoFencing
         if (PositionTracker.getLastPosition() != null){
@@ -134,6 +137,10 @@ public class ViewModelTrack extends ViewModel implements Observer {
      * @return LiveData object regarding a list of tracks
      */
     public LiveData<Map<Track, Profile>> getTracks() {
+        if (map_tracks_profile_shown.getValue() != null) {
+            Set<Track> tracks = map_tracks_profile_shown.getValue().keySet();
+            tracks.size();
+        }
         return map_tracks_profile_shown;
     }
 
