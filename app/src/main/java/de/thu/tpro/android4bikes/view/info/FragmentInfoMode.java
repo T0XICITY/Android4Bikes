@@ -867,7 +867,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     public void onClick(DialogInterface dialogInterface, int i) {
                         switch (i) {
                             case 0:
-                                submit_rack();
+                                submit_Rack();
                                 break;
                             case 1:
                                 submit_hazard();
