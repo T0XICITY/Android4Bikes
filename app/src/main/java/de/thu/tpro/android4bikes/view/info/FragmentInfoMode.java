@@ -302,7 +302,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 style -> {
                     enableLocationComponent(style);
                     HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markerPool = new HashMap<>();
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.ic_material_bikerack));
+                    markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.ic_material_bikerack_24dp));
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL, parent.getDrawable(R.drawable.ic_material_hazard));
                     markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.ic_flag_green_24dp));
                     markerPool.put(MapBoxSymbols.TRACK_FINISH, parent.getDrawable(R.drawable.flag_finish_green_24dp));
@@ -400,7 +400,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                     addRoutetoMap(style, track_result);
                                                     showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
                                                     parent.fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(parent, R.color.Green800Primary)));
-
+                                                    return true;
                                                 }else {
                                                     //Was Bikerack or HazardALert
                                                     vm_Tracks.setNavigationTrack(null);
@@ -418,6 +418,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                                 ,Toast.LENGTH_LONG);
                                                         toast.setGravity(Gravity.TOP,0,50);
                                                         toast.show();
+                                                        return true;
                                                     }else {
                                                         List<HazardAlert> hazards = vm_Hazards.getHazardAlerts().getValue();
                                                         HazardAlert hazard_result = hazards.stream()
@@ -428,6 +429,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                             Toast toast = Toast.makeText(getContext(),"Hazard type: "+HazardAlert.HazardType.getByType(hazard_result.getType()),Toast.LENGTH_LONG);
                                                             toast.setGravity(Gravity.TOP,0,50);
                                                             toast.show();
+                                                            return true;
                                                         }
                                                     }
                                                     //return handleClickIcon(pixel);
@@ -724,7 +726,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         int color = R.color.mapbox_blue; //default
         switch (type) {
             case BIKERACK:
-                color = R.color.Blue400Dark;
+                color = R.color.Blue800Primary;
                 break;
             case HAZARDALERT_GENERAL:
                 color = R.color.Amber800Light;
