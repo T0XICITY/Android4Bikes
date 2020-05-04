@@ -197,9 +197,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         vm_track.getNavigationTrack().observe(this, newValue -> {
             if (newValue == null) {
-                //TODO: Change color of fab to default color
+                fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark)));
             } else {
-                //TODO: Change color of fab to color "selected track"
+                fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.Green800Primary)));
             }
         });
     }
