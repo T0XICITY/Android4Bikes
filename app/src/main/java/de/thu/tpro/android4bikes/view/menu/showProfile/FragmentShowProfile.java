@@ -1,9 +1,6 @@
 package de.thu.tpro.android4bikes.view.menu.showProfile;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +25,7 @@ import java.util.ArrayList;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.ProfilePictureUtil;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import petrov.kristiyan.colorpicker.ColorPicker;
@@ -72,7 +70,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         delete = view.findViewById(R.id.buttonDelete);
         delete.setOnClickListener(v -> confirmDeletion());
         imageViewCircle = view.findViewById(R.id.imageView_Circle);
-        imageViewCircle.setImageBitmap(textToBitmap("M"));
+        imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("M"));
         //ColorPicker
         dialogColorPicker = view.findViewById(R.id.button_ChangeProfileView);
 
@@ -163,23 +161,6 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         ddp.show(getParentFragmentManager(), "Delete Profiletag");
     }
 
-
-    //Text in ImageView
-    private Bitmap textToBitmap(String text) {
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setTextSize(20);
-        paint.setColor(Color.WHITE);
-        paint.setTextAlign(Paint.Align.LEFT);
-
-        float baseline = -paint.ascent();
-        int width = (int) (paint.measureText(text) + 14f);
-        int height = (int) (baseline + paint.descent() + 15f);
-        Bitmap imageB = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(imageB);
-        canvas.drawText(text, 0, baseline, paint);
-        return imageB;
-    }
-
     //open Achievement
     public void openAchievements(String title, String message) {
         DialogAchievements da = new DialogAchievements();
@@ -209,6 +190,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
             nameEdit.setText(fullName);
             // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
             emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0)));
             imageViewCircle.setBackgroundColor(profile.getColor());
         }
     }

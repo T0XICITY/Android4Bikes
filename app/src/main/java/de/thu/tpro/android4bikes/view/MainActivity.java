@@ -49,8 +49,6 @@ import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -66,6 +64,7 @@ import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.GpsUtils;
 import de.thu.tpro.android4bikes.util.Processor;
+import de.thu.tpro.android4bikes.util.ProfilePictureUtil;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
@@ -147,11 +146,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // set observer to profile to update Drawer Profile section
         vmOwnProfile.getMyProfile().observe(this, profile -> {
-            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
-            Log.d(LOG_TAG, "Setting profile name: "+fullName);
-
-            tv_headerName.setText(fullName);
-            tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            if (profile != null) {
+                String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
+                Log.d(LOG_TAG, "Setting profile name: " + fullName);
+                //todo: Better implementation
+                ImageView iv_profile = findViewById(R.id.imageView_profile);
+                iv_profile.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0)));
+                iv_profile.setBackgroundColor(profile.getColor());
+                tv_headerName.setText(fullName);
+                tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            }
         });
         currentFragment = fragInfo;
         updateFragment();
