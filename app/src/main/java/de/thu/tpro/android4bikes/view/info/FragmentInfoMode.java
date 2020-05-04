@@ -939,7 +939,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
         btnPos.setOnClickListener(view -> {
-            int i = spinnerHazard.getSelectedItemPosition();
+            int i = spinnerHazard.getSelectedItemPosition() + 1;
             HazardAlert.HazardType type = HazardAlert.HazardType.getByType(i);
             int distanceOfInterest = 10;
 
