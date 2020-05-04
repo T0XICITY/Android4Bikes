@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
+
     <LinearLayout
         android:id="@+id/layout_detailView"
         android:layout_width="match_parent"
@@ -12,30 +12,6 @@
         android:layout_marginTop="16dp"
         android:orientation="vertical"
         android:visibility="visible">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:orientation="vertical">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/txt_track_name_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/track_name"
-                app:errorEnabled="true">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edit_track_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,6 +52,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/txt_track_name_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/track_name"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_track_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="5dp"
@@ -91,7 +91,7 @@
                 android:isIndicator="false"
                 android:numStars="5"
                 android:stepSize="1"
-                android:theme="@style/RatingBar"/>
+                android:theme="@style/RatingBar" />
 
             <TextView
                 android:id="@+id/tv_submit_roadQuality"
@@ -122,7 +122,7 @@
                 android:layout_gravity="center_vertical"
                 android:isIndicator="false"
                 android:stepSize="1"
-                android:theme="@style/RatingBar"/>
+                android:theme="@style/RatingBar" />
 
             <TextView
                 android:id="@+id/tv_submit_difficulty"
@@ -153,7 +153,7 @@
                 android:layout_gravity="center_vertical"
                 android:isIndicator="false"
                 android:stepSize="1"
-                android:theme="@style/RatingBar"/>
+                android:theme="@style/RatingBar" />
 
             <TextView
                 android:id="@+id/tv_submit_fun"
@@ -167,28 +167,28 @@
 
         </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txt_track_desc_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/feedback_desc">
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edit_submit_desc"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/txt_track_desc_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:lines="3"
-                android:scrollbars="horizontal"/>
+                android:hint="@string/feedback_desc">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_submit_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:lines="3"
+                    android:scrollbars="horizontal" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
 </ScrollView>
