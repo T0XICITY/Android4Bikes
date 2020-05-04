@@ -157,8 +157,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(LOG_TAG, "Setting profile name: " + fullName);
                 //todo: Better implementation
                 ImageView iv_profile = findViewById(R.id.imageView_profile);
-                iv_profile.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0)));
-                iv_profile.setBackgroundColor(profile.getColor());
+                if (iv_profile != null) {
+                    iv_profile.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0)));
+                    iv_profile.setBackgroundColor(profile.getColor());
+                }
                 tv_headerName.setText(fullName);
                 tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
             }
