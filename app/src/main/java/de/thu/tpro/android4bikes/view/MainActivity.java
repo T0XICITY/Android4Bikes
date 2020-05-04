@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
                 Log.d(LOG_TAG, "Setting profile name: " + fullName);
 
-                iv_profile.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0)));
+                iv_profile.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0), profile.getColor()));
                 cardView_profile.setCardBackgroundColor(profile.getColor());
 
                 tv_headerName.setText(fullName);
