@@ -20,6 +20,9 @@ public class Profile {
     @SerializedName("googleID")
     private String googleID;
     @Expose
+    @SerializedName("profilePictureURL")
+    private String profilePictureURL;
+    @Expose
     @SerializedName("color")
     private int color;
     @Expose
@@ -29,16 +32,25 @@ public class Profile {
     @SerializedName("achievements")
     private List<Achievement> achievements;
 
-    public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Achievement> achievements) {
+    public Profile(String firstName, String familyName, String firebaseAccountID, String profilePictureURL, int color, int overallDistance, List<Achievement> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
         this.googleID = firebaseAccountID;
+        this.profilePictureURL = profilePictureURL;
         this.color = color;
         this.overallDistance = overallDistance;
         this.achievements = achievements;
         if (this.achievements == null) {
             this.achievements = new ArrayList<>();
         }
+    }
+
+    public String getProfilePictureURL() {
+        return profilePictureURL;
+    }
+
+    public void setProfilePictureURL(String profilePictureURL) {
+        this.profilePictureURL = profilePictureURL;
     }
 
     public int getOverallDistance() {
