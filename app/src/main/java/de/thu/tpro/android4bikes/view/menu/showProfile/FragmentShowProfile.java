@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +19,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -25,6 +29,8 @@ import java.util.ArrayList;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import petrov.kristiyan.colorpicker.ColorPicker;
 
@@ -33,36 +39,28 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
     private ViewModelOwnProfile vmProfile;
 
+    private MainActivity parent;
+
     private TextInputEditText nameEdit;
     private TextInputEditText emailEdit;
     private ImageView imageViewCircle;
+
+    private TextView tvTracks;
+    private ImageView ivKeyboard;
 
     private Button delete;
     private Button dialogColorPicker;
     private ImageView iv_a1, iv_a2, iv_a3, iv_a4, iv_a5, iv_a6, iv_a7, iv_a8, iv_a9;
 
-    /**
-     * Author: Elias
-     * Dialog View -> shows Dialog to delete the Profile
-     * ColorPicker from a Library
-     *
-     * <p>
-     * TODO -> Implement Track & Achievments
-     *
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
-     * @return
-     */
-
-
+    // TODO -> Implement Achievments
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
 
         vmProfile = new ViewModelProvider(requireActivity()).get(ViewModelOwnProfile.class);
-        vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this::onChanged);
+        vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this);
+
 
         //Name & Email
         nameEdit = view.findViewById(R.id.edit_Name_text);
@@ -79,12 +77,14 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
         // Delete Button & ImageView vor Profile
         delete = view.findViewById(R.id.buttonDelete);
+        delete.setOnClickListener(v -> confirmDeletion());
         imageViewCircle = view.findViewById(R.id.imageView_Circle);
         imageViewCircle.setImageBitmap(textToBitmap("M"));
         //ColorPicker
         dialogColorPicker = view.findViewById(R.id.button_ChangeProfileView);
 
         //Imageview for Achievements
+        // TODO make a dynamic list instead of hard-coded
         iv_a1 = view.findViewById(R.id.iv1);
         iv_a2 = view.findViewById(R.id.iv2);
         iv_a3 = view.findViewById(R.id.iv3);
@@ -100,94 +100,32 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        dialogColorPicker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openColorPicker();
-            }
-        });
+
+        parent = (MainActivity) getActivity();
+
+        //If you press the ColorPicker
+        dialogColorPicker.setOnClickListener(v -> openColorPicker());
 
         //If you press the ImageView at the Achievements
-        iv_a1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAchievements("Achievement 1", "Hallo1");
-            }
-        });
-
-        iv_a2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAchievements("Achievement 2", "Hallo2");
-            }
-        });
-
-        iv_a3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAchievements("Achievement 3", "Hallo3");
-            }
-        });
-
-        iv_a4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAchievements("Achievement 4", "Hallo4");
-            }
-        });
-
-        iv_a5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAchievements("Achievement 5", "Hallo5");
-            }
-        });
-
-        iv_a6.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAchievements("Achievement 6", "Hallo6");
-            }
-        });
-
-        iv_a7.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAchievements("Achievement 7", "Hallo7");
-            }
-        });
-
-        iv_a8.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAchievements("Achievement 8", "Hallo8");
-            }
-        });
-
-        iv_a9.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAchievements("Achievement 9", "Hallo9");
-            }
-        });
-
+        iv_a1.setOnClickListener(v -> openAchievements("Achievement 1", "Hallo1"));
+        iv_a2.setOnClickListener(v -> openAchievements("Achievement 2", "Hallo2"));
+        iv_a3.setOnClickListener(v -> openAchievements("Achievement 3", "Hallo3"));
+        iv_a4.setOnClickListener(v -> openAchievements("Achievement 4", "Hallo4"));
+        iv_a5.setOnClickListener(v -> openAchievements("Achievement 5", "Hallo5"));
+        iv_a6.setOnClickListener(v -> openAchievements("Achievement 6", "Hallo6"));
+        iv_a7.setOnClickListener(v -> openAchievements("Achievement 7", "Hallo7"));
+        iv_a8.setOnClickListener(v -> openAchievements("Achievement 8", "Hallo8"));
+        iv_a9.setOnClickListener(v -> openAchievements("Achievement 9", "Hallo9"));
 
         //If you press the Cancel-Button
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openDialogDelete();
-
-            }
-        });
-
-
+        delete.setOnClickListener(v -> openDialogDelete());
     }
 
     // Color Picker
     public void openColorPicker() {
         final ColorPicker colorPicker = new ColorPicker(getActivity());
         ArrayList<String> colors = new ArrayList<>();
+        // TODO use values/colors.xml
         colors.add("#82B926");
         colors.add("#a276eb");
         colors.add("#6a3ab2");
@@ -205,32 +143,21 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
                 .setColumns(5)
                 .setRoundColorButton(true)
                 .setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
-
-
                     @Override
                     public void onChooseColor(int position, int color) {
                         Log.d("positionHallo:", "posi:" + color);
-                        //  materialCardView.setCardBackgroundColor(color);
                         imageViewCircle.setBackgroundColor(color);
-
-
-                        //imageViewCircle.setColorFilter(color); //-> ändert Initialenfarbe
                     }
-
                     @Override
-                    public void onCancel() {
-                        // remains empty
-                    }
+                    public void onCancel() {/*remains empty*/}
                 })
                 .show();
-
     }
 
     //Dialog to delete your Profile
     public void openDialogDelete() {
         DialogDeleteProfile ddp = new DialogDeleteProfile();
         ddp.show(getParentFragmentManager(), "Delete Profiletag");
-
     }
 
 
@@ -257,6 +184,19 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         da.show(getParentFragmentManager(), "Open Achievements");
     }
 
+    public void deleteMyProfile() {
+        // TODO uncomment this line when we really want to mess around with profile deletion
+        // vmProfile.deleteMyProfile();
+        parent.goToLoginActivity();
+    }
+
+    public void confirmDeletion() {
+        MaterialAlertDialogBuilder dialogBuilder = new MaterialAlertDialogBuilder(GlobalContext.getContext());
+        dialogBuilder.setTitle(R.string.confirmation);
+        dialogBuilder.setMessage(R.string.confirmation_message);
+        dialogBuilder.setPositiveButton(R.string.delete, (dialogInterface, i) -> deleteMyProfile());
+        dialogBuilder.setNegativeButton(R.string.cancel, null); // do nothing on cancel
+    }
 
     @Override
     public void onChanged(Profile profile) {
