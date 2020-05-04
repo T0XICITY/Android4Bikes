@@ -34,7 +34,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -47,7 +46,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.List;
 import java.util.Timer;
@@ -57,7 +55,6 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
-import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
@@ -88,7 +85,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile>{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
 
@@ -96,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ViewModelOwnTracks vmOwnTracks;
     private ViewModelTrack vm_track;
 
-    public LatLng lastPos;
     public static final int GPS_REQUEST = 97;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
     private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
@@ -132,9 +128,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // init View Models
         ViewModelProvider provider = new ViewModelProvider(this);
         vmOwnProfile = provider.get(ViewModelOwnProfile.class);
-        vmOwnProfile.getMyProfile().observe(this, this::onChanged);
         vmOwnTracks = provider.get(ViewModelOwnTracks.class);
-        vm_BtBtn = new ViewModelProvider(this).get(ViewModelBtBtn.class);
+        vm_BtBtn = provider.get(ViewModelBtBtn.class);
         vm_track = provider.get(ViewModelTrack.class);
 
         setContentView(R.layout.activity_main);
@@ -143,12 +138,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         initFragments();
         initNavigationDrawer();
+        initNavigationDrawerHeader();
         initTopBar();
         initBottomNavigation();
         initFragments();
         initFAB();
 
-        onCreateClickShowProfile();
+        // set observer to profile to update Drawer Profile section
+        vmOwnProfile.getMyProfile().observe(this, profile -> {
+            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
+            Log.d(LOG_TAG, "Setting profile name: "+fullName);
+
+            tv_headerName.setText(fullName);
+            tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        });
         currentFragment = fragInfo;
         updateFragment();
 
@@ -259,16 +262,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void onCreateClickShowProfile() {
-
+    private void initNavigationDrawerHeader() {
         View header = drawer.getHeaderView(0);
+
         imageView = header.findViewById(R.id.imageView_profile);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openProfile();
-                toggleNavigationDrawer();
-            }
+        tv_headerName = header.findViewById(R.id.tvName);
+        tv_headerMail = header.findViewById(R.id.tvMail);
+
+        imageView.setOnClickListener(v -> {
+            openProfile();
+            toggleNavigationDrawer();
         });
     }
 
@@ -312,17 +315,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         toggleNavigationDrawer();
         return true;
-    }
-
-    @Override
-    public void onChanged(Profile profile) {
-        Log.d("PROFILE Main", "" + profile);
-        if (profile != null) {
-            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
-            tv_headerName.setText(fullName);
-            // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
-            tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        }
     }
 
     /**
@@ -379,8 +371,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initNavigationDrawer() {
         dLayout = findViewById(R.id.drawerLayout);
-        tv_headerName = findViewById(R.id.tvName);
-        tv_headerMail = findViewById(R.id.tvMail);
 
         //find width of screen and divide by 2
         int width = getResources().getDisplayMetrics().widthPixels / 2;

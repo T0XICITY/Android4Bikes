@@ -35,7 +35,8 @@ public class ViewModelOwnProfile extends ViewModel implements Observer {
     public ViewModelOwnProfile() {
         couchDBHelper = new CouchDBHelper();
         myProfile = new MutableLiveData<>();
-        couchDBHelper.readMyOwnProfile();
+
+        myProfile.postValue(couchDBHelper.readMyOwnProfile());
     }
 
     public LiveData<Profile> getMyProfile(){
