@@ -51,7 +51,7 @@ public class Position {
      *
      * @return is ther any valid positioning data available?
      */
-    public boolean isPositioningDataAvailable() {
+    public boolean isValid() {
         //Double-Werte nie auf Gleichheit pruefen:
         return Double.compare(this.longitude, -103.907409) != 0 || Double.compare(this.latitude, -82.463046) != 0;
     }

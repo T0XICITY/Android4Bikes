@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
     private BottomAppBar bottomBar;
-    private FloatingActionButton fab;
+    public FloatingActionButton fab;
     private MaterialToolbar topAppBar;
     private ImageButton btn_tracks;
     private ImageButton btn_community;
@@ -176,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         //init Location Engine
-        this.callback = new PositionTracker.LocationChangeListeningActivityLocationCallback(this);
+        this.callback = PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(this);
         vm_BtBtn.getBtnEvent().observe(this,newValue->{
             if (currentFragment == fragDriving){
                 Toast.makeText(getApplicationContext(),"BtBtn was clicked",Toast.LENGTH_SHORT).show();
@@ -638,11 +639,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // shrink X to middle
         fab.animate().scaleX(0).withEndAction(() -> {
             // change icon
-            if (currentFragment.equals(fragInfo))
+            if (currentFragment.equals(fragInfo)) {
+                //fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
                 fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_bike));
-            else
+            }else {
+                fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorPrimaryDark)));
                 fab.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_material_information));
-            // grow back to original X
+            }// grow back to original X
             fab.animate().scaleX(1).start();
         }).start();
     }
