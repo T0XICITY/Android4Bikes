@@ -432,12 +432,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                     }
                                                     //return handleClickIcon(pixel);
                                                 }
-                                            } else {
-                                                removeTrackFromMap(style);
                                             }
                                         }
                                     }
                                 }
+                            }
+                            if (vm_Tracks.getNavigationTrack().getValue() != null) {
+                                Log.d("HalloWelt", "Removed Track from map");
+                                removeTrackFromMap(style);
                             }
                             return false;
                         }
@@ -474,7 +476,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             loadedMapStyle.removeLayer("Finish_" + GeoFencing.ConstantsGeoFencing.FINISH_FLAG.toString());
             routeLayer_created = false;
         }
-
     }
 
     @Override
