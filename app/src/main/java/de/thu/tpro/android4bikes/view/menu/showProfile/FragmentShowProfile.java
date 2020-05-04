@@ -1,9 +1,6 @@
 package de.thu.tpro.android4bikes.view.menu.showProfile;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,8 +17,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -30,6 +25,7 @@ import java.util.ArrayList;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.ProfilePictureUtil;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import petrov.kristiyan.colorpicker.ColorPicker;
@@ -48,6 +44,8 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
     private TextView tvTracks;
     private ImageView ivKeyboard;
 
+    private Profile currentProfile;
+
     private Button delete;
     private Button dialogColorPicker;
     private ImageView iv_a1, iv_a2, iv_a3, iv_a4, iv_a5, iv_a6, iv_a7, iv_a8, iv_a9;
@@ -59,17 +57,10 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
 
         vmProfile = new ViewModelProvider(requireActivity()).get(ViewModelOwnProfile.class);
-        vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this);
-
 
         //Name & Email
         nameEdit = view.findViewById(R.id.edit_Name_text);
         emailEdit = view.findViewById(R.id.edit_Email_text);
-
-        // if there's an existing profile
-        Profile currentProfile = vmProfile.getMyProfile().getValue();
-        if (currentProfile != null)
-            onChanged(currentProfile);
 
         // Text auf grau stellen
         nameEdit.setTextColor(Color.GRAY);
@@ -79,7 +70,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         delete = view.findViewById(R.id.buttonDelete);
         delete.setOnClickListener(v -> confirmDeletion());
         imageViewCircle = view.findViewById(R.id.imageView_Circle);
-        imageViewCircle.setImageBitmap(textToBitmap("M"));
+        imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("M"));
         //ColorPicker
         dialogColorPicker = view.findViewById(R.id.button_ChangeProfileView);
 
@@ -100,6 +91,13 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this);
+        // if there's an existing profile
+        currentProfile = vmProfile.getMyProfile().getValue();
+        if (currentProfile != null) {
+            onChanged(currentProfile);
+        }
 
         parent = (MainActivity) getActivity();
 
@@ -146,7 +144,10 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
                     @Override
                     public void onChooseColor(int position, int color) {
                         Log.d("positionHallo:", "posi:" + color);
-                        imageViewCircle.setBackgroundColor(color);
+                        if (currentProfile != null) {
+                            currentProfile.setColor(color);
+                            vmProfile.updateMyProfile(currentProfile);
+                        }
                     }
                     @Override
                     public void onCancel() {/*remains empty*/}
@@ -158,23 +159,6 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
     public void openDialogDelete() {
         DialogDeleteProfile ddp = new DialogDeleteProfile();
         ddp.show(getParentFragmentManager(), "Delete Profiletag");
-    }
-
-
-    //Text in ImageView
-    private Bitmap textToBitmap(String text) {
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setTextSize(20);
-        paint.setColor(Color.WHITE);
-        paint.setTextAlign(Paint.Align.LEFT);
-
-        float baseline = -paint.ascent();
-        int width = (int) (paint.measureText(text) + 14f);
-        int height = (int) (baseline + paint.descent() + 15f);
-        Bitmap imageB = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(imageB);
-        canvas.drawText(text, 0, baseline, paint);
-        return imageB;
     }
 
     //open Achievement
@@ -206,6 +190,8 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
             nameEdit.setText(fullName);
             // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
             emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0)));
+            imageViewCircle.setBackgroundColor(profile.getColor());
         }
     }
 }

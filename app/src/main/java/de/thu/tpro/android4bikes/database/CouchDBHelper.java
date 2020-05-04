@@ -490,10 +490,6 @@ public class CouchDBHelper extends Observable implements LocalDatabaseHelper {
     public void updateMyOwnProfile(Profile profile) {
         deleteMyOwnProfile();
         storeMyOwnProfile(profile);
-
-        if (profile != null) {
-            readMyOwnProfile();
-        }
     }
 
     /**

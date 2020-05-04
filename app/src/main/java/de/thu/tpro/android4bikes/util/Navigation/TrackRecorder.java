@@ -14,6 +14,7 @@ import java.util.List;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.MapmatchingRequest;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
@@ -52,8 +53,8 @@ public class TrackRecorder {
         mapmatchingRequests.add(request3);
     }
 
-    public void stop(Track track_without_route) {
-        finalTrack = track_without_route;
+    public void stop(String author, Rating rating, String name, String description) {
+        finalTrack = new Track(author, rating, name, description, 0, null, null, null, null, true);
         generateDirectionRouteAndSaveTrackToFirebase(mapmatchingRequests);
         finalroute = null;
     }
@@ -106,6 +107,7 @@ public class TrackRecorder {
                                 } else {
                                     //Finished with Track Appending
                                     //Save Track to Firebase
+                                    finalTrack.setDistance_km(finalroute.distance());
                                     finalTrack.setRoute(finalroute);
                                     finalTrack.setStartPosition(new Position(finalroute.legs().get(0).steps().get(0).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(0).maneuver().location().longitude()));
                                     finalTrack.setEndPosition(new Position(finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().longitude()));

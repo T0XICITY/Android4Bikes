@@ -1,7 +1,5 @@
 package de.thu.tpro.android4bikes.viewmodel;
 
-import android.widget.Toast;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -33,9 +31,9 @@ public class ViewModelOwnProfile extends ViewModel implements Observer {
     private CouchDBHelper couchDBHelper;
 
     public ViewModelOwnProfile() {
-        couchDBHelper = new CouchDBHelper();
+        couchDBHelper = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA);
         myProfile = new MutableLiveData<>();
-
+        couchDBHelper.addObserver(this);
         myProfile.postValue(couchDBHelper.readMyOwnProfile());
     }
 
@@ -44,7 +42,6 @@ public class ViewModelOwnProfile extends ViewModel implements Observer {
     }
 
     public void updateMyProfile(Profile profile) {
-        myProfile.postValue(profile);
         couchDBHelper.updateMyOwnProfile(profile);
     }
 
