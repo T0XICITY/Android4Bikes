@@ -70,7 +70,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         delete = view.findViewById(R.id.buttonDelete);
         delete.setOnClickListener(v -> confirmDeletion());
         imageViewCircle = view.findViewById(R.id.imageView_Circle);
-        imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("M"));
+        //imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("M")); //can be removed
         //ColorPicker
         dialogColorPicker = view.findViewById(R.id.button_ChangeProfileView);
 
@@ -190,7 +190,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
             nameEdit.setText(fullName);
             // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
             emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-            imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0)));
+            imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0), profile.getColor()));
             imageViewCircle.setBackgroundColor(profile.getColor());
         }
     }
