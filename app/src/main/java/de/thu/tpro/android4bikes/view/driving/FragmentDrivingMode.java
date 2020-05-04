@@ -102,7 +102,8 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         fab_velocity = viewDrivingMode.findViewById(R.id.velocityFAB);
 
         vmWeather = new ViewModelProvider(requireActivity()).get(ViewModelWeather.class);
-        vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
+        vm_track = new ViewModelProvider(requireActivity()).get(ViewModelTrack.class);
+
         dataBinder = DrivingModeDataBinder.getInstance();
 
         registeredHazardPositions = new LinkedList<>();
@@ -114,7 +115,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        vm_track = new ViewModelProvider(requireActivity()).get(ViewModelTrack.class);
+        vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
 
         //we need the parent Activity to init our map
         parent = (MainActivity) this.getActivity();
@@ -174,13 +175,15 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     @Override
     public void onNavigationReady(boolean isRunning) {
-        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"), style -> {
+        Log.d("HalloWeltAUA", "NavigationReady");
+        //parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(Style.MAPBOX_STREETS, style -> {
+        Log.d("HalloWeltAUA", "style loaded");
             if (PositionTracker.getLastPosition().isValid()) {
                 parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
                         .target(PositionTracker.getLastPosition().toMapboxLocation())
                         .zoom(15)
                         .build());
-                start();
+                FragmentDrivingMode.this.start();
             } else {
                 Position germany_center = new Position(51.163361111111, 10.447683333333);
                 parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
@@ -188,30 +191,16 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                         .zoom(4)
                         .build());
                 //Observe Position
-                PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(this);
+                PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(FragmentDrivingMode.this);
             }
             parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
             parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapLongClickListener(click -> {
                 registeredHazardPositions.add(PositionTracker.getLastPosition());
-                Snackbar.make(getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
-                    Log.d("addHazard", "List: " + registeredHazardPositions);
-                    return true;
+                Snackbar.make(FragmentDrivingMode.this.getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
+                Log.d("addHazard", "List: " + registeredHazardPositions);
+                return true;
             });
-
-            //Get Track from Viewmodel
-            //track =
-            //Start Navigation
-            track_for_navigation = vm_track.getNavigationTrack().getValue();
-            if (track_for_navigation != null) {
-                startNavigation();
-            } else {
-                //start free mode
-                /*TrackRecorder trackRecorder = new TrackRecorder();
-                trackRecorder.start();
-                //Abfage User input
-                trackRecorder.stop(trackname,...);*/
-            }
-        });
+        //});
     }
 
     private void initVelocityFAB() {
@@ -313,7 +302,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                             // Fetch new route with MapboxMapMatching
                             List<com.mapbox.geojson.Point> points = new ArrayList<>();
                             points.add(offRoutePoint);
-                            points.add(com.mapbox.geojson.Point.fromLngLat(track_for_navigation.getStartPosition().getLatitude(), track_for_navigation.getStartPosition().getLongitude()));
+                            points.add(track_for_navigation.getStartPosition().getAsPoint());
 
                             NavigationRoute.builder(parent)
                                     .accessToken(getString(R.string.access_token))
