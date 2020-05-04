@@ -676,6 +676,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         }
     }
 
+
     private void createRouteLayer(@NonNull Style loadedMapStyle, String ID) {
         LineLayer routeLayer = new LineLayer("Tracks_" + ID, ID);
 

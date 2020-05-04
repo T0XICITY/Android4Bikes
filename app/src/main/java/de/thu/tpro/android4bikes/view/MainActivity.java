@@ -63,6 +63,7 @@ import de.thu.tpro.android4bikes.firebase.FirebaseConnection;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.GpsUtils;
+import de.thu.tpro.android4bikes.util.Navigation.TrackRecorder;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.ProfilePictureUtil;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
@@ -113,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tv_headerName;
     private TextView tv_headerMail;
     private boolean isGPS;
+    public boolean freemode_active;
+    private TrackRecorder trackRecorder;
     private ViewModelBtBtn vm_BtBtn;
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
@@ -133,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vm_track = provider.get(ViewModelTrack.class);
 
         setContentView(R.layout.activity_main);
-
+        freemode_active = false;
         //debugWriteBuffer();
 
         initFragments();
@@ -143,6 +146,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initBottomNavigation();
         initFragments();
         initFAB();
+
+
+        trackRecorder = new TrackRecorder();
 
         // set observer to profile to update Drawer Profile section
         vmOwnProfile.getMyProfile().observe(this, profile -> {
@@ -368,7 +374,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab = findViewById(R.id.fab_switchMode);
         fab.setOnClickListener(v -> {
             //if Track null start freemode, else start Navigation
-            //if ()
             switchInfoDriving();
             Log.d("Mitte", "Clicked center Button");
         });
@@ -427,8 +432,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
             fragDriving.cancelUpdateTimer(); // no more speed updates
+
+            if (freemode_active) {
+                submitTrack();
+                freemode_active = false;
+            }
+
             openInfoMode();
-            submitTrack();
+
+
             // iterate over registered hazards while driving
             List<Position> hazardPositions = fragDriving.getRegisteredHazardPositions();
             if (hazardPositions.size() > 0) {
@@ -453,11 +465,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
-                .setTitle("Store your Track!")
+                .setTitle("Store your track!")
                 .setView(dialogView)
                 .setPositiveButton(R.string.submit, null)
-                .setNegativeButton(R.string.discard, (dialogInterface, i) -> Snackbar.make(findViewById(R.id.fragment_container),
-                        "Don´t store ", 1000).setAnchorView(bottomBar).show())
+                .setNegativeButton(R.string.discard, null)
                 .create();
         submitTrackDialog.setCanceledOnTouchOutside(false);
         submitTrackDialog.setOnShowListener(dialogInterface -> {
@@ -469,24 +480,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Button btnPos = submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         btnPos.setOnClickListener(view -> {
             if (tvTrackName.getText().toString().trim().equals("")) {
-                Snackbar.make(findViewById(R.id.map_container_info), "Fill in Track Name", 1000)
-                        .setAnchorView(findViewById(R.id.bottomAppBar)).show();
+                //Snackbar.make(findViewById(R.id.map_container_info), "Fill in Track Name", 1000)
+                //      .setAnchorView(findViewById(R.id.bottomAppBar)).show();
             } else {
-                Track newTrack = new Track();
-                newTrack.setName(tvTrackName.getText().toString());
-                newTrack.setDescription(editDesc.getText().toString());
+
+                //Todo fill fields
+                String author = "", desc = "", name = "";
 
                 Rating newRating = new Rating();
                 newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
                 newRating.setDifficulty(rbSubmitDifficulty.getProgress());
                 newRating.setFun(rbSubmitFun.getProgress());
-                newTrack.setRating(newRating);
 
-                // TODO Set author ID -> currently NullPointerException
+                //Save track with Trackrecorder
+                //trackRecorder.stop(author,newRating, name, desc);
 
-                // TODO set actual route of track
-
-                vmOwnTracks.submitTrack(newTrack);
                 submitTrackDialog.dismiss();
             }
 
