@@ -3,16 +3,11 @@ package de.thu.tpro.android4bikes.view.driving;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,7 +28,6 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
@@ -50,7 +44,6 @@ import com.mapbox.services.android.navigation.v5.navigation.RouteRefresh;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -72,8 +65,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FragmentDrivingMode extends Fragment implements PermissionsListener,
-        OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer {
+public class FragmentDrivingMode extends Fragment implements PermissionsListener, OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
