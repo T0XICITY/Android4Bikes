@@ -20,8 +20,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -48,6 +46,8 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
     private TextView tvTracks;
     private ImageView ivKeyboard;
 
+    private Profile currentProfile;
+
     private Button delete;
     private Button dialogColorPicker;
     private ImageView iv_a1, iv_a2, iv_a3, iv_a4, iv_a5, iv_a6, iv_a7, iv_a8, iv_a9;
@@ -59,17 +59,10 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         View view = inflater.inflate(R.layout.fragment_show_profile, container, false);
 
         vmProfile = new ViewModelProvider(requireActivity()).get(ViewModelOwnProfile.class);
-        vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this);
-
 
         //Name & Email
         nameEdit = view.findViewById(R.id.edit_Name_text);
         emailEdit = view.findViewById(R.id.edit_Email_text);
-
-        // if there's an existing profile
-        Profile currentProfile = vmProfile.getMyProfile().getValue();
-        if (currentProfile != null)
-            onChanged(currentProfile);
 
         // Text auf grau stellen
         nameEdit.setTextColor(Color.GRAY);
@@ -100,6 +93,13 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this);
+        // if there's an existing profile
+        currentProfile = vmProfile.getMyProfile().getValue();
+        if (currentProfile != null) {
+            onChanged(currentProfile);
+        }
 
         parent = (MainActivity) getActivity();
 
@@ -146,7 +146,10 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
                     @Override
                     public void onChooseColor(int position, int color) {
                         Log.d("positionHallo:", "posi:" + color);
-                        imageViewCircle.setBackgroundColor(color);
+                        if (currentProfile != null) {
+                            currentProfile.setColor(color);
+                            vmProfile.updateMyProfile(currentProfile);
+                        }
                     }
                     @Override
                     public void onCancel() {/*remains empty*/}
@@ -206,6 +209,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
             nameEdit.setText(fullName);
             // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
             emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            imageViewCircle.setBackgroundColor(profile.getColor());
         }
     }
 }
