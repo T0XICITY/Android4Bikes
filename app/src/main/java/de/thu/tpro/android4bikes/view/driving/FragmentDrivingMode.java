@@ -3,16 +3,11 @@ package de.thu.tpro.android4bikes.view.driving;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +27,7 @@ import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
@@ -48,9 +44,10 @@ import com.mapbox.services.android.navigation.v5.navigation.RouteRefresh;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Observable;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -68,8 +65,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FragmentDrivingMode extends Fragment implements PermissionsListener,
-        OnNavigationReadyCallback, Observer<OpenWeatherObject> {
+public class FragmentDrivingMode extends Fragment implements PermissionsListener, OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
@@ -178,36 +174,42 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     @Override
     public void onNavigationReady(boolean isRunning) {
-        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"), new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                if (PositionTracker.getLastPosition() != null) {
-                    parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
-                            .target(PositionTracker.getLastPosition().toMapboxLocation())
-                            .zoom(15)
-                            .build());
-                }
-                parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapLongClickListener(click -> {
-                    registeredHazardPositions.add(PositionTracker.getLastPosition());
-                    Snackbar.make(getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
+        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"), style -> {
+            if (PositionTracker.getLastPosition().isValid()) {
+                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
+                        .target(PositionTracker.getLastPosition().toMapboxLocation())
+                        .zoom(15)
+                        .build());
+                start();
+            } else {
+                Position germany_center = new Position(51.163361111111, 10.447683333333);
+                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
+                        .target(germany_center.toMapboxLocation())
+                        .zoom(4)
+                        .build());
+                //Observe Position
+                PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(this);
+            }
+            parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
+            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapLongClickListener(click -> {
+                registeredHazardPositions.add(PositionTracker.getLastPosition());
+                Snackbar.make(getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
                     Log.d("addHazard", "List: " + registeredHazardPositions);
                     return true;
-                });
+            });
 
-                //Get Track from Viewmodel
-                //track =
-                //Start Navigation
-                track_for_navigation = vm_track.getNavigationTrack().getValue();
-                if (track_for_navigation != null) {
-                    startNavigation();
-                } else {
-                    //start free mode
+            //Get Track from Viewmodel
+            //track =
+            //Start Navigation
+            track_for_navigation = vm_track.getNavigationTrack().getValue();
+            if (track_for_navigation != null) {
+                startNavigation();
+            } else {
+                //start free mode
                 /*TrackRecorder trackRecorder = new TrackRecorder();
                 trackRecorder.start();
                 //Abfage User input
                 trackRecorder.stop(trackname,...);*/
-                }
             }
         });
     }
@@ -232,9 +234,55 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         updateTimer.cancel();
     }
 
+    private void start() {
+        track_for_navigation = vm_track.getNavigationTrack().getValue();
+        if (track_for_navigation != null) {
+            startDrivingMODE();
+        } else {
+            startFreeMODE();
+        }
+    }
+
+    private void startDrivingMODE() {
+        //Start Navigation
+        startNavigation();
+    }
+
+    private void startFreeMODE() {
+        //start free mode
+            /*TrackRecorder trackRecorder = new TrackRecorder();
+            trackRecorder.start();
+            //Abfage User input
+            trackRecorder.stop(trackname,...);*/
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (observable instanceof PositionTracker.LocationChangeListeningActivityLocationCallback) {
+            if (o instanceof Map && !((Map) o).keySet().isEmpty()) {
+                Map map = (Map) o;
+                if (map.get(PositionTracker.CONSTANTS.POSITION.toText()) != null) {
+                    Position last_position = (Position) map.get(PositionTracker.CONSTANTS.POSITION.toText());
+                    if (last_position.isValid()) {
+                        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                                .target(last_position.toMapboxLocation())
+                                .zoom(15)
+                                .bearing(0)
+                                .build()), 3000);
+                        start();
+                        observable.deleteObserver(this);
+                    }
+
+                }
+
+            }
+        }
+    }
+
     private void startNavigation() {
         boolean isValidRoute = track_for_navigation.getRoute() != null;
         if (isValidRoute) {
+            parent.navigationView.drawRoute(track_for_navigation.getRoute());
             parent.navigationView.startNavigation(NavigationViewOptions.builder()
                     .directionsRoute(track_for_navigation.getRoute())
                     .locationEngine(parent.locationEngine)
@@ -388,7 +436,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
             // Set the component's render mode
             parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().setRenderMode(RenderMode.GPS);
 
-            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().zoomWhileTracking(8, 3000, new MapboxMap.CancelableCallback() {
+            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().zoomWhileTracking(15, 3000, new MapboxMap.CancelableCallback() {
                 @Override
                 public void onCancel() {
                 }
