@@ -150,6 +150,11 @@
     <string name="settings_Bluetooth_reset">Bluetooth Button zurücksetzen</string>
     <string name="achievement">Achievement</string>
     <string name="achievement_text">I\'m an Achievement</string>
+    <string name="delete_profile">Delete Profile</string>
+    <string name="your_achievements">Your achievements</string>
+    <string name="hint_name">Name</string>
+    <string name="change_profile_image">Change Profile image</string>
+    <string name="hint_email">Email</string>
 
 
 </resources>

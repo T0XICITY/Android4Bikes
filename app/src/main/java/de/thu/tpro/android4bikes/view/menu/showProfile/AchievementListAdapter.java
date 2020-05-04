@@ -41,7 +41,7 @@ public class AchievementListAdapter extends RecyclerView.Adapter<AchievementView
     public void onBindViewHolder(@NonNull AchievementViewHolder holder, int position) {
         Achievement currentAchievement = achievementList.get(position);
 
-        int colorId = resources.getColor(R.color.colorPrimaryDark,
+        int colorId = resources.getColor(R.color.colorPrimary,
                 parentFragment.getActivity().getTheme());
         holder.cardView_achievement.setCardBackgroundColor(colorId);
 
