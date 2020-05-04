@@ -400,7 +400,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                     addRoutetoMap(style, track_result);
                                                     showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
                                                     parent.fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(parent, R.color.Green800Primary)));
-
+                                                    return true;
                                                 }else {
                                                     //Was Bikerack or HazardALert
                                                     vm_Tracks.setNavigationTrack(null);
@@ -418,6 +418,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                                 ,Toast.LENGTH_LONG);
                                                         toast.setGravity(Gravity.TOP,0,50);
                                                         toast.show();
+                                                        return true;
                                                     }else {
                                                         List<HazardAlert> hazards = vm_Hazards.getHazardAlerts().getValue();
                                                         HazardAlert hazard_result = hazards.stream()
@@ -428,6 +429,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                             Toast toast = Toast.makeText(getContext(),"Hazard type: "+HazardAlert.HazardType.getByType(hazard_result.getType()),Toast.LENGTH_LONG);
                                                             toast.setGravity(Gravity.TOP,0,50);
                                                             toast.show();
+                                                            return true;
                                                         }
                                                     }
                                                     //return handleClickIcon(pixel);
