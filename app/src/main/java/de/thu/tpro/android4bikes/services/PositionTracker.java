@@ -18,21 +18,20 @@ import de.thu.tpro.android4bikes.view.MainActivity;
 
 public class PositionTracker {
 
-    private static Map<String, Object> map_position_speed;
+    private static Map<String, Object> map_position_speed = new HashMap<>();
     public static Position getLastPosition() {
         if (map_position_speed.get(CONSTANTS.POSITION.toText()) == null) {
             map_position_speed.put(CONSTANTS.POSITION.toText(), new Position());
         }
-
         return (Position) map_position_speed.get(CONSTANTS.POSITION.toText());
     }
 
-    public static double getLastSpeed() {
+    public static Float getLastSpeed() {
         if (map_position_speed.get(CONSTANTS.SPEED.toText()) == null) {
             map_position_speed.put(CONSTANTS.SPEED.toText(), 0);
         }
 
-        return (double) map_position_speed.get(CONSTANTS.POSITION.toText());
+        return (Float) map_position_speed.get(CONSTANTS.SPEED.toText());
     }
 
     public enum CONSTANTS {

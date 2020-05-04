@@ -5,23 +5,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.OvershootInterpolator;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.DirectionsCriteria;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.location.modes.RenderMode;
@@ -39,21 +49,20 @@ import com.mapbox.services.android.navigation.v5.navigation.RouteRefresh;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
-import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.Navigation.DirectionRouteHelper;
 import de.thu.tpro.android4bikes.view.MainActivity;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -64,55 +73,43 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
+    private static final int VELOCITY_UPDATE_INTERVAL = 250;
 
-    TextView txtCurrentSpeed;
-    TextView txtAvgSpeed;
-    TextView txtSpeedUnit;
-    //TODO Delete after testing
-
-    private ViewModelDrivingMode viewModel;
+    private DrivingModeDataBinder dataBinder;
     private ViewModelWeather vmWeather;
 
     private View viewDrivingMode;
     private CardView infoIcon;
-    OvershootInterpolator interpolator;
-    boolean isMenuOpen = false;
-    Float translationY = 100f;
-    GpsLocation location;
     private FloatingActionButton fab_weather;
-    private Date time;
+    private ExtendedFloatingActionButton fab_velocity;
+    private Timer updateTimer;
 
     MainActivity parent;
     private PermissionsManager permissionsManager;
+
     // Navigation related variables
     private DirectionsRoute reroute;
 
-    //TODO refactor
-    private DirectionsRoute finalroute;
-    private com.mapbox.geojson.Point startPoint;
+    //ViewModels
+    ViewModelTrack vm_track;
 
-    //private List<Position> bikeRacks = new ArrayList<>();
-    //private List<Position> bikeTracks = new ArrayList<>();
+    //TODO refactor
+    private Track track_for_navigation;
+
+    private List<Position> registeredHazardPositions;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         viewDrivingMode = inflater.inflate(R.layout.fragment_driving_mode, container, false);
-        txtCurrentSpeed = viewDrivingMode.findViewById(R.id.txtCurrentSpeed);
-        txtSpeedUnit = viewDrivingMode.findViewById(R.id.txtSpeedUnit);
-        txtAvgSpeed = viewDrivingMode.findViewById(R.id.txtAverageSpeed);
-        infoIcon = viewDrivingMode.findViewById(R.id.cardView_Infoicon);
         fab_weather = viewDrivingMode.findViewById(R.id.weatherFAB);
+        fab_velocity = viewDrivingMode.findViewById(R.id.velocityFAB);
 
-        vmWeather = new ViewModelProvider(this).get(ViewModelWeather.class);
+        vmWeather = new ViewModelProvider(requireActivity()).get(ViewModelWeather.class);
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
+        dataBinder = DrivingModeDataBinder.getInstance();
 
-        initCardView();
-
-        //locationPermissions();
-        viewModel = ViewModelDrivingMode.getInstance();
-        txtCurrentSpeed.setText(viewModel.updateSpeed(null) + "");
-        txtAvgSpeed.setText(viewModel.updateAverageSpeed(0) + "");
+        registeredHazardPositions = new LinkedList<>();
 
         return viewDrivingMode;
     }
@@ -121,11 +118,14 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        vm_track = new ViewModelProvider(requireActivity()).get(ViewModelTrack.class);
+
         //we need the parent Activity to init our map
         parent = (MainActivity) this.getActivity();
         GlobalContext.setContext(parent.getApplicationContext());
 
         initNavigation(view, savedInstanceState);
+        initVelocityFAB();
     }
 
     @Override
@@ -178,31 +178,65 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     @Override
     public void onNavigationReady(boolean isRunning) {
-        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"));
-        parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck95tpr8r06uj1ipim24tfy6o"), new Style.OnStyleLoaded() {
             @Override
-            public boolean onMapClick(@NonNull LatLng point) {
-                //Implement Code
-                return false;
+            public void onStyleLoaded(@NonNull Style style) {
+                if (PositionTracker.getLastPosition() != null) {
+                    parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
+                            .target(PositionTracker.getLastPosition().toMapboxLocation())
+                            .zoom(15)
+                            .build());
+                }
+                parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
+                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapLongClickListener(click -> {
+                    registeredHazardPositions.add(PositionTracker.getLastPosition());
+                    Snackbar.make(getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
+                    Log.d("addHazard", "List: " + registeredHazardPositions);
+                    return true;
+                });
+
+                //Get Track from Viewmodel
+                //track =
+                //Start Navigation
+                track_for_navigation = vm_track.getNavigationTrack().getValue();
+                if (track_for_navigation != null) {
+                    startNavigation();
+                } else {
+                    //start free mode
+                /*TrackRecorder trackRecorder = new TrackRecorder();
+                trackRecorder.start();
+                //Abfage User input
+                trackRecorder.stop(trackname,...);*/
+                }
             }
         });
-        /*TrackRecorder trackRecorder = new TrackRecorder();
-        trackRecorder.start();
-        //Abfage User input
-        trackRecorder.stop(trackname,...);*/
-
     }
 
-    private void initspeedFAB(View view) {
-        //TODO
+    private void initVelocityFAB() {
+        // schedule a timer to update velocity periodically
+        updateTimer = new Timer();
+        updateTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // update TextViews from UI Thread only
+                parent.runOnUiThread(() -> {
+                    int currentVelocity = Math.round(PositionTracker.getLastSpeed());
+                    String velocityText = String.format(getString(R.string.speed), currentVelocity);
+                    fab_velocity.setText(velocityText);
+                });
+            }
+        }, 0, VELOCITY_UPDATE_INTERVAL);
+    }
+
+    public void cancelUpdateTimer() {
+        updateTimer.cancel();
     }
 
     private void startNavigation() {
-        boolean isValidRoute = finalroute != null;
+        boolean isValidRoute = track_for_navigation.getRoute() != null;
         if (isValidRoute) {
             parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                    .directionsRoute(finalroute)
+                    .directionsRoute(track_for_navigation.getRoute())
                     .locationEngine(parent.locationEngine)
                     .navigationListener(new NavigationListener() {
                         @Override
@@ -231,7 +265,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                             // Fetch new route with MapboxMapMatching
                             List<com.mapbox.geojson.Point> points = new ArrayList<>();
                             points.add(offRoutePoint);
-                            points.add(com.mapbox.geojson.Point.fromLngLat(startPoint.longitude(), startPoint.latitude()));
+                            points.add(com.mapbox.geojson.Point.fromLngLat(track_for_navigation.getStartPosition().getLatitude(), track_for_navigation.getStartPosition().getLongitude()));
 
                             NavigationRoute.builder(parent)
                                     .accessToken(getString(R.string.access_token))
@@ -254,9 +288,9 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                                                     if (reroute != null) {
                                                         Log.d("HELLO", "reroute initialized");
                                                     }
-                                                    finalroute = DirectionRouteHelper.appendRoute(reroute, finalroute);
+                                                    track_for_navigation.setRoute(DirectionRouteHelper.appendRoute(reroute, track_for_navigation.getRoute()));
                                                     parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                                                            .directionsRoute(finalroute)
+                                                            .directionsRoute(track_for_navigation.getRoute())
                                                             .locationEngine(parent.locationEngine)
                                                             .navigationListener(new NavigationListener() {
                                                                 @Override
@@ -279,8 +313,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
                                                                 }
                                                             }).build());
-
-
                                                 }
                                             }
                                         }
@@ -472,28 +504,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
             navigation.stopNavigation();
         }
     }
-
-    /**
-     * initiates the top cardView and sets the correct sizes for all elements
-     */
-    private void initCardView() {
-        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-        Point size = new Point();
-        wm.getDefaultDisplay().getSize(size);
-
-        int infoIconHeight = calculateSize(size.y, 0.2);
-        int currentSpeedHeight = calculateSize(size.y, 0.1);
-        int currentSpeedWidth = calculateSize(size.x, 0.2);
-        int unitWidth = calculateSize(size.x, 0.4);
-        int avgSpeedHeight = calculateSize(size.y, 0.05);
-        int avgSpeedWidth = calculateSize(size.x, 0.6);
-
-        setViewDimension(infoIcon, infoIconHeight, infoIconHeight);
-        setViewDimension(txtCurrentSpeed, currentSpeedWidth, currentSpeedHeight);
-        setViewDimension(txtSpeedUnit, unitWidth, currentSpeedHeight);
-        setViewDimension(txtAvgSpeed, avgSpeedWidth, avgSpeedHeight);
-    }
-
     /**
      * sets the size for the current view
      *
@@ -517,6 +527,10 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
      */
     private int calculateSize(int base, double factor) {
         return (int) Math.rint(base * factor);
+    }
+
+    public List<Position> getRegisteredHazardPositions() {
+        return registeredHazardPositions;
     }
 
 

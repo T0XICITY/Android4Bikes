@@ -27,6 +27,15 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -39,23 +48,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
-import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
@@ -78,6 +79,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelBtBtn;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelInternetConnection;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnProfile;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
+import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
 //import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -85,14 +87,14 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
  * @author stlutz
  * This activity acts as a container for all fragments
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, Observer<Profile>{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     private static final String LOG_TAG = "MainActivity";
     private static final String TAG = "CUSTOM_MARKER";
 
     private ViewModelOwnProfile vmOwnProfile;
     private ViewModelOwnTracks vmOwnTracks;
+    private ViewModelTrack vm_track;
 
-    public LatLng lastPos;
     public static final int GPS_REQUEST = 97;
     public com.mapbox.services.android.navigation.ui.v5.NavigationView navigationView;
     private long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
@@ -105,20 +107,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout dLayout;
     private NavigationView drawer;
     private FragmentTransaction fragTransaction;
-    private Fragment fragAssistance, fragTrackList, fragProfile, fragSettings, currentFragment;
+    private Fragment fragAssistance, fragProfile, fragSettings, currentFragment;
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
+    private FragmentTrackList fragTrackList;
     private ImageView imageView;
     private TextView tv_headerName;
     private TextView tv_headerMail;
     private boolean isGPS;
     private ViewModelBtBtn vm_BtBtn;
-
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
-
     private boolean toolbarHidden;
-    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +131,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ViewModelProvider provider = new ViewModelProvider(this);
         vmOwnProfile = provider.get(ViewModelOwnProfile.class);
         vmOwnTracks = provider.get(ViewModelOwnTracks.class);
-        vm_BtBtn = new ViewModelProvider(this).get(ViewModelBtBtn.class);
+        vm_BtBtn = provider.get(ViewModelBtBtn.class);
+        vm_track = provider.get(ViewModelTrack.class);
 
         setContentView(R.layout.activity_main);
 
@@ -139,12 +140,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         initFragments();
         initNavigationDrawer();
+        initNavigationDrawerHeader();
         initTopBar();
         initBottomNavigation();
         initFragments();
         initFAB();
 
-        onCreateClickShowProfile();
+        // set observer to profile to update Drawer Profile section
+        vmOwnProfile.getMyProfile().observe(this, profile -> {
+            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
+            Log.d(LOG_TAG, "Setting profile name: "+fullName);
+
+            tv_headerName.setText(fullName);
+            tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        });
         currentFragment = fragInfo;
         updateFragment();
 
@@ -174,6 +183,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //todo: klären distanceof interrest
                 HazardAlert alert = new HazardAlert(HazardAlert.HazardType.GENERAL,PositionTracker.getLastPosition(),10,true);
                 CouchWriteBuffer.getInstance().submitHazardAlerts(alert);
+            }
+        });
+
+        vm_track.getNavigationTrack().observe(this, newValue -> {
+            if (newValue == null) {
+                //TODO: Change color of fab to default color
+            } else {
+                //TODO: Change color of fab to color "selected track"
             }
         });
     }
@@ -247,16 +264,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void onCreateClickShowProfile() {
-
+    private void initNavigationDrawerHeader() {
         View header = drawer.getHeaderView(0);
+
         imageView = header.findViewById(R.id.imageView_profile);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openProfile();
-                toggleNavigationDrawer();
-            }
+        tv_headerName = header.findViewById(R.id.tvName);
+        tv_headerMail = header.findViewById(R.id.tvMail);
+
+        imageView.setOnClickListener(v -> {
+            openProfile();
+            toggleNavigationDrawer();
         });
     }
 
@@ -272,7 +289,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (menu.getItemId()) {
             case R.id.menu_submit:
                 Log.d(LOG_TAG, "Clicked menu_submit!");
-                //currentFragment = new SecondFragment();
                 fragInfo.submitMarker();
                 break;
             case R.id.menu_emergencyCall:
@@ -283,9 +299,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(LOG_TAG, "Clicked menu_setting!");
                 openSettings();
                 break;
+            case R.id.menu_ownTracks:
+                Log.d(LOG_TAG, "Clicked menu_ownTracks");
+                fragTrackList.setShowOwnTracksOnly(true);
+                openTrackList();
+                break;
             case R.id.menu_logout:
                 Log.d(LOG_TAG, "Clicked menu_logout!");
                 logout();
+                break;
+            case R.id.menu_profile:
+                Log.d(LOG_TAG, "Clicked menu_profile!");
+                openProfile();
                 break;
             default:
                 Log.d(LOG_TAG, "Default case");
@@ -294,23 +319,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    @Override
-    public void onChanged(Profile profile) {
-        Log.d("PROFILE Main", "" + profile);
-        if (profile != null) {
-            String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
-            tv_headerName.setText(fullName);
-            // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
-            tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-        }
-    }
-
     /**
      * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,
      * it is only stored in the local WriteBuffer. If it is available on the FireStore, all databases
      * are cleared and the sign-out process is finished. Afterwards, the login activity is started.
      */
-    private void goToLoginActivity() {
+    public void goToLoginActivity() {
         Intent intent = new Intent(this, ActivityLogin.class);
         startActivity(intent);
     }
@@ -332,19 +346,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btn_community = findViewById(R.id.imagebutton_community);
         btn_tracks = findViewById(R.id.imagebutton_tracks);
 
-        btn_tracks.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(LOG_TAG, "Clicked menu_tracks!");
-                openTrackList();
-            }
+        btn_tracks.setOnClickListener(view -> {
+            Log.d(LOG_TAG, "Clicked trackList!");
+            dLayout.closeDrawers();
+            fragTrackList.setShowOwnTracksOnly(false);
+            openTrackList();
         });
-        btn_community.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(LOG_TAG, "clicked community");
-                toggleNavigationDrawer();
-            }
+        btn_community.setOnClickListener(view -> {
+            Log.d(LOG_TAG, "clicked community");
+            toggleNavigationDrawer();
         });
     }
 
@@ -353,19 +363,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void initFAB() {
         fab = findViewById(R.id.fab_switchMode);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchInfoDriving();
-                Log.d("Mitte", "Clicked mitte");
-            }
+        fab.setOnClickListener(v -> {
+            //if Track null start freemode, else start Navigation
+            //if ()
+            switchInfoDriving();
+            Log.d("Mitte", "Clicked center Button");
         });
     }
 
     private void initNavigationDrawer() {
         dLayout = findViewById(R.id.drawerLayout);
-        tv_headerName = findViewById(R.id.tvName);
-        tv_headerMail = findViewById(R.id.tvMail);
 
         //find width of screen and divide by 2
         int width = getResources().getDisplayMetrics().widthPixels / 2;
@@ -416,8 +423,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
+            fragDriving.cancelUpdateTimer(); // no more speed updates
             openInfoMode();
             submitTrack();
+            // iterate over registered hazards while driving
+            List<Position> hazardPositions = fragDriving.getRegisteredHazardPositions();
+            if (hazardPositions.size() > 0) {
+                for (Position hazPos : fragDriving.getRegisteredHazardPositions())
+                    fragInfo.submit_hazard(hazPos);
+            }
         } else {
             openDrivingMode();
         }
@@ -440,20 +454,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //.setTitle("Store your Track!")
                 .setView(dialogView)
                 .setPositiveButton(R.string.submit, null)
-                .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Snackbar.make(findViewById(R.id.fragment_container), "Don´t store ", 1000).setAnchorView(bottomBar).show();
-                    }
-                })
+                .setNegativeButton(R.string.discard, (dialogInterface, i) -> Snackbar.make(findViewById(R.id.fragment_container),
+                        "Don´t store ", 1000).setAnchorView(bottomBar).show())
                 .create();
         submitTrackDialog.setCanceledOnTouchOutside(false);
-        submitTrackDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
-                submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
-            }
+        submitTrackDialog.setOnShowListener(dialogInterface -> {
+            submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+            submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
         });
         submitTrackDialog.show();
 
@@ -493,6 +500,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
 
             }
+
         });
     }
 
@@ -561,7 +569,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentFragment = fragTrackList;
         hideBottomBar();
         showToolbar();
-        topAppBar.setTitle(R.string.title_tracks);
+
+        Log.d(LOG_TAG,"Own Tracks: "+fragTrackList.isOwnTracksOnly());
+        if (fragTrackList.isOwnTracksOnly())
+            topAppBar.setTitle(R.string.title_mytracks);
+        else
+            topAppBar.setTitle(R.string.title_tracks);
         updateFragment();
     }
 
@@ -684,7 +697,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (locationEngine != null) {
             locationEngine.removeLocationUpdates(callback);
         }
-        navigationView.onDestroy();
+        if (navigationView != null) {
+            navigationView.onDestroy();
+        }
     }
 
     @Override
