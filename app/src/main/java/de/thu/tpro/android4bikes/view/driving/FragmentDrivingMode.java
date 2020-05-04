@@ -239,10 +239,12 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     private void startFreeMODE() {
         //start free mode
-            /*TrackRecorder trackRecorder = new TrackRecorder();
-            trackRecorder.start();
-            //Abfage User input
-            trackRecorder.stop(trackname,...);*/
+        parent.freemode_active = true;
+
+        //Start Recorder
+        //parent.trackRecorder.start();
+
+
     }
 
     @Override
@@ -278,15 +280,12 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                     .navigationListener(new NavigationListener() {
                         @Override
                         public void onCancelNavigation() {
-                            Log.d("HELLO", "OK, switch back to INFO MDOE");
                             parent.navigationView.stopNavigation();
                         }
 
                         @Override
                         public void onNavigationFinished() {
-                            Log.d("HELLO", "OK, switch back to INFO MDOE");
                             parent.navigationView.stopNavigation();
-
                         }
 
                         @Override
