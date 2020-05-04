@@ -48,6 +48,8 @@ import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
@@ -419,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void switchInfoDriving() {
         if (currentFragment.equals(fragDriving)) {
+            fragDriving.cancelUpdateTimer(); // no more speed updates
             openInfoMode();
             submitTrack();
             // iterate over registered hazards while driving
