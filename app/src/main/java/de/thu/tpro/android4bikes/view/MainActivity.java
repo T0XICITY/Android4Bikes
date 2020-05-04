@@ -23,7 +23,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,7 +38,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -51,6 +49,7 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -111,10 +110,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private FragmentTrackList fragTrackList;
-    private ImageView iv_profile;
     private TextView tv_headerName;
     private TextView tv_headerMail;
-    private MaterialCardView cardView_profile;
+    private CircleImageView civ_profile;
     private boolean isGPS;
     public boolean freemode_active;
     private TrackRecorder trackRecorder;
@@ -264,12 +262,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initNavigationDrawerHeader() {
         View header = drawer.getHeaderView(0);
 
-        iv_profile = header.findViewById(R.id.imageView_profile);
+        civ_profile = header.findViewById(R.id.profile_image);
         tv_headerName = header.findViewById(R.id.tvName);
         tv_headerMail = header.findViewById(R.id.tvMail);
-        cardView_profile = header.findViewById(R.id.cardview_profile);
 
-        iv_profile.setOnClickListener(v -> {
+        civ_profile.setOnClickListener(v -> {
             openProfile();
             toggleNavigationDrawer();
         });
@@ -280,8 +277,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
                 Log.d(LOG_TAG, "Setting profile name: " + fullName);
 
-                iv_profile.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0), profile.getColor()));
-                cardView_profile.setCardBackgroundColor(profile.getColor());
+                ProfilePictureUtil.setProfilePicturetoImageView(civ_profile, profile);
+                civ_profile.setBorderColor(profile.getColor());
+
+
 
                 tv_headerName.setText(fullName);
                 tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());

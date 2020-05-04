@@ -12,25 +12,12 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Light">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardview_profile"
-        android:layout_width="79dp"
-        android:layout_height="77dp"
-        app:cardCornerRadius="39dp"
-        app:cardPreventCornerOverlap="false"
-        app:strokeColor="@color/TextBlack"
-        app:strokeWidth="2dp">
-
-        <ImageView
-            android:id="@+id/imageView_profile"
-            android:layout_width="79dp"
-            android:layout_height="77dp"
-            android:layout_marginBottom="10dp"
-            android:contentDescription="nav_header_desc"
-            android:paddingLeft="20dp"
-            android:paddingTop="20dp" />
-
-    </com.google.android.material.card.MaterialCardView>
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:civ_border_color="#FF000000"
+        app:civ_border_width="2dp" />
 
     <TextView
         android:id="@+id/tvName"

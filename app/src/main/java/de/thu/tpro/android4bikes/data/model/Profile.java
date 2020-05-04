@@ -115,16 +115,17 @@ public class Profile {
         if (o == null || getClass() != o.getClass()) return false;
         Profile profile = (Profile) o;
         return color == profile.color &&
-                achievements.equals(profile.achievements) &&
                 overallDistance == profile.overallDistance &&
-                firstName.equals(profile.firstName) &&
-                familyName.equals(profile.familyName) &&
-                googleID.equals(profile.googleID);
+                Objects.equals(firstName, profile.firstName) &&
+                Objects.equals(familyName, profile.familyName) &&
+                Objects.equals(googleID, profile.googleID) &&
+                Objects.equals(profilePictureURL, profile.profilePictureURL) &&
+                Objects.equals(achievements, profile.achievements);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, familyName, googleID, color, overallDistance, achievements);
+        return Objects.hash(firstName, familyName, googleID, profilePictureURL, color, overallDistance, achievements);
     }
 
     @Override
@@ -133,6 +134,7 @@ public class Profile {
                 "firstName='" + firstName + '\'' +
                 ", familyName='" + familyName + '\'' +
                 ", googleID='" + googleID + '\'' +
+                ", profilePictureURL='" + profilePictureURL + '\'' +
                 ", color=" + color +
                 ", overallDistance=" + overallDistance +
                 ", achievements=" + achievements +
