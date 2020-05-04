@@ -148,6 +148,8 @@
     <string name="loginfailed">The login process failed. Please retry.</string>
     <string name="register_hazard">Registered Hazard!</string>
     <string name="settings_Bluetooth_reset">Bluetooth Button zurücksetzen</string>
+    <string name="achievement">Achievement</string>
+    <string name="achievement_text">I\'m an Achievement</string>
 
 
 </resources>

@@ -15,14 +15,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.achievements.Achievement;
+import de.thu.tpro.android4bikes.data.achievements.KmAchievement;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.ProfilePictureUtil;
@@ -34,6 +39,7 @@ import petrov.kristiyan.colorpicker.ColorPicker;
 public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
     private ViewModelOwnProfile vmProfile;
+    private AchievementListAdapter listAdapter;
 
     private MainActivity parent;
 
@@ -43,12 +49,12 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
     private TextView tvTracks;
     private ImageView ivKeyboard;
+    private RecyclerView rv_achievements;
 
     private Profile currentProfile;
 
     private Button delete;
     private Button dialogColorPicker;
-    private ImageView iv_a1, iv_a2, iv_a3, iv_a4, iv_a5, iv_a6, iv_a7, iv_a8, iv_a9;
 
     // TODO -> Implement Achievments
     @Nullable
@@ -71,20 +77,18 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         delete.setOnClickListener(v -> confirmDeletion());
         imageViewCircle = view.findViewById(R.id.imageView_Circle);
         imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("M"));
+
         //ColorPicker
         dialogColorPicker = view.findViewById(R.id.button_ChangeProfileView);
 
-        //Imageview for Achievements
-        // TODO make a dynamic list instead of hard-coded
-        iv_a1 = view.findViewById(R.id.iv1);
-        iv_a2 = view.findViewById(R.id.iv2);
-        iv_a3 = view.findViewById(R.id.iv3);
-        iv_a4 = view.findViewById(R.id.iv4);
-        iv_a5 = view.findViewById(R.id.iv5);
-        iv_a6 = view.findViewById(R.id.iv6);
-        iv_a7 = view.findViewById(R.id.iv7);
-        iv_a8 = view.findViewById(R.id.iv8);
-        iv_a9 = view.findViewById(R.id.iv9);
+        // Achievement Recycler View
+        rv_achievements = view.findViewById(R.id.rv_achievements);
+        listAdapter = new AchievementListAdapter(this);
+        rv_achievements.setAdapter(listAdapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(parent);
+        layoutManager.setOrientation(RecyclerView.HORIZONTAL);
+        rv_achievements.setLayoutManager(layoutManager);
+
         return view;
     }
 
@@ -93,6 +97,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         super.onViewCreated(view, savedInstanceState);
 
         vmProfile.getMyProfile().observe(getViewLifecycleOwner(), this);
+
         // if there's an existing profile
         currentProfile = vmProfile.getMyProfile().getValue();
         if (currentProfile != null) {
@@ -103,17 +108,6 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
         //If you press the ColorPicker
         dialogColorPicker.setOnClickListener(v -> openColorPicker());
-
-        //If you press the ImageView at the Achievements
-        iv_a1.setOnClickListener(v -> openAchievements("Achievement 1", "Hallo1"));
-        iv_a2.setOnClickListener(v -> openAchievements("Achievement 2", "Hallo2"));
-        iv_a3.setOnClickListener(v -> openAchievements("Achievement 3", "Hallo3"));
-        iv_a4.setOnClickListener(v -> openAchievements("Achievement 4", "Hallo4"));
-        iv_a5.setOnClickListener(v -> openAchievements("Achievement 5", "Hallo5"));
-        iv_a6.setOnClickListener(v -> openAchievements("Achievement 6", "Hallo6"));
-        iv_a7.setOnClickListener(v -> openAchievements("Achievement 7", "Hallo7"));
-        iv_a8.setOnClickListener(v -> openAchievements("Achievement 8", "Hallo8"));
-        iv_a9.setOnClickListener(v -> openAchievements("Achievement 9", "Hallo9"));
 
         //If you press the Cancel-Button
         delete.setOnClickListener(v -> openDialogDelete());
@@ -192,6 +186,20 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
             emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
             imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0)));
             imageViewCircle.setBackgroundColor(profile.getColor());
+
+            // update Achievements TODO: uncomment when we have actual achievements in backend
+            //List<Achievement> achievements = profile.getAchievements();
+
+            // dummy List TODO: remove
+            List<Achievement> achievements = createDummyAchievements();
+            listAdapter.replaceData(achievements);
         }
+    }
+
+    private List<Achievement> createDummyAchievements() {
+        List<Achievement> dummyAchievements = new ArrayList<Achievement>();
+        dummyAchievements.add(new KmAchievement("10km Goal", 50L, 25.0d,
+                R.drawable.mapbox_compass_icon, 10));
+        return dummyAchievements;
     }
 }
