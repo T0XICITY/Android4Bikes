@@ -7,7 +7,7 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import java.util.List;
 import java.util.Objects;
 
-import de.thu.tpro.android4bikes.util.GeoLocationHelper;
+import de.thu.tpro.android4bikes.util.TimeBase;
 import de.thu.tpro.android4bikes.util.UUIDGenerator;
 
 public class Track {
@@ -60,6 +60,21 @@ public class Track {
         this.name = name;
         this.description = description;
         this.creationDate_unixtimestamp = creationDate_unixtimestamp;
+        this.distance_km = distance_km;
+        this.route = route;
+        this.hazardAlerts = hazardAlerts;
+        this.startPosition = startPosition;
+        this.endPosition = endPosition;
+        this.isComplete = isComplete;
+        this.firebaseID = UUIDGenerator.generateUUID();
+    }
+
+    public Track(String author_googleID, Rating rating, String name, String description, double distance_km, DirectionsRoute route, List<HazardAlert> hazardAlerts, Position startPosition, Position endPosition, boolean isComplete) {
+        this.author_googleID = author_googleID;
+        this.rating = rating;
+        this.name = name;
+        this.description = description;
+        this.creationDate_unixtimestamp = TimeBase.getCurrentUnixTimeStamp();
         this.distance_km = distance_km;
         this.route = route;
         this.hazardAlerts = hazardAlerts;
