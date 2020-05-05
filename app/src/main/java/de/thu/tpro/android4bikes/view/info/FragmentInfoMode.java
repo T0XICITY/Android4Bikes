@@ -31,6 +31,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.gson.JsonElement;
 import com.mapbox.android.core.permissions.PermissionsListener;
@@ -878,7 +879,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     public void onClick(DialogInterface dialogInterface, int i) {
                         switch (i) {
                             case 0:
-                                submit_rack();
+                                submit_Rack();
                                 break;
                             case 1:
                                 submit_hazard();
@@ -952,37 +953,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             hazardDialog.dismiss();
         });
         hazardDialog.show();
-    }
-
-    private void submit_rack() {
-        //showRackMap();
-        MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_rack, null);
-
-        TextView tvRackName = dialogView.findViewById(R.id.edit_rack_name);
-        Spinner spCapacity = dialogView.findViewById(R.id.sp_capacity);
-        CheckBox cbEBike = dialogView.findViewById(R.id.chBx_ebike);
-        CheckBox cbCovered = dialogView.findViewById(R.id.chBx_covered);
-
-        rack_builder.setTitle("Submit rack");
-        rack_builder.setView(dialogView);
-        rack_builder.setPositiveButton(R.string.submit, (dialogInterface, i) -> {
-            BikeRack newRack = new BikeRack();
-
-            newRack.setName(tvRackName.getText().toString());
-            newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
-                    spCapacity.getSelectedItem().toString().toUpperCase())
-            );
-            newRack.setHasBikeCharging(cbEBike.isChecked());
-            newRack.setCovered(cbCovered.isChecked());
-
-            Log.d(LOG_TAG, newRack.toString());
-            vm_ownBikeRack.addOwnBikeRack(newRack);
-        });
-
-        // do nothing on cancel
-        rack_builder.setNegativeButton(R.string.cancel, null);
-        rack_builder.show();
     }
 
     @Override
@@ -1083,16 +1053,13 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         MapView rackMap = dialog.findViewById(R.id.rackMap);
         rackMap.onCreate(dialog.onSaveInstanceState());
 
-        rackMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                if (PositionTracker.getLastPosition() != null) {
-                    mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                            .target(PositionTracker.getLastPosition().toMapboxLocation())
-                            .zoom(17)
-                            .bearing(0)
-                            .build()), 1000);
-                }
+        rackMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, style -> {
+            if (PositionTracker.getLastPosition() != null) {
+                mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                        .target(PositionTracker.getLastPosition().toMapboxLocation())
+                        .zoom(17)
+                        .bearing(0)
+                        .build()), 1000);
             }
         }));
 
@@ -1102,13 +1069,16 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         CheckBox cbCovered = dialog.findViewById(R.id.chBx_covered);
         Button btnPos = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Button btnNeg = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        TextInputLayout nameLayout = dialog.findViewById(R.id.txt_rack_name_layout);
         btnPos.setOnClickListener(view -> {
             if (editRack.getText().toString().trim().equals("")) {
-                Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
+                nameLayout.setError(parent.getText(R.string.rack_error));
+                //Snackbar.make(viewInfo.findViewById(R.id.map_container_info), "Pleas fill in rack name", 1000).setAnchorView(viewInfo.findViewById(R.id.bottomAppBar)).show();
             } else {
                 Position currLastPos = PositionTracker.getLastPosition();
                 if (currLastPos != null) {
-                    BikeRack newRack = new BikeRack(currLastPos, editRack.getText().toString(),
+                    BikeRack newRack = new BikeRack(currLastPos,
+                            editRack.getText().toString(),
                             BikeRack.ConstantsCapacity.valueOf(spCapacity.getSelectedItem().toString().toUpperCase()),
                             cbEBike.isChecked(),
                             true,
@@ -1120,5 +1090,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 dialog.dismiss();
             }
         });
+        editRack.setOnFocusChangeListener((view, b) -> nameLayout.setError(null));
     }
 }

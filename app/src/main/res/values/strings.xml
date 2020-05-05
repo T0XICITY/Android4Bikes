@@ -46,12 +46,14 @@
     <string name="submit_hazard">Select Hazard</string>
     <string name="discard">Discard</string>
     <string name="track_name">Track name</string>
+    <string name="error_name">You have to enter a name</string>
 
     <!-- Rack Dialog -->
     <string name="rack_name">Rack name</string>
     <string name="rack_capacity">Capacity</string>
     <string name="ebike">E-bike charging station</string>
     <string name="covered">Covered</string>
+    <string name="rack_error">Pleas fill in rack name</string>
     
 
     <!-- Roadside Assistance Strings -->

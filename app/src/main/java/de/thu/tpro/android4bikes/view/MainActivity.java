@@ -42,6 +42,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -175,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vm_BtBtn.getBtnEvent().observe(this,newValue->{
             if (currentFragment == fragDriving){
                 Toast.makeText(getApplicationContext(),"BtBtn was clicked",Toast.LENGTH_SHORT).show();
-                //todo: klären distanceof interrest
+                //todo: clarify distance of interest
                 HazardAlert alert = new HazardAlert(HazardAlert.HazardType.GENERAL,PositionTracker.getLastPosition(),10,true);
                 CouchWriteBuffer.getInstance().submitHazardAlerts(alert);
             }
@@ -459,15 +461,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void submitTrack() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_submit, null);
-        EditText tvTrackName = dialogView.findViewById(R.id.tv_track_name);
-        EditText editDesc = dialogView.findViewById(R.id.tv_submit_desc);
+        TextInputLayout textLayout = (TextInputLayout)dialogView.findViewById(R.id.txt_track_name_layout);
+        TextInputEditText editTrackName = dialogView.findViewById(R.id.edit_track_name);
+        TextInputEditText editDesc = dialogView.findViewById(R.id.edit_submit_desc);
         RatingBar rbSubmitRoadQuality = dialogView.findViewById(R.id.rb_submit_roadquality);
         RatingBar rbSubmitDifficulty = dialogView.findViewById(R.id.rb_submitk_difficulty);
         RatingBar rbSubmitFun = dialogView.findViewById(R.id.rb_submit_fun);
 
 
         AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
-                .setTitle("Store your track!")
+                //.setTitle("Store your Track!")
                 .setView(dialogView)
                 .setPositiveButton(R.string.submit, null)
                 .setNegativeButton(R.string.discard, null)
@@ -479,25 +482,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         submitTrackDialog.show();
 
+        editTrackName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (!editTrackName.getText().toString().trim().equals("")) {
+                    textLayout.setError(null);
+                }
+            }
+        });
         Button btnPos = submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        btnPos.setOnClickListener(view -> {
-            if (tvTrackName.getText().toString().trim().equals("")) {
-                //Snackbar.make(findViewById(R.id.map_container_info), "Fill in Track Name", 1000)
-                //      .setAnchorView(findViewById(R.id.bottomAppBar)).show();
-            } else {
+        btnPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (editTrackName.getText().toString().trim().equals("")) {
+                    //Show Error Hint in EditText to fill in name
+                    textLayout.setError(getResources().getString(R.string.error_name));
+                } else {
+                    String author = vmOwnProfile.getMyProfile().getValue().getGoogleID();
+                    String desc = editDesc.getText().toString();
+                    String name = editTrackName.getText().toString();
 
-                //Todo fill fields
-                String author = "", desc = "", name = "";
+                    Rating newRating = new Rating();
+                    newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
+                    newRating.setDifficulty(rbSubmitDifficulty.getProgress());
+                    newRating.setFun(rbSubmitFun.getProgress());
 
-                Rating newRating = new Rating();
-                newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
-                newRating.setDifficulty(rbSubmitDifficulty.getProgress());
-                newRating.setFun(rbSubmitFun.getProgress());
+                    //Save track with Trackrecorder
+                    //trackRecorder.stop(author, newRating, name, desc);
+                    submitTrackDialog.dismiss();
+                }
 
-                //Save track with Trackrecorder
-                //trackRecorder.stop(author,newRating, name, desc);
-
-                submitTrackDialog.dismiss();
             }
 
         });
