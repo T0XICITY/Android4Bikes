@@ -21,7 +21,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -69,6 +68,7 @@ import de.thu.tpro.android4bikes.util.Navigation.TrackRecorder;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.ProfilePictureUtil;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
+import de.thu.tpro.android4bikes.view.IntApp.CustomAppIntro;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -332,6 +332,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    public void goToAppIntro() {
+        Intent intent = new Intent(this, CustomAppIntro.class);
+        startActivity(intent);
+    }
+
+
     /**
      * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,
      * it is only stored in the local WriteBuffer. If it is available on the FireStore, all databases
@@ -559,6 +565,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void openDrivingMode() {
+        goToAppIntro();
         currentFragment = fragDriving;
         hideSoftKeyboard();
         hideToolbar();

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:id="@+id/tv_headlineHint"
+                android:paddingTop="45dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Attention "
+                android:textSize="30dp"
+                android:textAlignment="center"
+                android:textColor="@color/TextWhite"></TextView>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_notCall"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="35dp"
+            android:layout_marginBottom="55dp"
+            android:src="@drawable/ic_material_attention"
+
+            ></ImageView>
+
+
+        <TextView
+            android:id="@+id/tv_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="21dp"
+            android:text="Please remember to pay attention to road traffic at all times. Distractions can be fatal."
+            android:textColor="@color/TextWhite"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"></TextView>
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
