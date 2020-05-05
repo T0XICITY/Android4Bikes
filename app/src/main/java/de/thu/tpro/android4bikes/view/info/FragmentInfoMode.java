@@ -12,9 +12,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -80,6 +83,7 @@ import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
@@ -124,6 +128,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private static final String LOG_TAG = "FragmentInfoMode";
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
     private static final String TAG = "DirectionsActivity";
+    private static final float CARDVIEW_ELEVATION = 20.0f;
 
     private static LatLng latLng_lastcamerapos;
 
@@ -139,6 +144,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private ViewModelTrack vm_Tracks;
 
     private MainActivity parent;
+    private CardView infoCardView;
     private View viewInfo;
     private SupportMapFragment mapFragment;
     private MapboxMap mapboxMap;
@@ -203,6 +209,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         trackLayer_created = false;
 
         initMap(savedInstanceState);
+        initTrackInfoCardView();
     }
 
     /**
@@ -292,6 +299,19 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             mapFragment.getMapAsync(this::onMapReady);
         }
 
+    }
+
+    private void initTrackInfoCardView() {
+        // Inflate Info CardView into ViewStub
+        ViewStub stub = viewInfo.findViewById(R.id.stub_infoCardView);
+        stub.setLayoutResource(R.layout.cardview_track_list);
+        infoCardView = (CardView) stub.inflate();
+
+        // beautify cardview
+        infoCardView.setElevation(CARDVIEW_ELEVATION);
+
+        // set initial visibility of everything
+        infoCardView.setVisibility(View.GONE);
     }
 
     @Override
@@ -396,7 +416,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                 if (track_result != null) {
                                                     //set track for navigation mode
                                                     vm_Tracks.setNavigationTrack(track_result);
-
+                                                    showTrackInfoCardView(track_result);
                                                     addRoutetoMap(style, track_result);
                                                     showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
                                                     return true;
@@ -441,6 +461,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             if (vm_Tracks.getNavigationTrack().getValue() != null) {
                                 Log.d("HalloWelt", "Removed Track from map");
                                 removeTrackFromMap(style);
+                                hideTrackInfoCardView();
                             }
                             return false;
                         }
@@ -466,6 +487,36 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //https://docs.mapbox.com/android/java/examples/show-directions-on-a-map/
                     //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
+    }
+
+    private void showTrackInfoCardView(Track track) {
+        // extract necessary data from track
+        String distanceText = String.format(getResources().getString(R.string.distance),
+                track.getDistance_km());
+        Rating rating = track.getRating();
+
+        // insert track info into view elements
+        ((TextView) infoCardView.findViewById(R.id.tv_titleLength)).setText(track.getName());
+        ((TextView) infoCardView.findViewById(R.id.tv_tracklength)).setText(distanceText);
+        ((RatingBar) infoCardView.findViewById(R.id.ratingBar_roadQuality)).setProgress(rating.getRoadquality());
+        ((RatingBar) infoCardView.findViewById(R.id.ratingBar_difficulty)).setProgress(rating.getDifficulty());
+        ((RatingBar) infoCardView.findViewById(R.id.ratingBar_funfactor)).setProgress(rating.getFun());
+
+        // set visibility of CardView items
+        infoCardView.setVisibility(View.VISIBLE);
+        infoCardView.findViewById(R.id.layout_detailView).setVisibility(View.VISIBLE);
+
+        infoCardView.findViewById(R.id.tv_trackname).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.linLayout_distance).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.linLayout_author).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.tv_trackLocation).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.tv_description).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.tv_titleDescription).setVisibility(View.GONE);
+    }
+
+    private void hideTrackInfoCardView() {
+        // just hide dat shit
+        infoCardView.setVisibility(View.GONE);
     }
 
     private void removeTrackFromMap(@NonNull Style loadedMapStyle) {
