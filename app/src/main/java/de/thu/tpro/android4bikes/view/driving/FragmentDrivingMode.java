@@ -66,7 +66,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FragmentDrivingMode extends Fragment implements PermissionsListener, OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer, RouteListener {
+public class FragmentDrivingMode extends Fragment implements PermissionsListener, OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer, RouteListener, NavigationListener {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
@@ -473,27 +473,9 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                                 parent.navigationView.startNavigation(NavigationViewOptions.builder()
                                         .directionsRoute(track_for_navigation.getRoute())
                                         .locationEngine(parent.locationEngine)
-                                        .navigationListener(new NavigationListener() {
-                                            @Override
-                                            public void onCancelNavigation() {
-                                                Log.d("HELLO", "OK, switch back to INFO MDOE");
-                                                parent.navigationView.stopNavigation();
-                                            }
-
-                                            @Override
-                                            public void onNavigationFinished() {
-                                                Log.d("HELLO", "OK, switch back to INFO MDOE");
-                                                parent.navigationView.stopNavigation();
-
-                                            }
-
-                                            @Override
-                                            public void onNavigationRunning() {
-                                                Log.d("HELLO", String.valueOf(PositionTracker.getLastSpeed()));
-                                                //fab.setImageBitmap(textAsBitmap("OK", 40, Color.WHITE));
-
-                                            }
-                                        }).build());
+                                        .navigationListener(FragmentDrivingMode.this)
+                                        .routeListener(FragmentDrivingMode.this)
+                                        .build());
                             }
                         }
                     }
@@ -503,8 +485,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
                     }
                 });
-
-
         // Ignore internal routing, allowing MapboxMapMatching call
         Log.d("HELLO", "Reroute ended");
         return false;
@@ -520,15 +500,39 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     }
 
+
     @Override
     public void onFailedReroute(String errorMessage) {
 
     }
 
+
+    //Navigation listener###########################################################################
     @Override
     public void onArrival() {
-
+        Log.d("HalloWelt", "Navigation: Arrived");
+        parent.navigationView.stopNavigation();
     }
+
+    @Override
+    public void onCancelNavigation() {
+        Log.d("HalloWelt", "Navigation onCancel");
+        parent.navigationView.stopNavigation();
+    }
+
+    @Override
+    public void onNavigationFinished() {
+        Log.d("HalloWelt", "Navigation Finished");
+    }
+
+    @Override
+    public void onNavigationRunning() {
+        Log.d("HalloWelt", "Navigation Running");
+        if (!parent.navigationRunning) {
+            parent.navigationRunning = true;
+        }
+    }
+    //##############################################################################################
 
     private static class MyBroadcastReceiver extends BroadcastReceiver {
         private final WeakReference<MapboxNavigation> weakNavigation;

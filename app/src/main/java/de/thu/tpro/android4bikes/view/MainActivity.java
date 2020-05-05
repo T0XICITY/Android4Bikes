@@ -22,7 +22,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -124,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
     private boolean toolbarHidden;
+    public boolean navigationRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -442,6 +442,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (freemode_active) {
                 submitTrack();
                 freemode_active = false;
+            } else {
+                if (navigationRunning) {
+                    navigationView.stopNavigation();
+                    navigationRunning = false;
+                    vm_track.setNavigationTrack(null);
+                }
             }
 
             openInfoMode();
@@ -463,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void submitTrack() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_submit, null);
-        TextInputLayout textLayout = (TextInputLayout)dialogView.findViewById(R.id.txt_track_name_layout);
+        TextInputLayout textLayout = dialogView.findViewById(R.id.txt_track_name_layout);
         TextInputEditText editTrackName = dialogView.findViewById(R.id.edit_track_name);
         TextInputEditText editDesc = dialogView.findViewById(R.id.edit_submit_desc);
         RatingBar rbSubmitRoadQuality = dialogView.findViewById(R.id.rb_submit_roadquality);
@@ -733,6 +739,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * refresh data regarding a specified profile.
      */
     public void refreshProfile() {
+        //TODO: do change of name on the server
         Profile profile_own = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA).readMyOwnProfile();
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             Uri photoUrl = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl();
@@ -744,7 +751,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             profile_own.setFirstName(firstName);
             profile_own.setFamilyName(familyName);
-            //profile_own.setPhotoUrl(photoUrl.toString());
+            profile_own.setProfilePictureURL(photoUrl.toString());
         }
         FirebaseConnection.getInstance().storeProfileToFireStoreAndLocalDB(profile_own);
     }
