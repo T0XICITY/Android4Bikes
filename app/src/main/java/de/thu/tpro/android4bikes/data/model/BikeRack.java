@@ -114,6 +114,22 @@ public class BikeRack {
         this.firebaseID = UUIDGenerator.generateUUID();
     }
 
+    /**
+     * Test-constructor generating automatically a UUID as FireBaseID for voice-control orders.
+     *
+     * @param position
+     *
+     */
+    public BikeRack(Position position) {
+        this.position = position;
+        this.name = "BikeRack";
+        this.capacity = ConstantsCapacity.MEDIUM;
+        this.hasBikeCharging = false;
+        this.isExistent = true;
+        this.isCovered = false;
+        this.firebaseID = UUIDGenerator.generateUUID();
+    }
+
     public String getFirebaseID() {
         return firebaseID;
     }
