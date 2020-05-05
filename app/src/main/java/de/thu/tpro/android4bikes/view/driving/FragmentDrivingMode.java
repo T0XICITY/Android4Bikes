@@ -10,13 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -52,6 +45,12 @@ import java.util.Observable;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Track;
@@ -71,25 +70,19 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
     private static final int VELOCITY_UPDATE_INTERVAL = 250;
-
+    MainActivity parent;
+    //ViewModels
+    ViewModelTrack vm_track;
     private DrivingModeDataBinder dataBinder;
     private ViewModelWeather vmWeather;
-
     private View viewDrivingMode;
     private CardView infoIcon;
     private FloatingActionButton fab_weather;
     private ExtendedFloatingActionButton fab_velocity;
     private Timer updateTimer;
-
-    MainActivity parent;
     private PermissionsManager permissionsManager;
-
     // Navigation related variables
     private DirectionsRoute reroute;
-
-    //ViewModels
-    ViewModelTrack vm_track;
-
     //TODO refactor
     private Track track_for_navigation;
 
@@ -129,9 +122,9 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onChanged(OpenWeatherObject weatherObject) {
         String weatherIconName = vmWeather.getCurrentWeather().getValue().getForecastList().get(0)
-                .getWeather().get(0).getIcon().substring(0,2);
+                .getWeather().get(0).getIcon().substring(0, 2);
 
-        Log.d(LOG_TAG, "Weather: "+weatherIconName+", "+weatherObject.getCity().getName());
+        Log.d(LOG_TAG, "Weather: " + weatherIconName + ", " + weatherObject.getCity().getName());
 
         int weatherDrawableId = 0;
         switch (weatherIconName) {
@@ -179,28 +172,28 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         Log.d("HalloWeltAUA", "NavigationReady");
         //parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(Style.MAPBOX_STREETS, style -> {
         Log.d("HalloWeltAUA", "style loaded");
-            if (PositionTracker.getLastPosition().isValid()) {
-                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
-                        .target(PositionTracker.getLastPosition().toMapboxLocation())
-                        .zoom(15)
-                        .build());
-                FragmentDrivingMode.this.start();
-            } else {
-                Position germany_center = new Position(51.163361111111, 10.447683333333);
-                parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
-                        .target(germany_center.toMapboxLocation())
-                        .zoom(4)
-                        .build());
-                //Observe Position
-                PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(FragmentDrivingMode.this);
-            }
-            parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
-            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapLongClickListener(click -> {
-                registeredHazardPositions.add(PositionTracker.getLastPosition());
-                Snackbar.make(FragmentDrivingMode.this.getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
-                Log.d("addHazard", "List: " + registeredHazardPositions);
-                return true;
-            });
+        if (PositionTracker.getLastPosition().isValid()) {
+            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
+                    .target(PositionTracker.getLastPosition().toMapboxLocation())
+                    .zoom(15)
+                    .build());
+            FragmentDrivingMode.this.start();
+        } else {
+            Position germany_center = new Position(51.163361111111, 10.447683333333);
+            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
+                    .target(germany_center.toMapboxLocation())
+                    .zoom(4)
+                    .build());
+            //Observe Position
+            PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(FragmentDrivingMode.this);
+        }
+        parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
+        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapLongClickListener(click -> {
+            registeredHazardPositions.add(PositionTracker.getLastPosition());
+            Snackbar.make(FragmentDrivingMode.this.getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
+            Log.d("addHazard", "List: " + registeredHazardPositions);
+            return true;
+        });
         //});
     }
 
@@ -384,7 +377,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onStart() {
         super.onStart();
-        if (parent.navigationView!=null) {
+        if (parent.navigationView != null) {
             parent.navigationView.onStart();
         }
     }
@@ -392,7 +385,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onResume() {
         super.onResume();
-        if (parent.navigationView!=null) {
+        if (parent.navigationView != null) {
             parent.navigationView.onResume();
         }
     }
@@ -400,7 +393,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onPause() {
         super.onPause();
-        if (parent.navigationView!=null) {
+        if (parent.navigationView != null) {
             parent.navigationView.onPause();
         }
     }
@@ -408,7 +401,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onStop() {
         super.onStop();
-        if (parent.navigationView!=null) {
+        if (parent.navigationView != null) {
             parent.navigationView.onStop();
         }
     }
@@ -416,7 +409,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (parent.navigationView!=null) {
+        if (parent.navigationView != null) {
             parent.navigationView.onSaveInstanceState(outState);
         }
     }
@@ -424,7 +417,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (parent.navigationView!=null){
+        if (parent.navigationView != null) {
             parent.navigationView.onDestroy();
         }
 
@@ -433,7 +426,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        if (parent.navigationView!=null) {
+        if (parent.navigationView != null) {
             parent.navigationView.onLowMemory();
         }
     }
@@ -530,19 +523,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     }
 
-    private static class MyBroadcastReceiver extends BroadcastReceiver {
-        private final WeakReference<MapboxNavigation> weakNavigation;
-
-        MyBroadcastReceiver(MapboxNavigation navigation) {
-            this.weakNavigation = new WeakReference<>(navigation);
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            MapboxNavigation navigation = weakNavigation.get();
-            navigation.stopNavigation();
-        }
-    }
     /**
      * sets the size for the current view
      *
@@ -570,6 +550,20 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     public List<Position> getRegisteredHazardPositions() {
         return registeredHazardPositions;
+    }
+
+    private static class MyBroadcastReceiver extends BroadcastReceiver {
+        private final WeakReference<MapboxNavigation> weakNavigation;
+
+        MyBroadcastReceiver(MapboxNavigation navigation) {
+            this.weakNavigation = new WeakReference<>(navigation);
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            MapboxNavigation navigation = weakNavigation.get();
+            navigation.stopNavigation();
+        }
     }
 
 
