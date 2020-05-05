@@ -192,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.Green800Primary)));
             }
         });
+        refreshProfile();
     }
 
     /**
@@ -740,21 +741,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * refresh data regarding a specified profile.
      */
     public void refreshProfile() {
-        //TODO: do change of name on the server
-        Profile profile_own = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA).readMyOwnProfile();
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            Uri photoUrl = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl();
-            String[] name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName().split(" ");
-            String firstName = name[0];
-            String familyName = "";
-            if (name.length > 1) {
-                familyName = name[1];
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                //TODO: do change of name on the server
+                Profile profile_own = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA).readMyOwnProfile();
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Uri photoUrl = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl();
+                    String[] name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName().split(" ");
+                    String firstName = name[0];
+                    String familyName = "";
+                    if (name.length > 1) {
+                        familyName = name[1];
+                    }
+                    profile_own.setFirstName(firstName);
+                    profile_own.setFamilyName(familyName);
+                    profile_own.setProfilePictureURL(photoUrl.toString());
+                }
+                FirebaseConnection.getInstance().storeProfileToFireStoreAndLocalDB(profile_own);
+                FirebaseConnection.getInstance().readAllOwnTracksAndStoreItToOwnDB(profile_own.getGoogleID());
             }
-            profile_own.setFirstName(firstName);
-            profile_own.setFamilyName(familyName);
-            profile_own.setProfilePictureURL(photoUrl.toString());
-        }
-        FirebaseConnection.getInstance().storeProfileToFireStoreAndLocalDB(profile_own);
+        };
+        Processor.getInstance().startRunnable(r);
     }
 
     public void checkLocationEnabled() {

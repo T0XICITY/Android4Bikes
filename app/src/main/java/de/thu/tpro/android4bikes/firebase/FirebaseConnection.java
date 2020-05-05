@@ -867,6 +867,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                     Track track = helper.convertJSONObjectToObject(jsonObject_track);
                                     track.setRoute(route);
                                     ownDataDB.storeTrack(track);
+                                    Log.d("HalloWeltTrack", "Read from FireStore" + track.toString());
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
