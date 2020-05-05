@@ -25,6 +25,7 @@ import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.DirectionsCriteria;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -65,7 +66,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FragmentDrivingMode extends Fragment implements PermissionsListener, OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer {
+public class FragmentDrivingMode extends Fragment implements PermissionsListener, OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer, RouteListener {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
@@ -294,97 +295,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
                         }
                     })
-                    .routeListener(new RouteListener() {
-                        @Override
-                        public boolean allowRerouteFrom(com.mapbox.geojson.Point offRoutePoint) {
-                            Log.d("HELLO", "Rerouting");
-                            // Fetch new route with MapboxMapMatching
-                            List<com.mapbox.geojson.Point> points = new ArrayList<>();
-                            points.add(offRoutePoint);
-                            points.add(track_for_navigation.getStartPosition().getAsPoint());
-
-                            NavigationRoute.builder(parent)
-                                    .accessToken(getString(R.string.access_token))
-                                    .origin(points.get(0))
-                                    .destination(points.get(1))
-                                    .addWaypointIndices(0, points.size() - 1)
-                                    .profile(DirectionsCriteria.PROFILE_CYCLING)
-                                    .build()
-                                    .getRoute(new Callback<DirectionsResponse>() {
-                                        @Override
-                                        public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-                                            if (response.isSuccessful()) {
-                                                Log.d("HELLO", "CODE: " + response.code() + " with Message:\n" + response.message());
-                                                Log.d("HELLO", "SIZE: " + response.body().routes().size());
-                                                Log.d("HELLO", "Body Message: " + response.body().message());
-                                                if (response.body().routes().size() > 0) {
-                                                    reroute = response.body().routes().get(0);
-
-                                                    Log.d("HELLO", String.valueOf(reroute.distance()));
-                                                    if (reroute != null) {
-                                                        Log.d("HELLO", "reroute initialized");
-                                                    }
-                                                    track_for_navigation.setRoute(DirectionRouteHelper.appendRoute(reroute, track_for_navigation.getRoute()));
-                                                    parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                                                            .directionsRoute(track_for_navigation.getRoute())
-                                                            .locationEngine(parent.locationEngine)
-                                                            .navigationListener(new NavigationListener() {
-                                                                @Override
-                                                                public void onCancelNavigation() {
-                                                                    Log.d("HELLO", "OK, switch back to INFO MDOE");
-                                                                    parent.navigationView.stopNavigation();
-                                                                }
-
-                                                                @Override
-                                                                public void onNavigationFinished() {
-                                                                    Log.d("HELLO", "OK, switch back to INFO MDOE");
-                                                                    parent.navigationView.stopNavigation();
-
-                                                                }
-
-                                                                @Override
-                                                                public void onNavigationRunning() {
-                                                                    Log.d("HELLO", String.valueOf(PositionTracker.getLastSpeed()));
-                                                                    //fab.setImageBitmap(textAsBitmap("OK", 40, Color.WHITE));
-
-                                                                }
-                                                            }).build());
-                                                }
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onFailure(Call<DirectionsResponse> call, Throwable t) {
-
-                                        }
-                                    });
-
-
-                            // Ignore internal routing, allowing MapboxMapMatching call
-                            Log.d("HELLO", "Reroute ended");
-                            return false;
-                        }
-
-                        @Override
-                        public void onOffRoute(com.mapbox.geojson.Point offRoutePoint) {
-                            Log.d("HELLO", "onOffRoute called");
-                        }
-
-                        @Override
-                        public void onRerouteAlong(DirectionsRoute directionsRoute) {
-                            Log.d("HELLO", "onRerouteAlong called");
-                        }
-
-                        @Override
-                        public void onFailedReroute(String errorMessage) {
-                            Log.d("HELLO", "onFailedReroute called");
-                        }
-
-                        @Override
-                        public void onArrival() {
-
-                        }
-                    })
+                    .routeListener(this)
                     //.shouldSimulateRoute(true)
                     .build());
 
@@ -525,6 +436,98 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         if (parent.navigationView!=null) {
             parent.navigationView.onLowMemory();
         }
+    }
+
+    //Route listener
+    @Override
+    public boolean allowRerouteFrom(Point offRoutePoint) {
+        Log.d("HELLO", "Rerouting");
+        // Fetch new route with MapboxMapMatching
+        List<com.mapbox.geojson.Point> points = new ArrayList<>();
+        points.add(offRoutePoint);
+        //Todo get next Point based on Track
+        points.add(track_for_navigation.getStartPosition().getAsPoint());
+
+        NavigationRoute.builder(parent)
+                .accessToken(getString(R.string.access_token))
+                .origin(points.get(0))
+                .destination(points.get(1))
+                .addWaypointIndices(0, points.size() - 1)
+                .profile(DirectionsCriteria.PROFILE_CYCLING)
+                .build()
+                .getRoute(new Callback<DirectionsResponse>() {
+                    @Override
+                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                        if (response.isSuccessful()) {
+                            Log.d("HELLO", "CODE: " + response.code() + " with Message:\n" + response.message());
+                            Log.d("HELLO", "SIZE: " + response.body().routes().size());
+                            Log.d("HELLO", "Body Message: " + response.body().message());
+                            if (response.body().routes().size() > 0) {
+                                reroute = response.body().routes().get(0);
+
+                                Log.d("HELLO", String.valueOf(reroute.distance()));
+                                if (reroute != null) {
+                                    Log.d("HELLO", "reroute initialized");
+                                }
+                                track_for_navigation.setRoute(DirectionRouteHelper.appendRoute(reroute, track_for_navigation.getRoute()));
+                                parent.navigationView.startNavigation(NavigationViewOptions.builder()
+                                        .directionsRoute(track_for_navigation.getRoute())
+                                        .locationEngine(parent.locationEngine)
+                                        .navigationListener(new NavigationListener() {
+                                            @Override
+                                            public void onCancelNavigation() {
+                                                Log.d("HELLO", "OK, switch back to INFO MDOE");
+                                                parent.navigationView.stopNavigation();
+                                            }
+
+                                            @Override
+                                            public void onNavigationFinished() {
+                                                Log.d("HELLO", "OK, switch back to INFO MDOE");
+                                                parent.navigationView.stopNavigation();
+
+                                            }
+
+                                            @Override
+                                            public void onNavigationRunning() {
+                                                Log.d("HELLO", String.valueOf(PositionTracker.getLastSpeed()));
+                                                //fab.setImageBitmap(textAsBitmap("OK", 40, Color.WHITE));
+
+                                            }
+                                        }).build());
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+
+                    }
+                });
+
+
+        // Ignore internal routing, allowing MapboxMapMatching call
+        Log.d("HELLO", "Reroute ended");
+        return false;
+    }
+
+    @Override
+    public void onOffRoute(Point offRoutePoint) {
+
+    }
+
+    @Override
+    public void onRerouteAlong(DirectionsRoute directionsRoute) {
+
+    }
+
+    @Override
+    public void onFailedReroute(String errorMessage) {
+
+    }
+
+    @Override
+    public void onArrival() {
+
     }
 
     private static class MyBroadcastReceiver extends BroadcastReceiver {

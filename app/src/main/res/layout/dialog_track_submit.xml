@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:id="@+id/layout_detailView"
@@ -20,7 +20,8 @@
             android:layout_marginTop="10dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="5dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -32,7 +33,7 @@
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="8"
                 android:text="@string/track_length"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -41,6 +42,7 @@
                 android:id="@+id/tv_track_length"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="2"
                 android:text="@string/distance"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -49,24 +51,25 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginBottom="5dp"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="@string/track_name" />
-
-            <EditText
-                android:id="@+id/tv_track_name"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/txt_track_name_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:hint="@string/track_name"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_track_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
@@ -74,17 +77,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp">
-
-            <TextView
-                android:id="@+id/tv_submit_roadQuality"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="@string/property_RoadQuality"
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="?android:attr/textColorSecondary" />
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:orientation="vertical">
 
             <RatingBar
                 android:id="@+id/rb_submit_roadquality"
@@ -92,8 +88,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_weight="2"
                 android:isIndicator="false"
-                android:stepSize="1" />
+                android:numStars="5"
+                android:stepSize="1"
+                android:theme="@style/RatingBar" />
+
+            <TextView
+                android:id="@+id/tv_submit_roadQuality"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="@string/property_RoadQuality"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="?android:attr/textColorSecondary" />
 
         </LinearLayout>
 
@@ -101,17 +110,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp">
-
-            <TextView
-                android:id="@+id/tv_submit_difficulty"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="@string/property_Difficulty"
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="?android:attr/textColorSecondary" />
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:orientation="vertical">
 
             <RatingBar
                 android:id="@+id/rb_submitk_difficulty"
@@ -120,7 +122,49 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:isIndicator="false"
-                android:stepSize="1" />
+                android:stepSize="1"
+                android:theme="@style/RatingBar" />
+
+            <TextView
+                android:id="@+id/tv_submit_difficulty"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="@string/property_Difficulty"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="?android:attr/textColorSecondary" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:orientation="vertical">
+
+            <RatingBar
+                android:id="@+id/rb_submit_fun"
+                style="?android:attr/ratingBarStyleIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:isIndicator="false"
+                android:stepSize="1"
+                android:theme="@style/RatingBar" />
+
+            <TextView
+                android:id="@+id/tv_submit_fun"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="@string/property_Funfactor"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="?android:attr/textColorSecondary" />
 
         </LinearLayout>
 
@@ -130,45 +174,22 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp">
 
-            <TextView
-                android:id="@+id/tv_submit_fun"
-                android:layout_width="0dp"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/txt_track_desc_layout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="@string/property_Funfactor"
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="?android:attr/textColorSecondary" />
+                android:hint="@string/feedback_desc">
 
-            <RatingBar
-                android:id="@+id/rb_submit_fun"
-                style="?android:attr/ratingBarStyleIndicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:isIndicator="false"
-                android:stepSize="1"/>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_submit_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:lines="3"
+                    android:scrollbars="horizontal" />
 
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginRight="20dp"
-            android:text="@string/track_description"
-            android:textAppearance="?attr/textAppearanceSearchResultTitle"
-            android:textColor="?android:attr/textColorSecondary" />
-
-        <EditText
-            android:id="@+id/tv_submit_desc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-            android:textAppearance="?attr/textAppearanceBody1" />
-
     </LinearLayout>
-</LinearLayout>
+</ScrollView>

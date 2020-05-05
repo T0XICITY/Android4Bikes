@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.util.GlobalContext;
@@ -39,7 +40,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
     private TextInputEditText nameEdit;
     private TextInputEditText emailEdit;
-    private ImageView imageViewCircle;
+    private CircleImageView civ_profile;
 
     private TextView tvTracks;
     private ImageView ivKeyboard;
@@ -69,7 +70,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
         // Delete Button & ImageView vor Profile
         delete = view.findViewById(R.id.buttonDelete);
         delete.setOnClickListener(v -> confirmDeletion());
-        imageViewCircle = view.findViewById(R.id.imageView_Circle);
+        civ_profile = view.findViewById(R.id.profile_image);
         //imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("M")); //can be removed
         //ColorPicker
         dialogColorPicker = view.findViewById(R.id.button_ChangeProfileView);
@@ -190,8 +191,8 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
             nameEdit.setText(fullName);
             // TODO: Load email address from profile -> reading from FirebaseAuth doesn't seem right
             emailEdit.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-            imageViewCircle.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0), profile.getColor()));
-            imageViewCircle.setBackgroundColor(profile.getColor());
+            ProfilePictureUtil.setProfilePicturetoImageView(civ_profile, profile);
+            civ_profile.setBorderColor(profile.getColor());
         }
     }
 }

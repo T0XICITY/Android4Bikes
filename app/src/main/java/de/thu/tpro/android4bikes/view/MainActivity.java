@@ -24,7 +24,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,11 +39,12 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineProvider;
@@ -52,6 +52,7 @@ import com.mapbox.android.core.location.LocationEngineRequest;
 
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
@@ -113,10 +114,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private FragmentTrackList fragTrackList;
-    private ImageView iv_profile;
     private TextView tv_headerName;
     private TextView tv_headerMail;
-    private MaterialCardView cardView_profile;
+    private CircleImageView civ_profile;
     private boolean isGPS;
     public boolean freemode_active;
     private TrackRecorder trackRecorder;
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vm_BtBtn.getBtnEvent().observe(this,newValue->{
             if (currentFragment == fragDriving){
                 Toast.makeText(getApplicationContext(),"BtBtn was clicked",Toast.LENGTH_SHORT).show();
-                //todo: klären distanceof interrest
+                //todo: clarify distance of interest
                 HazardAlert alert = new HazardAlert(HazardAlert.HazardType.GENERAL,PositionTracker.getLastPosition(),10,true);
                 CouchWriteBuffer.getInstance().submitHazardAlerts(alert);
             }
@@ -266,12 +266,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initNavigationDrawerHeader() {
         View header = drawer.getHeaderView(0);
 
-        iv_profile = header.findViewById(R.id.imageView_profile);
+        civ_profile = header.findViewById(R.id.profile_image);
         tv_headerName = header.findViewById(R.id.tvName);
         tv_headerMail = header.findViewById(R.id.tvMail);
-        cardView_profile = header.findViewById(R.id.cardview_profile);
 
-        iv_profile.setOnClickListener(v -> {
+        civ_profile.setOnClickListener(v -> {
             openProfile();
             toggleNavigationDrawer();
         });
@@ -282,8 +281,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
                 Log.d(LOG_TAG, "Setting profile name: " + fullName);
 
-                iv_profile.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0), profile.getColor()));
-                cardView_profile.setCardBackgroundColor(profile.getColor());
+                ProfilePictureUtil.setProfilePicturetoImageView(civ_profile, profile);
+                civ_profile.setBorderColor(profile.getColor());
+
+
 
                 tv_headerName.setText(fullName);
                 tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
@@ -462,15 +463,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void submitTrack() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_submit, null);
-        EditText tvTrackName = dialogView.findViewById(R.id.tv_track_name);
-        EditText editDesc = dialogView.findViewById(R.id.tv_submit_desc);
+        TextInputLayout textLayout = (TextInputLayout)dialogView.findViewById(R.id.txt_track_name_layout);
+        TextInputEditText editTrackName = dialogView.findViewById(R.id.edit_track_name);
+        TextInputEditText editDesc = dialogView.findViewById(R.id.edit_submit_desc);
         RatingBar rbSubmitRoadQuality = dialogView.findViewById(R.id.rb_submit_roadquality);
         RatingBar rbSubmitDifficulty = dialogView.findViewById(R.id.rb_submitk_difficulty);
         RatingBar rbSubmitFun = dialogView.findViewById(R.id.rb_submit_fun);
 
 
         AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
-                .setTitle("Store your track!")
+                //.setTitle("Store your Track!")
                 .setView(dialogView)
                 .setPositiveButton(R.string.submit, null)
                 .setNegativeButton(R.string.discard, null)
@@ -482,25 +484,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
         submitTrackDialog.show();
 
+        editTrackName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (!editTrackName.getText().toString().trim().equals("")) {
+                    textLayout.setError(null);
+                }
+            }
+        });
         Button btnPos = submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        btnPos.setOnClickListener(view -> {
-            if (tvTrackName.getText().toString().trim().equals("")) {
-                //Snackbar.make(findViewById(R.id.map_container_info), "Fill in Track Name", 1000)
-                //      .setAnchorView(findViewById(R.id.bottomAppBar)).show();
-            } else {
+        btnPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (editTrackName.getText().toString().trim().equals("")) {
+                    //Show Error Hint in EditText to fill in name
+                    textLayout.setError(getResources().getString(R.string.error_name));
+                } else {
+                    String author = vmOwnProfile.getMyProfile().getValue().getGoogleID();
+                    String desc = editDesc.getText().toString();
+                    String name = editTrackName.getText().toString();
 
-                //Todo fill fields
-                String author = "", desc = "", name = "";
+                    Rating newRating = new Rating();
+                    newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
+                    newRating.setDifficulty(rbSubmitDifficulty.getProgress());
+                    newRating.setFun(rbSubmitFun.getProgress());
 
-                Rating newRating = new Rating();
-                newRating.setRoadquality(rbSubmitRoadQuality.getProgress());
-                newRating.setDifficulty(rbSubmitDifficulty.getProgress());
-                newRating.setFun(rbSubmitFun.getProgress());
+                    //Save track with Trackrecorder
+                    //trackRecorder.stop(author, newRating, name, desc);
+                    submitTrackDialog.dismiss();
+                }
 
-                //Save track with Trackrecorder
-                //trackRecorder.stop(author,newRating, name, desc);
-
-                submitTrackDialog.dismiss();
             }
 
         });
