@@ -3,7 +3,6 @@ package de.thu.tpro.android4bikes.view.info;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
@@ -399,7 +398,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
                                                     addRoutetoMap(style, track_result);
                                                     showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
-                                                    parent.fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(parent, R.color.Green800Primary)));
                                                     return true;
                                                 }else {
                                                     //Was Bikerack or HazardALert
@@ -434,13 +432,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                     }
                                                     //return handleClickIcon(pixel);
                                                 }
-                                            } else {
-                                                vm_Tracks.setNavigationTrack(null);
-                                                //TODO: remove drawn track from map
                                             }
                                         }
                                     }
                                 }
+                            }
+                            if (vm_Tracks.getNavigationTrack().getValue() != null) {
+                                Log.d("HalloWelt", "Removed Track from map");
+                                removeTrackFromMap(style);
                             }
                             return false;
                         }
@@ -466,6 +465,17 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     //https://docs.mapbox.com/android/java/examples/show-directions-on-a-map/
                     //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
+    }
+
+    private void removeTrackFromMap(@NonNull Style loadedMapStyle) {
+        vm_Tracks.setNavigationTrack(null);
+        loadedMapStyle.removeSource(GeoFencing.ConstantsGeoFencing.COLLECTION_ROUTE.toString());
+        loadedMapStyle.removeSource(GeoFencing.ConstantsGeoFencing.FINISH_FLAG.toString());
+        if (routeLayer_created) {
+            loadedMapStyle.removeLayer("Tracks_" + GeoFencing.ConstantsGeoFencing.COLLECTION_ROUTE.toString());
+            loadedMapStyle.removeLayer("Finish_" + GeoFencing.ConstantsGeoFencing.FINISH_FLAG.toString());
+            routeLayer_created = false;
+        }
     }
 
     @Override
@@ -930,7 +940,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
         btnPos.setOnClickListener(view -> {
-            int i = spinnerHazard.getSelectedItemPosition();
+            int i = spinnerHazard.getSelectedItemPosition() + 1;
             HazardAlert.HazardType type = HazardAlert.HazardType.getByType(i);
             int distanceOfInterest = 10;
 

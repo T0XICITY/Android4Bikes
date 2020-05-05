@@ -39,6 +39,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -112,9 +113,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentInfoMode fragInfo;
     private FragmentDrivingMode fragDriving;
     private FragmentTrackList fragTrackList;
-    private ImageView imageView;
+    private ImageView iv_profile;
     private TextView tv_headerName;
     private TextView tv_headerMail;
+    private MaterialCardView cardView_profile;
     private boolean isGPS;
     public boolean freemode_active;
     private TrackRecorder trackRecorder;
@@ -151,20 +153,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         trackRecorder = new TrackRecorder();
-
-        // set observer to profile to update Drawer Profile section
-        vmOwnProfile.getMyProfile().observe(this, profile -> {
-            if (profile != null) {
-                String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
-                Log.d(LOG_TAG, "Setting profile name: " + fullName);
-                //todo: Better implementation
-                ImageView iv_profile = findViewById(R.id.imageView_profile);
-                iv_profile.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0)));
-                iv_profile.setBackgroundColor(profile.getColor());
-                tv_headerName.setText(fullName);
-                tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-            }
-        });
         currentFragment = fragInfo;
         updateFragment();
 
@@ -199,9 +187,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         vm_track.getNavigationTrack().observe(this, newValue -> {
             if (newValue == null) {
-                //TODO: Change color of fab to default color
+                fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark)));
             } else {
-                //TODO: Change color of fab to color "selected track"
+                fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.Green800Primary)));
             }
         });
     }
@@ -278,13 +266,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void initNavigationDrawerHeader() {
         View header = drawer.getHeaderView(0);
 
-        imageView = header.findViewById(R.id.imageView_profile);
+        iv_profile = header.findViewById(R.id.imageView_profile);
         tv_headerName = header.findViewById(R.id.tvName);
         tv_headerMail = header.findViewById(R.id.tvMail);
+        cardView_profile = header.findViewById(R.id.cardview_profile);
 
-        imageView.setOnClickListener(v -> {
+        iv_profile.setOnClickListener(v -> {
             openProfile();
             toggleNavigationDrawer();
+        });
+
+        // set observer to profile to update Drawer Profile section
+        vmOwnProfile.getMyProfile().observe(this, profile -> {
+            if (profile != null) {
+                String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
+                Log.d(LOG_TAG, "Setting profile name: " + fullName);
+
+                iv_profile.setImageBitmap(ProfilePictureUtil.textToBitmap("" + fullName.charAt(0), profile.getColor()));
+                cardView_profile.setCardBackgroundColor(profile.getColor());
+
+                tv_headerName.setText(fullName);
+                tv_headerMail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            }
         });
     }
 

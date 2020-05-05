@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_header"
     android:layout_width="match_parent"
     android:layout_height="160dp"
@@ -11,15 +12,25 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Light">
 
-    <ImageView
-        android:id="@+id/imageView_profile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/tv_rounded"
-        android:contentDescription="nav_header_desc"
-        android:paddingLeft="16dp"
-        android:paddingTop="16dp"
-        android:clickable="true" />
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardview_profile"
+        android:layout_width="79dp"
+        android:layout_height="77dp"
+        app:cardCornerRadius="39dp"
+        app:cardPreventCornerOverlap="false"
+        app:strokeColor="@color/TextBlack"
+        app:strokeWidth="2dp">
+
+        <ImageView
+            android:id="@+id/imageView_profile"
+            android:layout_width="79dp"
+            android:layout_height="77dp"
+            android:layout_marginBottom="10dp"
+            android:contentDescription="nav_header_desc"
+            android:paddingLeft="20dp"
+            android:paddingTop="20dp" />
+
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/tvName"
