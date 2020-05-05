@@ -489,6 +489,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                     });
             // Ignore internal routing, allowing MapboxMapMatching call
             Log.d("HELLO", "Reroute ended");
+            reroute_user = false;
             return false;
         }
         return false;
