@@ -4,8 +4,15 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.net.Uri;
+import android.widget.ImageView;
 
 import androidx.core.graphics.ColorUtils;
+
+import com.squareup.picasso.Picasso;
+
+import de.thu.tpro.android4bikes.R;
+import de.thu.tpro.android4bikes.data.model.Profile;
 
 public class ProfilePictureUtil {
     //Text in ImageView
@@ -27,4 +34,17 @@ public class ProfilePictureUtil {
         canvas.drawText(text, 0, baseline, paint);
         return imageB;
     }
+
+    public static void setProfilePicturetoImageView(ImageView imageView, Profile profile) {
+        Uri uri = Uri.parse(profile.getProfilePictureURL());
+        Picasso.get()
+                .load(uri)
+                .placeholder(R.drawable.ic_face_blue_24dp)
+                .error(R.drawable.ic_error_red_24dp)
+                .resize(96, 96)
+                .noFade()
+                .centerInside()
+                .into(imageView);
+    }
 }
+

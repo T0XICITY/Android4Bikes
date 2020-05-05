@@ -20,6 +20,9 @@ public class Profile {
     @SerializedName("googleID")
     private String googleID;
     @Expose
+    @SerializedName("profilePictureURL")
+    private String profilePictureURL;
+    @Expose
     @SerializedName("color")
     private int color;
     @Expose
@@ -29,16 +32,25 @@ public class Profile {
     @SerializedName("achievements")
     private List<Achievement> achievements;
 
-    public Profile(String firstName, String familyName, String firebaseAccountID, int color, int overallDistance, List<Achievement> achievements) {
+    public Profile(String firstName, String familyName, String firebaseAccountID, String profilePictureURL, int color, int overallDistance, List<Achievement> achievements) {
         this.firstName = firstName;
         this.familyName = familyName;
         this.googleID = firebaseAccountID;
+        this.profilePictureURL = profilePictureURL;
         this.color = color;
         this.overallDistance = overallDistance;
         this.achievements = achievements;
         if (this.achievements == null) {
             this.achievements = new ArrayList<>();
         }
+    }
+
+    public String getProfilePictureURL() {
+        return profilePictureURL;
+    }
+
+    public void setProfilePictureURL(String profilePictureURL) {
+        this.profilePictureURL = profilePictureURL;
     }
 
     public int getOverallDistance() {
@@ -103,16 +115,17 @@ public class Profile {
         if (o == null || getClass() != o.getClass()) return false;
         Profile profile = (Profile) o;
         return color == profile.color &&
-                achievements.equals(profile.achievements) &&
                 overallDistance == profile.overallDistance &&
-                firstName.equals(profile.firstName) &&
-                familyName.equals(profile.familyName) &&
-                googleID.equals(profile.googleID);
+                Objects.equals(firstName, profile.firstName) &&
+                Objects.equals(familyName, profile.familyName) &&
+                Objects.equals(googleID, profile.googleID) &&
+                Objects.equals(profilePictureURL, profile.profilePictureURL) &&
+                Objects.equals(achievements, profile.achievements);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, familyName, googleID, color, overallDistance, achievements);
+        return Objects.hash(firstName, familyName, googleID, profilePictureURL, color, overallDistance, achievements);
     }
 
     @Override
@@ -121,6 +134,7 @@ public class Profile {
                 "firstName='" + firstName + '\'' +
                 ", familyName='" + familyName + '\'' +
                 ", googleID='" + googleID + '\'' +
+                ", profilePictureURL='" + profilePictureURL + '\'' +
                 ", color=" + color +
                 ", overallDistance=" + overallDistance +
                 ", achievements=" + achievements +
