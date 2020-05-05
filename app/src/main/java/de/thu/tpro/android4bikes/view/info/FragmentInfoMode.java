@@ -42,6 +42,7 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -62,6 +63,7 @@ import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
@@ -928,18 +930,27 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         MapView hazardMap = hazardDialog.findViewById(R.id.hazardMap);
         hazardMap.onCreate(hazardDialog.onSaveInstanceState());
 
-        hazardMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                if (PositionTracker.getLastPosition() != null) {
-                    mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                            .target(PositionTracker.getLastPosition().toMapboxLocation())
-                            .zoom(17)
-                            .bearing(0)
-                            .build()), 1000);
-                }
+        Position lastPosition = PositionTracker.getLastPosition();
+        hazardMap.getMapAsync(mapboxMapHazard -> {
+            SymbolOptions marker = createMarker(lastPosition.getLatitude(), lastPosition.getLongitude(), MapBoxSymbols.HAZARDALERT_GENERAL);
+            List<Feature> features = new ArrayList<>();
+            features.add(Feature.fromGeometry(marker.getGeometry()));
+            mapboxMapHazard.setStyle(new Style.Builder().fromUri("mapbox://styles/mapbox/streets-v11")
+                    .withSource(new GeoJsonSource("HazardTest", FeatureCollection.fromFeatures(features)))
+                    .withImage(MapBoxSymbols.HAZARDALERT_GENERAL.toString(), parent.getDrawable(R.drawable.ic_material_hazard))
+                    .withLayer(new SymbolLayer("Layer", "HazardTest")
+                            .withProperties(PropertyFactory.iconImage(MapBoxSymbols.HAZARDALERT_GENERAL.toString()),
+                                    iconAllowOverlap(true)
+                            ))
+            );
+            if (lastPosition != null) {
+                mapboxMapHazard.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                        .target(lastPosition.toMapboxLocation())
+                        .zoom(17)
+                        .bearing(0)
+                        .build()), 1000);
             }
-        }));
+        });
 
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
@@ -1055,16 +1066,47 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
         MapView rackMap = dialog.findViewById(R.id.rackMap);
         rackMap.onCreate(dialog.onSaveInstanceState());
+        Position lastPosition = PositionTracker.getLastPosition();
 
-        rackMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, style -> {
-            if (PositionTracker.getLastPosition() != null) {
+        rackMap.getMapAsync(mapboxMapRack -> {
+            SymbolOptions marker = createMarker(lastPosition.getLatitude(), lastPosition.getLongitude(), MapBoxSymbols.BIKERACK);
+            List<Feature> features = new ArrayList<>();
+            features.add(Feature.fromGeometry(marker.getGeometry()));
+            mapboxMapRack.setStyle(new Style.Builder().fromUri("mapbox://styles/mapbox/streets-v11")
+                        .withSource(new GeoJsonSource("RackTest", FeatureCollection.fromFeatures(features)))
+                        .withImage(MapBoxSymbols.BIKERACK.toString(), parent.getDrawable(R.drawable.ic_material_bikerack_24dp))
+                        .withLayer(new SymbolLayer("Layer", "RackTest")
+                            .withProperties(PropertyFactory.iconImage(MapBoxSymbols.BIKERACK.toString()),
+                                    iconAllowOverlap(true)
+                            ))
+            );
+            if (lastPosition != null) {
                 mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
                         .target(PositionTracker.getLastPosition().toMapboxLocation())
                         .zoom(17)
                         .bearing(0)
                         .build()), 1000);
             }
-        }));
+        });
+
+        /*rackMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, style -> {
+            if (lastPosition != null) {
+                mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                        .target(PositionTracker.getLastPosition().toMapboxLocation())
+                        .zoom(17)
+                        .bearing(0)
+                        .build()), 1000);
+
+                SymbolOptions marker = createMarker(lastPosition.getLatitude(), lastPosition.getLongitude(), MapBoxSymbols.BIKERACK);
+                List<Feature> features = new ArrayList<>();
+                features.add(Feature.fromGeometry(marker.getGeometry()));
+
+                FeatureCollection collection = FeatureCollection.fromFeatures(features);
+                addGeoJsonSource(mapboxMapRack.getStyle(), collection, "test", false);
+                createUnclusteredSymbolLayer(mapboxMapRack.getStyle(), "test", MapBoxSymbols.BIKERACK);
+            }
+        })
+        );*/
 
         EditText editRack = dialog.findViewById(R.id.edit_rack_name);
         Spinner spCapacity = dialog.findViewById(R.id.sp_capacity);
