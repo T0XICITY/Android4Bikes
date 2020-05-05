@@ -444,6 +444,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     public boolean allowRerouteFrom(Point offRoutePoint) {
         Log.d("HELLO", "Rerouting");
         if (!reroute_user) {
+            reroute_user = true;
             // Fetch new route with MapboxMapMatching
             List<com.mapbox.geojson.Point> points = new ArrayList<>();
             points.add(offRoutePoint);
@@ -489,7 +490,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                     });
             // Ignore internal routing, allowing MapboxMapMatching call
             Log.d("HELLO", "Reroute ended");
-            reroute_user = false;
             return false;
         }
         return false;
