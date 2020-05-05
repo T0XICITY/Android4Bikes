@@ -244,9 +244,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         parent.freemode_active = true;
 
         //Start Recorder
-        //parent.trackRecorder.start();
-
-
+        parent.trackRecorder.start(parent);
     }
 
     @Override

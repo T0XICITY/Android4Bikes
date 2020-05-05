@@ -14,4 +14,11 @@ public class MapmatchingRequest {
     public List<Point> getPoints() {
         return points;
     }
+
+    @Override
+    public String toString() {
+        return "MapmatchingRequest{" +
+                "points=" + points.toString() +
+                '}';
+    }
 }

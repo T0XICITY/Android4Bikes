@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private CircleImageView civ_profile;
     private boolean isGPS;
     public boolean freemode_active;
-    private TrackRecorder trackRecorder;
+    public TrackRecorder trackRecorder;
     private ViewModelBtBtn vm_BtBtn;
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
@@ -440,6 +440,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragDriving.cancelUpdateTimer(); // no more speed updates
 
             if (freemode_active) {
+                trackRecorder.stop();
                 submitTrack();
                 freemode_active = false;
             } else {
@@ -516,7 +517,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     newRating.setFun(rbSubmitFun.getProgress());
 
                     //Save track with Trackrecorder
-                    //trackRecorder.stop(author, newRating, name, desc);
+                    trackRecorder.save(author, newRating, name, desc);
                     submitTrackDialog.dismiss();
                 }
 
