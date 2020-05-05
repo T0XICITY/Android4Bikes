@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -55,6 +56,7 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
@@ -712,6 +714,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 isGPS = true; // flag maintain before get location
             }
         }
+    }
+
+    /**
+     * refresh data regarding a specified profile.
+     */
+    public void refreshProfile() {
+        Profile profile_own = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA).readMyOwnProfile();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            Uri photoUrl = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl();
+            String[] name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName().split(" ");
+            String firstName = name[0];
+            String familyName = "";
+            if (name.length > 1) {
+                familyName = name[1];
+            }
+            profile_own.setFirstName(firstName);
+            profile_own.setFamilyName(familyName);
+            //profile_own.setPhotoUrl(photoUrl.toString());
+        }
+        FirebaseConnection.getInstance().storeProfileToFireStoreAndLocalDB(profile_own);
     }
 
     public void checkLocationEnabled() {
