@@ -478,8 +478,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .create();
         submitTrackDialog.setCanceledOnTouchOutside(false);
         submitTrackDialog.setOnShowListener(dialogInterface -> {
-            //submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
-            //submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+            submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+            submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
         });
         submitTrackDialog.show();
 

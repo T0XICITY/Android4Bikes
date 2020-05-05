@@ -53,6 +53,7 @@
     <string name="rack_capacity">Capacity</string>
     <string name="ebike">E-bike charging station</string>
     <string name="covered">Covered</string>
+    <string name="rack_error">Pleas fill in rack name</string>
     
 
     <!-- Roadside Assistance Strings -->

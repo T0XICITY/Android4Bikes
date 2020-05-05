@@ -10,9 +10,7 @@
         <item name="colorSecondary">@color/colorPrimaryDark</item>
         <item name="colorOnSecondary">@color/TextWhite</item>
         <item name="materialButtonStyle">@style/CustomButtonStyle</item>
-        <item name="materialAlertDialogTheme">
-            @style/ThemeOverlay.MaterialComponents.MaterialAlertDialog
-        </item>
+        <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>
     </style>
 
     <style name="RatingBar" parent="Theme.AppCompat">
@@ -35,6 +33,10 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textAlignment">textEnd</item>
         <item name="borderWidth">2dp</item>
+    </style>
+    
+    <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert" >
+        <item name="android:buttonBarButtonStyle">@style/CustomButtonStyle</item>
     </style>
 
 
