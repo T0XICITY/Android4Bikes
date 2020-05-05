@@ -335,14 +335,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 latLng_lastcamerapos = mapboxMap.getCameraPosition().target;
                             }
                             if (mapboxMap.getCameraPosition().zoom > 13) {
-                                if (!fenceAlreadyRunning){
+                                if (!fenceAlreadyRunning) {
                                     geoFencing_bikeRacks.startGeoFenceListener();
                                     geoFencing_hazardAlerts.startGeoFenceListener();
                                     fenceAlreadyRunning = true;
                                     fenceAlreadyStopped = false;
                                 }
                             } else {
-                                if (!fenceAlreadyStopped){
+                                if (!fenceAlreadyStopped) {
                                     geoFencing_bikeRacks.stopGeoFenceListener();
                                     geoFencing_hazardAlerts.stopGeoFenceListener();
                                     fenceAlreadyRunning = false;
@@ -400,7 +400,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                     addRoutetoMap(style, track_result);
                                                     showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
                                                     return true;
-                                                }else {
+                                                } else {
                                                     //Was Bikerack or HazardALert
                                                     vm_Tracks.setNavigationTrack(null);
 
@@ -409,24 +409,24 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                             .filter(rack -> entry.getValue().getAsString().equals(rack.getFirebaseID()))
                                                             .findFirst()
                                                             .orElse(null);
-                                                    if (rack_result != null){
-                                                        Toast toast = Toast.makeText(getContext(),"Bike rack:\t\t\t\t\t\t\t\t"+rack_result.getName()
-                                                                        +"\n"+"Capacity:\t\t\t\t\t\t\t\t"+rack_result.getCapacity().name()
-                                                                        +"\n"+"e-Bike charging:\t\t"+(rack_result.hasBikeCharging() ? "available" : "not available")
-                                                                        +"\n"+"Is it covered:\t\t\t\t\t"+(rack_result.isCovered()? "yes" : "no")
-                                                                ,Toast.LENGTH_LONG);
-                                                        toast.setGravity(Gravity.TOP,0,50);
+                                                    if (rack_result != null) {
+                                                        Toast toast = Toast.makeText(getContext(), "Bike rack:\t\t\t\t\t\t\t\t" + rack_result.getName()
+                                                                        + "\n" + "Capacity:\t\t\t\t\t\t\t\t" + rack_result.getCapacity().name()
+                                                                        + "\n" + "e-Bike charging:\t\t" + (rack_result.hasBikeCharging() ? "available" : "not available")
+                                                                        + "\n" + "Is it covered:\t\t\t\t\t" + (rack_result.isCovered() ? "yes" : "no")
+                                                                , Toast.LENGTH_LONG);
+                                                        toast.setGravity(Gravity.TOP, 0, 50);
                                                         toast.show();
                                                         return true;
-                                                    }else {
+                                                    } else {
                                                         List<HazardAlert> hazards = vm_Hazards.getHazardAlerts().getValue();
                                                         HazardAlert hazard_result = hazards.stream()
                                                                 .filter(hazard -> entry.getValue().getAsString().equals(hazard.getFirebaseID()))
                                                                 .findFirst()
                                                                 .orElse(null);
-                                                        if (hazard_result != null){
-                                                            Toast toast = Toast.makeText(getContext(),"Hazard type: "+HazardAlert.HazardType.getByType(hazard_result.getType()),Toast.LENGTH_LONG);
-                                                            toast.setGravity(Gravity.TOP,0,50);
+                                                        if (hazard_result != null) {
+                                                            Toast toast = Toast.makeText(getContext(), "Hazard type: " + HazardAlert.HazardType.getByType(hazard_result.getType()), Toast.LENGTH_LONG);
+                                                            toast.setGravity(Gravity.TOP, 0, 50);
                                                             toast.show();
                                                             return true;
                                                         }
@@ -525,6 +525,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 GeoFencing.ConstantsGeoFencing.COLLECTION_ROUTE.toString());
         addGeoJsonSource(loadedMapStyle, track.getEndPosition().getAsPoint(), GeoFencing.ConstantsGeoFencing.FINISH_FLAG.toString());
     }
+
     /**
      * Create Markers from Track List
      *
@@ -710,6 +711,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 iconAllowOverlap(true),
                 iconOffset(new Float[]{0f, -9f})));
     }
+
     /**
      * Create unclustered SymbolLayer for small zoom level
      *
@@ -747,24 +749,24 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 color = R.color.Green800Primary;
                 break;
         }
-            //Add clusters' circles
+        //Add clusters' circles
         CircleLayer circles = new CircleLayer("clustered_" + sourceID, sourceID);
-            circles.setProperties(
-                    circleOpacity(0.6f),
-                    circleColor(ContextCompat.getColor(parent, color)),
-                    circleRadius(15f)
-            );
+        circles.setProperties(
+                circleOpacity(0.6f),
+                circleColor(ContextCompat.getColor(parent, color)),
+                circleRadius(15f)
+        );
 
-            Expression pointCount = toNumber(get("point_count"));
+        Expression pointCount = toNumber(get("point_count"));
 
-            // Add a filter to the cluster layer that hides the circles based on "point_count"
-            circles.setFilter(
-                    all(has("point_count"),
-                            gte(pointCount, literal(0)
-                            )
-                    ));
+        // Add a filter to the cluster layer that hides the circles based on "point_count"
+        circles.setFilter(
+                all(has("point_count"),
+                        gte(pointCount, literal(0)
+                        )
+                ));
 
-            loadedMapStyle.addLayer(circles);
+        loadedMapStyle.addLayer(circles);
 
         //Add the count labels
         SymbolLayer count = new SymbolLayer("count_" + sourceID, sourceID);
@@ -903,6 +905,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     /**
      * submits a Hazard Alert on the given position
+     *
      * @param hazardPosition position of the hazard to report
      */
     public void submit_hazard(Position hazardPosition) {
