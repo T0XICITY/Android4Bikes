@@ -16,6 +16,7 @@ import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -309,6 +310,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
         // beautify cardview
         infoCardView.setElevation(CARDVIEW_ELEVATION);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) infoCardView
+                .findViewById(R.id.layout_detailView).getLayoutParams();
+        params.setMargins(0, 0, 0, 0);
+        infoCardView.findViewById(R.id.layout_detailView).setLayoutParams(params);
 
         // set initial visibility of everything
         infoCardView.setVisibility(View.GONE);
