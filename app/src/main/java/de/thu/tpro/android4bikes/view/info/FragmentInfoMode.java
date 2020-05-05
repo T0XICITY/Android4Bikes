@@ -79,27 +79,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnHazardAlerts;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
-import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.not;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleOpacity;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineCap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineJoin;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacement;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 
 
 public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener, Observer {
@@ -111,7 +91,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private ViewModelOwnHazardAlerts vm_ownHazards;
     private ViewModelOwnTracks vm_ownTracks;
     private Style style;
-    //Regular ViewModels (=DATA FROM THE GEOFENCE!!!)
+    //Regular ViewModels (DATA FROM THE GEOFENCE!!!)
     private ViewModelBikerack vm_bikeRack;
     private ViewModelHazardAlert vm_Hazards;
     private ViewModelTrack vm_Tracks;
