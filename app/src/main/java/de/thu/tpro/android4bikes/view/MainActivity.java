@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -21,7 +22,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -56,6 +56,7 @@ import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
+import de.thu.tpro.android4bikes.data.model.Profile;
 import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchDB;
@@ -117,11 +118,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private CircleImageView civ_profile;
     private boolean isGPS;
     public boolean freemode_active;
-    private TrackRecorder trackRecorder;
+    public TrackRecorder trackRecorder;
     private ViewModelBtBtn vm_BtBtn;
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
     private boolean toolbarHidden;
+    public boolean navigationRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.Green800Primary)));
             }
         });
+        refreshProfile();
     }
 
     /**
@@ -438,8 +441,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragDriving.cancelUpdateTimer(); // no more speed updates
 
             if (freemode_active) {
+                trackRecorder.stop();
                 submitTrack();
                 freemode_active = false;
+            } else {
+                if (navigationRunning) {
+                    navigationView.stopNavigation();
+                    navigationRunning = false;
+                    vm_track.setNavigationTrack(null);
+                }
             }
 
             openInfoMode();
@@ -461,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void submitTrack() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_track_submit, null);
-        TextInputLayout textLayout = (TextInputLayout)dialogView.findViewById(R.id.txt_track_name_layout);
+        TextInputLayout textLayout = dialogView.findViewById(R.id.txt_track_name_layout);
         TextInputEditText editTrackName = dialogView.findViewById(R.id.edit_track_name);
         TextInputEditText editDesc = dialogView.findViewById(R.id.edit_submit_desc);
         RatingBar rbSubmitRoadQuality = dialogView.findViewById(R.id.rb_submit_roadquality);
@@ -508,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     newRating.setFun(rbSubmitFun.getProgress());
 
                     //Save track with Trackrecorder
-                    //trackRecorder.stop(author, newRating, name, desc);
+                    trackRecorder.save(author, newRating, name, desc);
                     submitTrackDialog.dismiss();
                 }
 
@@ -725,6 +735,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 isGPS = true; // flag maintain before get location
             }
         }
+    }
+
+    /**
+     * refresh data regarding a specified profile.
+     */
+    public void refreshProfile() {
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                //TODO: do change of name on the server
+                Profile profile_own = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA).readMyOwnProfile();
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    Uri photoUrl = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl();
+                    String[] name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName().split(" ");
+                    String firstName = name[0];
+                    String familyName = "";
+                    if (name.length > 1) {
+                        familyName = name[1];
+                    }
+                    profile_own.setFirstName(firstName);
+                    profile_own.setFamilyName(familyName);
+                    profile_own.setProfilePictureURL(photoUrl.toString());
+                }
+                FirebaseConnection.getInstance().storeProfileToFireStoreAndLocalDB(profile_own);
+                FirebaseConnection.getInstance().readAllOwnTracksAndStoreItToOwnDB(profile_own.getGoogleID());
+            }
+        };
+        Processor.getInstance().startRunnable(r);
     }
 
     public void checkLocationEnabled() {
