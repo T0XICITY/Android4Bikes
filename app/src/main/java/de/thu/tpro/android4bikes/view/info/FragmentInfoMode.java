@@ -944,37 +944,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         hazardDialog.show();
     }
 
-    private void submit_rack() {
-        //showRackMap();
-        MaterialAlertDialogBuilder rack_builder = new MaterialAlertDialogBuilder(getContext());
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_rack, null);
-
-        TextView tvRackName = dialogView.findViewById(R.id.edit_rack_name);
-        Spinner spCapacity = dialogView.findViewById(R.id.sp_capacity);
-        CheckBox cbEBike = dialogView.findViewById(R.id.chBx_ebike);
-        CheckBox cbCovered = dialogView.findViewById(R.id.chBx_covered);
-
-        rack_builder.setTitle("Submit rack");
-        rack_builder.setView(dialogView);
-        rack_builder.setPositiveButton(R.string.submit, (dialogInterface, i) -> {
-            BikeRack newRack = new BikeRack();
-
-            newRack.setName(tvRackName.getText().toString());
-            newRack.setCapacity(BikeRack.ConstantsCapacity.valueOf(
-                    spCapacity.getSelectedItem().toString().toUpperCase())
-            );
-            newRack.setHasBikeCharging(cbEBike.isChecked());
-            newRack.setCovered(cbCovered.isChecked());
-
-            Log.d(LOG_TAG, newRack.toString());
-            vm_ownBikeRack.addOwnBikeRack(newRack);
-        });
-
-        // do nothing on cancel
-        rack_builder.setNegativeButton(R.string.cancel, null);
-        rack_builder.show();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {

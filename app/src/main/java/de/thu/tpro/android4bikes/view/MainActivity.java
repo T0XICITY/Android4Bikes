@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vm_BtBtn.getBtnEvent().observe(this,newValue->{
             if (currentFragment == fragDriving){
                 Toast.makeText(getApplicationContext(),"BtBtn was clicked",Toast.LENGTH_SHORT).show();
-                //todo: klären distanceof interrest
+                //todo: clarify distance of interest
                 HazardAlert alert = new HazardAlert(HazardAlert.HazardType.GENERAL,PositionTracker.getLastPosition(),10,true);
                 CouchWriteBuffer.getInstance().submitHazardAlerts(alert);
             }
@@ -475,8 +475,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .create();
         submitTrackDialog.setCanceledOnTouchOutside(false);
         submitTrackDialog.setOnShowListener(dialogInterface -> {
-            submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
-            submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+            //submitTrackDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+            //submitTrackDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorPrimary, getTheme()));
         });
         submitTrackDialog.show();
 
@@ -506,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     newRating.setFun(rbSubmitFun.getProgress());
 
                     //Save track with Trackrecorder
-                    //trackRecorder.stop(author,newRating, name, desc);
+                    //trackRecorder.stop(author, newRating, name, desc);
                     submitTrackDialog.dismiss();
                 }
 
