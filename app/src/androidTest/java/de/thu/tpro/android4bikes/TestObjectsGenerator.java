@@ -135,7 +135,7 @@ public class TestObjectsGenerator {
         achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
         achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
 
-        return new Profile("Kostas", "Kostidis", "00x15dxxx", 10, 250, achievements);
+        return new Profile("Kostas", "Kostidis", "00x15dxxx", "", 10, 250, achievements);
     }
 
     /**
@@ -146,7 +146,7 @@ public class TestObjectsGenerator {
         achievements.add(new KmAchievement("First Mile", 1, 1, 1, 2));
         achievements.add(new KmAchievement("From Olympia to Corinth", 2, 40, 7, 119));
 
-        return new Profile("Kostas", "Kostidis", "00x15dxxx", 666, 1000, achievements);
+        return new Profile("Kostas", "Kostidis", "00x15dxxx", "", 666, 1000, achievements);
     }
 
     public static Map<Track, Profile> initialize_map_track_profile() {
@@ -162,7 +162,7 @@ public class TestObjectsGenerator {
 
     public static Profile createAnonProfile() {
         List<Achievement> list = new ArrayList<>();
-        return new Profile("Android", "Biker", "-1", 0x2e8b57, 0, list);
+        return new Profile("Android", "Biker", "-1", "", 0x2e8b57, 0, list);
     }
 
     public static List<Track> initTracklistDummy() {
