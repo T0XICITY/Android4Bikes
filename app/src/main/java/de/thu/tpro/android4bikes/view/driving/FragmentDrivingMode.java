@@ -86,6 +86,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
     // Navigation related variables
     private DirectionsRoute reroute;
+    private boolean reroute_user;
 
     //ViewModels
     ViewModelTrack vm_track;
@@ -442,51 +443,54 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public boolean allowRerouteFrom(Point offRoutePoint) {
         Log.d("HELLO", "Rerouting");
-        // Fetch new route with MapboxMapMatching
-        List<com.mapbox.geojson.Point> points = new ArrayList<>();
-        points.add(offRoutePoint);
-        //Todo get next Point based on Track
-        points.add(track_for_navigation.getStartPosition().getAsPoint());
+        if (!reroute_user) {
+            // Fetch new route with MapboxMapMatching
+            List<com.mapbox.geojson.Point> points = new ArrayList<>();
+            points.add(offRoutePoint);
+            //Todo get next Point based on Track
+            points.add(track_for_navigation.getStartPosition().getAsPoint());
 
-        NavigationRoute.builder(parent)
-                .accessToken(getString(R.string.access_token))
-                .origin(points.get(0))
-                .destination(points.get(1))
-                .addWaypointIndices(0, points.size() - 1)
-                .profile(DirectionsCriteria.PROFILE_CYCLING)
-                .build()
-                .getRoute(new Callback<DirectionsResponse>() {
-                    @Override
-                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-                        if (response.isSuccessful()) {
-                            Log.d("HELLO", "CODE: " + response.code() + " with Message:\n" + response.message());
-                            Log.d("HELLO", "SIZE: " + response.body().routes().size());
-                            Log.d("HELLO", "Body Message: " + response.body().message());
-                            if (response.body().routes().size() > 0) {
-                                reroute = response.body().routes().get(0);
+            NavigationRoute.builder(parent)
+                    .accessToken(getString(R.string.access_token))
+                    .origin(points.get(0))
+                    .destination(points.get(1))
+                    .addWaypointIndices(0, points.size() - 1)
+                    .profile(DirectionsCriteria.PROFILE_CYCLING)
+                    .build()
+                    .getRoute(new Callback<DirectionsResponse>() {
+                        @Override
+                        public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                            if (response.isSuccessful()) {
+                                Log.d("HELLO", "CODE: " + response.code() + " with Message:\n" + response.message());
+                                Log.d("HELLO", "SIZE: " + response.body().routes().size());
+                                Log.d("HELLO", "Body Message: " + response.body().message());
+                                if (response.body().routes().size() > 0) {
+                                    reroute = response.body().routes().get(0);
 
-                                Log.d("HELLO", String.valueOf(reroute.distance()));
-                                if (reroute != null) {
-                                    Log.d("HELLO", "reroute initialized");
+                                    Log.d("HELLO", String.valueOf(reroute.distance()));
+                                    if (reroute != null) {
+                                        Log.d("HELLO", "reroute initialized");
+                                    }
+                                    track_for_navigation.setRoute(DirectionRouteHelper.appendRoute(reroute, track_for_navigation.getRoute()));
+                                    parent.navigationView.startNavigation(NavigationViewOptions.builder()
+                                            .directionsRoute(track_for_navigation.getRoute())
+                                            .locationEngine(parent.locationEngine)
+                                            .navigationListener(FragmentDrivingMode.this)
+                                            .routeListener(FragmentDrivingMode.this)
+                                            .build());
                                 }
-                                track_for_navigation.setRoute(DirectionRouteHelper.appendRoute(reroute, track_for_navigation.getRoute()));
-                                parent.navigationView.startNavigation(NavigationViewOptions.builder()
-                                        .directionsRoute(track_for_navigation.getRoute())
-                                        .locationEngine(parent.locationEngine)
-                                        .navigationListener(FragmentDrivingMode.this)
-                                        .routeListener(FragmentDrivingMode.this)
-                                        .build());
                             }
                         }
-                    }
 
-                    @Override
-                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                        @Override
+                        public void onFailure(Call<DirectionsResponse> call, Throwable t) {
 
-                    }
-                });
-        // Ignore internal routing, allowing MapboxMapMatching call
-        Log.d("HELLO", "Reroute ended");
+                        }
+                    });
+            // Ignore internal routing, allowing MapboxMapMatching call
+            Log.d("HELLO", "Reroute ended");
+            return false;
+        }
         return false;
     }
 
