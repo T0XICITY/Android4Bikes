@@ -6,11 +6,9 @@ import android.content.pm.PackageManager;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -338,9 +336,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                                 .findFirst()
                                                                 .orElse(null);
                                                         if (hazard_result != null) {
-                                                            Toast toast = Toast.makeText(getContext(), "Hazard type: " + HazardAlert.HazardType.getByType(hazard_result.getType()), Toast.LENGTH_LONG);
-                                                            toast.setGravity(Gravity.TOP, 0, 50);
-                                                            toast.show();
+                                                            showHazardAlertCardView(hazard_result);
                                                             return true;
                                                         }
                                                     }
@@ -426,7 +422,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                 InfoModeHelper.calculateDistanceFromMe(rack.getPosition()));
         String capacityText = InfoModeHelper.localizeCapacity(getResources(), rack.getCapacity());
 
-        // inflate infoCardView into Placeholder Layout
+        // inflate infoCardView
         FrameLayout placeholder = getView().findViewById(R.id.placeholder_infoCardView);
         infoCardView = (CardView) getLayoutInflater().inflate(R.layout.cardview_bikerack, null);
 
@@ -439,12 +435,25 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         if (rack.isHasBikeCharging())
             infoCardView.findViewById(R.id.iv_ebikecharging).setVisibility(View.VISIBLE);
 
-        // show card view
+        // add card view into placeholder layout
         infoCardView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         placeholder.addView(infoCardView);
-        placeholder.setVisibility(View.VISIBLE);
-        placeholder.invalidate();
+    }
 
+    private void showHazardAlertCardView(HazardAlert hazardAlert) {
+        //extract necessary data from hazardAlert
+        String hazardTypeText = InfoModeHelper.localizeHazardType(getResources(), hazardAlert);
+
+        // inflate infoCardView
+        FrameLayout placeholder = getView().findViewById(R.id.placeholder_infoCardView);
+        infoCardView = (CardView) getLayoutInflater().inflate(R.layout.cardview_hazard_alert, null);
+
+        // insert data into textView
+        ((TextView) infoCardView.findViewById(R.id.tv_hazardName)).setText(hazardTypeText);
+
+        // add card view into placeholder layout
+        infoCardView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        placeholder.addView(infoCardView);
     }
 
     private void hideInfoCardView() {

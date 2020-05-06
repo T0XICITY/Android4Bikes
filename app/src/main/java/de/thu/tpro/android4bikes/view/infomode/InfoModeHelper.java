@@ -5,6 +5,7 @@ import android.location.Location;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.BikeRack;
+import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 
@@ -31,6 +32,11 @@ public class InfoModeHelper {
         String[] capacityTexts = resources.getStringArray(R.array.rack_size);
         String preformatted = resources.getString(R.string.preformattedCapacity);
         return String.format(preformatted, capacityTexts[capacity.toInt()]);
+    }
+
+    public static String localizeHazardType(Resources resources, HazardAlert hazardAlert) {
+        String[] hazardTypes = resources.getStringArray(R.array.hazards);
+        return hazardTypes[hazardAlert.getType()-1];
     }
 
 }
