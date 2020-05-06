@@ -1,6 +1,10 @@
 package de.thu.tpro.android4bikes.view.freemode;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -8,8 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -81,7 +83,6 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnHazardAlerts;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
 
-import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 
 public class FragmentFreemode extends Fragment implements OnMapReadyCallback, PermissionsListener, Observer, androidx.lifecycle.Observer<OpenWeatherObject> {
@@ -163,10 +164,23 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
 
     public void fade(View view) {
         ImageView image = view.findViewById(R.id.imageView_animation);
-        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade);
-        animation.setRepeatCount(Animation.INFINITE);
-        animation.setRepeatMode(Animation.RESTART);
-        image.startAnimation(animation);
+        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(image, "alpha", 1f, 0f);
+        fadeOut.setDuration(1000);
+        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(image, "alpha", 0f, 1f);
+        fadeIn.setDuration(2000);
+
+        final AnimatorSet mAnimationSet = new AnimatorSet();
+
+        mAnimationSet.play(fadeIn).after(fadeOut);
+
+        mAnimationSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                mAnimationSet.start();
+            }
+        });
+        mAnimationSet.start();
     }
 
 
