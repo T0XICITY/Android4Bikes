@@ -55,7 +55,7 @@
     <string name="ebike">E-bike charging station</string>
     <string name="covered">Covered</string>
     <string name="rack_error">Pleas fill in rack name</string>
-
+    <string name="preformattedCapacity">Capacity: %s</string>
 
     <!-- Roadside Assistance Strings -->
     <string-array name="roadside_assistance_list">
