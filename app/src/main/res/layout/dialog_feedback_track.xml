@@ -44,7 +44,7 @@
 
         <RatingBar
             android:id="@+id/rb_feedback_roadquality"
-            style="?android:attr/ratingBarStyleIndicator"
+            style="@style/RatingBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -71,7 +71,7 @@
 
         <RatingBar
             android:id="@+id/rb_feedback_difficulty"
-            style="?android:attr/ratingBarStyleIndicator"
+            style="@style/RatingBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -98,7 +98,7 @@
 
         <RatingBar
             android:id="@+id/rb_feedback_fun"
-            style="?android:attr/ratingBarStyleIndicator"
+            style="@style/RatingBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

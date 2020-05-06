@@ -8,7 +8,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -540,7 +539,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
 
     public static Profile createAnonProfile() {
         List<Achievement> list = new ArrayList<>();
-        return new Profile("Android", "Biker", "-1", 0x2e8b57, 0, list);
+        return new Profile("Android", "Biker", "-1", "notVaildPhotoURL", 0x2e8b57, 0, list);
     }
 
     /**
@@ -550,9 +549,6 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
      */
     @Override
     public void readProfilesBasedOnTracks(List<Track> tracks) {
-        //TODO: PLEASE BY FABI AND PATRICK.
-
-        //TODO: MAINTAIN FOLLOWING CODE BASE:
         Map<Track, Profile> map_track_profile = new HashMap<>();
 
         //Implementation
@@ -871,6 +867,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                     Track track = helper.convertJSONObjectToObject(jsonObject_track);
                                     track.setRoute(route);
                                     ownDataDB.storeTrack(track);
+                                    Log.d("HalloWeltTrack", "Read from FireStore" + track.toString());
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
