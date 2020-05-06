@@ -108,7 +108,7 @@ public class TrackRecorder implements Observer {
                                 } else {
                                     //Finished with Track Appending
                                     //Save Track to Firebase
-                                    finalTrack.setDistance_km(finalroute.distance());
+                                    finalTrack.setDistance_km(finalroute.distance() / 1000.0);
                                     finalTrack.setRoute(finalroute);
                                     finalTrack.setStartPosition(new Position(finalroute.legs().get(0).steps().get(0).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(0).maneuver().location().longitude()));
                                     finalTrack.setEndPosition(new Position(finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().longitude()));
