@@ -28,7 +28,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.data.Entry;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -151,7 +150,9 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
 
         initweatherFab();
         chartsUtil = new ChartsUtil();
+
         chartsUtil.initalizeElevationChart(view,R.id.elevationChart);
+
 
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
 
@@ -236,21 +237,12 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
             MapBoxUtils.createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString(), MapBoxUtils.MapBoxSymbols.BIKERACK);
             bikerackLayer_created = true;
         }
+        chartsUtil.feedMultiple();
     }
 
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-        ArrayList<Entry> values = new ArrayList<>();
-        values.add(new Entry(1, 50));
-        values.add(new Entry(2, 100));
-        values.add(new Entry(3, 80));
-        values.add(new Entry(4, 120));
-        values.add(new Entry(5, 110));
-        values.add(new Entry(7, 150));
-        values.add(new Entry(8, 250));
-        values.add(new Entry(9, 190));
-        chartsUtil.renderData(values);
         mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck93ydsyn2ovs1js95kx1nu4u"),
                 style -> {
                     initUserPosition(style);
@@ -711,6 +703,8 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
     }
 
     public void cancelUpdateTimer() {
-        updateTimer.cancel();
+        if (updateTimer != null) {
+            updateTimer.cancel();
+        }
     }
 }

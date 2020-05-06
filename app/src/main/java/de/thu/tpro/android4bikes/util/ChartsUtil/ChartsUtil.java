@@ -1,114 +1,166 @@
 package de.thu.tpro.android4bikes.util.ChartsUtil;
 
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
-import android.graphics.drawable.Drawable;
+import android.graphics.Typeface;
 import android.view.View;
 
 import androidx.annotation.IdRes;
 import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.Utils;
-
-import java.util.ArrayList;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.util.Processor;
 
 public class ChartsUtil {
     //See: https://medium.com/@leelaprasad4648/creating-linechart-using-mpandroidchart-33632324886d
         LineChart elevationChart;
+    private Thread thread;
+    private Processor processor = Processor.getInstance();
+
     public void initalizeElevationChart(View view, @IdRes int chartID){
         elevationChart = view.findViewById(chartID);
         elevationChart.setTouchEnabled(false);
         elevationChart.setPinchZoom(false);
-    }
 
-    public void renderData(ArrayList<Entry> values) {
-        LimitLine llXAxis = new LimitLine(10f, "Index 10");
-        llXAxis.setLineWidth(4f);
-        llXAxis.enableDashedLine(10f, 10f, 0f);
-        llXAxis.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
-        llXAxis.setTextSize(10f);
+        // enable description text
+        elevationChart.getDescription().setEnabled(false);
 
-        XAxis xAxis = elevationChart.getXAxis();
-        xAxis.enableGridDashedLine(10f, 10f, 0f);
-        xAxis.setAxisMaximum(10f);
-        xAxis.setAxisMinimum(0f);
-        xAxis.setDrawLimitLinesBehindData(true);
 
-        LimitLine ll1 = new LimitLine(215f, "Maximum Limit");
-        ll1.setLineWidth(4f);
-        ll1.enableDashedLine(10f, 10f, 0f);
-        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
-        ll1.setTextSize(10f);
+        // enable scaling and dragging
+        elevationChart.setDragEnabled(false);
+        elevationChart.setScaleEnabled(false);
+        elevationChart.setDrawGridBackground(false);
 
-        LimitLine ll2 = new LimitLine(70f, "Minimum Limit");
-        ll2.setLineWidth(4f);
-        ll2.enableDashedLine(10f, 10f, 0f);
-        ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
-        ll2.setTextSize(10f);
+        // if disabled, scaling can be done on x- and y-axis separately
+        elevationChart.setPinchZoom(true);
+
+        // set an alternative background color
+        elevationChart.setBackgroundColor(ContextCompat.getColor(GlobalContext.getContext(), R.color.colorPrimaryDark));
+
+        LineData data = new LineData();
+        data.setValueTextColor(R.color.TextWhite);
+
+        // add empty data
+        elevationChart.setData(data);
+
+        // get the legend (only possible after setting data)
+        Legend l = elevationChart.getLegend();
+
+        // modify the legend ...
+        l.setForm(Legend.LegendForm.LINE);
+        l.setTypeface(Typeface.DEFAULT);
+        l.setTextColor(Color.WHITE);
+
+        XAxis xl = elevationChart.getXAxis();
+        xl.setTypeface(Typeface.DEFAULT);
+        xl.setTextColor(Color.WHITE);
+        xl.setDrawGridLines(false);
+        xl.setAvoidFirstLastClipping(true);
+        xl.setEnabled(false);
 
         YAxis leftAxis = elevationChart.getAxisLeft();
-        leftAxis.removeAllLimitLines();
-        leftAxis.addLimitLine(ll1);
-        leftAxis.addLimitLine(ll2);
-        leftAxis.setAxisMaximum(350f);
+        leftAxis.setTypeface(Typeface.DEFAULT);
+        leftAxis.setTextColor(Color.WHITE);
+        leftAxis.setAxisMaximum(100f);
         leftAxis.setAxisMinimum(0f);
-        leftAxis.enableGridDashedLine(10f, 10f, 0f);
-        leftAxis.setDrawZeroLine(false);
-        leftAxis.setDrawLimitLinesBehindData(false);
+        leftAxis.setDrawGridLines(true);
 
-        elevationChart.getAxisRight().setEnabled(false);
-        setData(values);
+        YAxis rightAxis = elevationChart.getAxisRight();
+        rightAxis.setEnabled(false);
     }
 
+    private void addEntry() {
 
-    private void setData(ArrayList<Entry> input_values) {
-        ArrayList<Entry> values = new ArrayList<>();
-        values.addAll(input_values);
+        LineData data = elevationChart.getData();
 
-        LineDataSet set1;
-        if (elevationChart.getData() != null &&
-                elevationChart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet) elevationChart.getData().getDataSetByIndex(0);
-            set1.setValues(values);
-            elevationChart.getData().notifyDataChanged();
-            elevationChart.notifyDataSetChanged();
-        } else {
-            set1 = new LineDataSet(values, "Sample Data");
-            set1.setDrawIcons(false);
-            set1.enableDashedLine(10f, 5f, 0f);
-            set1.enableDashedHighlightLine(10f, 5f, 0f);
-            set1.setColor(Color.DKGRAY);
-            set1.setCircleColor(Color.DKGRAY);
-            set1.setLineWidth(1f);
-            set1.setCircleRadius(3f);
-            set1.setDrawCircleHole(false);
-            set1.setValueTextSize(9f);
-            set1.setDrawFilled(true);
-            set1.setFormLineWidth(1f);
-            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
-            set1.setFormSize(15.f);
+        if (data != null) {
 
-            if (Utils.getSDKInt() >= 18) {
-                Drawable drawable = ContextCompat.getDrawable(GlobalContext.getContext(), R.drawable.ic_material_record_red_24dp);
-                set1.setFillDrawable(drawable);
-            } else {
-                set1.setFillColor(Color.DKGRAY);
+            ILineDataSet set = data.getDataSetByIndex(0);
+            // set.addEntry(...); // can be called as well
+
+            if (set == null) {
+                set = createSet();
+                data.addDataSet(set);
             }
-            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
-            LineData data = new LineData(dataSets);
-            elevationChart.setData(data);
+
+            data.addEntry(new Entry(set.getEntryCount(), (float) (Math.random() * 40) + 30f), 0);
+            data.notifyDataChanged();
+
+            // let the chart know it's data has changed
+            elevationChart.notifyDataSetChanged();
+
+            // limit the number of visible entries
+            elevationChart.setVisibleXRangeMaximum(120);
+            // chart.setVisibleYRange(30, AxisDependency.LEFT);
+
+            // move to the latest entry
+            elevationChart.moveViewToX(data.getEntryCount());
+
+            // this automatically refreshes the chart (calls invalidate())
+            // chart.moveViewTo(data.getXValCount()-7, 55f,
+            // AxisDependency.LEFT);
         }
     }
+
+    private LineDataSet createSet() {
+
+        LineDataSet set = new LineDataSet(null, "Dynamic Data");
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        set.setColor(ContextCompat.getColor(GlobalContext.getContext(), R.color.colorAccent));
+        set.setCircleColor(Color.WHITE);
+        set.setLineWidth(2f);
+        set.setCircleRadius(4f);
+        set.setFillAlpha(65);
+        set.setFillColor(Color.WHITE);
+        set.setHighLightColor(Color.rgb(244, 117, 117));
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(9f);
+        set.setDrawValues(false);
+        set.setDrawCircles(false);
+        return set;
+    }
+
+    public void feedMultiple() {
+
+        if (thread != null)
+            thread.interrupt();
+
+        final Runnable runnable = new Runnable() {
+
+            @Override
+            public void run() {
+                addEntry();
+            }
+        };
+
+        thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                for (int i = 0; i < 1000; i++) {
+
+                    // Don't generate garbage runnables inside the loop.
+                    processor.startRunnable(runnable);
+
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        thread.start();
+    }
 }
+

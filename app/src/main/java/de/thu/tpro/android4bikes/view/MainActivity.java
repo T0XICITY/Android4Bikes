@@ -202,15 +202,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     @SuppressLint("MissingPermission")
     public void initLocationEngine() {
-        locationEngine = LocationEngineProvider.getBestLocationEngine(this);
+        if (locationEngine == null) {
+            locationEngine = LocationEngineProvider.getBestLocationEngine(this);
 
-        LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
-                .setFastestInterval(DEFAULT_MAX_WAIT_TIME)
-                .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-                .build();
+            LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+                    .setFastestInterval(DEFAULT_MAX_WAIT_TIME)
+                    .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
+                    .build();
 
-        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
-        locationEngine.getLastLocation(callback);
+            locationEngine.requestLocationUpdates(request, callback, getMainLooper());
+            locationEngine.getLastLocation(callback);
+        }
+
     }
 
     @Override
