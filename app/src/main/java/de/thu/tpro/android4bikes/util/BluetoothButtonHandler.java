@@ -67,7 +67,7 @@ public class BluetoothButtonHandler extends Observable {
                 bDetect = false;
                 return true;
             } else if (keyEvent.getDeviceId() == deviceID) {
-                Log.d("HalloWelt","BtBtn was fired");
+                //Log.d("HalloWelt","BtBtn was fired");
                 setChanged();
                 notifyObservers();
                 return true;

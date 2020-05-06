@@ -85,7 +85,7 @@ public class TrackRecorder implements Observer {
                     public void onResponse(Call<MapMatchingResponse> call, Response<MapMatchingResponse> response) {
 
                         if (response.isSuccessful()) {
-                            Log.d("HELLO", "SIZE: " + response.body().matchings().size());
+                            //Log.d("HELLO", "SIZE: " + response.body().matchings().size());
                             if (response.body().matchings().size() > 0) {
                                 DirectionsRoute route_new = response.body().matchings().get(0).toDirectionRoute();
 
@@ -118,7 +118,7 @@ public class TrackRecorder implements Observer {
                             }
 
                         } else {
-                            Log.d("HELLO", "Response empty");
+                            //Log.d("HELLO", "Response empty");
 
                         }
                     }
@@ -155,6 +155,6 @@ public class TrackRecorder implements Observer {
             mapmatchingRequest.getPoints().add(position.getAsPoint());
 
         }
-        list_mapmatchingRequests.forEach(mapmatchingRequest1 -> Log.d("HalloWelTrack", mapmatchingRequest1.toString()));
+        //list_mapmatchingRequests.forEach(mapmatchingRequest1 -> Log.d("HalloWelTrack", mapmatchingRequest1.toString()));
     }
 }

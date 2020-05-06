@@ -131,9 +131,9 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
     public void registerDocument(String documentID, GeoPoint geoPoint, GeoFirestore fireStore) {
         fireStore.setLocation(documentID, geoPoint, exception -> {
             if (exception != null) {
-                Log.d("HALLO WELT!", "An error has occurred while registering Document: " + exception.getMessage());
+                //Log.d("HALLO WELT!", "An error has occurred while registering Document: " + exception.getMessage());
             } else {
-                Log.d("HALLO WELT!", "Document " + documentID + " : " + geoPoint.toString() + " registered successfully!");
+                //Log.d("HALLO WELT!", "Document " + documentID + " : " + geoPoint.toString() + " registered successfully!");
             }
         });
     }
@@ -867,7 +867,7 @@ public class FirebaseConnection extends Observable implements FireStoreDatabase 
                                     Track track = helper.convertJSONObjectToObject(jsonObject_track);
                                     track.setRoute(route);
                                     ownDataDB.storeTrack(track);
-                                    Log.d("HalloWeltTrack", "Read from FireStore" + track.toString());
+                                    //Log.d("HalloWeltTrack", "Read from FireStore" + track.toString());
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

@@ -23,12 +23,12 @@ public class FragmentSettings extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.fragment_settings, rootKey);
 
         findPreference("bluetooth_active").setOnPreferenceClickListener(preference -> {
-            Log.d("HalloWelt","Detect");
+            //Log.d("HalloWelt","Detect");
             BluetoothButtonHandler.getInstance(getActivity().getApplicationContext()).detectButton();
             return true;
         });
         findPreference("bluetooth_reset").setOnPreferenceClickListener(preference -> {
-            Log.d("HalloWelt","Reset");
+            //Log.d("HalloWelt","Reset");
             BluetoothButtonHandler.getInstance(getActivity().getApplicationContext()).removeButton();
             return true;
         });

@@ -73,9 +73,9 @@ public class GeoFencing extends Observable {
             @Override
             public void onComplete(Exception exception) {
                 if (exception != null) {
-                    Log.d("HALLO WELT!", "An error has occurred while removing Document: " + exception.getMessage());
+                    //Log.d("HALLO WELT!", "An error has occurred while removing Document: " + exception.getMessage());
                 } else {
-                    Log.d("HALLO WELT!", "Document removed successfully!");
+                    //Log.d("HALLO WELT!", "Document removed successfully!");
                 }
             }
         });
@@ -114,7 +114,7 @@ public class GeoFencing extends Observable {
                     if (!documents_in_area.contains(documentSnapshot.getId())) {
                         documents_in_area.add(documentSnapshot.getId());
                     }
-                    Log.d("HalloWelt", "DocumentMoved: " + documentSnapshot.getId() + " Geo point: " + geoPoint);
+                    //Log.d("HalloWelt", "DocumentMoved: " + documentSnapshot.getId() + " Geo point: " + geoPoint);
                 }
 
                 @Override
@@ -152,13 +152,13 @@ public class GeoFencing extends Observable {
                 @Override
                 public void onDocumentChanged(DocumentSnapshot documentSnapshot, GeoPoint geoPoint) {
                     geoPoint.toString();
-                    Log.d("HalloWelt", "onDocumentChanged");
+                    //Log.d("HalloWelt", "onDocumentChanged");
                 }
 
                 @Override
                 public void onGeoQueryReady() {
-                    Log.d("HALLO WELT", "Query ready");
-                    documents_in_area.forEach(key -> Log.d("HALLO WELT", key));
+                    //Log.d("HALLO WELT", "Query ready");
+                    //documents_in_area.forEach(key -> Log.d("HALLO WELT", key));
 
                     /*setChanged();
                     notifyObservers(list_objects);*/
@@ -166,7 +166,7 @@ public class GeoFencing extends Observable {
 
                 @Override
                 public void onGeoQueryError(Exception e) {
-                    Log.d("HALLO WELT", "Query error" + e.getMessage());
+                    //Log.d("HALLO WELT", "Query error" + e.getMessage());
                 }
             });
             return true;

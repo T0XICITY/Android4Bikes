@@ -54,28 +54,28 @@ public class TrackDistanceTuple implements Comparable<TrackDistanceTuple> {
         int result = 0;
         switch (sortBy) {
             case RANGE:
-                Log.d(LOG_TAG, "Comparing by Range");
+                //Log.d(LOG_TAG, "Comparing by Range");
                 result = Double.compare(distanceToUser, other.distanceToUser);
                 break;
             case QUALITY:
-                Log.d(LOG_TAG, "Comparing by Quality");
+                //Log.d(LOG_TAG, "Comparing by Quality");
                 result = Integer.compare(getTrack().getRating().getRoadquality(),
                         other.getTrack().getRating().getRoadquality());
                 break;
             case DIFFICULTY:
-                Log.d(LOG_TAG, "Comparing by Difficulty");
+                //Log.d(LOG_TAG, "Comparing by Difficulty");
                 result = Integer.compare(getTrack().getRating().getDifficulty(),
                         other.getTrack().getRating().getDifficulty());
                 break;
             case FUNFACTOR:
-                Log.d(LOG_TAG, "Comparing by Funfactor");
+                //Log.d(LOG_TAG, "Comparing by Funfactor");
                 result = Integer.compare(getTrack().getRating().getFun(),
                         other.getTrack().getRating().getFun());
                 break;
             default:
                 break;
         }
-        Log.d(LOG_TAG, String.format("Sort tracks %s", sortOrderAscending? "ascending" : "descending"));
+        //Log.d(LOG_TAG, String.format("Sort tracks %s", sortOrderAscending? "ascending" : "descending"));
         if (sortOrderAscending) {
             // sort ascending
             return result;

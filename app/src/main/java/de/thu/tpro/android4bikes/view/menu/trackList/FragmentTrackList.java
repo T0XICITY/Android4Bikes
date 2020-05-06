@@ -114,7 +114,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         super.onViewCreated(view, savedInstanceState);
         initLocationManager();
         adapter = new TrackListAdapter(this, dataBinder.getTrackDistanceList());
-        Log.d("FragmentCreateTrack", getActivity() + "");
+        //Log.d("FragmentCreateTrack", getActivity() + "");
         recyclerView.setAdapter(adapter);
         updateTotalTracksTextView();
         if (showOwnTracksOnly){
@@ -159,7 +159,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(LOG_TAG, "Location change: " + new GpsLocation(location));
+        //Log.d(LOG_TAG, "Location change: " + new GpsLocation(location));
         dataBinder.udpateUserLocation(new GpsLocation(location));
         adapter.replaceData(dataBinder.getTrackDistanceList());
     }
@@ -426,7 +426,7 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         dummy.setName("DummyDummyDumm");
         dummy.setDescription("DummDumm");
         dummy.setDistance_km(999);
-        Log.d("TRACK SUBMIT",""+dummy);
+        //Log.d("TRACK SUBMIT",""+dummy);
         //viewModelTrack.submitTrack(dummy); TODO: SUBMIT ONLY VIA OWN_TRACK.
         viewModelOwnTrack.submitTrack(dummy);
     }

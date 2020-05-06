@@ -102,7 +102,7 @@ public class UploadRunnable implements Runnable {
 
     @Override
     public void run() {
-        Log.d("HalloWelt", "UploadWorker is working " + new Date());
+        //Log.d("HalloWelt", "UploadWorker is working " + new Date());
         //Result.success(): Task has benn finished successfully
         //Result.failure(): Task failed
         //Result.retry(): Task should be retried

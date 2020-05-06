@@ -144,7 +144,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
                 .setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
                     @Override
                     public void onChooseColor(int position, int color) {
-                        Log.d("positionHallo:", "posi:" + color);
+                        //Log.d("positionHallo:", "posi:" + color);
                         if (currentProfile != null) {
                             currentProfile.setColor(color);
                             vmProfile.updateMyProfile(currentProfile);
@@ -185,7 +185,7 @@ public class FragmentShowProfile extends Fragment implements Observer<Profile> {
 
     @Override
     public void onChanged(Profile profile) {
-        Log.d("PROFILE", "" + profile);
+        //Log.d("PROFILE", "" + profile);
         if (profile!=null) {
             String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
             nameEdit.setText(fullName);

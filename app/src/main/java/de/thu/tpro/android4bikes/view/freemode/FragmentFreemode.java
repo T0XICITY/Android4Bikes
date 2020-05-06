@@ -27,6 +27,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -71,6 +73,7 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 import de.thu.tpro.android4bikes.services.PositionTracker;
+import de.thu.tpro.android4bikes.util.ChartsUtil.ChartsUtil;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.GpsUtils;
@@ -115,6 +118,9 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
     private boolean fenceAlreadyStopped;
     private boolean hazardLayer_created;
     private boolean bikerackLayer_created;
+    private LineChart elevationChart;
+    ChartsUtil chartsUtil;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -139,12 +145,14 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         //we need the parent Activity to init our map
         parent = (MainActivity) this.getActivity();
         GlobalContext.setContext(parent.getApplicationContext());
 
         initweatherFab();
+        chartsUtil = new ChartsUtil();
+        chartsUtil.initalizeElevationChart(view,R.id.elevationChart);
+
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
 
         //start with GeoFencing:
@@ -182,6 +190,8 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
         });
         mAnimationSet.start();
     }
+
+
 
 
     private void initMap(Bundle savedInstanceState) {
@@ -231,7 +241,16 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-
+        ArrayList<Entry> values = new ArrayList<>();
+        values.add(new Entry(1, 50));
+        values.add(new Entry(2, 100));
+        values.add(new Entry(3, 80));
+        values.add(new Entry(4, 120));
+        values.add(new Entry(5, 110));
+        values.add(new Entry(7, 150));
+        values.add(new Entry(8, 250));
+        values.add(new Entry(9, 190));
+        chartsUtil.renderData(values);
         mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck93ydsyn2ovs1js95kx1nu4u"),
                 style -> {
                     initUserPosition(style);

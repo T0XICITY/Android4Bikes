@@ -372,7 +372,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 }
                             }
                             if (vm_Tracks.getNavigationTrack().getValue() != null) {
-                                Log.d("HalloWelt", "Removed Track from map");
+                                //Log.d("HalloWelt", "Removed Track from map");
                                 routeLayer_created = MapBoxUtils.removeTrackFromMap(style,routeLayer_created,vm_Tracks);
                                 hideTrackInfoCardView();
                             }
@@ -826,7 +826,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             true,
                             cbCovered.isChecked()
                     );
-                    Log.d(LOG_TAG, newRack.toString());
+                    //Log.d(LOG_TAG, newRack.toString());
                     vm_ownBikeRack.addOwnBikeRack(newRack);
                 }
                 dialog.dismiss();

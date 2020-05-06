@@ -65,7 +65,7 @@ public class RoadsideAssistanceListAdapter extends RecyclerView.Adapter<Roadside
     }
 
     public void makePhoneCall(String tel) {
-        Log.d("testMake", "testMake");
+        //Log.d("testMake", "testMake");
         intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + tel));
 
         if (ContextCompat.checkSelfPermission(parent.getActivity(), Manifest.permission.CALL_PHONE

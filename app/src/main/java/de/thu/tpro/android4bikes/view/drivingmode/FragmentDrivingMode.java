@@ -119,7 +119,7 @@ public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCa
         String weatherIconName = vmWeather.getCurrentWeather().getValue().getForecastList().get(0)
                 .getWeather().get(0).getIcon().substring(0, 2);
 
-        Log.d(LOG_TAG, "Weather: " + weatherIconName + ", " + weatherObject.getCity().getName());
+        //Log.d(LOG_TAG, "Weather: " + weatherIconName + ", " + weatherObject.getCity().getName());
 
         int weatherDrawableId = 0;
         switch (weatherIconName) {
@@ -164,9 +164,9 @@ public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCa
 
     @Override
     public void onNavigationReady(boolean isRunning) {
-        Log.d("HalloWeltAUA", "NavigationReady");
+        //Log.d("HalloWeltAUA", "NavigationReady");
         //parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(Style.MAPBOX_STREETS, style -> {
-        Log.d("HalloWeltAUA", "style loaded");
+        //Log.d("HalloWeltAUA", "style loaded");
         parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getUiSettings().setAllGesturesEnabled(false);
         if (PositionTracker.getLastPosition().isValid()) {
             parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
@@ -188,7 +188,7 @@ public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCa
         parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapLongClickListener(click -> {
             registeredHazardPositions.add(PositionTracker.getLastPosition());
             Snackbar.make(FragmentDrivingMode.this.getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
-            Log.d("addHazard", "List: " + registeredHazardPositions);
+            //Log.d("addHazard", "List: " + registeredHazardPositions);
             return true;
         });
     }
@@ -261,7 +261,7 @@ public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCa
 
                         @Override
                         public void onNavigationRunning() {
-                            Log.d("HELLO", String.valueOf(PositionTracker.getLastSpeed()));
+                            //Log.d("HELLO", String.valueOf(PositionTracker.getLastSpeed()));
 
                         }
                     })
@@ -272,7 +272,7 @@ public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCa
             parent.navigationView.retrieveNavigationMapboxMap().updateCameraTrackingMode(NavigationCamera.NAVIGATION_TRACKING_MODE_GPS);
 
         } else {
-            Log.d("HELLO", "Error current-route null ");
+            //Log.d("HELLO", "Error current-route null ");
         }
     }
 
@@ -336,7 +336,7 @@ public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCa
     //Route listener
     @Override
     public boolean allowRerouteFrom(Point offRoutePoint) {
-        Log.d("HELLO", "Rerouting");
+        //Log.d("HELLO", "Rerouting");
         if (!reroute_user) {
             reroute_user = true;
             // Fetch new route with MapboxMapMatching
@@ -356,15 +356,15 @@ public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCa
                         @Override
                         public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
                             if (response.isSuccessful()) {
-                                Log.d("HELLO", "CODE: " + response.code() + " with Message:\n" + response.message());
-                                Log.d("HELLO", "SIZE: " + response.body().routes().size());
-                                Log.d("HELLO", "Body Message: " + response.body().message());
+                                //Log.d("HELLO", "CODE: " + response.code() + " with Message:\n" + response.message());
+                                //Log.d("HELLO", "SIZE: " + response.body().routes().size());
+                                //Log.d("HELLO", "Body Message: " + response.body().message());
                                 if (response.body().routes().size() > 0) {
                                     reroute = response.body().routes().get(0);
 
-                                    Log.d("HELLO", String.valueOf(reroute.distance()));
+                                    //Log.d("HELLO", String.valueOf(reroute.distance()));
                                     if (reroute != null) {
-                                        Log.d("HELLO", "reroute initialized");
+                                        //Log.d("HELLO", "reroute initialized");
                                     }
                                     track_for_navigation.setRoute(DirectionRouteHelper.appendRoute(reroute, track_for_navigation.getRoute()));
                                     parent.navigationView.startNavigation(NavigationViewOptions.builder()
@@ -383,7 +383,7 @@ public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCa
                         }
                     });
             // Ignore internal routing, allowing MapboxMapMatching call
-            Log.d("HELLO", "Reroute ended");
+            //Log.d("HELLO", "Reroute ended");
             return false;
         }
         return false;
@@ -409,24 +409,24 @@ public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCa
     //Navigation listener###########################################################################
     @Override
     public void onArrival() {
-        Log.d("HalloWelt", "Navigation: Arrived");
+        //Log.d("HalloWelt", "Navigation: Arrived");
         parent.navigationView.stopNavigation();
     }
 
     @Override
     public void onCancelNavigation() {
-        Log.d("HalloWelt", "Navigation onCancel");
+        //Log.d("HalloWelt", "Navigation onCancel");
         parent.navigationView.stopNavigation();
     }
 
     @Override
     public void onNavigationFinished() {
-        Log.d("HalloWelt", "Navigation Finished");
+        //Log.d("HalloWelt", "Navigation Finished");
     }
 
     @Override
     public void onNavigationRunning() {
-        Log.d("HalloWelt", "Navigation Running");
+        //Log.d("HalloWelt", "Navigation Running");
     }
     //##############################################################################################
 

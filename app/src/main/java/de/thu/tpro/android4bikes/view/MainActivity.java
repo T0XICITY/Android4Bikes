@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -128,6 +129,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         GlobalContext.setContext(this.getApplicationContext());
 
         checkFirebaseAuth();
@@ -234,11 +237,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ViewModelInternetConnection model_internet = new ViewModelProvider(this).get(ViewModelInternetConnection.class);
         model_internet.getConnectedToWifi().observe(this, connectedToWifi -> {
             toastShortInMiddle("Wifi connection state: " + connectedToWifi);
-            Log.d("HalloWelt2", "Wifi connection state: " + connectedToWifi);
+            //Log.d("HalloWelt2", "Wifi connection state: " + connectedToWifi);
         });
         model_internet.getConnectedToMobile().observe(this, connectedToMobile -> {
             toastShortInMiddle("Mobile connection state: " + connectedToMobile);
-            Log.d("HalloWelt2", "Mobile connection state: " + connectedToMobile);
+            //Log.d("HalloWelt2", "Mobile connection state: " + connectedToMobile);
         });
         model_internet.startObserving();
     }
@@ -279,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vmOwnProfile.getMyProfile().observe(this, profile -> {
             if (profile != null) {
                 String fullName = String.format("%s %s", profile.getFirstName(), profile.getFamilyName());
-                Log.d(LOG_TAG, "Setting profile name: " + fullName);
+                //Log.d(LOG_TAG, "Setting profile name: " + fullName);
 
                 ProfilePictureUtil.setProfilePicturetoImageView(civ_profile, profile);
                 civ_profile.setBorderColor(profile.getColor());
@@ -303,32 +306,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(MenuItem menu) {
         switch (menu.getItemId()) {
             case R.id.menu_submit:
-                Log.d(LOG_TAG, "Clicked menu_submit!");
+                //Log.d(LOG_TAG, "Clicked menu_submit!");
                 fragInfo.submitMarker();
                 break;
             case R.id.menu_emergencyCall:
-                Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
+                //Log.d(LOG_TAG, "Clicked menu_emergencyCall!");
                 openRoadsideAssistance();
                 break;
             case R.id.menu_setting:
-                Log.d(LOG_TAG, "Clicked menu_setting!");
+                //Log.d(LOG_TAG, "Clicked menu_setting!");
                 openSettings();
                 break;
             case R.id.menu_ownTracks:
-                Log.d(LOG_TAG, "Clicked menu_ownTracks");
+                //Log.d(LOG_TAG, "Clicked menu_ownTracks");
                 fragTrackList.setShowOwnTracksOnly(true);
                 openTrackList();
                 break;
             case R.id.menu_logout:
-                Log.d(LOG_TAG, "Clicked menu_logout!");
+                //Log.d(LOG_TAG, "Clicked menu_logout!");
                 logout();
                 break;
             case R.id.menu_profile:
-                Log.d(LOG_TAG, "Clicked menu_profile!");
+                //Log.d(LOG_TAG, "Clicked menu_profile!");
                 openProfile();
                 break;
             default:
-                Log.d(LOG_TAG, "Default case");
+                //Log.d(LOG_TAG, "Default case");
         }
         toggleNavigationDrawer();
         return true;
