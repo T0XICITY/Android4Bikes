@@ -93,8 +93,8 @@ public class PositionTracker {
                 notifyObservers(map_position_speed);
 
                 // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.navigationView != null && activity.navigationView.retrieveNavigationMapboxMap() != null) {
-                    if (activity.navigationView.retrieveNavigationMapboxMap().retrieveMap() != null && result.getLastLocation() != null) {
+                if (result.getLastLocation() != null) {
+                    if (activity.navigationView != null && activity.navigationView.retrieveNavigationMapboxMap() != null) {
                         activity.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().forceLocationUpdate(result.getLastLocation());
                     }
                 }

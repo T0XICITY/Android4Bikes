@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.view.info;
+package de.thu.tpro.android4bikes.view.infomode;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -245,7 +245,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck93ydsyn2ovs1js95kx1nu4u"),
                 style -> {
                     enableLocationComponent(style);
-
+                    initUserPosition();
                     MapBoxUtils.initMarkerSymbols(mapboxMap, MapBoxUtils.generateMarkerPool(parent));
                     initLayers(style);
                     initPosFab();
@@ -379,7 +379,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             return false;
                         }
                     });
-                    initUserPosition();
+
                     geoFencing_tracks.startGeoFenceListener();
                 });
     }
