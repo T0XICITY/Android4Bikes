@@ -19,9 +19,9 @@
                 android:paddingTop="45dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Attention "
-                android:textSize="30dp"
-                android:textAlignment="center"
+                android:text="Important safety information"
+                android:textSize="27dp"
+                android:paddingLeft="15dp"
                 android:textColor="@color/TextWhite"></TextView>
 
         </LinearLayout>
@@ -29,7 +29,7 @@
         <ImageView
             android:id="@+id/iv_notCall"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="180dp"
             android:layout_marginTop="35dp"
             android:layout_marginBottom="55dp"
             android:src="@drawable/ic_material_attention"
@@ -41,9 +41,32 @@
             android:id="@+id/tv_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="21dp"
-            android:text="Please remember to pay attention to road traffic at all times. Distractions can be fatal."
+            android:textSize="20dp"
+            android:text="Always drive safely. Stick to the rules and keep your eyes on the road at all times."
             android:textColor="@color/TextWhite"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"></TextView>
+
+
+        <TextView
+            android:id="@+id/tv_description2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:text="You are responsible for driving your vehicle safely. Distractions while driving can cause accidents resulting in property damage, personal injury or death."
+            android:textColor="@color/TextWhite"
+            android:paddingTop="15dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"></TextView>
+
+        <TextView
+            android:id="@+id/tv_description3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:text="Only use the app when it is safe to do so. You must be aware of the traffic at all times."
+            android:textColor="@color/TextWhite"
+            android:paddingTop="15dp"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"></TextView>
 

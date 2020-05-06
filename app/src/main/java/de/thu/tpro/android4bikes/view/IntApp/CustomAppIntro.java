@@ -36,7 +36,6 @@ public class CustomAppIntro extends AppIntro {
         super.onCreate(savedInstanceState);
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.appintro_hint));
 
-
     }
 
 
