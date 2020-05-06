@@ -70,6 +70,7 @@ import de.thu.tpro.android4bikes.util.Navigation.TrackRecorder;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.ProfilePictureUtil;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
+import de.thu.tpro.android4bikes.view.IntApp.HintsAppIntro;
 import de.thu.tpro.android4bikes.view.drivingmode.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.freemode.FragmentFreemode;
 import de.thu.tpro.android4bikes.view.infomode.FragmentInfoMode;
@@ -333,6 +334,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggleNavigationDrawer();
         return true;
     }
+
+    public void goToAppIntro() {
+        Intent intent = new Intent(this, HintsAppIntro.class);
+        startActivity(intent);
+    }
+
 
     /**
      * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,
