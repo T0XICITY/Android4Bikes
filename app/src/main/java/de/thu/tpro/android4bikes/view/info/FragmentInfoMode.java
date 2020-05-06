@@ -3,9 +3,7 @@ package de.thu.tpro.android4bikes.view.info;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.PointF;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -19,7 +17,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -43,13 +39,10 @@ import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.Geometry;
-import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
@@ -60,19 +53,12 @@ import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.maps.SupportMapFragment;
-import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
 import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
-import com.mapbox.mapboxsdk.style.expressions.Expression;
-import com.mapbox.mapboxsdk.style.layers.CircleLayer;
-import com.mapbox.mapboxsdk.style.layers.LineLayer;
-import com.mapbox.mapboxsdk.style.layers.Property;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonOptions;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -90,6 +76,7 @@ import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.GpsUtils;
+import de.thu.tpro.android4bikes.util.mapbox.MapBoxUtils;
 import de.thu.tpro.android4bikes.view.MainActivity;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelBikerack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelHazardAlert;
@@ -98,34 +85,10 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnHazardAlerts;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnTracks;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
-import static com.mapbox.core.constants.Constants.PRECISION_6;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.all;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.gte;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.not;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.toNumber;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleOpacity;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineCap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineJoin;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.lineWidth;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textAllowOverlap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textField;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textIgnorePlacement;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.textSize;
 
 
 public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener, Observer {
-
     private static final String LOG_TAG = "FragmentInfoMode";
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
     private static final String TAG = "DirectionsActivity";
@@ -138,12 +101,10 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private ViewModelOwnHazardAlerts vm_ownHazards;
     private ViewModelOwnTracks vm_ownTracks;
     private Style style;
-
-    //Regular ViewModels (=DATA FROM THE GEOFENCE!!!)
+    //Regular ViewModels (DATA FROM THE GEOFENCE!!!)
     private ViewModelBikerack vm_bikeRack;
     private ViewModelHazardAlert vm_Hazards;
     private ViewModelTrack vm_Tracks;
-
     private MainActivity parent;
     private CardView infoCardView;
     private View viewInfo;
@@ -151,12 +112,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private MapboxMap mapboxMap;
     private PermissionsManager permissionsManager;
     private LocationComponent locationComponent;
-    private LatLng lastPos;
-    // variables for calculating and drawing a route
-    private DirectionsRoute currentRoute;
-    private NavigationMapRoute navigationMapRoute;
-    SymbolManager symbolManager;
-
     //GeoFencing
     private GeoFencing geoFencing_bikeRacks;
     private GeoFencing geoFencing_hazardAlerts;
@@ -213,64 +168,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         initTrackInfoCardView();
     }
 
-    /**
-     * Fake Observer to be called, when ViewModelHazardAlerts has changed (called by Lambda expression)
-     *
-     * @param hazardList
-     */
-    private void onChangedHazardAlerts(List<HazardAlert> hazardList) {
-        // TODO display HazardAlert as Marker
-        //String snackText = String.format("%d new Hazard Alerts found!", hazardList.size());
-        //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
-        //TODO: delete overlay
-        List<HazardAlert> cleared = new ArrayList<>();
-        hazardList.forEach(entry -> {
-            if (entry.getPosition() != null) {
-                cleared.add(entry);
-            }
-        });
-        hazardList = cleared;
-        updateHazardAlertOverlay(style, hazardList);
-    }
-
-    /**
-     * Fake Observer to be called, when ViewModelBikeRack has changed (called by Lambda expression)
-     *
-     * @param bikeRackList
-     */
-    private void onChangedBikeRacks(List<BikeRack> bikeRackList) {
-        // TODO display BikeRack as Marker
-        //String snackText = String.format("%d new Bike Racks found!", bikeRackList.size());
-        //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
-        //TODO: delete overlay
-
-        List<BikeRack> cleared = new ArrayList<>();
-        bikeRackList.forEach(entry -> {
-            if (entry.getPosition() != null) {
-                cleared.add(entry);
-            }
-        });
-        bikeRackList = cleared;
-        updateBikeRackOverlay(style, bikeRackList);
-    }
-
-    private void onChangedTracks(Map<Track, Profile> trackProfileMap) {
-        List<Track> list_tracks = new ArrayList<>();
-        for (Track t : trackProfileMap.keySet()) {
-            list_tracks.add(t);
-        }
-        //TODO: delete overlay
-
-        List<Track> cleared = new ArrayList<>();
-        list_tracks.forEach(entry -> {
-            if (entry.getStartPosition() != null) {
-                cleared.add(entry);
-            }
-        });
-        list_tracks = cleared;
-        updateTrackOverlay(style, list_tracks);
-    }
-
     private void initMap(Bundle savedInstanceState) {
         Mapbox.getInstance(parent, parent.getString(R.string.access_token));
         if (savedInstanceState == null) {
@@ -299,7 +196,30 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         if (mapFragment != null) {
             mapFragment.getMapAsync(this::onMapReady);
         }
+    }
 
+    private void initLayers(@NonNull Style loadedMapStyle){
+        if (!hazardLayer_created) {
+            //createInfoWindowLayer(style,,);
+            //Create unclustered symbol layer
+            MapBoxUtils.createUnclusteredSymbolLayer(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString(), MapBoxUtils.MapBoxSymbols.HAZARDALERT_GENERAL);
+            //Create clustered circle layer
+            MapBoxUtils.createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_HAZARDS.toString(), MapBoxUtils.MapBoxSymbols.HAZARDALERT_GENERAL);
+            hazardLayer_created = true;
+        }
+        if (!bikerackLayer_created) {
+            //createInfoWindowLayer(style,,);
+            MapBoxUtils.createUnclusteredSymbolLayer(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString(), MapBoxUtils.MapBoxSymbols.BIKERACK);
+            //Create clustered circle layer
+            MapBoxUtils.createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_BIKERACKS.toString(), MapBoxUtils.MapBoxSymbols.BIKERACK);
+            bikerackLayer_created = true;
+        }
+        if (!trackLayer_created) {
+            MapBoxUtils.createUnclusteredSymbolLayer(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString(), MapBoxUtils.MapBoxSymbols.TRACK);
+            //Create clustered circle layer
+            MapBoxUtils.createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString(), MapBoxUtils.MapBoxSymbols.TRACK);
+            trackLayer_created = true;
+        }
     }
 
     private void initTrackInfoCardView() {
@@ -326,13 +246,9 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck93ydsyn2ovs1js95kx1nu4u"),
                 style -> {
                     enableLocationComponent(style);
-                    HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markerPool = new HashMap<>();
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.BIKERACK, parent.getDrawable(R.drawable.ic_material_bikerack_24dp));
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.HAZARDALERT_GENERAL, parent.getDrawable(R.drawable.ic_material_hazard));
-                    markerPool.put(FragmentInfoMode.MapBoxSymbols.TRACK, parent.getDrawable(R.drawable.ic_flag_green_24dp));
-                    markerPool.put(MapBoxSymbols.TRACK_FINISH, parent.getDrawable(R.drawable.flag_finish_green_24dp));
-                    initMarkerSymbols(mapboxMap, markerPool);
-                    //generateCustomRoute(generateTrack().getFineGrainedPositions());
+
+                    MapBoxUtils.initMarkerSymbols(mapboxMap, MapBoxUtils.generateMarkerPool(parent));
+                    initLayers(style);
                     initPosFab();
 
                     //set class attribute "style" (purpose: adding new markers after update regarding ViewModels)
@@ -342,8 +258,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     vm_Hazards.getHazardAlerts().observe(getViewLifecycleOwner(), this::onChangedHazardAlerts);
                     vm_bikeRack.getList_bikeRacks_shown().observe(getViewLifecycleOwner(), this::onChangedBikeRacks);
                     vm_Tracks.getTracks().observe(getViewLifecycleOwner(), this::onChangedTracks);
-                    Log.d("HalloWeltAUA", "InfoMode:" + vm_Tracks.toString());
-
 
                     //setup geofences
                     LatLng latlng_setuppos = mapboxMap.getCameraPosition().target;
@@ -360,14 +274,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                 latLng_lastcamerapos = mapboxMap.getCameraPosition().target;
                             }
                             if (mapboxMap.getCameraPosition().zoom > 13) {
-                                if (!fenceAlreadyRunning){
+                                if (!fenceAlreadyRunning) {
                                     geoFencing_bikeRacks.startGeoFenceListener();
                                     geoFencing_hazardAlerts.startGeoFenceListener();
                                     fenceAlreadyRunning = true;
                                     fenceAlreadyStopped = false;
                                 }
                             } else {
-                                if (!fenceAlreadyStopped){
+                                if (!fenceAlreadyStopped) {
                                     geoFencing_bikeRacks.stopGeoFenceListener();
                                     geoFencing_hazardAlerts.stopGeoFenceListener();
                                     fenceAlreadyRunning = false;
@@ -397,15 +311,12 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                         }
                     });
 
-
                     mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                         @Override
                         public boolean onMapClick(@NonNull LatLng point) {
                             // Convert LatLng coordinates to screen pixel and only query the rendered features.
                             final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
-
                             List<Feature> features = mapboxMap.queryRenderedFeatures(pixel);
-
                             // Get the first feature within the list if one exist
                             if (features.size() > 0) {
                                 for (Feature feature : features) {
@@ -422,41 +333,39 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                     //set track for navigation mode
                                                     vm_Tracks.setNavigationTrack(track_result);
                                                     showTrackInfoCardView(track_result);
-                                                    addRoutetoMap(style, track_result);
-                                                    showRoutewithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint());
+                                                    routeLayer_created = MapBoxUtils.addRouteToMap(style, track_result,routeLayer_created);
+                                                    MapBoxUtils.showRouteWithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint(),mapboxMap);
                                                     return true;
-                                                }else {
+                                                } else {
                                                     //Was Bikerack or HazardALert
                                                     vm_Tracks.setNavigationTrack(null);
-
                                                     List<BikeRack> racks = vm_bikeRack.getList_bikeRacks_shown().getValue();
                                                     BikeRack rack_result = racks.stream()
                                                             .filter(rack -> entry.getValue().getAsString().equals(rack.getFirebaseID()))
                                                             .findFirst()
                                                             .orElse(null);
-                                                    if (rack_result != null){
-                                                        Toast toast = Toast.makeText(getContext(),"Bike rack:\t\t\t\t\t\t\t\t"+rack_result.getName()
-                                                                        +"\n"+"Capacity:\t\t\t\t\t\t\t\t"+rack_result.getCapacity().name()
-                                                                        +"\n"+"e-Bike charging:\t\t"+(rack_result.hasBikeCharging() ? "available" : "not available")
-                                                                        +"\n"+"Is it covered:\t\t\t\t\t"+(rack_result.isCovered()? "yes" : "no")
-                                                                ,Toast.LENGTH_LONG);
-                                                        toast.setGravity(Gravity.TOP,0,50);
+                                                    if (rack_result != null) {
+                                                        Toast toast = Toast.makeText(getContext(), "Bike rack:\t\t\t\t\t\t\t\t" + rack_result.getName()
+                                                                        + "\n" + "Capacity:\t\t\t\t\t\t\t\t" + rack_result.getCapacity().name()
+                                                                        + "\n" + "e-Bike charging:\t\t" + (rack_result.hasBikeCharging() ? "available" : "not available")
+                                                                        + "\n" + "Is it covered:\t\t\t\t\t" + (rack_result.isCovered() ? "yes" : "no")
+                                                                , Toast.LENGTH_LONG);
+                                                        toast.setGravity(Gravity.TOP, 0, 50);
                                                         toast.show();
                                                         return true;
-                                                    }else {
+                                                    } else {
                                                         List<HazardAlert> hazards = vm_Hazards.getHazardAlerts().getValue();
                                                         HazardAlert hazard_result = hazards.stream()
                                                                 .filter(hazard -> entry.getValue().getAsString().equals(hazard.getFirebaseID()))
                                                                 .findFirst()
                                                                 .orElse(null);
-                                                        if (hazard_result != null){
-                                                            Toast toast = Toast.makeText(getContext(),"Hazard type: "+HazardAlert.HazardType.getByType(hazard_result.getType()),Toast.LENGTH_LONG);
-                                                            toast.setGravity(Gravity.TOP,0,50);
+                                                        if (hazard_result != null) {
+                                                            Toast toast = Toast.makeText(getContext(), "Hazard type: " + HazardAlert.HazardType.getByType(hazard_result.getType()), Toast.LENGTH_LONG);
+                                                            toast.setGravity(Gravity.TOP, 0, 50);
                                                             toast.show();
                                                             return true;
                                                         }
                                                     }
-                                                    //return handleClickIcon(pixel);
                                                 }
                                             }
                                         }
@@ -465,33 +374,31 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             }
                             if (vm_Tracks.getNavigationTrack().getValue() != null) {
                                 Log.d("HalloWelt", "Removed Track from map");
-                                removeTrackFromMap(style);
+                                routeLayer_created = MapBoxUtils.removeTrackFromMap(style,routeLayer_created,vm_Tracks);
                                 hideTrackInfoCardView();
                             }
                             return false;
                         }
                     });
-                    if (PositionTracker.getLastPosition().isValid()) {
-                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
-                                .target(PositionTracker.getLastPosition().toMapboxLocation())
-                                .zoom(15)
-                                .build());
-                    } else {
-                        Position germany_center = new Position(51.163361111111, 10.447683333333);
-                        mapboxMap.setCameraPosition(new CameraPosition.Builder()
-                                .target(germany_center.toMapboxLocation())
-                                .zoom(4)
-                                .build());
-                        //Observe Position
-                        PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(this);
-                    }
+                    initUserPosition();
                     geoFencing_tracks.startGeoFenceListener();
-                    /*//Draw Route on Map
-                    mapview.drawRoute(route);
-                    showRoute(start,end);*/
-                    //https://docs.mapbox.com/android/java/examples/show-directions-on-a-map/
-                    //Feature directionsRouteFeature = Feature.fromGeometry(LineString.fromPolyline(currentRoute.geometry(), PRECISION_6));
                 });
+    }
+
+    private void initUserPosition() {
+        if (PositionTracker.getLastPosition().isValid()) {
+            mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                    .target(PositionTracker.getLastPosition().toMapboxLocation())
+                    .zoom(15)
+                    .build());
+        } else {
+            Position germany_center = new Position(51.163361111111, 10.447683333333);
+            mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                    .target(germany_center.toMapboxLocation())
+                    .zoom(4)
+                    .build());
+            PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(this);
+        }
     }
 
     private void showTrackInfoCardView(Track track) {
@@ -959,6 +866,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
     /**
      * submits a Hazard Alert on the given position
+     *
      * @param hazardPosition position of the hazard to report
      */
     public void submit_hazard(Position hazardPosition) {
@@ -981,18 +889,27 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         MapView hazardMap = hazardDialog.findViewById(R.id.hazardMap);
         hazardMap.onCreate(hazardDialog.onSaveInstanceState());
 
-        hazardMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-                if (PositionTracker.getLastPosition() != null) {
-                    mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                            .target(PositionTracker.getLastPosition().toMapboxLocation())
-                            .zoom(17)
-                            .bearing(0)
-                            .build()), 1000);
-                }
+        Position lastPosition = PositionTracker.getLastPosition();
+        hazardMap.getMapAsync(mapboxMapHazard -> {
+            SymbolOptions marker = MapBoxUtils.createMarker(lastPosition.getLatitude(), lastPosition.getLongitude(), MapBoxUtils.MapBoxSymbols.HAZARDALERT_GENERAL);
+            List<Feature> features = new ArrayList<>();
+            features.add(Feature.fromGeometry(marker.getGeometry()));
+            mapboxMapHazard.setStyle(new Style.Builder().fromUri("mapbox://styles/mapbox/streets-v11")
+                    .withSource(new GeoJsonSource("HazardTest", FeatureCollection.fromFeatures(features)))
+                    .withImage(MapBoxUtils.MapBoxSymbols.HAZARDALERT_GENERAL.toString(), parent.getDrawable(R.drawable.ic_material_hazard))
+                    .withLayer(new SymbolLayer("Layer", "HazardTest")
+                            .withProperties(PropertyFactory.iconImage(MapBoxUtils.MapBoxSymbols.HAZARDALERT_GENERAL.toString()),
+                                    iconAllowOverlap(true)
+                            ))
+            );
+            if (lastPosition != null) {
+                mapboxMapHazard.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                        .target(lastPosition.toMapboxLocation())
+                        .zoom(17)
+                        .bearing(0)
+                        .build()), 1000);
             }
-        }));
+        });
 
         Button btnPos = hazardDialog.getButton(AlertDialog.BUTTON_POSITIVE);
         Spinner spinnerHazard = hazardDialog.findViewById(R.id.sp_hazards);
@@ -1011,9 +928,86 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         hazardDialog.show();
     }
 
+    /**
+     * Fake Observer to be called, when ViewModelHazardAlerts has changed (called by Lambda expression)
+     *
+     * @param hazardList
+     */
+    private void onChangedHazardAlerts(List<HazardAlert> hazardList) {
+        // TODO display HazardAlert as Marker
+        //String snackText = String.format("%d new Hazard Alerts found!", hazardList.size());
+        //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
+        //TODO: delete overlay
+        List<HazardAlert> cleared = new ArrayList<>();
+        hazardList.forEach(entry -> {
+            if (entry.getPosition() != null) {
+                cleared.add(entry);
+            }
+        });
+        hazardList = cleared;
+        MapBoxUtils.updateHazardAlertOverlay(style, hazardList);
+    }
+
+    /**
+     * Fake Observer to be called, when ViewModelBikeRack has changed (called by Lambda expression)
+     *
+     * @param bikeRackList
+     */
+    private void onChangedBikeRacks(List<BikeRack> bikeRackList) {
+        // TODO display BikeRack as Marker
+        //String snackText = String.format("%d new Bike Racks found!", bikeRackList.size());
+        //Snackbar.make(parent.findViewById(R.id.map_container_info), snackText, 2500).show();
+        //TODO: delete overlay
+
+        List<BikeRack> cleared = new ArrayList<>();
+        bikeRackList.forEach(entry -> {
+            if (entry.getPosition() != null) {
+                cleared.add(entry);
+            }
+        });
+        bikeRackList = cleared;
+        MapBoxUtils.updateBikeRackOverlay(style, bikeRackList);
+    }
+
+    private void onChangedTracks(Map<Track, Profile> trackProfileMap) {
+        List<Track> list_tracks = new ArrayList<>();
+        for (Track t : trackProfileMap.keySet()) {
+            list_tracks.add(t);
+        }
+        //TODO: delete overlay
+
+        List<Track> cleared = new ArrayList<>();
+        list_tracks.forEach(entry -> {
+            if (entry.getStartPosition() != null) {
+                cleared.add(entry);
+            }
+        });
+        list_tracks = cleared;
+        MapBoxUtils.updateTrackOverlay(style, list_tracks);
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void update(Observable observable, Object o) {
+        if (observable instanceof PositionTracker.LocationChangeListeningActivityLocationCallback) {
+            if (o instanceof Map && !((Map) o).keySet().isEmpty()) {
+                Map map = (Map) o;
+                if (map.get(PositionTracker.CONSTANTS.POSITION.toText()) != null) {
+                    Position last_position = (Position) map.get(PositionTracker.CONSTANTS.POSITION.toText());
+                    if (last_position.isValid()) {
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                                .target(last_position.toMapboxLocation())
+                                .zoom(15)
+                                .bearing(0)
+                                .build()), 3000);
+                        observable.deleteObserver(this);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
@@ -1060,33 +1054,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         });
     }
 
-    private void initMarkerSymbols(MapboxMap mapboxMap, HashMap<FragmentInfoMode.MapBoxSymbols, Drawable> markers) {
-        //Check if marker HashMap is empty
-        if (!markers.isEmpty()) {
-            //Register Symbols in Mapbox
-            markers.forEach((type, icon) -> mapboxMap.getStyle().addImage(type.toString(), icon));
-        }
-    }
-
-
-    private enum MapBoxSymbols {
-        BIKERACK("BIKERACK"),
-        HAZARDALERT_GENERAL("HAZARDALERT_GENERAL"),
-        TRACK("TRACK"),
-        TRACK_FINISH("TRACK_FINISH"),
-        INFO("INFO");
-
-        private String type;
-
-        MapBoxSymbols(String type) {
-            this.type = type;
-        }
-
-        public String toString() {
-            return type;
-        }
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -1108,16 +1075,47 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
 
         MapView rackMap = dialog.findViewById(R.id.rackMap);
         rackMap.onCreate(dialog.onSaveInstanceState());
+        Position lastPosition = PositionTracker.getLastPosition();
 
-        rackMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, style -> {
-            if (PositionTracker.getLastPosition() != null) {
+        rackMap.getMapAsync(mapboxMapRack -> {
+            SymbolOptions marker = MapBoxUtils.createMarker(lastPosition.getLatitude(), lastPosition.getLongitude(), MapBoxUtils.MapBoxSymbols.BIKERACK);
+            List<Feature> features = new ArrayList<>();
+            features.add(Feature.fromGeometry(marker.getGeometry()));
+            mapboxMapRack.setStyle(new Style.Builder().fromUri("mapbox://styles/mapbox/streets-v11")
+                        .withSource(new GeoJsonSource("RackTest", FeatureCollection.fromFeatures(features)))
+                        .withImage(MapBoxUtils.MapBoxSymbols.BIKERACK.toString(), parent.getDrawable(R.drawable.ic_material_bikerack_24dp))
+                        .withLayer(new SymbolLayer("Layer", "RackTest")
+                            .withProperties(PropertyFactory.iconImage(MapBoxUtils.MapBoxSymbols.BIKERACK.toString()),
+                                    iconAllowOverlap(true)
+                            ))
+            );
+            if (lastPosition != null) {
                 mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
                         .target(PositionTracker.getLastPosition().toMapboxLocation())
                         .zoom(17)
                         .bearing(0)
                         .build()), 1000);
             }
-        }));
+        });
+
+        /*rackMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, style -> {
+            if (lastPosition != null) {
+                mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                        .target(PositionTracker.getLastPosition().toMapboxLocation())
+                        .zoom(17)
+                        .bearing(0)
+                        .build()), 1000);
+
+                SymbolOptions marker = createMarker(lastPosition.getLatitude(), lastPosition.getLongitude(), MapBoxSymbols.BIKERACK);
+                List<Feature> features = new ArrayList<>();
+                features.add(Feature.fromGeometry(marker.getGeometry()));
+
+                FeatureCollection collection = FeatureCollection.fromFeatures(features);
+                addGeoJsonSource(mapboxMapRack.getStyle(), collection, "test", false);
+                createUnclusteredSymbolLayer(mapboxMapRack.getStyle(), "test", MapBoxSymbols.BIKERACK);
+            }
+        })
+        );*/
 
         EditText editRack = dialog.findViewById(R.id.edit_rack_name);
         Spinner spCapacity = dialog.findViewById(R.id.sp_capacity);

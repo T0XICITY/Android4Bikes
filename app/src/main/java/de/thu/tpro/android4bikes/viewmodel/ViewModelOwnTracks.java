@@ -43,6 +43,7 @@ public class ViewModelOwnTracks extends ViewModel implements Observer {
 
         //this is observer of local database (in case of success)
         cdb_ownDB.addObserver(this);
+        cdb_ownDB.readTracks();
 
         //set initial values
         workInProgress.postValue(0);
@@ -71,7 +72,9 @@ public class ViewModelOwnTracks extends ViewModel implements Observer {
      *
      * @param track
      */
-    public void submitTrack(Track track) {writeBuffer.storeTrack(track);}
+    public void submitTrack(Track track) {
+        writeBuffer.storeTrack(track);
+    }
 
     /**
      * increment number of outstanding operations

@@ -10,6 +10,9 @@ import com.mapbox.api.matching.v5.models.MapMatchingResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.MapmatchingRequest;
@@ -18,49 +21,47 @@ import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.database.CouchWriteBuffer;
 import de.thu.tpro.android4bikes.positiontest.PositionProvider;
+import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.view.MainActivity;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TrackRecorder {
+public class TrackRecorder implements Observer {
     Context context;
     DirectionsRoute finalroute;
-    List<MapmatchingRequest> mapmatchingRequests = new ArrayList<>();
+    List<MapmatchingRequest> list_mapmatchingRequests = new ArrayList<>();
     private List<com.mapbox.geojson.Point> positionsRoute1 = PositionProvider.getMapsTrack1();
     private List<com.mapbox.geojson.Point> positionsRoute2 = PositionProvider.getMapsTrack2();
     private List<com.mapbox.geojson.Point> positionsRoute3 = PositionProvider.getMapsTrack3();
     private Track finalTrack;
+    private Observable observable_position;
 
     public TrackRecorder() {
         context = GlobalContext.getContext();
     }
 
-    public void start() {
+    public void start(MainActivity mainActivity) {
         init();
         //Generate Point at Location every 5sec
-
-        //Add to List till 99Points are reached
-
-        //Generate new MapMatchingRequest and add to Task List
-
-        MapmatchingRequest request1 = new MapmatchingRequest(positionsRoute1);
-        MapmatchingRequest request2 = new MapmatchingRequest(positionsRoute2);
-        MapmatchingRequest request3 = new MapmatchingRequest(positionsRoute3);
-
-        mapmatchingRequests.add(request1);
-        mapmatchingRequests.add(request2);
-        mapmatchingRequests.add(request3);
+        observable_position = PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(mainActivity);
+        observable_position.addObserver(this);
     }
 
-    public void stop(String author, Rating rating, String name, String description) {
+    public void stop() {
+        observable_position.deleteObserver(this);
+    }
+
+    public void save(String author, Rating rating, String name, String description) {
         finalTrack = new Track(author, rating, name, description, 0, null, null, null, null, true);
-        generateDirectionRouteAndSaveTrackToFirebase(mapmatchingRequests);
+        generateDirectionRouteAndSaveTrackToFirebase(list_mapmatchingRequests);
         finalroute = null;
     }
 
     private void init() {
-        mapmatchingRequests = new ArrayList<>();
+        list_mapmatchingRequests = new ArrayList<>();
+        list_mapmatchingRequests.add(new MapmatchingRequest(new ArrayList<>()));
         finalroute = null;
     }
 
@@ -107,7 +108,7 @@ public class TrackRecorder {
                                 } else {
                                     //Finished with Track Appending
                                     //Save Track to Firebase
-                                    finalTrack.setDistance_km(finalroute.distance());
+                                    finalTrack.setDistance_km(finalroute.distance() / 1000.0);
                                     finalTrack.setRoute(finalroute);
                                     finalTrack.setStartPosition(new Position(finalroute.legs().get(0).steps().get(0).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(0).maneuver().location().longitude()));
                                     finalTrack.setEndPosition(new Position(finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().latitude(), finalroute.legs().get(0).steps().get(finalroute.legs().get(0).steps().size() - 1).maneuver().location().longitude()));
@@ -127,5 +128,33 @@ public class TrackRecorder {
 
                     }
                 });
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (observable instanceof PositionTracker.LocationChangeListeningActivityLocationCallback) {
+            if (o instanceof Map && !((Map) o).keySet().isEmpty()) {
+                Map map = (Map) o;
+                if (map.get(PositionTracker.CONSTANTS.POSITION.toText()) != null) {
+                    Position last_position = (Position) map.get(PositionTracker.CONSTANTS.POSITION.toText());
+                    if (last_position.isValid()) {
+                        addPositionToMapMatchingRequest(last_position);
+                    }
+                }
+            }
+        }
+    }
+
+    private void addPositionToMapMatchingRequest(Position position) {
+        if (!list_mapmatchingRequests.isEmpty()) {
+            MapmatchingRequest mapmatchingRequest = list_mapmatchingRequests.get(list_mapmatchingRequests.size() - 1);
+            if (mapmatchingRequest.getPoints().size() >= 99) {
+                list_mapmatchingRequests.add(new MapmatchingRequest(new ArrayList<>()));
+                mapmatchingRequest = list_mapmatchingRequests.get(list_mapmatchingRequests.size() - 1);
+            }
+            mapmatchingRequest.getPoints().add(position.getAsPoint());
+
+        }
+        list_mapmatchingRequests.forEach(mapmatchingRequest1 -> Log.d("HalloWelTrack", mapmatchingRequest1.toString()));
     }
 }
