@@ -70,7 +70,7 @@ import de.thu.tpro.android4bikes.util.Navigation.TrackRecorder;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.ProfilePictureUtil;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
-import de.thu.tpro.android4bikes.view.IntApp.CustomAppIntro;
+import de.thu.tpro.android4bikes.view.IntApp.HintsAppIntro;
 import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
 import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void goToAppIntro() {
-        Intent intent = new Intent(this, CustomAppIntro.class);
+        Intent intent = new Intent(this, HintsAppIntro.class);
         startActivity(intent);
     }
 

@@ -19,7 +19,7 @@ import com.github.appintro.AppIntroFragment;
 
 import de.thu.tpro.android4bikes.R;
 
-public class CustomAppIntro extends AppIntro {
+public class HintsAppIntro extends AppIntro {
 
 
     @Nullable
@@ -34,6 +34,9 @@ public class CustomAppIntro extends AppIntro {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Hints Google
+        addSlide(new AppIntroCustomLayoutFragment().newInstance(R.layout.appintro_googlehint));
+        //Hints Driving
         addSlide(AppIntroCustomLayoutFragment.newInstance(R.layout.appintro_hint));
 
     }

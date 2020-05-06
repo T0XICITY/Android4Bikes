@@ -27,7 +27,7 @@
             android:value="AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc" />
         <activity android:name=".view.login.ActivityLogin" />
             <activity
-                android:name=".view.IntApp.CustomAppIntro"
+                android:name=".view.IntApp.HintsAppIntro"
                 android:label="Custom AppIntro"></activity>
 
         </application>
