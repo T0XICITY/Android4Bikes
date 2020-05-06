@@ -70,8 +70,9 @@ import de.thu.tpro.android4bikes.util.Navigation.TrackRecorder;
 import de.thu.tpro.android4bikes.util.Processor;
 import de.thu.tpro.android4bikes.util.ProfilePictureUtil;
 import de.thu.tpro.android4bikes.util.WorkManagerHelper;
-import de.thu.tpro.android4bikes.view.driving.FragmentDrivingMode;
-import de.thu.tpro.android4bikes.view.info.FragmentInfoMode;
+import de.thu.tpro.android4bikes.view.drivingmode.FragmentDrivingMode;
+import de.thu.tpro.android4bikes.view.freemode.FragmentFreemode;
+import de.thu.tpro.android4bikes.view.infomode.FragmentInfoMode;
 import de.thu.tpro.android4bikes.view.login.ActivityLogin;
 import de.thu.tpro.android4bikes.view.menu.roadsideAssistance.FragmentRoadsideAssistance;
 import de.thu.tpro.android4bikes.view.menu.settings.FragmentSettings;
@@ -117,13 +118,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tv_headerMail;
     private CircleImageView civ_profile;
     private boolean isGPS;
-    public boolean freemode_active;
     public TrackRecorder trackRecorder;
     private ViewModelBtBtn vm_BtBtn;
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
     private boolean toolbarHidden;
-    public boolean navigationRunning;
+    private FragmentFreemode fragFreemode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vm_track = provider.get(ViewModelTrack.class);
 
         setContentView(R.layout.activity_main);
-        freemode_active = false;
         //debugWriteBuffer();
 
         initFragments();
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initNavigationDrawerHeader();
         initTopBar();
         initBottomNavigation();
-        initFragments();
+        initFragments(); //TODO necessary?
         initFAB();
 
 
@@ -381,8 +380,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab = findViewById(R.id.fab_switchMode);
         fab.setOnClickListener(v -> {
             //if Track null start freemode, else start Navigation
-            switchInfoDriving();
-            Log.d("Mitte", "Clicked center Button");
+            Track track_for_navigation = vm_track.getNavigationTrack().getValue();
+            if (track_for_navigation != null) {
+                switchInfoDriving();
+            } else {
+                switchInfoFreemode();
+            }
         });
     }
 
@@ -440,17 +443,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (currentFragment.equals(fragDriving)) {
             fragDriving.cancelUpdateTimer(); // no more speed updates
 
-            if (freemode_active) {
-                trackRecorder.stop();
-                submitTrack();
-                freemode_active = false;
-            } else {
-                if (navigationRunning) {
-                    navigationView.stopNavigation();
-                    navigationRunning = false;
-                    vm_track.setNavigationTrack(null);
-                }
-            }
+            navigationView.stopNavigation();
+            //navigationView.onDestroy(); //TODO?
+            vm_track.setNavigationTrack(null);
 
             openInfoMode();
 
@@ -458,11 +453,37 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // iterate over registered hazards while driving
             List<Position> hazardPositions = fragDriving.getRegisteredHazardPositions();
             if (hazardPositions.size() > 0) {
+                for (Position hazPos : fragDriving.getRegisteredHazardPositions()) {
+                    fragInfo.submit_hazard(hazPos);
+                }
+
+            }
+        } else {
+            openDrivingMode();
+        }
+    }
+
+    private void switchInfoFreemode() {
+        if (currentFragment.equals(fragFreemode)) {
+            fragFreemode.cancelUpdateTimer(); // no more speed updates
+
+            trackRecorder.stop();
+            submitTrack();
+
+            openInfoMode();
+
+
+            // iterate over registered hazards while driving
+            List<Position> hazardPositions = fragDriving.getRegisteredHazardPositions();
+            if (hazardPositions != null && hazardPositions.size() > 0) {
                 for (Position hazPos : fragDriving.getRegisteredHazardPositions())
                     fragInfo.submit_hazard(hazPos);
             }
         } else {
-            openDrivingMode();
+
+            //Start Recorder
+            trackRecorder.start(this);
+            openFreeMode();
         }
     }
 
@@ -532,6 +553,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void initFragments() {
         fragDriving = new FragmentDrivingMode();
+        fragFreemode = new FragmentFreemode();
         fragInfo = new FragmentInfoMode();
         fragAssistance = new FragmentRoadsideAssistance();
         fragProfile = new FragmentShowProfile();
@@ -570,6 +592,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void openDrivingMode() {
         currentFragment = fragDriving;
+        hideSoftKeyboard();
+        hideToolbar();
+        animateFabIconChange();
+
+        updateFragment();
+        //just the bottom bar should be hidden, not the FAB
+        bottomBar.performHide();
+        dLayout.closeDrawers();
+    }
+
+    private void openFreeMode() {
+        currentFragment = fragFreemode;
         hideSoftKeyboard();
         hideToolbar();
         animateFabIconChange();

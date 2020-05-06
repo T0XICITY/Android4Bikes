@@ -66,7 +66,7 @@ public class TrackListViewHolder extends RecyclerView.ViewHolder implements View
         tv_name = itemView.findViewById(R.id.tv_trackname);
         tv_description = itemView.findViewById(R.id.tv_description);
         rating_roadQuality = itemView.findViewById(R.id.ratingBar_roadQuality);
-        rating_difficulty = itemView.findViewById(R.id.ratingBar_dificulty);
+        rating_difficulty = itemView.findViewById(R.id.ratingBar_difficulty);
         rating_funfactor = itemView.findViewById(R.id.ratingBar_funfactor);
         detailView = itemView.findViewById(R.id.layout_detailView);
         tv_trackLength = itemView.findViewById(R.id.tv_tracklength);
