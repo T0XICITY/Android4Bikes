@@ -117,11 +117,11 @@ public class FragmentTrackList extends Fragment implements SearchView.OnQueryTex
         Log.d("FragmentCreateTrack", getActivity() + "");
         recyclerView.setAdapter(adapter);
         updateTotalTracksTextView();
-        if (showOwnTracksOnly)
+        if (showOwnTracksOnly){
             viewModelOwnTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
-        else
+        } else {
             viewModelTrack.getTracks().observe(getViewLifecycleOwner(), this::onChanged);
-        Log.d("HalloWeltAUA", "TrackList:" + viewModelTrack.toString());
+        }
     }
 
     @SuppressLint("MissingPermission")
