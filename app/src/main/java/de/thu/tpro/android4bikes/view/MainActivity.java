@@ -782,12 +782,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * refresh data regarding a specified profile.
      */
     public void refreshProfile() {
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
+        Processor.getInstance().startRunnable(() -> {
+            try{
                 //TODO: do change of name on the server
                 Profile profile_own = new CouchDBHelper(CouchDBHelper.DBMode.OWNDATA).readMyOwnProfile();
-                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                if (profile_own != null && FirebaseAuth.getInstance().getCurrentUser() != null) {
                     Uri photoUrl = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl();
                     String[] name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName().split(" ");
                     String firstName = name[0];
@@ -801,9 +800,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 FirebaseConnection.getInstance().storeProfileToFireStoreAndLocalDB(profile_own);
                 FirebaseConnection.getInstance().readAllOwnTracksAndStoreItToOwnDB(profile_own.getGoogleID());
+            }catch (Exception e){
+                e.printStackTrace();
             }
-        };
-        Processor.getInstance().startRunnable(r);
+        });
     }
 
     public void checkLocationEnabled() {
