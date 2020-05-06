@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.view.driving;
+package de.thu.tpro.android4bikes.view.drivingmode;
 
 import java.util.Timer;
 import java.util.TimerTask;
