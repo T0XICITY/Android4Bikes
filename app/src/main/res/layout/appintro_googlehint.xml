@@ -47,6 +47,7 @@
             android:text="By clicking the arrow, you also agree to have read and understood the safety information."
             android:textColor="@color/TextWhite"
             android:paddingTop="15dp"
+
             android:paddingLeft="15dp"
             android:paddingRight="15dp"></TextView>
 
