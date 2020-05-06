@@ -10,15 +10,20 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -65,6 +70,7 @@ import de.thu.tpro.android4bikes.data.model.BikeRack;
 import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Profile;
+import de.thu.tpro.android4bikes.data.model.Rating;
 import de.thu.tpro.android4bikes.data.model.Track;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 import de.thu.tpro.android4bikes.util.GeoFencing;
@@ -81,11 +87,14 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 
-
 public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, PermissionsListener, Observer {
     private static final String LOG_TAG = "FragmentInfoMode";
     private static final String MAPFRAGMENT_TAG = "mapFragmentTAG";
+    private static final String TAG = "DirectionsActivity";
+    private static final float CARDVIEW_ELEVATION = 20.0f;
+
     private static LatLng latLng_lastcamerapos;
+
     //OWN ViewModels (=OWN DATA CREATED BY THIS USER!!!!)
     private ViewModelOwnBikerack vm_ownBikeRack;
     private ViewModelOwnHazardAlerts vm_ownHazards;
@@ -96,6 +105,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     private ViewModelHazardAlert vm_Hazards;
     private ViewModelTrack vm_Tracks;
     private MainActivity parent;
+    private CardView infoCardView;
     private View viewInfo;
     private SupportMapFragment mapFragment;
     private MapboxMap mapboxMap;
@@ -154,6 +164,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         trackLayer_created = false;
 
         initMap(savedInstanceState);
+        initTrackInfoCardView();
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -208,6 +219,23 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             MapBoxUtils.createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString(), MapBoxUtils.MapBoxSymbols.TRACK);
             trackLayer_created = true;
         }
+    }
+
+    private void initTrackInfoCardView() {
+        // Inflate Info CardView into ViewStub
+        ViewStub stub = viewInfo.findViewById(R.id.stub_infoCardView);
+        stub.setLayoutResource(R.layout.cardview_track_list);
+        infoCardView = (CardView) stub.inflate();
+
+        // beautify cardview
+        infoCardView.setElevation(CARDVIEW_ELEVATION);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) infoCardView
+                .findViewById(R.id.layout_detailView).getLayoutParams();
+        params.setMargins(0, 0, 0, 0);
+        infoCardView.findViewById(R.id.layout_detailView).setLayoutParams(params);
+
+        // set initial visibility of everything
+        infoCardView.setVisibility(View.GONE);
     }
 
     @Override
@@ -303,6 +331,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                 if (track_result != null) {
                                                     //set track for navigation mode
                                                     vm_Tracks.setNavigationTrack(track_result);
+                                                    showTrackInfoCardView(track_result);
                                                     routeLayer_created = MapBoxUtils.addRouteToMap(style, track_result,routeLayer_created);
                                                     MapBoxUtils.showRouteWithCamera(track_result.getStartPosition().getAsPoint(), track_result.getEndPosition().getAsPoint(),mapboxMap);
                                                     return true;
@@ -345,6 +374,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             if (vm_Tracks.getNavigationTrack().getValue() != null) {
                                 Log.d("HalloWelt", "Removed Track from map");
                                 routeLayer_created = MapBoxUtils.removeTrackFromMap(style,routeLayer_created,vm_Tracks);
+                                hideTrackInfoCardView();
                             }
                             return false;
                         }
@@ -369,6 +399,51 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(this);
         }
     }
+
+    private void showTrackInfoCardView(Track track) {
+        // extract necessary data from track
+        String distanceText = String.format(getResources().getString(R.string.distance),
+                track.getDistance_km());
+        Rating rating = track.getRating();
+
+        // insert track info into view elements
+        ((TextView) infoCardView.findViewById(R.id.tv_titleLength)).setText(track.getName());
+        ((TextView) infoCardView.findViewById(R.id.tv_tracklength)).setText(distanceText);
+        ((RatingBar) infoCardView.findViewById(R.id.ratingBar_roadQuality)).setProgress(rating.getRoadquality());
+        ((RatingBar) infoCardView.findViewById(R.id.ratingBar_difficulty)).setProgress(rating.getDifficulty());
+        ((RatingBar) infoCardView.findViewById(R.id.ratingBar_funfactor)).setProgress(rating.getFun());
+
+        // set visibility of CardView items
+        infoCardView.setVisibility(View.VISIBLE);
+        infoCardView.findViewById(R.id.layout_detailView).setVisibility(View.VISIBLE);
+
+        infoCardView.findViewById(R.id.tv_trackname).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.linLayout_distance).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.linLayout_author).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.tv_trackLocation).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.tv_description).setVisibility(View.GONE);
+        infoCardView.findViewById(R.id.tv_titleDescription).setVisibility(View.GONE);
+    }
+
+    private void hideTrackInfoCardView() {
+        // Just hide the card view
+        infoCardView.setVisibility(View.GONE);
+    }
+    /*private void createInfoWindowLayer(@NonNull Style loadedStyle, String ID, MapBoxSymbols type) {
+        loadedStyle.addLayer(new SymbolLayer("info_"+ID, ID) //todo: 2nd param should be maybe the id of the source of the already existing markers
+                .withProperties(
+                        ///* show image with id title based on the value of the name feature property
+                        iconImage("{name}"), //todo: check if this is right
+                        ///* set anchor of icon to bottom-left
+                        iconAnchor(ICON_ANCHOR_BOTTOM),
+                        ///* all info window and marker image to appear at the same time
+                        iconAllowOverlap(true),
+                        ///* offset the info window to be above the marker
+                        iconOffset(new Float[] {-2f, -28f})
+                )
+                ///* add a filter to show only when selected feature property is true
+                .withFilter(eq((get("selected")), literal(true))));
+    }*/
 
     //Location Stuff--------------------------------------------------------------
 
