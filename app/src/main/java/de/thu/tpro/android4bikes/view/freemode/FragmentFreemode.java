@@ -8,9 +8,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -78,6 +81,7 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnHazardAlerts;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
 
+import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 
 public class FragmentFreemode extends Fragment implements OnMapReadyCallback, PermissionsListener, Observer, androidx.lifecycle.Observer<OpenWeatherObject> {
@@ -153,7 +157,18 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
         bikerackLayer_created = false;
 
         initMap(savedInstanceState);
+        fade(viewFreemode);
     }
+
+
+    public void fade(View view) {
+        ImageView image = view.findViewById(R.id.imageView_animation);
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade);
+        animation.setRepeatCount(Animation.INFINITE);
+        animation.setRepeatMode(Animation.RESTART);
+        image.startAnimation(animation);
+    }
+
 
     private void initMap(Bundle savedInstanceState) {
         Mapbox.getInstance(parent, parent.getString(R.string.access_token));
@@ -205,6 +220,7 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
 
         mapboxMap.setStyle(new Style.Builder().fromUri("mapbox://styles/and4bikes/ck93ydsyn2ovs1js95kx1nu4u"),
                 style -> {
+                    initUserPosition(style);
                     mapboxMap.getLocationComponent().activateLocationComponent(LocationComponentActivationOptions
                             .builder(parent, style)
                             .useDefaultLocationEngine(true)
@@ -217,7 +233,7 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
                     mapboxMap.getLocationComponent().setLocationComponentEnabled(true);
                     mapboxMap.getLocationComponent().setRenderMode(RenderMode.GPS);
                     mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS);
-                    mapboxMap.getLocationComponent().zoomWhileTracking(20, 3000);
+                    mapboxMap.getLocationComponent().zoomWhileTracking(18, 3000);
                     mapboxMap.getUiSettings().setAllGesturesEnabled(false);
                     enableLocationComponent(style);
 
@@ -277,18 +293,21 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
 
                         }
                     });
-                    initUserPosition(style);
                 });
     }
 
     private void initUserPosition(@NonNull Style loadedmapstyle) {
         if (PositionTracker.getLastPosition().isValid()) {
+            mapboxMap.setCameraPosition(new CameraPosition.Builder()
+                    .tilt(60)
+                    .build());
             enableLocationComponent(loadedmapstyle);
         } else {
             Position germany_center = new Position(51.163361111111, 10.447683333333);
             mapboxMap.setCameraPosition(new CameraPosition.Builder()
                     .target(germany_center.toMapboxLocation())
                     .zoom(4)
+                    .tilt(60)
                     .build());
             PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(this);
         }
