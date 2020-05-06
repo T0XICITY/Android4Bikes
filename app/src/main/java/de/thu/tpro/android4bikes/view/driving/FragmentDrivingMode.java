@@ -85,9 +85,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     private DirectionsRoute reroute;
     private boolean reroute_user;
 
-    //ViewModels
-    ViewModelTrack vm_track;
-
     //TODO refactor
     private Track track_for_navigation;
 
