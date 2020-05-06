@@ -10,17 +10,17 @@
     <string name="title_tracks">Strecken</string>
     <string name="track_name">Streckenname</string>
     <string name="track_length">Streckenlänge</string>
-    <string name="total_track_List">Alle Strecken</string>
+    <string name="total_track_List">Alle Strecken: %1$d</string>
     <string name="user_location_permission_explanation">Diese Anwendung benötigt Standortberechtigungen, um ihre gesamte Funktionalität anzuzeigen.</string>
     <string name="loginfailed">Der Login ist fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
-    <string name="submit">Speichern</string>
+    <string name="submit">Melden</string>
     <string name="settings_Privacy_Voice">Sprachsteureung aktivieren</string>
     <string name="sortBy">Sortieren nach</string>
     <string name="Activity_Login_Toast_Fail">Authentifizierung fehlgeschlagen</string>
     <string name="HazardAlert_HazardType_SlipperyRoad">Glatte Fahrbahn</string>
     <string name="title_settings">Einstellungen</string>
     <string name="settings">Einstellungen</string>
-    <string name="submit_hazard">Gefahr auswählen</string>
+    <string name="submit_hazard">Gefahr Melden</string>
     <string name="filter_range">Suchbereich</string>
     <string name="search">Suchen</string>
     <string name="HazardAlert_HazardType_Rockfall">Steinschlag</string>
@@ -98,24 +98,25 @@
     </string-array>
 
     <string-array name="marker">
-        <item>Rack</item>
-        <item>Hazard</item>
+        <item>Fahrradständer</item>
+        <item>Gefahrenmeldung</item>
     </string-array>
 
     <string-array name="hazards">
-        <item>General</item>
-        <item>Rockfall</item>
-        <item>Roadkill</item>
-        <item>Slippery road</item>
-        <item>Icy road</item>
-        <item>Damaged road</item>
+        <item>Allgemein</item>
+        <item>@string/HazardAlert_HazardType_Rockfall</item>
+        <item>@string/HazardAlert_HazardType_Roadkill</item>
+        <item>@string/HazardAlert_HazardType_SlipperyRoad</item>
+        <item>@string/HazardAlert_HazardType_IcyRoad</item>
+        <item>@string/HazardAlert_HazardType_DamagedRoad</item>
     </string-array>
 
     <string-array name="rack_size">
-        <item>Small</item>
-        <item>Medium</item>
-        <item>Large</item>
-        <item>Gigantic</item>
+        <item>klein</item>
+        <item>mittel</item>
+        <item>groß</item>
+        <item>riesig</item>
     </string-array>
     <string name="rack_name">Name</string>
+    <string name="submit_track">Speichern</string>
 </resources>

@@ -47,6 +47,7 @@
     <string name="discard">Discard</string>
     <string name="track_name">Track name</string>
     <string name="error_name">Please enter a name</string>
+    <string name="submit_track">Submit</string>
 
     <!-- Rack Dialog -->
     <string name="rack_name">Rack name</string>
@@ -96,6 +97,7 @@
     <string name="settings_Drive_DistanceUnit">Distance unit</string>
     <string name="settings_Drive_Averrage">Show averrage speed</string>
     <string name="settings_Privacy">Privacy settings</string>
+    <string name="settings_Privacy_Voice">Enable Voice Command</string>
 
     <string-array name="weather_frequenz_list">
         <item>15 min</item>

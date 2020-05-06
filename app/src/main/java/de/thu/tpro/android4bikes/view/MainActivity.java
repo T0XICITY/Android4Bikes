@@ -503,7 +503,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
                 //.setTitle("Store your Track!")
                 .setView(dialogView)
-                .setPositiveButton(R.string.submit, null)
+                .setPositiveButton(R.string.submit_track, null)
                 .setNegativeButton(R.string.discard, null)
                 .create();
         submitTrackDialog.setCanceledOnTouchOutside(false);
