@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Android4Bikes</string>
+    <string name="deletion_successful">Dein Profil wurde gelöscht</string>
+    <string name="error_name">Bitte geben Sie einen Namen ein</string>
+    <string name="user_location_permission_not_granted">Sie haben die Standortberechtigungen nicht gewährt</string>
+    <string name="settings_Weather">Wetter Einstellungen</string>
+    <string name="settings_Weather_Frequenz">Wetter Aktuallisierung</string>
+    <string name="settings_Weather_Warning">Unwetter Warungen anzeigen</string>
+    <string name="title_tracks">Strecken</string>
+    <string name="track_name">Streckenname</string>
+    <string name="track_length">Streckenlänge</string>
+    <string name="total_track_List">Alle Strecken</string>
+    <string name="user_location_permission_explanation">Diese Anwendung benötigt Standortberechtigungen, um ihre gesamte Funktionalität anzuzeigen.</string>
+    <string name="loginfailed">Der Login ist fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
+    <string name="submit">Speichern</string>
+    <string name="settings_Privacy_Voice">Sprachsteureung aktivieren</string>
+    <string name="sortBy">Sortieren nach</string>
+    <string name="Activity_Login_Toast_Fail">Authentifizierung fehlgeschlagen</string>
+    <string name="HazardAlert_HazardType_SlipperyRoad">Glatte Fahrbahn</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="settings">Einstellungen</string>
+    <string name="submit_hazard">Gefahr auswählen</string>
+    <string name="filter_range">Suchbereich</string>
+    <string name="search">Suchen</string>
+    <string name="HazardAlert_HazardType_Rockfall">Steinschlag</string>
+    <string name="property_RoadQuality">Straßenqualität</string>
+    <string name="HazardAlert_HazardType_Roadkill">Überfahrenes Tier</string>
+    <string name="reset">Zurücksetzten</string>
+    <string name="register_hazard">Gefahr regisitriert</string>
+    <string name="property_Range">Bereich</string>
+    <string name="title_profile">Profil</string>
+    <string name="settings_Privacy_Position">Positionsdaten erfassen?</string>
+    <string name="rack_error">Bitte geben Sie einen Namen ein</string>
+    <string name="access_token" translatable="false">pk.eyJ1IjoiYW5kNGJpa2VzIiwiYSI6ImNrOTN5NThqNjAwZTUzZm15c21rdGc3a24ifQ.do688uZrW5rG-Hl82GjTng</string>
+    <string name="sortingOrder">Sortieren nach</string>
+    <string name="settings_Offline">Offline Einstellungen</string>
+    <string name="not_available">N/A</string>
+    <string name="title_mytracks">Meine Strecken</string>
+    <string name="title_switchMode">Modus wechsel</string>
+    <string name="logoutfailed">Logout fehlgeschlagen</string>
+    <string name="logout">Logout</string>
+    <string name="loginfailure">Login fehlgeschlagen</string>
+    <string name="activity_login_image">Login Bild</string>
+    <string name="new_location">Standort lat:%s long:%s</string>
+    <string name="settings_Bluetooth_Click">Klick Einstellungen</string>
+    <string name="HazardAlert_HazardType_IcyRoad">vereiste Fahrbahn</string>
+    <string name="hello_blank_fragment">Hallo Leeres Fragment</string>
+    <string name="title_hazard">Gefahr</string>
+    <string name="property_Funfactor">Spaßfaktor</string>
+    <string name="settings_Drive">Fahrteinstellungen</string>
+    <string name="settings_Drive_DistanceUnit">Entfernungseinheit</string>
+    <string name="gps_title">GPS aktivieren</string>
+    <string name="title_telnumbers">Notfallnummern</string>
+    <string name="ebike">E-bike Ladestation</string>
+    <string name="settings_Drive_Averrage">Durchschnittsgeschwindigkeit anzeigen</string>
+    <string name="gps_message">Möchten Sie GPS aktivieren?</string>
+    <string name="confirmation_message">Möchten Sie ihr Profil wirklich löschen?\nDas kann nicht rückgängig gemacht werden.</string>
+    <string name="dismiss">Ablehnen</string>
+    <string name="discard">Verwerfen</string>
+    <string name="property_Difficulty">Schwierigkeit</string>
+    <string name="track_description">Beschreibung</string>
+    <string name="feedback_desc">Beschreibung</string>
+    <string name="descending">Absteigend</string>
+    <string name="delete">Löschen</string>
+    <string name="settings_Privacy">Datenschutzeinstellungen</string>
+    <string name="HazardAlert_HazardType_DamagedRoad">Beschädigte Fahrbahn</string>
+    <string name="covered">Überdacht</string>
+    <string name="title_community">Community</string>
+    <string name="rack_capacity">Kapazität</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="settings_Bluetooth_addButton">Bluetooth Hardware verbinden</string>
+    <string name="settings_Bluetooth_summary">Bluetooth Hardware erkennen</string>
+    <string name="settings_Bluetooth_Button">Bluetooth Hardware aktivieren</string>
+    <string name="settings_Bluetooth_reset">Bluetooth Button zurücksetzen</string>
+    <string name="settings_Bluetooth">Bluetooth</string>
+    <string name="title_assistance">Unterstützung</string>
+    <string name="ascending">Aufsteigend</string>
+    <string name="confirmation">Sind Sie sicher?</string>
+    <string name="unfiltered">Alles</string>
+    <string name="accept">Akzeptieren</string>
+    <string name="settings_Offline_Radius">Abrufradius in Meter</string>
+    <string name="filter_rating">%1$s \\u2605</string>
+    <string name="speed">%1$d km/h</string>
+    <string name="range">%1$d km</string>
+    <string name="distance">%1$.2f km</string>
+
+    <string-array name="weather_frequenz_list">
+        <item>15 min</item>
+        <item>30 min</item>
+        <item>45 min</item>
+        <item>60 min</item>
+    </string-array>
+
+    <string-array name="distance_unit">
+        <item>Kilometer</item>
+        <item>Meilen</item>
+    </string-array>
+
+    <string-array name="marker">
+        <item>Rack</item>
+        <item>Hazard</item>
+    </string-array>
+
+    <string-array name="hazards">
+        <item>General</item>
+        <item>Rockfall</item>
+        <item>Roadkill</item>
+        <item>Slippery road</item>
+        <item>Icy road</item>
+        <item>Damaged road</item>
+    </string-array>
+
+    <string-array name="rack_size">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+        <item>Gigantic</item>
+    </string-array>
+    <string name="rack_name">Name</string>
+</resources>
