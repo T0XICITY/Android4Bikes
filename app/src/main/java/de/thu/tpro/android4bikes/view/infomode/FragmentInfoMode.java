@@ -786,25 +786,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             }
         });
 
-        /*rackMap.getMapAsync(mapboxMapRack -> mapboxMapRack.setStyle(Style.MAPBOX_STREETS, style -> {
-            if (lastPosition != null) {
-                mapboxMapRack.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                        .target(PositionTracker.getLastPosition().toMapboxLocation())
-                        .zoom(17)
-                        .bearing(0)
-                        .build()), 1000);
-
-                SymbolOptions marker = createMarker(lastPosition.getLatitude(), lastPosition.getLongitude(), MapBoxSymbols.BIKERACK);
-                List<Feature> features = new ArrayList<>();
-                features.add(Feature.fromGeometry(marker.getGeometry()));
-
-                FeatureCollection collection = FeatureCollection.fromFeatures(features);
-                addGeoJsonSource(mapboxMapRack.getStyle(), collection, "test", false);
-                createUnclusteredSymbolLayer(mapboxMapRack.getStyle(), "test", MapBoxSymbols.BIKERACK);
-            }
-        })
-        );*/
-
         EditText editRack = dialog.findViewById(R.id.edit_rack_name);
         Spinner spCapacity = dialog.findViewById(R.id.sp_capacity);
         CheckBox cbEBike = dialog.findViewById(R.id.chBx_ebike);
