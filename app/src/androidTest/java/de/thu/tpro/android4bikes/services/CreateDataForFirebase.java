@@ -57,8 +57,8 @@ public class CreateDataForFirebase {
                 null,
                 true
         );
-        trackRecorder.start();
-        trackRecorder.stop(track);
+        //trackRecorder.start();
+        //trackRecorder.stop(track);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
