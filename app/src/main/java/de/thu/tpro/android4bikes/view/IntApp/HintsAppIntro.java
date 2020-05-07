@@ -26,7 +26,6 @@ public class HintsAppIntro extends AppIntro {
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.appintro_hint, container, false);
-
         return view;
     }
 

@@ -335,11 +335,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void goToAppIntro() {
-        Intent intent = new Intent(this, HintsAppIntro.class);
-        startActivity(intent);
-    }
-
 
     /**
      * First, check on FireStore whether the local stored profile is available on the FireStore. Otherwise,

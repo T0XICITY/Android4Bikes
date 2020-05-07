@@ -31,6 +31,7 @@ import java.util.List;
 
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.util.GlobalContext;
+import de.thu.tpro.android4bikes.view.IntApp.HintsAppIntro;
 import de.thu.tpro.android4bikes.view.MainActivity;
 
 /**
@@ -123,11 +124,17 @@ public class ActivityLogin extends AppCompatActivity {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
+                goToAppIntro();
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
             }
         }
+    }
+
+    public void goToAppIntro() {
+        Intent intent = new Intent(this, HintsAppIntro.class);
+        startActivity(intent);
     }
 
     @Override
