@@ -1,16 +1,9 @@
-package de.thu.tpro.android4bikes.view.driving;
-
-import android.location.Location;
-import android.util.Log;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.maps.android.SphericalUtil;
+package de.thu.tpro.android4bikes.view.drivingmode;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 import de.thu.tpro.android4bikes.data.model.Position;
-import de.thu.tpro.android4bikes.services.GpsLocation;
 import de.thu.tpro.android4bikes.services.PositionTracker;
 
 public class DrivingModeDataBinder {
@@ -27,7 +20,7 @@ public class DrivingModeDataBinder {
     private int counter;
     private Position lastPosition;
     private long accumulatedSpeed;
-    private double currSpeed;
+    private float currSpeed;
 
     private DrivingModeDataBinder() {
         accumulatedSpeed = 0;
@@ -51,8 +44,8 @@ public class DrivingModeDataBinder {
      */
     public int updateSpeed() {
         counter++;
-        currSpeed = PositionTracker.getLastSpeed().doubleValue();
-        return (int) Math.round(currSpeed);
+        currSpeed = PositionTracker.getLastSpeed();
+        return Math.round(currSpeed);
     }
 
     /**

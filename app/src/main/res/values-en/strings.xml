@@ -47,7 +47,6 @@
     <string name="discard">Discard</string>
     <string name="track_name">Track name</string>
     <string name="error_name">Please enter a name</string>
-    <string name="submit_track">Submit</string>
 
     <!-- Rack Dialog -->
     <string name="rack_name">Rack name</string>

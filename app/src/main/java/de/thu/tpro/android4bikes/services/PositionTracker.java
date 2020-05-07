@@ -26,12 +26,12 @@ public class PositionTracker {
         return (Position) map_position_speed.get(CONSTANTS.POSITION.toText());
     }
 
-    public static Float getLastSpeed() {
+    public static float getLastSpeed() {
         if (map_position_speed.get(CONSTANTS.SPEED.toText()) == null) {
-            map_position_speed.put(CONSTANTS.SPEED.toText(), 0);
+            map_position_speed.put(CONSTANTS.SPEED.toText(), 0.0);
         }
 
-        return (Float) map_position_speed.get(CONSTANTS.SPEED.toText());
+        return Float.parseFloat(String.valueOf(map_position_speed.get(CONSTANTS.SPEED.toText())));
     }
 
     public enum CONSTANTS {
@@ -93,8 +93,8 @@ public class PositionTracker {
                 notifyObservers(map_position_speed);
 
                 // Pass the new location to the Maps SDK's LocationComponent
-                if (activity.navigationView != null && activity.navigationView.retrieveNavigationMapboxMap() != null) {
-                    if (activity.navigationView.retrieveNavigationMapboxMap().retrieveMap() != null && result.getLastLocation() != null) {
+                if (result.getLastLocation() != null) {
+                    if (activity.navigationView != null && activity.navigationView.retrieveNavigationMapboxMap() != null) {
                         activity.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().forceLocationUpdate(result.getLastLocation());
                     }
                 }

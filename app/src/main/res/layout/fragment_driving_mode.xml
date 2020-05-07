@@ -10,26 +10,29 @@
         android:id="@+id/weatherFAB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="125dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:clickable="false"
-        app:fabCustomSize="80dp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:maxImageSize="64dp"
         app:srcCompat="@drawable/weather_few_clouds" />
+    <!--        app:fabCustomSize="80dp"-->
+
+    <!--        app:maxImageSize="64dp"-->
+
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        style="@style/ReadOnlyFAB"
         android:id="@+id/velocityFAB"
+        style="@style/ReadOnlyFAB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="90dp"
-        android:text="km/h"
         android:clickable="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_marginTop="130dp"
+        android:alpha="0.8"
+        android:text="km/h"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.mapbox.services.android.navigation.ui.v5.NavigationView
         android:id="@+id/navigation_view"

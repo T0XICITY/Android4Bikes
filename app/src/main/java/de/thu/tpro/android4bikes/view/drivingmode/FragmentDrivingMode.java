@@ -1,4 +1,4 @@
-package de.thu.tpro.android4bikes.view.driving;
+package de.thu.tpro.android4bikes.view.drivingmode;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,13 +8,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.mapbox.android.core.permissions.PermissionsListener;
-import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.DirectionsCriteria;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
@@ -22,11 +26,6 @@ import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
-import com.mapbox.mapboxsdk.location.modes.CameraMode;
-import com.mapbox.mapboxsdk.location.modes.RenderMode;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions;
 import com.mapbox.services.android.navigation.ui.v5.OnNavigationReadyCallback;
 import com.mapbox.services.android.navigation.ui.v5.camera.NavigationCamera;
@@ -45,12 +44,6 @@ import java.util.Observable;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import de.thu.tpro.android4bikes.R;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.model.Track;
@@ -65,7 +58,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FragmentDrivingMode extends Fragment implements PermissionsListener, OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer, RouteListener, NavigationListener {
+public class FragmentDrivingMode extends Fragment implements OnNavigationReadyCallback, Observer<OpenWeatherObject>, java.util.Observer, RouteListener, NavigationListener {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private static final String LOG_TAG = "FragmentDrivingMode";
     private static final String TAG = "FAB for Driving Mode";
@@ -80,7 +73,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     private FloatingActionButton fab_weather;
     private ExtendedFloatingActionButton fab_velocity;
     private Timer updateTimer;
-    private PermissionsManager permissionsManager;
     // Navigation related variables
     private DirectionsRoute reroute;
     private boolean reroute_user;
@@ -94,8 +86,8 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         viewDrivingMode = inflater.inflate(R.layout.fragment_driving_mode, container, false);
-        fab_weather = viewDrivingMode.findViewById(R.id.weatherFAB);
-        fab_velocity = viewDrivingMode.findViewById(R.id.velocityFAB);
+
+        initweatherFab();
 
         vmWeather = new ViewModelProvider(requireActivity()).get(ViewModelWeather.class);
         vm_track = new ViewModelProvider(requireActivity()).get(ViewModelTrack.class);
@@ -119,6 +111,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
         initNavigation(view, savedInstanceState);
         initVelocityFAB();
+        track_for_navigation = vm_track.getNavigationTrack().getValue();
     }
 
     @Override
@@ -174,12 +167,13 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         Log.d("HalloWeltAUA", "NavigationReady");
         //parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setStyle(Style.MAPBOX_STREETS, style -> {
         Log.d("HalloWeltAUA", "style loaded");
+        parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getUiSettings().setAllGesturesEnabled(false);
         if (PositionTracker.getLastPosition().isValid()) {
             parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
                     .target(PositionTracker.getLastPosition().toMapboxLocation())
                     .zoom(15)
                     .build());
-            FragmentDrivingMode.this.start();
+            FragmentDrivingMode.this.startNavigation();
         } else {
             Position germany_center = new Position(51.163361111111, 10.447683333333);
             parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().setCameraPosition(new CameraPosition.Builder()
@@ -190,16 +184,17 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
             PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(FragmentDrivingMode.this);
         }
         parent.navigationView.findViewById(R.id.feedbackFab).setVisibility(View.GONE);
+        parent.navigationView.findViewById(R.id.soundFab).setVisibility(View.GONE);
         parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().addOnMapLongClickListener(click -> {
             registeredHazardPositions.add(PositionTracker.getLastPosition());
             Snackbar.make(FragmentDrivingMode.this.getView(), R.string.register_hazard, Snackbar.LENGTH_LONG).show();
             Log.d("addHazard", "List: " + registeredHazardPositions);
             return true;
         });
-        //});
     }
 
     private void initVelocityFAB() {
+        fab_velocity = viewDrivingMode.findViewById(R.id.velocityFAB);
         // schedule a timer to update velocity periodically
         updateTimer = new Timer();
         updateTimer.schedule(new TimerTask() {
@@ -215,30 +210,12 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
         }, 0, VELOCITY_UPDATE_INTERVAL);
     }
 
+    private void initweatherFab() {
+        fab_weather = viewDrivingMode.findViewById(R.id.weatherFAB);
+    }
+
     public void cancelUpdateTimer() {
         updateTimer.cancel();
-    }
-
-    private void start() {
-        track_for_navigation = vm_track.getNavigationTrack().getValue();
-        if (track_for_navigation != null) {
-            startDrivingMODE();
-        } else {
-            startFreeMODE();
-        }
-    }
-
-    private void startDrivingMODE() {
-        //Start Navigation
-        startNavigation();
-    }
-
-    private void startFreeMODE() {
-        //start free mode
-        parent.freemode_active = true;
-
-        //Start Recorder
-        parent.trackRecorder.start(parent);
     }
 
     @Override
@@ -254,7 +231,7 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
                                 .zoom(15)
                                 .bearing(0)
                                 .build()), 3000);
-                        start();
+                        startNavigation();
                         observable.deleteObserver(this);
                     }
 
@@ -296,81 +273,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
 
         } else {
             Log.d("HELLO", "Error current-route null ");
-        }
-    }
-
-
-    /**
-     * Initialize the Maps SDK's LocationComponent
-     */
-    @SuppressWarnings({"MissingPermission"})
-    private void enableLocationComponent(@NonNull Style loadedMapStyle) {
-        // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(parent)) {
-
-            //Check if GPS is enabled on device
-
-            // Set the LocationComponent activation options
-            LocationComponentActivationOptions locationComponentActivationOptions =
-                    LocationComponentActivationOptions.builder(parent, loadedMapStyle)
-                            .useDefaultLocationEngine(true)
-                            .build();
-
-            // Activate with the LocationComponentActivationOptions object
-            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().activateLocationComponent(locationComponentActivationOptions);
-
-            // Enable to make component visible
-            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().setLocationComponentEnabled(true);
-
-            // Set the component's camera mode
-            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().setCameraMode(CameraMode.TRACKING);
-
-            // Set the component's render mode
-            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().setRenderMode(RenderMode.GPS);
-
-            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getLocationComponent().zoomWhileTracking(15, 3000, new MapboxMap.CancelableCallback() {
-                @Override
-                public void onCancel() {
-                }
-
-                @Override
-                public void onFinish() {
-                }
-            });
-            if (parent.locationEngine == null) {
-                parent.initLocationEngine();
-            }
-        } else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(parent);
-        }
-    }
-
-    //Location Stuff--------------------------------------------------------------
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    public void onExplanationNeeded(List<String> permissionsToExplain) {
-        Toast.makeText(parent, R.string.user_location_permission_explanation,
-                Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onPermissionResult(boolean granted) {
-        if (granted) {
-            parent.navigationView.retrieveNavigationMapboxMap().retrieveMap().getStyle(new Style.OnStyleLoaded() {
-                @Override
-                public void onStyleLoaded(@NonNull Style style) {
-                    enableLocationComponent(style);
-                }
-            });
-        } else {
-            Toast.makeText(parent, R.string.user_location_permission_not_granted, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -525,9 +427,6 @@ public class FragmentDrivingMode extends Fragment implements PermissionsListener
     @Override
     public void onNavigationRunning() {
         Log.d("HalloWelt", "Navigation Running");
-        if (!parent.navigationRunning) {
-            parent.navigationRunning = true;
-        }
     }
     //##############################################################################################
 
