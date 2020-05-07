@@ -84,6 +84,7 @@
     <string name="speed">%1$d km/h</string>
     <string name="range">%1$d km</string>
     <string name="distance">%1$.2f km</string>
+    <string name="preformattedCapacity">Kapazität: %s</string>
 
     <string-array name="weather_frequenz_list">
         <item>15 min</item>
