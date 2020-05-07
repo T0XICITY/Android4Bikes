@@ -68,7 +68,13 @@
             name="Submit"
             identifier="Submit" />
         <entity
-            name="Tracks"
-            identifier="Tracks" />
+            name="Tracklist"
+            identifier="Tracklist" />
+        <entity
+            name="Community"
+            identifier="Community" />
+        <entity
+            name="My track list"
+            identifier="My track list" />
     </entity-set>
 </actions>
