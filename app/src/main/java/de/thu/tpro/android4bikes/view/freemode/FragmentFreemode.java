@@ -265,7 +265,7 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
                     mapboxMap.getLocationComponent().setRenderMode(RenderMode.GPS);
                     mapboxMap.getLocationComponent().setCameraMode(CameraMode.TRACKING_GPS);
                     mapboxMap.getLocationComponent().zoomWhileTracking(17, 3000);
-                    mapboxMap.getUiSettings().setAllGesturesEnabled(true);
+                    mapboxMap.getUiSettings().setAllGesturesEnabled(false);
                     enableLocationComponent(style);
 
                     MapBoxUtils.initMarkerSymbols(mapboxMap, MapBoxUtils.generateMarkerPool(parent));
