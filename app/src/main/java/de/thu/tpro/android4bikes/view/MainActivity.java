@@ -256,9 +256,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.i(TAG, "openProfile");
                     openProfile();
                     break;
-                case "Tracks":
-                    Log.i(TAG, "openTrackList");
+                case "Tracklist":
+                    Log.i(TAG, "setFlag");
+                    fragTrackList.setShowOwnTracksOnly(false);
                     openTrackList();
+                    break;
+                case "My track list":
+                    Log.i(TAG, "setMyTrackList");
+                    fragTrackList.setShowOwnTracksOnly(true);
+                    openTrackList();
+                    break;
+
+                case "Community":
+                    Log.i(TAG, "openCommunity");
+                    toggleNavigationDrawer();
                     break;
             }
         }
