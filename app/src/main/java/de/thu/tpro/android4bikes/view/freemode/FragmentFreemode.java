@@ -36,8 +36,10 @@ import com.google.firebase.firestore.GeoPoint;
 import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.tilequery.MapboxTilequery;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -71,6 +73,7 @@ import de.thu.tpro.android4bikes.data.model.HazardAlert;
 import de.thu.tpro.android4bikes.data.model.Position;
 import de.thu.tpro.android4bikes.data.openWeather.OpenWeatherObject;
 import de.thu.tpro.android4bikes.services.PositionTracker;
+import de.thu.tpro.android4bikes.util.ChartsUtil.ChartsUtil;
 import de.thu.tpro.android4bikes.util.GeoFencing;
 import de.thu.tpro.android4bikes.util.GlobalContext;
 import de.thu.tpro.android4bikes.util.GpsUtils;
@@ -82,6 +85,9 @@ import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnBikerack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelOwnHazardAlerts;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelTrack;
 import de.thu.tpro.android4bikes.viewmodel.ViewModelWeather;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 
@@ -115,6 +121,10 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
     private boolean fenceAlreadyStopped;
     private boolean hazardLayer_created;
     private boolean bikerackLayer_created;
+    private ChartsUtil chartsUtil;
+    private boolean locationenabled;
+    private Observable observable_position;
+    private int addable;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -145,6 +155,12 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
         GlobalContext.setContext(parent.getApplicationContext());
 
         initweatherFab();
+        chartsUtil = new ChartsUtil();
+
+        chartsUtil.initalizeElevationChart(view, R.id.elevationChart, parent);
+
+
+
         vmWeather.getCurrentWeather().observe(getViewLifecycleOwner(), this);
 
         //start with GeoFencing:
@@ -153,7 +169,7 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
 
         fenceAlreadyRunning = false;
         fenceAlreadyStopped = true;
-
+        locationenabled = false;
         hazardLayer_created = false;
         bikerackLayer_created = false;
 
@@ -308,6 +324,9 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
 
                         }
                     });
+                    //Generate Point at Location every 5sec
+                    observable_position = PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent);
+                    observable_position.addObserver(this);
                 });
     }
 
@@ -324,7 +343,6 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
                     .zoom(4)
                     .tilt(60)
                     .build());
-            PositionTracker.LocationChangeListeningActivityLocationCallback.getInstance(parent).addObserver(this);
         }
     }
 
@@ -543,14 +561,59 @@ public class FragmentFreemode extends Fragment implements OnMapReadyCallback, Pe
                 if (map.get(PositionTracker.CONSTANTS.POSITION.toText()) != null) {
                     Position last_position = (Position) map.get(PositionTracker.CONSTANTS.POSITION.toText());
                     if (last_position.isValid()) {
-                        if (style != null) {
+                        if (style != null && !locationenabled) {
                             enableLocationComponent(style);
+                            locationenabled = true;
                         }
-                        observable.deleteObserver(this);
+                        makeElevationRequestToTilequeryApi(style, last_position.toMapboxLocation());
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Use the Java SDK's MapboxTilequery class to build a API request and use the API response
+     *
+     * @param point where the Tilequery API should query Mapbox's "mapbox.mapbox-terrain-v2" tileset
+     *              for elevation data.
+     */
+    private void makeElevationRequestToTilequeryApi(@NonNull final Style style, @NonNull LatLng point) {
+        MapboxTilequery elevationQuery = MapboxTilequery.builder()
+                .accessToken(getString(R.string.access_token))
+                .mapIds("mapbox.mapbox-terrain-v2")
+                .query(Point.fromLngLat(point.getLongitude(), point.getLatitude()))
+                .geometry("polygon")
+                .layers("contour")
+                .build();
+
+        elevationQuery.enqueueCall(new Callback<FeatureCollection>() {
+            @Override
+            public void onResponse(Call<FeatureCollection> call, Response<FeatureCollection> response) {
+
+                if (response.body().features() != null) {
+                    List<Feature> featureList = response.body().features();
+
+                    int highest_ele = 0;
+                    // Build a list of the elevation numbers in the response.
+                    for (Feature singleFeature : featureList) {
+                        int current_ele = Integer.valueOf(singleFeature.getStringProperty("ele"));
+                        if (current_ele > highest_ele) {
+                            highest_ele = current_ele;
+                        }
+                    }
+
+                    Log.d("TESTST", String.valueOf(highest_ele));
+                    chartsUtil.feedNewData(Float.valueOf(String.valueOf(highest_ele)));
+                } else {
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FeatureCollection> call, Throwable throwable) {
+
+            }
+        });
     }
 
     @Override
