@@ -178,14 +178,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             );
             mapFragment = SupportMapFragment.newInstance(mapOptions);
 
-            final FragmentTransaction transaction = parent.getSupportFragmentManager().beginTransaction();
+            final FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
             transaction.add(R.id.map_container_info, mapFragment, MAPFRAGMENT_TAG);
             transaction.commit();
 
 
         } else {
             Mapbox.getInstance(parent, parent.getString(R.string.access_token));
-            mapFragment = (SupportMapFragment) parent.getSupportFragmentManager()
+            mapFragment = (SupportMapFragment)getChildFragmentManager()
                     .findFragmentByTag(MAPFRAGMENT_TAG);
 
         }
