@@ -62,6 +62,21 @@ public class HazardAlert {
         this.firebaseID = UUIDGenerator.generateUUID();
     }
 
+    /**
+     * Constructor generating automatically a UUID as FireBaseID for voice-control orders.
+     *
+     * @param type
+     * @param position
+     */
+    public HazardAlert(HazardType type, Position position) {
+        this.type = type;
+        this.position = position;
+        this.expiryTimestamp = TimeBase.getCurrentUnixTimeStamp() + 604800000;
+        this.distanceOfInterest = 7;
+        this.isExistent = false;
+        this.firebaseID = UUIDGenerator.generateUUID();
+    }
+
     public String getFirebaseID() {
         return firebaseID;
     }
