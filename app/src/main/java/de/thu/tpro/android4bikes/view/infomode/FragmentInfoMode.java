@@ -6,14 +6,13 @@ import android.content.pm.PackageManager;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.Spinner;
@@ -164,7 +163,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         trackLayer_created = false;
 
         initMap(savedInstanceState);
-        initTrackInfoCardView();
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -180,14 +178,14 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             );
             mapFragment = SupportMapFragment.newInstance(mapOptions);
 
-            final FragmentTransaction transaction = parent.getSupportFragmentManager().beginTransaction();
+            final FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
             transaction.add(R.id.map_container_info, mapFragment, MAPFRAGMENT_TAG);
             transaction.commit();
 
 
         } else {
             Mapbox.getInstance(parent, parent.getString(R.string.access_token));
-            mapFragment = (SupportMapFragment) parent.getSupportFragmentManager()
+            mapFragment = (SupportMapFragment)getChildFragmentManager()
                     .findFragmentByTag(MAPFRAGMENT_TAG);
 
         }
@@ -219,23 +217,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             MapBoxUtils.createClusteredCircleOverlay(loadedMapStyle, GeoFencing.ConstantsGeoFencing.COLLECTION_TRACKS.toString(), MapBoxUtils.MapBoxSymbols.TRACK);
             trackLayer_created = true;
         }
-    }
-
-    private void initTrackInfoCardView() {
-        // Inflate Info CardView into ViewStub
-        ViewStub stub = viewInfo.findViewById(R.id.stub_infoCardView);
-        stub.setLayoutResource(R.layout.cardview_track_list);
-        infoCardView = (CardView) stub.inflate();
-
-        // beautify cardview
-        infoCardView.setElevation(CARDVIEW_ELEVATION);
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) infoCardView
-                .findViewById(R.id.layout_detailView).getLayoutParams();
-        params.setMargins(0, 0, 0, 0);
-        infoCardView.findViewById(R.id.layout_detailView).setLayoutParams(params);
-
-        // set initial visibility of everything
-        infoCardView.setVisibility(View.GONE);
     }
 
     @Override
@@ -313,6 +294,8 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                     mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
                         @Override
                         public boolean onMapClick(@NonNull LatLng point) {
+                            // clear InfoCardView if existing
+                            hideInfoCardView();
                             // Convert LatLng coordinates to screen pixel and only query the rendered features.
                             final PointF pixel = mapboxMap.getProjection().toScreenLocation(point);
                             List<Feature> features = mapboxMap.queryRenderedFeatures(pixel);
@@ -344,13 +327,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                             .findFirst()
                                                             .orElse(null);
                                                     if (rack_result != null) {
-                                                        Toast toast = Toast.makeText(getContext(), "Bike rack:\t\t\t\t\t\t\t\t" + rack_result.getName()
-                                                                        + "\n" + "Capacity:\t\t\t\t\t\t\t\t" + rack_result.getCapacity().name()
-                                                                        + "\n" + "e-Bike charging:\t\t" + (rack_result.hasBikeCharging() ? "available" : "not available")
-                                                                        + "\n" + "Is it covered:\t\t\t\t\t" + (rack_result.isCovered() ? "yes" : "no")
-                                                                , Toast.LENGTH_LONG);
-                                                        toast.setGravity(Gravity.TOP, 0, 50);
-                                                        toast.show();
+                                                        showBikeRackInfoCardView(rack_result);
                                                         return true;
                                                     } else {
                                                         List<HazardAlert> hazards = vm_Hazards.getHazardAlerts().getValue();
@@ -359,9 +336,7 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                                                                 .findFirst()
                                                                 .orElse(null);
                                                         if (hazard_result != null) {
-                                                            Toast toast = Toast.makeText(getContext(), "Hazard type: " + HazardAlert.HazardType.getByType(hazard_result.getType()), Toast.LENGTH_LONG);
-                                                            toast.setGravity(Gravity.TOP, 0, 50);
-                                                            toast.show();
+                                                            showHazardAlertCardView(hazard_result);
                                                             return true;
                                                         }
                                                     }
@@ -374,7 +349,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
                             if (vm_Tracks.getNavigationTrack().getValue() != null) {
                                 Log.d("HalloWelt", "Removed Track from map");
                                 routeLayer_created = MapBoxUtils.removeTrackFromMap(style,routeLayer_created,vm_Tracks);
-                                hideTrackInfoCardView();
                             }
                             return false;
                         }
@@ -401,10 +375,23 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
     }
 
     private void showTrackInfoCardView(Track track) {
+        Log.d(LOG_TAG, "showing track info...");
+
         // extract necessary data from track
         String distanceText = String.format(getResources().getString(R.string.distance),
                 track.getDistance_km());
         Rating rating = track.getRating();
+
+        // Inflate Info CardView into ViewStub
+        FrameLayout placeholder = getView().findViewById(R.id.placeholder_infoCardView);
+        infoCardView = (CardView) getLayoutInflater().inflate(R.layout.cardview_track_list, null);
+
+        // beautify cardview
+        infoCardView.setElevation(CARDVIEW_ELEVATION);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) infoCardView
+                .findViewById(R.id.layout_detailView).getLayoutParams();
+        params.setMargins(0, 0, 0, 0);
+        infoCardView.findViewById(R.id.layout_detailView).setLayoutParams(params);
 
         // insert track info into view elements
         ((TextView) infoCardView.findViewById(R.id.tv_titleLength)).setText(track.getName());
@@ -414,7 +401,6 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         ((RatingBar) infoCardView.findViewById(R.id.ratingBar_funfactor)).setProgress(rating.getFun());
 
         // set visibility of CardView items
-        infoCardView.setVisibility(View.VISIBLE);
         infoCardView.findViewById(R.id.layout_detailView).setVisibility(View.VISIBLE);
 
         infoCardView.findViewById(R.id.tv_trackname).setVisibility(View.GONE);
@@ -423,12 +409,59 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
         infoCardView.findViewById(R.id.tv_trackLocation).setVisibility(View.GONE);
         infoCardView.findViewById(R.id.tv_description).setVisibility(View.GONE);
         infoCardView.findViewById(R.id.tv_titleDescription).setVisibility(View.GONE);
+
+        infoCardView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        placeholder.addView(infoCardView);
     }
 
-    private void hideTrackInfoCardView() {
-        // Just hide the card view
-        infoCardView.setVisibility(View.GONE);
+    private void showBikeRackInfoCardView(BikeRack rack) {
+        Log.d(LOG_TAG, "showing rack info...");
+
+        // extract necessary data from bike rack
+        String distanceText = String.format(getString(R.string.distance),
+                InfoModeHelper.calculateDistanceFromMe(rack.getPosition()));
+        String capacityText = InfoModeHelper.localizeCapacity(getResources(), rack.getCapacity());
+
+        // inflate infoCardView
+        FrameLayout placeholder = getView().findViewById(R.id.placeholder_infoCardView);
+        infoCardView = (CardView) getLayoutInflater().inflate(R.layout.cardview_bikerack, null);
+
+        // insert bike rack info into cardView
+        ((TextView) infoCardView.findViewById(R.id.tv_bikerackname)).setText(rack.getName());
+        ((TextView) infoCardView.findViewById(R.id.tv_bikerackdistance)).setText(distanceText);
+        ((TextView) infoCardView.findViewById(R.id.tv_rackCapacity)).setText(capacityText);
+        if (rack.isCovered())
+            infoCardView.findViewById(R.id.iv_covered).setVisibility(View.VISIBLE);
+        if (rack.isHasBikeCharging())
+            infoCardView.findViewById(R.id.iv_ebikecharging).setVisibility(View.VISIBLE);
+
+        // add card view into placeholder layout
+        infoCardView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        placeholder.addView(infoCardView);
     }
+
+    private void showHazardAlertCardView(HazardAlert hazardAlert) {
+        //extract necessary data from hazardAlert
+        String hazardTypeText = InfoModeHelper.localizeHazardType(getResources(), hazardAlert);
+
+        // inflate infoCardView
+        FrameLayout placeholder = getView().findViewById(R.id.placeholder_infoCardView);
+        infoCardView = (CardView) getLayoutInflater().inflate(R.layout.cardview_hazard_alert, null);
+
+        // insert data into textView
+        ((TextView) infoCardView.findViewById(R.id.tv_hazardName)).setText(hazardTypeText);
+
+        // add card view into placeholder layout
+        infoCardView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        placeholder.addView(infoCardView);
+    }
+
+    private void hideInfoCardView() {
+        // Gerara here man
+        if (infoCardView != null)
+            ((ViewGroup) getView().findViewById(R.id.placeholder_infoCardView)).removeView(infoCardView);
+    }
+
     /*private void createInfoWindowLayer(@NonNull Style loadedStyle, String ID, MapBoxSymbols type) {
         loadedStyle.addLayer(new SymbolLayer("info_"+ID, ID) //todo: 2nd param should be maybe the id of the source of the already existing markers
                 .withProperties(

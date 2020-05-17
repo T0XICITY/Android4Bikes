@@ -6,7 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-        <application
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -21,14 +22,42 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Required to support search action intents from Google Search -->
+            <intent-filter>
+                <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Define your supported deeplinks -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="and4bikes"
+                    android:pathPrefix="/open"
+                    android:scheme="my-scheme" />
+
+                <data
+                    android:host="and4bikes"
+                    android:pathPrefix="/report"
+                    android:scheme="my-scheme" />
+
+            </intent-filter>
+
+
         </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCsUEsnSdcigggEDqvZT_lDf0GS8RqzuKc" />
         <activity android:name=".view.login.ActivityLogin" />
-            <activity
-                android:name=".view.IntApp.HintsAppIntro"
-                android:label="Custom AppIntro"></activity>
-
-        </application>
+            
+        <activity android:name=".view.IntApp.HintsAppIntro"
+                android:label="Custom AppIntro"/>
+        <!-- Add an indication where to find the actions.xml -->
+        <meta-data
+            android:name="com.google.android.actions"
+            android:resource="@xml/actions" />
+    </application>
 </manifest>

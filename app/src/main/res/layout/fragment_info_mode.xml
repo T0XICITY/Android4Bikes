@@ -20,17 +20,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:maxImageSize="24dp" />
 
-    <ViewStub
-        android:id="@+id/stub_infoCardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_margin="10dp"
-        app:layout_constraintTop_toTopOf="parent"/>
-
     <FrameLayout
         android:id="@+id/map_container_info"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/placeholder_infoCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
