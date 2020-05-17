@@ -27,6 +27,10 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.appindexing.Action;
+import com.google.firebase.appindexing.FirebaseUserActions;
+import com.google.firebase.appindexing.builders.AssistActionBuilder;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -36,6 +40,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.actions.SearchIntents;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -123,6 +128,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public LocationEngine locationEngine;
     public PositionTracker.LocationChangeListeningActivityLocationCallback callback;
     private boolean toolbarHidden;
+    private static final String ACTION_TOKEN_EXTRA =
+            "actions.fulfillment.extra.ACTION_TOKEN";
+    public boolean navigationRunning;
     private FragmentFreemode fragFreemode;
 
     @Override
@@ -191,6 +199,141 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.Green800Primary)));
             }
         });
+
+        handleIntent();
+    }
+
+    /**
+     *  Intents triggered by Google Assistant
+     */
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent();
+    }
+    /**
+     *  Handling intent triggers ACTION_VIEW
+     */
+
+    public void handleIntent() {
+        Intent intent = getIntent();
+        if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW)) {
+            handleDeepLink(intent.getData());
+        }
+        if (intent.getAction() != null && intent.getAction().equals(SearchIntents.ACTION_SEARCH)){
+            String query = intent.getStringExtra(SearchIntents.EXTRA_QUERY);
+            handleSearchIntent(query);
+
+        }
+
+    }
+
+    public void handleSearchIntent(String query){
+        //doSmth()
+        //currentFragment = fragInfo;
+        //updateFragment();
+
+    }
+    /**
+     * Custom Scheme DeepLink URIs associated with actions
+     */
+    // uri ---> my-scheme://and4bikes/open/{?appFeature}
+
+    public void handleDeepLink(Uri data) {
+        String path = data.getPath();
+        Log.i(TAG, "path");
+        if (path.equals("/open/")){
+            String param = data.getQueryParameter("appFeature");
+            switch (param){
+                case "Settings":
+                    Log.i(TAG, "openSettings");
+                    openSettings();
+                    break;
+                case "Emergency Numbers":
+                    Log.i(TAG, "openRoadAssistance");
+                    openRoadsideAssistance();
+                    break;
+                case "Profile":
+                    Log.i(TAG, "openProfile");
+                    openProfile();
+                    break;
+                case "Tracklist":
+                    Log.i(TAG, "setFlag");
+                    fragTrackList.setShowOwnTracksOnly(false);
+                    openTrackList();
+                    break;
+                case "My track list":
+                    Log.i(TAG, "setMyTrackList");
+                    fragTrackList.setShowOwnTracksOnly(true);
+                    openTrackList();
+                    break;
+
+                case "Community":
+                    Log.i(TAG, "openCommunity");
+                    toggleNavigationDrawer();
+                    break;
+            }
+        }
+        // uri ---> my-scheme://and4bikes/report/{?hazardType}
+
+        else if (path.equals("/report/")){
+            Log.i(TAG, "report");
+            String param = data.getQueryParameter("hazardType");
+            Log.i(TAG, param);
+            switch (param){
+                case "Damaged road":
+                    HazardAlert hazardDR = new HazardAlert(HazardAlert.HazardType.DAMAGED_ROAD, PositionTracker.getLastPosition());
+                    Log.i(TAG, "submitBefore");
+                    CouchWriteBuffer.getInstance().submitHazardAlerts(hazardDR);
+                    Log.i(TAG, "submitAfter");
+                    Log.i(TAG, PositionTracker.getLastPosition().getLatitude() + "myLat");
+                    Log.i(TAG, PositionTracker.getLastPosition().getLongitude() + "myLon");
+                    Log.i(TAG, hazardDR.getFirebaseID() + " fireBaseID");
+                    break;
+                case "Icy road":
+                    HazardAlert hazardIR= new HazardAlert(HazardAlert.HazardType.ICY_ROAD,  PositionTracker.getLastPosition());
+                    CouchWriteBuffer.getInstance().submitHazardAlerts(hazardIR);
+                    break;
+                case "Slippery road":
+                    HazardAlert hazardSR= new HazardAlert(HazardAlert.HazardType.SLIPPERY_ROAD,  PositionTracker.getLastPosition());
+                    CouchWriteBuffer.getInstance().submitHazardAlerts(hazardSR);
+                    break;
+                case "Roadkill":
+                    HazardAlert hazardRK= new HazardAlert(HazardAlert.HazardType.ROADKILL,  PositionTracker.getLastPosition());
+                    CouchWriteBuffer.getInstance().submitHazardAlerts(hazardRK);
+                    break;
+                case "Rockfall":
+                    HazardAlert hazardRF= new HazardAlert(HazardAlert.HazardType.ROCKFALL,  PositionTracker.getLastPosition());
+                    CouchWriteBuffer.getInstance().submitHazardAlerts(hazardRF);
+                    break;
+                case "General":
+                    HazardAlert hazardGR= new HazardAlert(HazardAlert.HazardType.GENERAL,  PositionTracker.getLastPosition());
+                    CouchWriteBuffer.getInstance().submitHazardAlerts(hazardGR);
+                    break;
+                case "Bike rack":
+                    BikeRack bikeRack= new BikeRack(PositionTracker.getLastPosition());
+                    Log.i(TAG, "submitBikeBefore");
+                    CouchWriteBuffer.getInstance().submitBikeRack(bikeRack);
+                    break;
+            }
+            // On Action success
+            notifyActionStatus(Action.Builder.STATUS_TYPE_COMPLETED);
+        }
+        else{
+            // On Action failed
+            notifyActionStatus(Action.Builder.STATUS_TYPE_FAILED);
+        }
+    }
+
+    /**
+     *  Log a success or failure of the received action based on if app could handle the action
+     */
+    public void notifyActionStatus(String status) {
+        String actionToken = getIntent().getStringExtra(ACTION_TOKEN_EXTRA);
+        final Action action = new AssistActionBuilder()
+                .setActionToken(actionToken)
+                .setActionStatus(status)
+                .build();
+        FirebaseUserActions.getInstance().end(action);
         refreshProfile();
     }
 
@@ -503,7 +646,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog submitTrackDialog = new MaterialAlertDialogBuilder(this)
                 //.setTitle("Store your Track!")
                 .setView(dialogView)
-                .setPositiveButton(R.string.submit, null)
+                .setPositiveButton(R.string.submit_track, null)
                 .setNegativeButton(R.string.discard, null)
                 .create();
         submitTrackDialog.setCanceledOnTouchOutside(false);

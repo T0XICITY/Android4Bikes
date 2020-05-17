@@ -47,7 +47,6 @@
     <string name="discard">Discard</string>
     <string name="track_name">Track name</string>
     <string name="error_name">Please enter a name</string>
-    <string name="submit_track">Submit</string>
 
     <!-- Rack Dialog -->
     <string name="rack_name">Rack name</string>
@@ -56,6 +55,7 @@
     <string name="covered">Covered</string>
     <string name="rack_error">Pleas fill in rack name</string>
     <string name="preformattedCapacity">Capacity: %s</string>
+
 
     <!-- Roadside Assistance Strings -->
     <string-array name="roadside_assistance_list">
