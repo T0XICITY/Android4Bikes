@@ -833,9 +833,26 @@ public class FragmentInfoMode extends Fragment implements OnMapReadyCallback, Pe
             } else {
                 Position currLastPos = PositionTracker.getLastPosition();
                 if (currLastPos != null) {
+                    BikeRack.ConstantsCapacity capacity= BikeRack.ConstantsCapacity.SMALL;
+                    if (spCapacity != null){
+                        switch (spCapacity.getSelectedItemPosition()){
+                            case 0:
+                                capacity = BikeRack.ConstantsCapacity.SMALL;
+                                break;
+                            case 1:
+                                capacity = BikeRack.ConstantsCapacity.MEDIUM;
+                                break;
+                            case 2:
+                                capacity = BikeRack.ConstantsCapacity.LARGE;
+                                break;
+                            case 3:
+                                capacity = BikeRack.ConstantsCapacity.GIGANTIC;
+                                break;
+                        }
+                    }
                     BikeRack newRack = new BikeRack(currLastPos,
                             editRack.getText().toString(),
-                            BikeRack.ConstantsCapacity.valueOf(spCapacity.getSelectedItem().toString().toUpperCase()),
+                            capacity,
                             cbEBike.isChecked(),
                             true,
                             cbCovered.isChecked()

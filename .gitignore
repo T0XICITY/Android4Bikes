@@ -83,3 +83,4 @@ lint/tmp/
 .idea/atlassian-ide-plugin.xml
 .idea/misc.xml
 build.gradle
+.idea/jarRepositories.xml
